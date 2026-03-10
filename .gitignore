@@ -1,0 +1,53 @@
+# Matcha / Nyan GUI Framework — .gitignore
+
+# === Legacy archive (read-only reference, not part of new project) ===
+/old/
+
+# === Design resources (frozen assets, managed separately) ===
+/Icons/
+/Resources/
+/specs/
+
+# === Build output ===
+/build/
+/Matcha/build/
+/out/
+/install/
+cmake-build-*/
+
+# === IDE / Editor ===
+/.vs/
+/.vscode/
+/.idea/
+*.user
+*.suo
+*.sln.docstates
+
+# === Qt generated ===
+*_export.h
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+*.qrc.depends
+
+# === C++ build artifacts ===
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.exe
+*.pdb
+*.ilk
+*.exp
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Tooling ===
+/.qodo/
+compile_commands.json

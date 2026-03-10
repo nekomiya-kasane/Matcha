@@ -1,0 +1,47 @@
+{
+    "name": "Dark",
+    "colors": {
+        "Surface":            "#1F1F20",
+        "SurfaceContainer":   "#2A2A2C",
+        "SurfaceElevated":    "#313133",
+        "SurfaceSunken":      "#171718",
+        "Spotlight":          "#3C3C3E",
+
+        "Fill":               "#48484A",
+        "FillHover":          "#3C3C3E",
+        "FillActive":         "#575759",
+        "FillMuted":          "#2A2A2C",
+
+        "BorderSubtle":       "#3C3C3E",
+        "BorderDefault":      "#48484A",
+        "BorderStrong":       "#575759",
+
+        "TextPrimary":        "#E0F7F8FA",
+        "TextSecondary":      "#C0EEEEEF",
+        "TextTertiary":       "#99DCDCDE",
+        "TextDisabled":       "#66A6A6A9",
+
+        "OnAccent":           "#FFFFFF",
+        "OnAccentSecondary":  "#A6FFFFFF",
+        "Focus":              "#3366B2",
+        "Selection":          "#3385FF26",
+        "Link":               "#3385FF",
+        "Scrim":              "#000000B3",
+        "Overlay":            "#00000066",
+        "Shadow":             "#00000033",
+        "Separator":          "#FFFFFF0F"
+    },
+    "colorSeeds": {
+        "Primary": "#3385FF",
+        "Success": "#4DD9A8",
+        "Warning": "#F09249",
+        "Error":   "#E86B6B",
+        "Info":    "#1677FF"
+    },
+    "font": {
+        "family_win": "Segoe UI",
+        "family_mac": "SF Pro Text",
+        "family_linux": "Noto Sans",
+        "family_mono": "Cascadia Code"
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "name": "CustomExtends",
+    "extends": "Dark",
+    "colors": {
+        "Surface": "#FF0000",
+        "TextPrimary": "#FF00FF00"
+    },
+    "font": {
+        "family_win": "Segoe UI",
+        "family_mac": "SF Pro Text",
+        "family_linux": "Noto Sans",
+        "family_mono": "Cascadia Code"
+    }
+}

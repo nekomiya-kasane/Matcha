@@ -1,0 +1,70 @@
+Checks: >
+  bugprone-*,
+  performance-*,
+  readability-*,
+  modernize-*,
+  cppcoreguidelines-*,
+  clang-analyzer-*,
+  hicpp-*,
+  misc-*,
+  google-*,
+  llvm-*,
+  android-*,
+  cert-*,
+  readability-identifier-naming,
+  readability-function-size,
+  readability-magic-numbers,
+  readability-else-after-return,
+  readability-avoid-const-params-in-decls,
+  -modernize-use-trailing-return-type,
+  -readability-implicit-bool-conversion,
+  -readability-identifier-length,
+  -misc-non-private-member-variables-in-classes,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-non-private-member-variables-in-classes
+
+CheckOptions:
+  - key:             readability-identifier-naming.VariableCase
+    value:           camelBack
+  - key:             readability-identifier-naming.FunctionCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.ClassCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.ClassMemberCase
+    value:           camelBack
+  - key:             readability-identifier-naming.ClassMemberPrefix
+    value:           "^_"
+  - key:             readability-identifier-naming.ClassMethodCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.ClassPrefix
+    value:           "^(Nyan|I)?"
+  - key:             readability-identifier-naming.ParameterCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.TypeCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.ConceptCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.EnumConstantCase
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.ScopedEnumConstantCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.StructCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.TemplateParameterCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.TemplateParameterPrefix
+    value:           "^(T)?"
+  - key:             readability-identifier-naming.UnionCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.UnionPrefix
+    value:           "^U"
+  - key:             readability-identifier-naming.GlobalVariablePrefix
+    value:           "^g_"
+  - key:             readability-identifier-naming.GlobalVariableIgnoredRegexp
+    value:           "^s_"
+  - key:             readability-identifier-naming.StaticVariablePrefix
+    value:           "^s_"
+  - key:             readability-identifier-naming.StaticVariableIgnoredRegexp
+    value:           "^g_"
+  - key:             readability-identifier-naming.NamespaceCase
+    value:           lower_case

@@ -1,0 +1,47 @@
+{
+    "name": "HighContrast",
+    "extends": "Light",
+    "colors": {
+        "Surface":            "#FFFFFF",
+        "SurfaceContainer":   "#FFFFFF",
+        "SurfaceElevated":    "#FFFFFF",
+        "SurfaceSunken":      "#F0F0F0",
+        "Spotlight":          "#FFFFFF",
+
+        "Fill":               "#000000",
+        "FillHover":          "#333333",
+        "FillActive":         "#1A1A1A",
+        "FillMuted":          "#CCCCCC",
+
+        "BorderSubtle":       "#808080",
+        "BorderDefault":      "#000000",
+        "BorderStrong":       "#000000",
+
+        "TextPrimary":        "#FF000000",
+        "TextSecondary":      "#E0000000",
+        "TextTertiary":       "#C0000000",
+        "TextDisabled":       "#80000000",
+
+        "OnAccent":           "#FFFFFF",
+        "OnAccentSecondary":  "#C0FFFFFF",
+        "Focus":              "#0000FF",
+        "Selection":          "#0000FF26",
+        "Link":               "#0000FF",
+        "Scrim":              "#000000CC",
+        "Shadow":             "#00000033",
+        "Separator":          "#000000"
+    },
+    "colorSeeds": {
+        "Primary": "#0000FF",
+        "Success": "#008800",
+        "Warning": "#888800",
+        "Error":   "#FF0000",
+        "Info":    "#0066CC"
+    },
+    "font": {
+        "family_win": "Segoe UI",
+        "family_mac": "SF Pro Text",
+        "family_linux": "Noto Sans",
+        "family_mono": "Cascadia Code"
+    }
+}

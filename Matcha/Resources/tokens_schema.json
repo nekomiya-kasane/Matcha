@@ -1,0 +1,112 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://matcha.nyan.dev/tokens_schema.json",
+    "title": "Matcha Palette Schema",
+    "description": "Validates Matcha theme palette JSON files. All ColorToken keys must be present under 'colors'. Font family entries are required under 'font'. Optional: 'colorSeeds' for tonal palette generation, 'colorOverrides' for per-token corrections.",
+    "type": "object",
+    "required": ["name", "colors", "font"],
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Human-readable theme name (e.g. 'Light', 'Dark', 'HighContrast').",
+            "minLength": 1
+        },
+        "extends": {
+            "type": "string",
+            "description": "Base theme to inherit from. All tokens not explicitly set are inherited from the base. Value must be the 'name' of another registered theme."
+        },
+        "colors": {
+            "$ref": "#/$defs/colorsObject"
+        },
+        "colorSeeds": {
+            "$ref": "#/$defs/colorSeedsObject"
+        },
+        "colorOverrides": {
+            "type": "object",
+            "description": "Per-token color corrections applied after colorSeeds generation. Keys must be valid ColorToken names.",
+            "patternProperties": {
+                "^[A-Z][a-zA-Z]+$": { "$ref": "#/$defs/cssColor" }
+            },
+            "additionalProperties": false
+        },
+        "font": {
+            "$ref": "#/$defs/fontObject"
+        }
+    },
+    "$defs": {
+        "cssColor": {
+            "type": "string",
+            "description": "CSS hex color: #RRGGBB or #AARRGGBB.",
+            "pattern": "^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$"
+        },
+        "colorsObject": {
+            "type": "object",
+            "description": "Neutral + special ColorToken entries. Semantic hue tokens (5 hues x 10 steps) are generated from colorSeeds. Keys map to CSS hex colors.",
+            "required": [
+                "Surface", "SurfaceContainer", "SurfaceElevated", "SurfaceSunken", "Spotlight",
+                "Fill", "FillHover", "FillActive", "FillMuted",
+                "BorderSubtle", "BorderDefault", "BorderStrong",
+                "TextPrimary", "TextSecondary", "TextTertiary", "TextDisabled",
+                "OnAccent", "OnAccentSecondary",
+                "Focus", "Selection", "Link", "Scrim", "Overlay", "Shadow", "Separator"
+            ],
+            "properties": {
+                "Surface":            { "$ref": "#/$defs/cssColor" },
+                "SurfaceContainer":   { "$ref": "#/$defs/cssColor" },
+                "SurfaceElevated":    { "$ref": "#/$defs/cssColor" },
+                "SurfaceSunken":      { "$ref": "#/$defs/cssColor" },
+                "Spotlight":          { "$ref": "#/$defs/cssColor" },
+
+                "Fill":       { "$ref": "#/$defs/cssColor" },
+                "FillHover":  { "$ref": "#/$defs/cssColor" },
+                "FillActive": { "$ref": "#/$defs/cssColor" },
+                "FillMuted":  { "$ref": "#/$defs/cssColor" },
+
+                "BorderSubtle":  { "$ref": "#/$defs/cssColor" },
+                "BorderDefault": { "$ref": "#/$defs/cssColor" },
+                "BorderStrong":  { "$ref": "#/$defs/cssColor" },
+
+                "TextPrimary":   { "$ref": "#/$defs/cssColor" },
+                "TextSecondary": { "$ref": "#/$defs/cssColor" },
+                "TextTertiary":  { "$ref": "#/$defs/cssColor" },
+                "TextDisabled":  { "$ref": "#/$defs/cssColor" },
+
+                "OnAccent":          { "$ref": "#/$defs/cssColor" },
+                "OnAccentSecondary": { "$ref": "#/$defs/cssColor" },
+                "Focus":     { "$ref": "#/$defs/cssColor" },
+                "Selection": { "$ref": "#/$defs/cssColor" },
+                "Link":      { "$ref": "#/$defs/cssColor" },
+                "Scrim":     { "$ref": "#/$defs/cssColor" },
+                "Overlay":   { "$ref": "#/$defs/cssColor" },
+                "Shadow":    { "$ref": "#/$defs/cssColor" },
+                "Separator": { "$ref": "#/$defs/cssColor" }
+            },
+            "additionalProperties": false
+        },
+        "colorSeedsObject": {
+            "type": "object",
+            "description": "Seed colors for OKLCH tonal palette generation (Ant Design 10-step model). Keys are hue group prefixes.",
+            "properties": {
+                "Primary": { "$ref": "#/$defs/cssColor" },
+                "Success": { "$ref": "#/$defs/cssColor" },
+                "Warning": { "$ref": "#/$defs/cssColor" },
+                "Error":   { "$ref": "#/$defs/cssColor" },
+                "Info":    { "$ref": "#/$defs/cssColor" }
+            },
+            "additionalProperties": false
+        },
+        "fontObject": {
+            "type": "object",
+            "description": "Platform-specific font family overrides.",
+            "required": ["family_win", "family_mac", "family_linux", "family_mono"],
+            "properties": {
+                "family_win":   { "type": "string", "minLength": 1 },
+                "family_mac":   { "type": "string", "minLength": 1 },
+                "family_linux": { "type": "string", "minLength": 1 },
+                "family_mono":  { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+        }
+    }
+}

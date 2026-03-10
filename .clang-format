@@ -1,0 +1,27 @@
+# General
+BasedOnStyle: Google
+ColumnLimit: 120
+MaxEmptyLinesToKeep: 1
+
+# Single lines
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: None
+
+# Operators
+BreakBeforeBinaryOperators: All
+
+# Braces
+InsertBraces: true
+BreakBeforeBraces: Custom
+BracedInitializerIndentWidth: 2
+BraceWrapping:
+    BeforeElse: true
+AlignAfterOpenBracket: BlockIndent
+IndentPPDirectives: AfterHash
+NamespaceIndentation: All
+
+# Macro blocks
+MacroBlockBegin: "ImplementExtensionBegin|ImplementClassBegin|BOA_Bind_Begin|TIE_Bind_Begin|TIEchain_Bind_Begin"
+MacroBlockEnd: "ImplementExtensionEnd|ImplementClassEnd|BOA_Bind_End|TIE_Bind_End|TIEchain_Bind_End"
+
