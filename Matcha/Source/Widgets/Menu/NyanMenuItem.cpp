@@ -1,5 +1,7 @@
 #include <Matcha/Widgets/Menu/NyanMenuItem.h>
 
+#include <Matcha/Widgets/Core/MnemonicState.h>
+
 #include <QMouseEvent>
 #include <QPainter>
 
@@ -174,10 +176,26 @@ void NyanMenuItem::DrawContent(QPainter& painter, const QRect& rect, bool hovere
         textRect.setRight(shortcutRect.left() - 8);
     }
 
-    // Draw text
+    // Draw text with mnemonic underline support
+    auto parsed = MnemonicState::Parse(_text);
     QFontMetrics fm(painter.font());
-    QString elidedText = fm.elidedText(_text, Qt::ElideRight, textRect.width());
-    painter.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, elidedText);
+    QString elidedDisplay = fm.elidedText(parsed.displayText, Qt::ElideRight, textRect.width());
+
+    // Rebuild raw text with & for the elided portion so DrawMnemonicText can find it
+    bool showUnderline = false;
+    if (auto* ms = GetMnemonicState()) {
+        showUnderline = ms->ShouldShowUnderline();
+    }
+
+    if (showUnderline && parsed.underlineIndex >= 0
+        && elidedDisplay.length() > parsed.underlineIndex) {
+        // Elided text still contains the mnemonic char — draw with underline
+        MnemonicState::DrawMnemonicText(painter, textRect,
+            Qt::AlignVCenter | Qt::AlignLeft, _text, true);
+    } else {
+        // No mnemonic or elided past it — draw plain display text
+        painter.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, elidedDisplay);
+    }
 }
 
 // -- Mouse Events --
