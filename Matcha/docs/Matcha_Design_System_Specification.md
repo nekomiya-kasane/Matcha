@@ -515,6 +515,25 @@
     - [18.8 Screen Reader Announcements](#188-screen-reader-announcements)
     - [18.9 Focus Trap in Modal Dialogs](#189-focus-trap-in-modal-dialogs)
     - [18.10 Live Region Support](#1810-live-region-support)
+    - [18.11 Mnemonic (Access Key) System](#1811-mnemonic-access-key-system)
+      - [18.11.1 Terminology](#18111-terminology)
+      - [18.11.2 Applicable Widget Types](#18112-applicable-widget-types)
+      - [18.11.3 Activation Modes](#18113-activation-modes)
+      - [18.11.4 Underline Visibility](#18114-underline-visibility)
+      - [18.11.5 Menu Bar Mnemonic Behavior](#18115-menu-bar-mnemonic-behavior)
+      - [18.11.6 Menu Item Mnemonic Behavior](#18116-menu-item-mnemonic-behavior)
+      - [18.11.7 Dialog Control Mnemonic Behavior](#18117-dialog-control-mnemonic-behavior)
+      - [18.11.8 Label Buddy Mechanism](#18118-label-buddy-mechanism)
+      - [18.11.9 GroupBox Mnemonic Behavior](#18119-groupbox-mnemonic-behavior)
+      - [18.11.10 ActionBar / Toolbar Mnemonic Behavior](#181110-actionbar--toolbar-mnemonic-behavior)
+      - [18.11.11 CollapsibleSection Mnemonic Behavior](#181111-collapsiblesection-mnemonic-behavior)
+      - [18.11.12 Mnemonic Scope and Conflict Resolution](#181112-mnemonic-scope-and-conflict-resolution)
+      - [18.11.13 Rendering Specification](#181113-rendering-specification)
+      - [18.11.14 Controls Exempt from Mnemonic](#181114-controls-exempt-from-mnemonic)
+      - [18.11.15 Mnemonic Assignment Guidelines](#181115-mnemonic-assignment-guidelines)
+      - [18.11.16 Internationalization Considerations](#181116-internationalization-considerations)
+      - [18.11.17 Screen Reader Integration](#181117-screen-reader-integration)
+      - [18.11.18 Architecture: MnemonicManager](#181118-architecture-mnemonicmanager)
   - [Chapter 19. Internationalization](#chapter-19-internationalization)
     - [19.1 Text Direction (LTR / RTL)](#191-text-direction-ltr--rtl)
     - [19.2 Layout Direction Impact](#192-layout-direction-impact)
@@ -6315,6 +6334,500 @@ Notification toasts use ARIA live region semantics:
 | Error | `assertive` | Interrupt current speech |
 
 Implemented via `QAccessible::updateAccessibility()` with appropriate event types.
+
+### 18.11 Mnemonic (Access Key) System
+
+> Comprehensive specification for keyboard mnemonic (access key) support across
+> all Matcha widget types. Mnemonics provide keyboard-driven navigation to UI
+> controls without requiring Tab traversal, essential for accessibility (WCAG 2.1
+> SC 2.1.1) and power-user efficiency in CAD/CAE applications.
+>
+> **Reference**: Microsoft Win32 UX Guidelines — Keyboard / Access Keys;
+> Qt `QKeySequence::mnemonic()`; wxWidgets Mnemonic Tutorial.
+
+#### 18.11.1 Terminology
+
+| Term | Definition |
+|------|-----------|
+| **Mnemonic** (access key) | A single alphanumeric character in a control's label that, when combined with Alt (or pressed directly in certain contexts), activates or focuses that control. Declared by prefixing the character with `&` in the label string. |
+| **Shortcut key** (accelerator) | A Ctrl/Function-key combination (e.g., `Ctrl+S`) that directly invokes a command. Defined in `CommandHeaderDescriptor::shortcut`. Not covered in this section — see `WorkbenchManager::RegisterShortcuts()`. |
+| **Underline indicator** | A single-character underline decoration rendered beneath the mnemonic character to visually communicate the access key. |
+| **Mnemonic scope** | The set of controls within which mnemonic characters must be unique and within which mnemonic keystrokes are dispatched. |
+| **Buddy** | A non-labelled input control associated with a `LabelNode` via `SetBuddy()`. The label's mnemonic transfers focus to the buddy. |
+| **`&` syntax** | The ampersand character in a label string marks the next character as the mnemonic. Literal ampersand is escaped as `&&`. Example: `"&File"` → mnemonic `F`, displayed as `F̲ile`. |
+
+#### 18.11.2 Applicable Widget Types
+
+Mnemonic support is categorized by **activation behavior** (what happens when the mnemonic is triggered):
+
+| Category | Widget (UiNode / Nyan*) | Activation Behavior | Mnemonic Required? |
+|----------|------------------------|--------------------|--------------------|
+| **Menu bar** | `MenuBarNode` / `NyanMenuBar` | Opens the corresponding menu dropdown | Yes — all top-level menus |
+| **Menu item** | `MenuNode` items / `NyanMenuItem` | Triggers the item (or opens submenu) | Yes — all menu items |
+| **Push button** | `PushButtonNode` / `NyanPushButton` | Clicks the button | Yes — dialog commit/action buttons with non-standard labels |
+| **Check box** | `CheckBoxNode` / `NyanCheckBox` | Toggles checked state | Yes — dialog/form check boxes |
+| **Radio button** | `RadioButtonNode` / `NyanRadioButton` | Selects the radio button | Yes — dialog/form radio buttons |
+| **Toggle switch** | `ToggleSwitchNode` / `NyanToggleSwitch` | Toggles on/off | Yes — when label text is present |
+| **Label (buddy)** | `LabelNode` / `NyanLabel` | Transfers focus to the buddy control | Yes — form labels preceding input controls |
+| **Group box** | `GroupBoxNode` / `NyanGroupBox` | Transfers focus to the first focusable child within the group | Conditional — when individual children lack unique mnemonics |
+| **Collapsible section** | `CollapsibleSectionNode` / `NyanCollapsibleSection` | Toggles expand/collapse | Optional — useful in property panels with many sections |
+| **Tab (ActionBar)** | `ActionTabNode` / ActionBar tab button | Switches to the tab | Optional — tabs are primarily navigated via Ctrl+Tab |
+| **Toolbar button** | `ToolButtonNode` / `NyanToolButton` | Clicks the button | No — toolbar buttons use shortcut keys, not mnemonics |
+| **ComboBox** | `ComboBoxNode` / `NyanComboBox` | Opens the dropdown and focuses | Via buddy label only — combo boxes lack visible mnemonic text |
+| **LineEdit / SpinBox** | `LineEditNode`, `SpinBoxNode`, etc. | Focuses the input | Via buddy label only |
+
+#### 18.11.3 Activation Modes
+
+Mnemonic activation differs by context. Three distinct modes exist:
+
+| Mode | Trigger | Context | Example |
+|------|---------|---------|---------|
+| **Alt+Letter** | User holds Alt and presses the mnemonic character | Main window (no menu/dialog active) | `Alt+F` opens File menu |
+| **Direct Letter** | User presses the mnemonic character alone (no Alt) | Inside an open menu | `S` triggers Save item in an open File menu |
+| **Alt+Letter (dialog)** | User holds Alt and presses the mnemonic character | Inside a modal/modeless dialog | `Alt+A` clicks Apply button in dialog |
+
+**State machine**:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> MenuBarActive : Alt pressed (alone)
+    Idle --> MenuBarMnemonic : Alt+Letter matches menu bar
+    Idle --> DialogMnemonic : Alt+Letter matches dialog control
+
+    MenuBarActive --> Idle : Esc or non-mnemonic key
+    MenuBarActive --> MenuBarMnemonic : Letter matches menu bar item
+
+    MenuBarMnemonic --> MenuOpen : Menu dropdown opens
+    MenuOpen --> MenuItemActivated : Direct letter matches item
+    MenuOpen --> SubmenuOpen : Direct letter matches submenu
+    MenuOpen --> Idle : Esc or item triggered
+
+    SubmenuOpen --> MenuItemActivated : Direct letter matches item
+    SubmenuOpen --> MenuOpen : Esc (close submenu)
+
+    MenuItemActivated --> Idle : Command dispatched
+    DialogMnemonic --> Idle : Control activated/focused
+```
+
+#### 18.11.4 Underline Visibility
+
+Following the Windows platform convention:
+
+| Setting | Underline behavior | When |
+|---------|--------------------|------|
+| **Default** | Underlines are **hidden** until the user presses Alt | Matches `SPI_GETKEYBOARDCUES` = false (Windows default) |
+| **Always visible** | Underlines are **always shown** | User has enabled "Always underline access keys" in OS accessibility settings, or `MnemonicState::SetAlwaysShow(true)` is called |
+| **High Contrast** | Underlines are **always shown** | `kThemeHighContrast` is active |
+
+**`MnemonicState` tracks a global boolean `_altHeld`** that is set to `true` when:
+
+1. The Alt key is pressed (KeyPress event for `Qt::Key_Alt`)
+2. The "Always underline access keys" OS setting is enabled
+3. `MnemonicState::SetAlwaysShow(true)` is called programmatically
+
+It is set to `false` when:
+
+1. The Alt key is released (KeyRelease event for `Qt::Key_Alt`) and `AlwaysShow` is false
+2. A mnemonic is activated (underlines hide after the action completes)
+3. Escape is pressed
+
+All widgets that render mnemonic text must query `MnemonicState::ShouldShowUnderline()` in their `paintEvent()` and repaint when the state changes. `MnemonicState` emits a signal/notification to trigger global repaint.
+
+#### 18.11.5 Menu Bar Mnemonic Behavior
+
+**Applies to**: `NyanMenuBar` / `MenuBarNode`
+
+**Text declaration**: `menuBar->AddMenu("&File")` — the `&` marks `F` as the mnemonic.
+
+**Interaction sequence**:
+
+| Step | User action | System response |
+|------|------------|-----------------|
+| 1 | Presses and releases Alt (alone) | Menu bar enters "active" state. All menu bar button mnemonic underlines become visible. First menu button receives visual highlight (not open). |
+| 2 | Presses mnemonic letter (e.g., `F`) | Corresponding menu opens below its button. Menu bar "active" state transitions to "menu open". |
+| 3 | Alt+Letter (combined) | Equivalent to steps 1+2 atomically — menu opens directly. |
+| 4 | Presses Escape while menu bar is active (no menu open) | Menu bar deactivates. Underlines hide. Focus returns to previous widget. |
+| 5 | Presses non-matching letter while menu bar is active | No action. Key is consumed (not forwarded to application). |
+| 6 | Clicks elsewhere while menu bar is active | Menu bar deactivates. |
+
+**Visual states for menu bar buttons**:
+
+| State | Background | Text color | Underline |
+|-------|-----------|-----------|-----------|
+| Normal | Transparent | `TextPrimary` | Hidden (unless AlwaysShow) |
+| Alt held (no menu open) | Transparent | `TextPrimary` | **Visible** |
+| Hovered | `FillActive` | `TextPrimary` | Follows Alt state |
+| Active (menu open) | `PrimaryBgHover` | `TextPrimary` | **Visible** |
+
+**Left/Right navigation**: When a menu is open, Left/Right arrow keys cycle through adjacent menus. The new menu opens and the old one closes atomically (single-open invariant).
+
+#### 18.11.6 Menu Item Mnemonic Behavior
+
+**Applies to**: `NyanMenuItem` / `NyanMenuCheckItem` inside `NyanMenu`
+
+**Text declaration**: `menu->AddItem("&Save")` — the `&` marks `S` as the mnemonic.
+
+**Critical distinction from menu bar**: Inside an open menu, mnemonics activate on a **direct keypress** (no Alt required). This matches Windows, macOS, and Qt native behavior.
+
+**Interaction sequence**:
+
+| Step | User action | System response |
+|------|------------|-----------------|
+| 1 | Menu is open, user presses mnemonic letter `S` | If exactly one item matches: item is triggered immediately. Menu closes. |
+| 2 | Menu is open, user presses letter matching a submenu | Submenu opens. Focus moves into the submenu. |
+| 3 | Multiple items share the same mnemonic | First press highlights the first match. Second press cycles to the next match. Enter activates the highlighted item. |
+| 4 | No item matches the pressed letter | Key is consumed (no action). |
+
+**Underline visibility in menus**: Mnemonic underlines are **always visible** inside an open menu, regardless of `MnemonicState`. The rationale: once a user has opened a menu, they are already in keyboard navigation mode and need to see all available mnemonics.
+
+**Visual layout** (extending the existing `NyanMenuItem` spec):
+
+```
+┌──────────────────────────────────────────────┐
+│ [icon 16x16]  S̲ave                  Ctrl+S  │
+│ [icon 16x16]  Save &As...           Ctrl+Shift+S │
+│ ──────────────────────────────────────────── │
+│ [icon 16x16]  &Print                Ctrl+P  │
+│ [icon 16x16]  E̲xit                  Alt+F4  │
+└──────────────────────────────────────────────┘
+```
+
+The underline is drawn on the mnemonic character within the text label. The shortcut text (right-aligned) is a separate `QKeySequence` display and has no underline.
+
+**Disabled items**: Mnemonic underlines are still rendered on disabled items (at `TextDisabled` opacity), but pressing the mnemonic key on a disabled item produces no action.
+
+**Separator items**: `NyanMenuSeparator` has no text and no mnemonic.
+
+**Dynamic items** (e.g., recent files): Assign numeric mnemonics `&1`, `&2`, ... `&9`, `&0` for the first 10 items. Items beyond 10 have no mnemonic.
+
+#### 18.11.7 Dialog Control Mnemonic Behavior
+
+**Applies to**: All interactive controls inside `NyanDialog` / `NyanInputDialog` / `NyanPopConfirm`
+
+**Activation**: `Alt+Letter` (same as main window, but scoped to the dialog's focus scope).
+
+**Button mnemonics**:
+
+| Button | Standard mnemonic | Notes |
+|--------|------------------|-------|
+| OK | None | Activated via `Enter` key |
+| Cancel | None | Activated via `Escape` key |
+| Close | None | Activated via `Escape` key |
+| Apply | `&Apply` (`A`) | Must have explicit mnemonic |
+| Yes | `&Yes` (`Y`) | Must have explicit mnemonic |
+| No | `&No` (`N`) | Must have explicit mnemonic |
+| Save | `&Save` (`S`) | Business-specific commit button |
+| Don't Save | `Do&n't Save` (`N`) | Use `n` in "Don't" for consistency with No |
+| Retry | `&Retry` (`R`) | |
+| Custom | First letter of first word | Assigned by application code |
+
+**Form controls in dialogs**: Check boxes (`"&Enable grid snap"`), radio buttons (`"&Absolute coordinates"`), and labels with buddies (`"&Name:"` + LineEdit) all use `Alt+Letter` within the dialog scope.
+
+**Focus behavior on activation**:
+
+| Control type | On mnemonic activation |
+|-------------|----------------------|
+| PushButton | `click()` is invoked |
+| CheckBox | `toggle()` is invoked |
+| RadioButton | `setChecked(true)` is invoked |
+| ToggleSwitch | `toggle()` is invoked |
+| Label (with buddy) | Focus transfers to buddy |
+| GroupBox | Focus transfers to first focusable child |
+| LineEdit / SpinBox / ComboBox | Focus transfers to the control (via buddy label) |
+
+#### 18.11.8 Label Buddy Mechanism
+
+**Applies to**: `LabelNode` / `NyanLabel`
+
+**Purpose**: Labels for input controls (LineEdit, SpinBox, ComboBox, etc.) that do not have their own visible caption need a way to be focused via keyboard. The label acts as a mnemonic proxy.
+
+**API**:
+
+```cpp
+// UiNode layer
+class LabelNode : public WidgetNode {
+    void SetBuddy(WidgetNode* buddy);
+    [[nodiscard]] auto Buddy() const -> WidgetNode*;
+};
+```
+
+**Behavior**:
+
+1. `LabelNode::SetText("&Name:")` extracts mnemonic character `N`
+2. `LabelNode::SetBuddy(lineEditNode)` associates the label with the input
+3. When user presses `Alt+N`, `MnemonicManager` finds the label, then transfers focus to `lineEditNode`
+4. The label's mnemonic underline follows `MnemonicState` visibility rules
+
+**Tab order requirement**: The buddy must be the next focusable control after the label in Tab order. This is a convention (not enforced), consistent with the Windows dialog manager behavior.
+
+**Visual**: The label renders its text using `DrawMnemonicText()`. The underline appears only on the mnemonic character, not on the full label text.
+
+#### 18.11.9 GroupBox Mnemonic Behavior
+
+**Applies to**: `GroupBoxNode` / `NyanGroupBox`
+
+**Text declaration**: `groupBox->SetTitle("&Coordinate System")` — mnemonic `C`.
+
+**Activation**: `Alt+C` transfers focus to the **first focusable child** within the group box's UiNode subtree (determined by `FocusChain::Collect()` within the group).
+
+**When to use**: Assign a mnemonic to a group box only when there is a shortage of unique mnemonic characters for the individual controls within the group. Prefer individual control mnemonics when possible.
+
+#### 18.11.10 ActionBar / Toolbar Mnemonic Behavior
+
+**Applies to**: `ActionTabNode` / `ActionBarNode` tab buttons
+
+ActionBar tabs and toolbar buttons in Matcha's ribbon-like interface follow a different paradigm from traditional dialog mnemonics:
+
+| Element | Mnemonic support | Rationale |
+|---------|-----------------|-----------|
+| ActionBar tab labels | **Optional** | Tabs are primarily switched via Ctrl+Tab/Ctrl+Shift+Tab or mouse. Mnemonic is a secondary access path. |
+| Toolbar buttons (`ToolButtonNode`) | **No** | Toolbar buttons use `CommandHeaderDescriptor::shortcut` (e.g., `Ctrl+S`) rather than mnemonics. They typically display icons without text. |
+| ActionBar as a whole | **Alt+number** convention | Alt+1..Alt+9 can switch to the 1st..9th tab. This is an ordinal access pattern, not a character mnemonic. |
+
+If a tab label declares a mnemonic (e.g., `"&Mesh Operations"`), pressing `Alt+M` while the ActionBar has focus activates that tab. However, this is lower priority than menu bar mnemonics; if `Alt+M` matches a menu bar entry, the menu bar takes precedence.
+
+#### 18.11.11 CollapsibleSection Mnemonic Behavior
+
+**Applies to**: `CollapsibleSectionNode` / `NyanCollapsibleSection`
+
+**Text declaration**: `section->SetTitle("&Advanced Settings")` — mnemonic `A`.
+
+**Activation**: `Alt+A` toggles the section between expanded and collapsed. If the section is being expanded, focus moves to the first focusable child within the section content.
+
+**Use case**: Property panels in CAD applications often contain many collapsible sections. Mnemonics provide direct keyboard access to specific sections without scrolling.
+
+#### 18.11.12 Mnemonic Scope and Conflict Resolution
+
+Mnemonics must be unique within a **scope**. Scopes are hierarchical and mirror the focus scope system (see 18.3.2):
+
+| Scope | Controls included | Conflict domain |
+|-------|------------------|----------------|
+| **Main window** | Menu bar entries only | Menu bar button labels |
+| **Open menu** | All items in the current menu level | Items within one `NyanMenu` |
+| **Dialog** | All interactive controls within the dialog's focus scope | Dialog buttons, check boxes, radio buttons, labels, group boxes |
+| **Side panel / embedded form** | Controls within a `SetFocusScope(true)` subtree | Scoped independently from the main window |
+
+**Conflict resolution rules**:
+
+1. **Same scope, duplicate mnemonic**: First `Alt+Letter` press focuses/highlights the first matching control. Subsequent presses cycle through all matches. `Enter` activates the currently focused match. (This matches Windows `WM_NEXTDLGCTL` behavior.)
+2. **Cross-scope priority**: Menu bar mnemonics always take precedence over main window controls. Dialog mnemonics are isolated to the dialog scope and do not conflict with the parent window.
+3. **Build-time validation**: `A11yAudit` should include a rule `a11y.mnemonic.duplicate` (Warning severity) that reports duplicate mnemonics within the same scope.
+
+**A11yAudit rule addition**:
+
+| Rule ID | Severity | Description |
+|---------|----------|-------------|
+| `a11y.mnemonic.duplicate` | Warning | Two or more controls in the same scope share a mnemonic character |
+| `a11y.mnemonic.missing` | Info | Interactive control with a visible label has no mnemonic assigned |
+
+#### 18.11.13 Rendering Specification
+
+**Mnemonic text parsing** (`MnemonicState::Parse`):
+
+| Input | Display text | Mnemonic char | Underline index |
+|-------|-------------|---------------|-----------------|
+| `"&File"` | `"File"` | `F` | 0 |
+| `"Save &As..."` | `"Save As..."` | `A` | 5 |
+| `"Do&n't Save"` | `"Don't Save"` | `n` | 2 |
+| `"Zoom && Pan"` | `"Zoom & Pan"` | (none) | -1 |
+| `"Exit"` | `"Exit"` | (none) | -1 |
+
+**Underline rendering** (`DrawMnemonicText`):
+
+| Property | Value |
+|----------|-------|
+| Underline color | Same as text color (`TextPrimary`, or `TextDisabled` for disabled controls) |
+| Underline thickness | 1px (1.5px in High Contrast theme) |
+| Underline offset | 1px below the text baseline |
+| Underline width | Exact width of the mnemonic character glyph |
+| Font | Same as the control's label font; the underlined character is not bolded or otherwise styled differently |
+
+**Rendering algorithm**:
+
+```
+1. Parse the raw text to extract displayText, mnemonicChar, underlineIndex
+2. Draw displayText using QPainter::drawText() with the control's font and color
+3. If ShouldShowUnderline() AND underlineIndex >= 0:
+   a. Measure the x-offset of the mnemonic character using QFontMetrics::horizontalAdvance(displayText, 0, underlineIndex)
+   b. Measure the width of the mnemonic character using QFontMetrics::horizontalAdvance(mnemonicChar)
+   c. Calculate y-position = text baseline + 1px
+   d. Draw a line from (x, y) to (x + charWidth, y) using the text color
+```
+
+#### 18.11.14 Controls Exempt from Mnemonic
+
+The following controls should **not** be assigned mnemonics (following Microsoft UX Guidelines):
+
+| Control | Reason | Alternative access |
+|---------|--------|-------------------|
+| OK button | `Enter` key is the universal activator | Enter |
+| Cancel / Close button | `Escape` key is the universal dismissal | Escape |
+| Help button | `F1` is the universal help key | F1 |
+| Link labels | Underline conflicts with hyperlink styling; too many links for unique keys | Tab navigation |
+| Tab names (ActionBar tabs) | Tabs are navigated via Ctrl+Tab | Ctrl+Tab / Ctrl+Shift+Tab |
+| Browse buttons (`"..."`) | Cannot assign unique character | Tab to the button |
+| Unlabeled icon buttons | No visible text to underline | Shortcut key or Tab |
+| Progress bars / separators | Non-interactive | N/A |
+| Spin box / slider (standalone) | No visible label text on the control itself | Via buddy label |
+
+**Exception**: A button labeled with a **non-standard** text that means OK or Cancel (e.g., `"&Save and Continue"`, `"&Discard Changes"`) **must** have an explicit mnemonic because Enter/Escape alone may be ambiguous when multiple commit buttons exist.
+
+#### 18.11.15 Mnemonic Assignment Guidelines
+
+Priority-ordered process for assigning mnemonics in a dialog or form:
+
+1. **Commit buttons first**: Assign standard mnemonics (`&Yes`/`Y`, `&No`/`N`, `&Apply`/`A`, `&Retry`/`R`). Use the standard access key table (see below).
+2. **Most frequently used controls next**: Prefer the first character of the first word.
+3. **Remaining controls**: Prefer early characters, distinctive consonants, or vowels.
+4. **If >20 interactive controls**: Some controls may share mnemonics or go without. Prioritize unique mnemonics for the most-used controls.
+
+**Standard mnemonic assignment table** (subset, per Microsoft Win32 UX Guidelines):
+
+| Mnemonic | Command | Mnemonic | Command |
+|----------|---------|----------|---------|
+| A | Apply, About | N | New, Next, No |
+| B | Back, Bold | O | Open, Options |
+| C | Close, Copy | P | Print, Paste |
+| D | Delete | R | Redo, Retry, Restore |
+| E | Edit | S | Save, Show, Stop |
+| F | File, Find, Font | T | Tools |
+| H | Help, Hide | U | Underline, Undo |
+| I | Insert | V | View |
+| M | More, Move | W | Window |
+| x | Exit | Y | Yes |
+
+**Character selection heuristics**:
+
+- **Prefer**: Wide characters (`W`, `M`, capitals), characters early in the label
+- **Avoid**: Narrow characters (`i`, `l`), characters with descenders (`g`, `j`, `p`, `q`, `y`), characters adjacent to descenders
+
+#### 18.11.16 Internationalization Considerations
+
+| Aspect | Requirement |
+|--------|-------------|
+| **Localized labels** | The `&` marker must be placed in each localized string independently. Translators choose the mnemonic character appropriate for the target language. |
+| **CJK input** | CJK labels typically cannot use character-based mnemonics. For CJK locales, mnemonics fall back to numeric access (`Alt+1`, `Alt+2`, ...) or are disabled entirely. Menu items in CJK use an appended Latin letter: `"ファイル(&F)"`. |
+| **RTL scripts** | Mnemonic underline position follows text direction. In RTL, the underline is visually in the same position relative to the character but the character itself is mirrored in layout. |
+| **Duplicate `&` escape** | `&&` renders a literal `&` without creating a mnemonic. This is required in any label that displays an ampersand (e.g., `"Save && Load"`). |
+
+#### 18.11.17 Screen Reader Integration
+
+| Event | Announcement |
+|-------|-------------|
+| Control focused via mnemonic | Screen reader announces the control's accessible name + role, same as Tab-based focus |
+| Menu opened via mnemonic | `"{menu name}, menu"` — same as mouse-opened menu |
+| Button activated via mnemonic | Same as Enter/Space activation — the action result is announced |
+| Dialog control focused | Same as Tab focus — `"{label}, {role}"` |
+
+Mnemonic characters are communicated to assistive technology via `QAccessibleInterface::text(QAccessible::Accelerator)`, which returns `"Alt+{char}"` for the control's mnemonic. Screen readers announce this when the user queries control properties.
+
+#### 18.11.18 Architecture: MnemonicManager
+
+`MnemonicManager` is the central coordinator for mnemonic dispatch. It is created
+by `Application::Initialize()` and accessed via `GetMnemonicManager()`.
+
+**Core classes**:
+
+```cpp
+// Foundation/MnemonicState.h — global underline visibility state
+class MnemonicState : public QObject {
+    Q_OBJECT
+public:
+    static auto Instance() -> MnemonicState&;
+
+    [[nodiscard]] auto ShouldShowUnderline() const -> bool;
+    void SetAltHeld(bool held);
+    void SetAlwaysShow(bool always);
+
+    struct ParseResult {
+        QString displayText;
+        QChar   mnemonicChar;   // '\0' if none
+        int     underlineIndex; // -1 if none
+    };
+    static auto Parse(const QString& text) -> ParseResult;
+
+    static void DrawMnemonicText(QPainter& painter, const QRect& rect,
+                                  int flags, const QString& rawText,
+                                  bool showUnderline);
+
+Q_SIGNALS:
+    void UnderlineVisibilityChanged(bool visible);
+};
+```
+
+```cpp
+// UiNodes/Core/MnemonicManager.h — dispatch and registration
+enum class MnemonicScope : uint8_t {
+    Global,     // Menu bar mnemonics (Alt+F opens File menu)
+    Menu,       // Open menu items (direct letter press)
+    Dialog,     // Dialog controls (Alt+Letter within dialog scope)
+    Panel,      // Side panel / embedded form with SetFocusScope(true)
+};
+
+class MnemonicManager {
+public:
+    struct Registration {
+        MnemonicScope           scope;
+        QChar                   character;  // Case-insensitive
+        std::function<void()>   handler;
+        std::weak_ptr<void>     aliveToken; // Lifetime guard
+    };
+
+    auto Register(Registration reg) -> ScopedSubscription;
+
+    // Returns true if a matching mnemonic was found and dispatched
+    auto Dispatch(MnemonicScope activeScope, QChar ch) -> bool;
+
+    void PushScope(MnemonicScope scope);
+    void PopScope();
+    [[nodiscard]] auto ActiveScope() const -> MnemonicScope;
+};
+```
+
+**Scope stack behavior**:
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant MM as MnemonicManager
+    participant MB as MenuBar
+    participant M as Menu
+    participant D as Dialog
+
+    Note over MM: scope = Global
+    U->>MM: Alt+F
+    MM->>MB: Dispatch(Global, 'F')
+    MB->>M: Open File menu
+    MM->>MM: PushScope(Menu)
+    Note over MM: scope = Menu
+
+    U->>MM: 'S' (direct)
+    MM->>M: Dispatch(Menu, 'S') → Save triggered
+    MM->>MM: PopScope()
+    Note over MM: scope = Global
+
+    U->>D: Opens dialog
+    MM->>MM: PushScope(Dialog)
+    Note over MM: scope = Dialog
+    U->>MM: Alt+A
+    MM->>D: Dispatch(Dialog, 'A') → Apply clicked
+    U->>D: Closes dialog
+    MM->>MM: PopScope()
+    Note over MM: scope = Global
+```
+
+**Integration with existing systems**:
+
+| System | Integration point |
+|--------|------------------|
+| `NyanMenuBar` | Migrates from internal `eventFilter` mnemonic handling to `MnemonicManager::Register(Global, ...)`. `ExtractMnemonic()` replaced by `MnemonicState::Parse()`. |
+| `NyanMenu` | Registers all item mnemonics in `Menu` scope when opened. Unregisters on close. Direct keypress dispatch (no Alt). |
+| `NyanDialog` | On `show()`, registers all child control mnemonics in `Dialog` scope. On `hide()`, unregisters. |
+| `LabelNode` | If buddy is set and text contains `&`, registers in the enclosing scope. Handler calls `buddy->SetFocus()`. |
+| `WorkbenchManager` | Shortcut keys (`Ctrl+S`) remain separate from mnemonics. No integration needed — the two systems are orthogonal. |
+| `FocusManager` | After mnemonic activation, `NotifyFocusGained()` is called if the mnemonic transferred focus (label buddy, group box). |
+| `A11yAudit` | New rules `a11y.mnemonic.duplicate` and `a11y.mnemonic.missing` are added to the audit walker. |
 
 ---
 
