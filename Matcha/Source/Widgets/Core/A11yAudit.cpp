@@ -1,7 +1,11 @@
 #include "Matcha/Widgets/Core/A11yAudit.h"
 
+#include "Matcha/UiNodes/Core/MnemonicManager.h"
 #include "Matcha/UiNodes/Core/UiNode.h"
 #include "Matcha/UiNodes/Core/WidgetNode.h"
+#include "Matcha/Widgets/Core/MnemonicState.h"
+
+#include <unordered_map>
 
 namespace matcha::gui {
 
@@ -87,13 +91,41 @@ auto A11yAudit::Audit(fw::UiNode* root) -> std::vector<A11yViolation>
         return all;
     }
 
+    // Collect per-widget violations + mnemonic characters for duplicate detection
+    std::unordered_map<char16_t, std::vector<fw::WidgetNode*>> mnemonicMap;
+
     root->TraverseDepthFirst([&](fw::UiNode* node) {
         auto* wn = dynamic_cast<fw::WidgetNode*>(node);
         if (wn != nullptr) {
             auto v = AuditWidget(wn);
             all.insert(all.end(), v.begin(), v.end());
+
+            // Collect mnemonic characters from accessible names
+            auto name = wn->AccessibleName();
+            if (!name.empty()) {
+                auto parsed = gui::MnemonicState::Parse(QString::fromStdString(name));
+                if (!parsed.mnemonicChar.isNull()) {
+                    auto ch = parsed.mnemonicChar.toUpper().unicode();
+                    mnemonicMap[ch].push_back(wn);
+                }
+            }
         }
     });
+
+    // Rule: mnemonic.duplicate — same mnemonic character on multiple widgets
+    for (const auto& [ch, widgets] : mnemonicMap) {
+        if (widgets.size() > 1) {
+            for (auto* wn : widgets) {
+                all.push_back({
+                    wn,
+                    A11ySeverity::Warning,
+                    "mnemonic.duplicate",
+                    "Mnemonic '" + std::string(1, static_cast<char>(ch))
+                        + "' is used by " + std::to_string(widgets.size()) + " widgets"
+                });
+            }
+        }
+    }
 
     return all;
 }

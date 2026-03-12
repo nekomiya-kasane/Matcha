@@ -42,6 +42,10 @@ public:
     void SetRole(gui::LabelRole role);
     [[nodiscard]] auto Role() const -> gui::LabelRole;
 
+    /// @brief Set the buddy widget node for mnemonic activation.
+    /// When the label text contains '&', Alt+key will focus the buddy's widget.
+    void SetBuddy(WidgetNode* buddy);
+
 protected:
     auto CreateWidget(QWidget* parent) -> QWidget* override;
 };

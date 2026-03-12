@@ -30,6 +30,8 @@
 
 #include <QLabel>
 
+#include <cstdint>
+
 namespace matcha::gui {
 
 class InteractionEventFilter;
@@ -96,6 +98,16 @@ public:
     /// @brief Get the current elide mode.
     [[nodiscard]] auto ElideMode() const -> Qt::TextElideMode;
 
+    /// @brief Set the buddy widget for mnemonic activation.
+    /// When the label text contains '&', Alt+key will focus the buddy.
+    void SetBuddy(QWidget* buddy);
+
+    /// @brief Get the buddy widget.
+    [[nodiscard]] auto Buddy() const -> QWidget*;
+
+    /// @brief Override setText to re-parse mnemonic and re-register.
+    void setText(const QString& text);
+
 protected:
     /// @brief Custom paint: role-based font + elide + themed color.
     void paintEvent(QPaintEvent* event) override;
@@ -104,8 +116,13 @@ protected:
     void OnThemeChanged() override;
 
 private:
+    void UpdateMnemonicRegistration();
+    void UnregisterMnemonic();
+
     LabelRole          _role = LabelRole::Body;
     Qt::TextElideMode  _elideMode = Qt::ElideRight;
+    QWidget*           _buddy = nullptr;
+    uint64_t           _mnemonicId = 0;
     InteractionEventFilter* _interactionFilter = nullptr;
 };
 

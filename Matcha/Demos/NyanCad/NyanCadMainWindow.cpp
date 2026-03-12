@@ -56,6 +56,7 @@
 #include "Matcha/UiNodes/Menu/MenuItemNode.h"
 #include "Matcha/UiNodes/Menu/MenuNode.h"
 #include "Matcha/Widgets/Core/IAnimationService.h"
+#include "Matcha/Widgets/Core/MnemonicState.h"
 
 #include "Matcha/UiNodes/Controls/TreeItemNode.h"
 #include "Matcha/UiNodes/Shell/Application.h"
@@ -1275,7 +1276,128 @@ void NyanCadMainWindow::OnOpenDialog()
     }
 
     // =====================================================================
-    // Section 11: Animation Showcase (RFC-08)
+    // Section 11: Mnemonic (Access Key) Showcase
+    //
+    // Demonstrates Alt+key mnemonic activation for labels and sections.
+    // Hold Alt to see underlines on mnemonic characters.
+    // =====================================================================
+    {
+        auto sep = std::make_unique<LineNode>("mnem-sep-top");
+        content->AddNode(std::move(sep));
+
+        auto secTitle = std::make_unique<LabelNode>("lbl-mnem-title");
+        secTitle->SetText("Mnemonic (Access Key) Showcase");
+        secTitle->SetRole(matcha::gui::LabelRole::Title);
+        content->AddNode(std::move(secTitle));
+
+        auto desc = std::make_unique<LabelNode>("lbl-mnem-desc");
+        desc->SetText(
+            "Hold Alt to reveal mnemonic underlines. "
+            "Alt+N focuses Name, Alt+T focuses Thickness, Alt+M focuses Material. "
+            "Menu bar mnemonics (Alt+F/E/V/etc.) also work.");
+        content->AddNode(std::move(desc));
+
+        // --- Always-Show toggle ---
+        auto alwaysRow = std::make_unique<ContainerNode>("mnem-always-row", LayoutKind::Horizontal);
+        alwaysRow->SetSpacing(SpacingToken::Px8);
+
+        auto alwaysLabel = std::make_unique<LabelNode>("lbl-mnem-always");
+        alwaysLabel->SetText("Always Show Underlines:");
+        alwaysRow->AddNode(std::move(alwaysLabel));
+
+        auto alwaysToggle = std::make_unique<ToggleSwitchNode>("tog-mnem-always");
+        alwaysToggle->SetChecked(false);
+        alwaysToggle->Subscribe(alwaysToggle.get(), "Toggled",
+            [](matcha::EventNode&, matcha::Notification& n) {
+                if (auto* e = n.As<Toggled>()) {
+                    if (auto* ms = matcha::gui::GetMnemonicState()) {
+                        ms->SetAlwaysShow(e->IsChecked());
+                    }
+                }
+            });
+        alwaysRow->AddNode(std::move(alwaysToggle));
+        content->AddNode(std::move(alwaysRow));
+
+        // --- Label + Buddy: "&Name" -> LineEdit ---
+        auto nameRow = std::make_unique<ContainerNode>("mnem-name-row", LayoutKind::Horizontal);
+        nameRow->SetSpacing(SpacingToken::Px8);
+
+        auto nameLabel = std::make_unique<LabelNode>("lbl-mnem-name");
+        nameLabel->SetText("&Name:");
+        nameLabel->SetRole(matcha::gui::LabelRole::Name);
+        auto* nameLabelPtr = nameLabel.get();
+        nameRow->AddNode(std::move(nameLabel));
+
+        auto nameEdit = std::make_unique<LineEditNode>("le-mnem-name");
+        nameEdit->SetText("Part_Body_001");
+        auto* nameEditPtr = nameEdit.get();
+        nameRow->AddNode(std::move(nameEdit));
+        content->AddNode(std::move(nameRow));
+
+        // Wire buddy: Alt+N focuses the name LineEdit
+        nameLabelPtr->SetBuddy(nameEditPtr);
+
+        // --- Label + Buddy: "&Thickness" -> LineEdit ---
+        auto thickRow = std::make_unique<ContainerNode>("mnem-thick-row", LayoutKind::Horizontal);
+        thickRow->SetSpacing(SpacingToken::Px8);
+
+        auto thickLabel = std::make_unique<LabelNode>("lbl-mnem-thick");
+        thickLabel->SetText("&Thickness:");
+        thickLabel->SetRole(matcha::gui::LabelRole::Name);
+        auto* thickLabelPtr = thickLabel.get();
+        thickRow->AddNode(std::move(thickLabel));
+
+        auto thickEdit = std::make_unique<LineEditNode>("le-mnem-thick");
+        thickEdit->SetText("1.500");
+        thickEdit->SetPlaceholder("mm");
+        auto* thickEditPtr = thickEdit.get();
+        thickRow->AddNode(std::move(thickEdit));
+        content->AddNode(std::move(thickRow));
+
+        thickLabelPtr->SetBuddy(thickEditPtr);
+
+        // --- Label + Buddy: "&Material" -> ComboBox ---
+        auto matRow = std::make_unique<ContainerNode>("mnem-mat-row", LayoutKind::Horizontal);
+        matRow->SetSpacing(SpacingToken::Px8);
+
+        auto matLabel = std::make_unique<LabelNode>("lbl-mnem-mat");
+        matLabel->SetText("&Material:");
+        matLabel->SetRole(matcha::gui::LabelRole::Name);
+        auto* matLabelPtr = matLabel.get();
+        matRow->AddNode(std::move(matLabel));
+
+        auto matCombo = std::make_unique<ComboBoxNode>("cb-mnem-mat");
+        const std::array<std::string, 4> mats = {"Steel", "Aluminum", "Titanium", "CFRP"};
+        matCombo->AddItems(mats);
+        matCombo->SetCurrentIndex(0);
+        auto* matComboPtr = matCombo.get();
+        matRow->AddNode(std::move(matCombo));
+        content->AddNode(std::move(matRow));
+
+        matLabelPtr->SetBuddy(matComboPtr);
+
+        // --- CollapsibleSection with mnemonic title ---
+        auto collSec = std::make_unique<CollapsibleSectionNode>("coll-mnem-demo");
+        collSec->SetTitle("&Parameters (collapsible with mnemonic)");
+        collSec->SetExpanded(true);
+        content->AddNode(std::move(collSec));
+
+        // --- Diagnostic label ---
+        auto diag = std::make_unique<LabelNode>("lbl-mnem-diag");
+        auto* ms = matcha::gui::GetMnemonicState();
+        std::string info = "[diag] MnemonicState=";
+        info += ms ? "OK" : "NULL";
+        if (ms) {
+            info += " altHeld=" + std::string(ms->IsAltHeld() ? "true" : "false");
+            info += " alwaysShow=" + std::string(ms->IsAlwaysShow() ? "true" : "false");
+        }
+        diag->SetText(info);
+        diag->SetRole(matcha::gui::LabelRole::Caption);
+        content->AddNode(std::move(diag));
+    }
+
+    // =====================================================================
+    // Section 12: Animation Showcase (RFC-08)
     //
     // Structure per case: separator + title + description + target/buttons row + diag label
     // =====================================================================

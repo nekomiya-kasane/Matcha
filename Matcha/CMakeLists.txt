@@ -44,6 +44,9 @@ add_library(Matcha SHARED
     Source/Widgets/Core/ThemeAware.cpp
     Source/Widgets/Core/ThemeServiceGlobal.cpp
     Source/Widgets/Core/AnimationServiceGlobal.cpp
+    Source/Widgets/Core/MnemonicState.cpp
+    Source/Widgets/Core/MnemonicStateGlobal.cpp
+    Include/Matcha/Widgets/Core/MnemonicState.h
     Source/Widgets/Core/NyanTheme.cpp
     Source/Widgets/Core/TonalPaletteGenerator.cpp
     Source/Widgets/Core/SvgIconProvider.cpp
@@ -207,6 +210,9 @@ add_library(Matcha SHARED
     Source/UiNodes/Core/FocusChain.cpp
     Source/UiNodes/Core/FocusManager.cpp
     Include/Matcha/UiNodes/Core/FocusManager.h
+    Source/UiNodes/Core/MnemonicManager.cpp
+    Source/UiNodes/Core/MnemonicManagerGlobal.cpp
+    Include/Matcha/UiNodes/Core/MnemonicManager.h
     Include/Matcha/UiNodes/Core/UiNode.h
     Source/UiNodes/Core/WidgetWrapper.cpp
     Include/Matcha/UiNodes/Core/WidgetWrapper.h
@@ -522,6 +528,8 @@ add_executable(MatchaUnitTests
     Tests/Unit/CApi/CApiSafetyTest.cpp
     Tests/Unit/Query/UiNodeQueryTest.cpp
     Tests/Unit/Workbench/WorkshopRegistryTest.cpp
+    Tests/Unit/Core/MnemonicStateTest.cpp
+    Tests/Unit/Core/MnemonicManagerTest.cpp
 )
 
 target_include_directories(MatchaUnitTests PRIVATE

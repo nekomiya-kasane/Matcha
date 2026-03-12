@@ -1,6 +1,8 @@
 #include "Matcha/UiNodes/Shell/Application.h"
 
 #include "Matcha/UiNodes/Core/FocusManager.h"
+#include "Matcha/UiNodes/Core/MnemonicManager.h"
+#include "Matcha/Widgets/Core/MnemonicState.h"
 #include "Matcha/UiNodes/Core/NotificationQueue.h"
 #include "Matcha/UiNodes/Workbench/WorkbenchManager.h"
 #include "Matcha/UiNodes/Workbench/WorkshopRegistry.h"
@@ -35,6 +37,8 @@ struct Application::Impl {
     std::unique_ptr<FocusManager> focusManager;
     std::unique_ptr<WorkshopRegistry> workshopRegistry;
     std::unique_ptr<WorkbenchManager> workbenchManager;
+    std::unique_ptr<MnemonicManager> mnemonicManager;
+    std::unique_ptr<gui::MnemonicState> mnemonicState;
     bool initialized = false;
     uint32_t nextWindowId = 2;  // 1 is reserved for Main
 };
@@ -113,6 +117,14 @@ void Application::Initialize(int argc, char* argv[])
     _impl->workshopRegistry = std::make_unique<WorkshopRegistry>();
     _impl->workbenchManager = std::make_unique<WorkbenchManager>(
         *_impl->shell, *_impl->workshopRegistry);
+
+    // Create MnemonicManager (UiNode-layer mnemonic dispatch)
+    _impl->mnemonicManager = std::make_unique<MnemonicManager>();
+    SetMnemonicManager(_impl->mnemonicManager.get());
+
+    // Create MnemonicState (Widget-layer mnemonic visibility + rendering)
+    _impl->mnemonicState = std::make_unique<gui::MnemonicState>();
+    gui::SetMnemonicState(_impl->mnemonicState.get());
 
     _impl->initialized = true;
 
@@ -215,6 +227,12 @@ void Application::Shutdown()
 
     // Clear global animation service pointer before destroying the service
     gui::SetAnimationService(nullptr);
+
+    // Clear global mnemonic pointers before destroying
+    gui::SetMnemonicState(nullptr);
+    _impl->mnemonicState.reset();
+    SetMnemonicManager(nullptr);
+    _impl->mnemonicManager.reset();
 
     // Destroy WorkbenchManager before Shell (it references Shell & Registry)
     _impl->workbenchManager.reset();

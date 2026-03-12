@@ -1,5 +1,7 @@
 #include <Matcha/Widgets/Menu/NyanMenuBar.h>
 #include <Matcha/Widgets/Menu/NyanMenu.h>
+#include <Matcha/Widgets/Core/MnemonicState.h>
+#include <Matcha/UiNodes/Core/MnemonicManager.h>
 
 #include <QApplication>
 #include <QHBoxLayout>
@@ -20,12 +22,19 @@ NyanMenuBar::NyanMenuBar(QWidget* parent)
 
     InitLayout();
 
-    // Install event filter on application for Alt-key detection
+    // Install event filter on application for Alt-key detection and hover tracking
     qApp->installEventFilter(this);
+
+    // Repaint when mnemonic underline visibility changes
+    if (auto* ms = GetMnemonicState()) {
+        connect(ms, &MnemonicState::UnderlineVisibilityChanged,
+                this, QOverload<>::of(&QWidget::update));
+    }
 }
 
 NyanMenuBar::~NyanMenuBar()
 {
+    UnregisterMenuMnemonics();
     qApp->removeEventFilter(this);
 }
 
@@ -44,8 +53,8 @@ auto NyanMenuBar::AddMenu(const QString& title) -> NyanMenu*
     MenuEntry entry;
     entry.title = title;
 
-    auto [displayTitle, mnemonic] = ExtractMnemonic(title);
-    entry.mnemonic = mnemonic;
+    auto parsed = MnemonicState::Parse(title);
+    entry.mnemonic = parsed.mnemonicChar.isNull() ? QString() : QString(parsed.mnemonicChar);
 
     entry.menu = new NyanMenu(this);
 
@@ -70,6 +79,9 @@ auto NyanMenuBar::AddMenu(const QString& title) -> NyanMenu*
 
     _menus.append(entry);
 
+    // Re-register all menu mnemonics (indices may shift)
+    RegisterMenuMnemonics();
+
     return entry.menu;
 }
 
@@ -81,6 +93,7 @@ void NyanMenuBar::RemoveMenu(NyanMenu* menu)
             delete _menus[i].button;
             delete _menus[i].menu;
             _menus.removeAt(i);
+            RegisterMenuMnemonics();
             break;
         }
     }
@@ -177,22 +190,24 @@ bool NyanMenuBar::eventFilter(QObject* watched, QEvent* event)
         }
     }
 
+    // Track Alt key state via MnemonicState
     if (event->type() == QEvent::KeyPress) {
         auto* keyEvent = dynamic_cast<QKeyEvent*>(event);
-
-        // Alt key pressed alone
         if (keyEvent->key() == Qt::Key_Alt) {
-            _altPressed = true;
+            if (auto* ms = GetMnemonicState()) {
+                ms->SetAltHeld(true);
+            }
             return false;
         }
 
-        // Alt + letter for mnemonic
-        if (_altPressed && keyEvent->modifiers() == Qt::AltModifier) {
-            QString key = keyEvent->text().toUpper();
-            for (int i = 0; i < _menus.size(); ++i) {
-                if (_menus[i].mnemonic.toUpper() == key) {
-                    OpenMenu(i);
-                    _altPressed = false;
+        // Alt + letter: delegate to MnemonicManager
+        if (keyEvent->modifiers() == Qt::AltModifier && !keyEvent->text().isEmpty()) {
+            if (auto* mgr = fw::GetMnemonicManager()) {
+                auto ch = keyEvent->text().at(0).unicode();
+                if (mgr->Dispatch(ch)) {
+                    if (auto* ms = GetMnemonicState()) {
+                        ms->SetAltHeld(false);
+                    }
                     return true;
                 }
             }
@@ -200,7 +215,9 @@ bool NyanMenuBar::eventFilter(QObject* watched, QEvent* event)
     } else if (event->type() == QEvent::KeyRelease) {
         auto* keyEvent = dynamic_cast<QKeyEvent*>(event);
         if (keyEvent->key() == Qt::Key_Alt) {
-            _altPressed = false;
+            if (auto* ms = GetMnemonicState()) {
+                ms->SetAltHeld(false);
+            }
         }
     }
 
@@ -211,9 +228,9 @@ bool NyanMenuBar::eventFilter(QObject* watched, QEvent* event)
 
 void NyanMenuBar::CreateMenuButton(MenuEntry& entry)
 {
-    auto [displayTitle, mnemonic] = ExtractMnemonic(entry.title);
+    auto parsed = MnemonicState::Parse(entry.title);
 
-    auto* button = new QPushButton(displayTitle, this);
+    auto* button = new QPushButton(parsed.displayText, this);
     button->setFlat(true);
     button->setFocusPolicy(Qt::NoFocus);
     button->setCursor(Qt::PointingHandCursor);
@@ -328,18 +345,36 @@ void NyanMenuBar::NavigateMenu(int delta)
     OpenMenu(newIndex);
 }
 
-auto NyanMenuBar::ExtractMnemonic(const QString& title) -> QPair<QString, QString>
+void NyanMenuBar::RegisterMenuMnemonics()
 {
-    QString displayTitle = title;
-    QString mnemonic;
+    UnregisterMenuMnemonics();
 
-    auto ampIndex = title.indexOf('&');
-    if (ampIndex >= 0 && ampIndex < title.length() - 1) {
-        mnemonic = title.mid(ampIndex + 1, 1);
-        displayTitle = title.left(ampIndex) + title.mid(ampIndex + 1);
+    auto* mgr = fw::GetMnemonicManager();
+    if (mgr == nullptr) { return; }
+
+    for (int i = 0; i < _menus.size(); ++i) {
+        if (_menus[i].mnemonic.isEmpty()) { continue; }
+        char16_t ch = _menus[i].mnemonic.at(0).unicode();
+        int idx = i; // capture by value
+        auto id = mgr->Register({
+            fw::MnemonicScope::Global,
+            ch,
+            [this, idx]() { OpenMenu(idx); },
+            {} // no aliveToken — NyanMenuBar outlives its registrations
+        });
+        _mnemonicIds.push_back(id);
     }
+}
 
-    return {displayTitle, mnemonic};
+void NyanMenuBar::UnregisterMenuMnemonics()
+{
+    auto* mgr = fw::GetMnemonicManager();
+    if (mgr == nullptr) { return; }
+
+    for (auto id : _mnemonicIds) {
+        mgr->Unregister(id);
+    }
+    _mnemonicIds.clear();
 }
 
 void NyanMenuBar::OnThemeChanged()

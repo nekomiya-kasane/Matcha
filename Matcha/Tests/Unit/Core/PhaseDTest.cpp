@@ -295,6 +295,58 @@ TEST_CASE("AuditWidget nullptr returns empty") {
     CHECK(violations.empty());
 }
 
+TEST_CASE("mnemonic.duplicate detected when same mnemonic char on two widgets") {
+    matcha::test::QtAppGuard::Ensure();
+    StubWidget root("root");
+    auto a = std::make_unique<StubWidget>("a");
+    auto b = std::make_unique<StubWidget>("b");
+
+    a->SetA11yRole(A11yRole::Button);
+    a->SetAccessibleName("&File");
+    a->SetFocusable(true);
+    a->SetHelpId("a.help");
+
+    b->SetA11yRole(A11yRole::Button);
+    b->SetAccessibleName("&Format");
+    b->SetFocusable(true);
+    b->SetHelpId("b.help");
+
+    root.AddNode(std::move(a));
+    root.AddNode(std::move(b));
+
+    auto violations = A11yAudit::Audit(&root);
+    int dupCount = 0;
+    for (const auto& v : violations) {
+        if (v.rule == "mnemonic.duplicate") { ++dupCount; }
+    }
+    CHECK(dupCount == 2); // both widgets flagged
+}
+
+TEST_CASE("No mnemonic.duplicate when different mnemonic chars") {
+    matcha::test::QtAppGuard::Ensure();
+    StubWidget root("root");
+    auto a = std::make_unique<StubWidget>("a");
+    auto b = std::make_unique<StubWidget>("b");
+
+    a->SetA11yRole(A11yRole::Button);
+    a->SetAccessibleName("&File");
+    a->SetFocusable(true);
+    a->SetHelpId("a.help");
+
+    b->SetA11yRole(A11yRole::Button);
+    b->SetAccessibleName("&Edit");
+    b->SetFocusable(true);
+    b->SetHelpId("b.help");
+
+    root.AddNode(std::move(a));
+    root.AddNode(std::move(b));
+
+    auto violations = A11yAudit::Audit(&root);
+    for (const auto& v : violations) {
+        CHECK(v.rule != "mnemonic.duplicate");
+    }
+}
+
 } // TEST_SUITE A11yAudit
 
 // ===========================================================================

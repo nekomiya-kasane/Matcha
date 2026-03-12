@@ -9,6 +9,7 @@
 
 #include <Matcha/UiNodes/Core/WidgetNode.h>
 #include <Matcha/Widgets/Core/IAnimationService.h>
+#include <Matcha/Widgets/Core/MnemonicState.h>
 
 #include <QMouseEvent>
 #include <QPainter>
@@ -148,7 +149,11 @@ void NyanCollapsibleSection::paintEvent(QPaintEvent* /*event*/)
 
     p.setFont(style.font);
     p.setPen(style.foreground);
-    p.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, _title);
+
+    auto* ms = GetMnemonicState();
+    bool showUnderline = (ms != nullptr) && ms->ShouldShowUnderline();
+    MnemonicState::DrawMnemonicText(p, textRect, Qt::AlignLeft | Qt::AlignVCenter,
+                                     _title, showUnderline);
 }
 
 void NyanCollapsibleSection::mousePressEvent(QMouseEvent* event)

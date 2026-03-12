@@ -48,6 +48,15 @@ auto LabelNode::Role() const -> gui::LabelRole
     return gui::LabelRole::Body;
 }
 
+void LabelNode::SetBuddy(WidgetNode* buddy)
+{
+    EnsureWidget();
+    if (auto* w = qobject_cast<gui::NyanLabel*>(_widget)) {
+        // buddy->Widget() is public and triggers lazy widget creation
+        w->SetBuddy(buddy != nullptr ? buddy->Widget() : nullptr);
+    }
+}
+
 auto LabelNode::CreateWidget(QWidget* parent) -> QWidget*
 {
     auto* w = new gui::NyanLabel(parent);
