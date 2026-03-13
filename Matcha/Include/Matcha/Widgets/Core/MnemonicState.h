@@ -91,6 +91,25 @@ public:
     [[nodiscard]] auto IsAltHeld() const -> bool;
 
     /**
+     * @brief Enter Alt-tap activated mode (Alt pressed and released alone).
+     *
+     * In this mode, underlines remain visible until Deactivate() is called
+     * (on Esc, mnemonic activation, or click-elsewhere). This matches the
+     * Windows/Office behavior where Alt-tap enters KeyTip/mnemonic mode.
+     */
+    void SetAltActivated(bool activated);
+
+    /**
+     * @brief Query whether Alt-tap activated mode is active.
+     */
+    [[nodiscard]] auto IsAltActivated() const -> bool;
+
+    /**
+     * @brief Exit Alt-tap activated mode. Convenience for SetAltActivated(false).
+     */
+    void Deactivate();
+
+    /**
      * @brief Set always-show mode (e.g., OS accessibility setting or HighContrast).
      *
      * When true, underlines are visible regardless of Alt state.
@@ -102,6 +121,15 @@ public:
      * @brief Query whether always-show mode is active.
      */
     [[nodiscard]] auto IsAlwaysShow() const -> bool;
+
+    /**
+     * @brief Query the OS "Always underline access keys" setting.
+     *
+     * On Windows, reads SPI_GETKEYBOARDCUES via SystemParametersInfo.
+     * On other platforms, returns false.
+     * Call once at startup and pass the result to SetAlwaysShow().
+     */
+    [[nodiscard]] static auto QueryOsKeyboardCues() -> bool;
 
     // -- Rendering helper --
 
@@ -133,8 +161,9 @@ Q_SIGNALS:
     void UnderlineVisibilityChanged(bool visible);
 
 private:
-    bool _altHeld    = false;
-    bool _alwaysShow = false;
+    bool _altHeld      = false;
+    bool _altActivated = false;
+    bool _alwaysShow   = false;
 };
 
 // ============================================================================

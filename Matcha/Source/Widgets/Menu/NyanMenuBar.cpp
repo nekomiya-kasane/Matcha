@@ -190,23 +190,43 @@ bool NyanMenuBar::eventFilter(QObject* watched, QEvent* event)
         }
     }
 
-    // Track Alt key state via MnemonicState
+    // Track Alt / F10 key state via MnemonicState
     if (event->type() == QEvent::KeyPress) {
         auto* keyEvent = dynamic_cast<QKeyEvent*>(event);
-        if (keyEvent->key() == Qt::Key_Alt) {
+        const int key = keyEvent->key();
+
+        if (key == Qt::Key_Alt || key == Qt::Key_F10) {
+            _altPressedAlone = true; // may become false if another key is pressed
             if (auto* ms = GetMnemonicState()) {
                 ms->SetAltHeld(true);
             }
             return false;
         }
 
+        // Escape exits Alt-tap activated mode
+        if (key == Qt::Key_Escape) {
+            if (auto* ms = GetMnemonicState()) {
+                if (ms->IsAltActivated()) {
+                    ms->Deactivate();
+                    return true;
+                }
+            }
+        }
+
+        // Any key pressed while Alt is held -> not a bare Alt tap
+        if (keyEvent->modifiers() & Qt::AltModifier) {
+            _altPressedAlone = false;
+        }
+
         // Alt + letter: delegate to MnemonicManager
-        if (keyEvent->modifiers() == Qt::AltModifier && !keyEvent->text().isEmpty()) {
+        if ((keyEvent->modifiers() == Qt::AltModifier || (GetMnemonicState() && GetMnemonicState()->IsAltActivated()))
+            && !keyEvent->text().isEmpty()) {
             if (auto* mgr = fw::GetMnemonicManager()) {
                 auto ch = keyEvent->text().at(0).unicode();
                 if (mgr->Dispatch(ch)) {
                     if (auto* ms = GetMnemonicState()) {
                         ms->SetAltHeld(false);
+                        ms->Deactivate();
                     }
                     return true;
                 }
@@ -214,10 +234,17 @@ bool NyanMenuBar::eventFilter(QObject* watched, QEvent* event)
         }
     } else if (event->type() == QEvent::KeyRelease) {
         auto* keyEvent = dynamic_cast<QKeyEvent*>(event);
-        if (keyEvent->key() == Qt::Key_Alt) {
+        const int key = keyEvent->key();
+
+        if (key == Qt::Key_Alt || key == Qt::Key_F10) {
             if (auto* ms = GetMnemonicState()) {
                 ms->SetAltHeld(false);
+                // Alt-tap: pressed and released alone -> toggle activated mode
+                if (_altPressedAlone && !keyEvent->isAutoRepeat()) {
+                    ms->SetAltActivated(!ms->IsAltActivated());
+                }
             }
+            _altPressedAlone = false;
         }
     }
 

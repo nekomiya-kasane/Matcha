@@ -126,6 +126,11 @@ void Application::Initialize(int argc, char* argv[])
     _impl->mnemonicState = std::make_unique<gui::MnemonicState>();
     gui::SetMnemonicState(_impl->mnemonicState.get());
 
+    // Respect OS "Always underline access keys" setting (Windows SPI_GETKEYBOARDCUES)
+    if (gui::MnemonicState::QueryOsKeyboardCues()) {
+        _impl->mnemonicState->SetAlwaysShow(true);
+    }
+
     _impl->initialized = true;
 
     // Log viewport backend env var (informational only)

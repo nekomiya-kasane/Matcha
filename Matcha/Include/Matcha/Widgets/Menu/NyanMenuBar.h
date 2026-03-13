@@ -127,6 +127,7 @@ private:
     bool                 _menuOpen       = false;
     std::vector<uint64_t> _mnemonicIds;
     bool                 _switchingMenu  = false;
+    bool                 _altPressedAlone = false; ///< True while Alt is held with no other key pressed.
     QElapsedTimer        _dismissTimer;    ///< Tracks popup auto-dismiss for click-to-toggle.
     int                  _dismissedIndex  = -1; ///< Which menu was just auto-dismissed.
 };

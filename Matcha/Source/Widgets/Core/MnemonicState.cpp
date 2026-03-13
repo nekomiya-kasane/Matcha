@@ -9,6 +9,10 @@
 #include <QPainter>
 #include <QRect>
 
+#ifdef Q_OS_WIN
+#include <Windows.h>
+#endif
+
 namespace matcha::gui {
 
 // ---------------------------------------------------------------------------
@@ -78,7 +82,7 @@ auto MnemonicState::Parse(const QString& rawText) -> MnemonicParseResult
 
 auto MnemonicState::ShouldShowUnderline() const -> bool
 {
-    return _altHeld || _alwaysShow;
+    return _altHeld || _altActivated || _alwaysShow;
 }
 
 void MnemonicState::SetAltHeld(bool held)
@@ -115,6 +119,40 @@ void MnemonicState::SetAlwaysShow(bool always)
 auto MnemonicState::IsAlwaysShow() const -> bool
 {
     return _alwaysShow;
+}
+
+void MnemonicState::SetAltActivated(bool activated)
+{
+    if (_altActivated == activated) {
+        return;
+    }
+    bool wasShouldShow = ShouldShowUnderline();
+    _altActivated = activated;
+    bool nowShouldShow = ShouldShowUnderline();
+    if (wasShouldShow != nowShouldShow) {
+        Q_EMIT UnderlineVisibilityChanged(nowShouldShow);
+    }
+}
+
+auto MnemonicState::IsAltActivated() const -> bool
+{
+    return _altActivated;
+}
+
+void MnemonicState::Deactivate()
+{
+    SetAltActivated(false);
+}
+
+auto MnemonicState::QueryOsKeyboardCues() -> bool
+{
+#ifdef Q_OS_WIN
+    BOOL cues = FALSE;
+    if (SystemParametersInfoW(SPI_GETKEYBOARDCUES, 0, &cues, 0)) {
+        return cues != FALSE;
+    }
+#endif
+    return false;
 }
 
 // ---------------------------------------------------------------------------

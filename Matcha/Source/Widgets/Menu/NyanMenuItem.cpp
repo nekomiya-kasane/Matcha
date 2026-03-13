@@ -176,26 +176,11 @@ void NyanMenuItem::DrawContent(QPainter& painter, const QRect& rect, bool hovere
         textRect.setRight(shortcutRect.left() - 8);
     }
 
-    // Draw text with mnemonic underline support
-    auto parsed = MnemonicState::Parse(_text);
-    QFontMetrics fm(painter.font());
-    QString elidedDisplay = fm.elidedText(parsed.displayText, Qt::ElideRight, textRect.width());
-
-    // Rebuild raw text with & for the elided portion so DrawMnemonicText can find it
-    bool showUnderline = false;
-    if (auto* ms = GetMnemonicState()) {
-        showUnderline = ms->ShouldShowUnderline();
-    }
-
-    if (showUnderline && parsed.underlineIndex >= 0
-        && elidedDisplay.length() > parsed.underlineIndex) {
-        // Elided text still contains the mnemonic char — draw with underline
-        MnemonicState::DrawMnemonicText(painter, textRect,
-            Qt::AlignVCenter | Qt::AlignLeft, _text, true);
-    } else {
-        // No mnemonic or elided past it — draw plain display text
-        painter.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, elidedDisplay);
-    }
+    // Draw text with mnemonic underline support.
+    // Menu items always show mnemonic underlines when the menu is open
+    // (spec §18.11.6 — no dependency on MnemonicState::ShouldShowUnderline).
+    MnemonicState::DrawMnemonicText(painter, textRect,
+        Qt::AlignVCenter | Qt::AlignLeft, _text, /*showUnderline=*/true);
 }
 
 // -- Mouse Events --

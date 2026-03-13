@@ -191,6 +191,73 @@ TEST_CASE("No signal when AlwaysShow masks Alt change") {
     CHECK(signalCount == 0);
 }
 
+TEST_CASE("Alt-tap activated mode makes underline visible") {
+    MnemonicState state;
+    CHECK_FALSE(state.IsAltActivated());
+
+    state.SetAltActivated(true);
+    CHECK(state.IsAltActivated());
+    CHECK(state.ShouldShowUnderline());
+
+    // Alt not held, but activated -> still visible
+    CHECK_FALSE(state.IsAltHeld());
+    CHECK(state.ShouldShowUnderline());
+
+    state.SetAltActivated(false);
+    CHECK_FALSE(state.IsAltActivated());
+    CHECK_FALSE(state.ShouldShowUnderline());
+}
+
+TEST_CASE("Deactivate is shorthand for SetAltActivated(false)") {
+    MnemonicState state;
+    state.SetAltActivated(true);
+    CHECK(state.ShouldShowUnderline());
+
+    state.Deactivate();
+    CHECK_FALSE(state.IsAltActivated());
+    CHECK_FALSE(state.ShouldShowUnderline());
+}
+
+TEST_CASE("AltActivated signal emission") {
+    MnemonicState state;
+    int signalCount = 0;
+    bool lastValue = false;
+    QObject::connect(&state, &MnemonicState::UnderlineVisibilityChanged,
+                     [&](bool visible) { ++signalCount; lastValue = visible; });
+
+    state.SetAltActivated(true);
+    CHECK(signalCount == 1);
+    CHECK(lastValue == true);
+
+    state.SetAltActivated(false);
+    CHECK(signalCount == 2);
+    CHECK(lastValue == false);
+
+    // No signal for same value
+    state.SetAltActivated(false);
+    CHECK(signalCount == 2);
+}
+
+TEST_CASE("AltActivated masked by AlwaysShow") {
+    MnemonicState state;
+    state.SetAlwaysShow(true);
+    int signalCount = 0;
+    QObject::connect(&state, &MnemonicState::UnderlineVisibilityChanged,
+                     [&](bool) { ++signalCount; });
+
+    // Toggling activated while AlwaysShow=true -> no effective change
+    state.SetAltActivated(true);
+    CHECK(signalCount == 0);
+    state.SetAltActivated(false);
+    CHECK(signalCount == 0);
+}
+
+TEST_CASE("QueryOsKeyboardCues returns bool without crash") {
+    // Just verify it doesn't crash; actual value depends on OS setting
+    [[maybe_unused]] bool result = MnemonicState::QueryOsKeyboardCues();
+    CHECK(true);
+}
+
 } // TEST_SUITE
 
 // ============================================================================
