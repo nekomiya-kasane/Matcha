@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .label { fill: #2d2640; font-size: 12px; }
+      .slot { fill: #5b6abf; font-size: 11px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 11px; font-style: italic; }
+    </style>
+  </defs>
+  <!-- Logo button container -->
+  <rect x="10" y="10" width="48" height="48" rx="6" fill="#3b2d5e" opacity="0.15"/>
+  <rect class="border" x="10" y="10" width="48" height="48"/>
+  <!-- Logo icon -->
+  <rect x="18" y="18" width="32" height="32" rx="4" fill="#5b6abf" opacity="0.3"/>
+  <text class="label" x="26" y="39" font-weight="700" font-size="10" fill="#3b2d5e">LOGO</text>
+  <!-- Annotations -->
+  <line x1="62" y1="20" x2="80" y2="20" stroke="#8b5fbf" stroke-width="1"/>
+  <text class="desc" x="84" y="24">40×40 px, fixed in MainTitleBar slot 1</text>
+  <line x1="62" y1="40" x2="80" y2="40" stroke="#8b5fbf" stroke-width="1"/>
+  <text class="desc" x="84" y="44">SVG logo, scaled to fit with padding</text>
+  <text class="slot" x="26" y="72" text-anchor="middle">①</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="76">① Logo image (SVG, 24×24 content area)</text>
+</svg>

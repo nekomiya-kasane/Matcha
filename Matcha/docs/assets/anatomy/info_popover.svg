@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" font-family="Segoe UI, system-ui, sans-serif" font-size="12">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#2d2640" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- Trigger button -->
+  <circle cx="200" cy="24" r="12" fill="#5b6abf" opacity="0.15" stroke="#5b6abf" stroke-width="1.5"/>
+  <text x="200" y="29" text-anchor="middle" fill="#5b6abf" font-weight="700" font-size="14">ⓘ</text>
+  <text x="228" y="29" fill="#8b5fbf" font-size="10">Trigger button</text>
+
+  <!-- Arrow (8px triangle) -->
+  <polygon points="192,48 200,40 208,48" fill="#fffffc" stroke="#d8cfe8" stroke-width="1"/>
+  <text x="220" y="52" fill="#8b5fbf" font-size="10">Arrow 8px</text>
+
+  <!-- Popover card -->
+  <rect x="60" y="48" width="280" height="210" rx="8" fill="#fffffc" stroke="#d8cfe8" stroke-width="1.5" filter="url(#shadow)"/>
+
+  <!-- Close button -->
+  <text x="322" y="72" text-anchor="middle" fill="#5b6abf" font-size="14" cursor="pointer">×</text>
+  <text x="334" y="72" fill="#8b5fbf" font-size="10">Dismiss</text>
+
+  <!-- Title -->
+  <rect x="76" y="62" width="120" height="16" rx="2" fill="#3b2d5e" opacity="0.08"/>
+  <text x="136" y="74" text-anchor="middle" fill="#3b2d5e" font-weight="700" font-size="13">Title (BodyBold)</text>
+
+  <!-- Body text -->
+  <rect x="76" y="90" width="248" height="12" rx="2" fill="#d8cfe8" opacity="0.5"/>
+  <rect x="76" y="108" width="230" height="12" rx="2" fill="#d8cfe8" opacity="0.5"/>
+  <rect x="76" y="126" width="200" height="12" rx="2" fill="#d8cfe8" opacity="0.5"/>
+  <text x="76" y="155" fill="#3b2d5e" opacity="0.6" font-size="11">Body (Body, TextSecondary)</text>
+
+  <!-- Optional illustration area -->
+  <rect x="76" y="168" width="248" height="50" rx="4" fill="#eaf8ff" stroke="#b8e4f9" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="200" y="197" text-anchor="middle" fill="#5b6abf" font-size="11">Optional illustration (200×120)</text>
+
+  <!-- Learn More link -->
+  <text x="76" y="240" fill="#5b6abf" font-size="12" text-decoration="underline">Learn More →</text>
+  <text x="180" y="240" fill="#8b5fbf" font-size="10">(text link, opens docs)</text>
+
+  <!-- Dimension annotations -->
+  <!-- Width annotation -->
+  <line x1="60" y1="268" x2="340" y2="268" stroke="#8b5fbf" stroke-width="0.8" stroke-dasharray="3,2"/>
+  <line x1="60" y1="264" x2="60" y2="272" stroke="#8b5fbf" stroke-width="0.8"/>
+  <line x1="340" y1="264" x2="340" y2="272" stroke="#8b5fbf" stroke-width="0.8"/>
+  <text x="200" y="278" text-anchor="middle" fill="#8b5fbf" font-size="10">Width: 280–360px</text>
+
+  <!-- Z-layer label -->
+  <text x="60" y="16" fill="#8b5fbf" font-size="10">z: LayerToken::Popover (400)</text>
+</svg>

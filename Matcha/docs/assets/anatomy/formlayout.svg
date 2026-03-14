@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 170" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #fffffc; }
+      .field-bg { fill: #eaf8ff; }
+      .label { fill: #2d2640; font-size: 12px; }
+      .slot { fill: #5b6abf; font-size: 11px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 11px; font-style: italic; }
+    </style>
+  </defs>
+  <!-- Horizontal mode -->
+  <text class="label" x="15" y="14" font-weight="700">Horizontal mode</text>
+  <rect class="fill-bg" x="10" y="22" width="250" height="100" rx="6"/>
+  <rect class="border" x="10" y="22" width="250" height="100"/>
+  <!-- labels -->
+  <text class="label" x="88" y="48" text-anchor="end">Label A:</text>
+  <text class="label" x="88" y="74" text-anchor="end">Label B:</text>
+  <text class="label" x="88" y="100" text-anchor="end">Label C:</text>
+  <text class="slot" x="14" y="48">①</text>
+  <!-- fields -->
+  <rect class="field-bg" x="96" y="34" width="152" height="22" rx="4"/>
+  <text class="label" x="104" y="50" font-size="11">LineEdit</text>
+  <rect class="field-bg" x="96" y="60" width="152" height="22" rx="4"/>
+  <text class="label" x="104" y="76" font-size="11">ComboBox  ▼</text>
+  <rect class="field-bg" x="96" y="86" width="152" height="22" rx="4"/>
+  <text class="label" x="104" y="102" font-size="11">SpinBox  ↕</text>
+  <text class="slot" x="104" y="130">②</text>
+  <text class="desc" x="14" y="135">33% width</text>
+  <text class="desc" x="104" y="135">67% width</text>
+  <!-- Vertical mode -->
+  <text class="label" x="295" y="14" font-weight="700">Vertical mode</text>
+  <rect class="fill-bg" x="290" y="22" width="230" height="120" rx="6"/>
+  <rect class="border" x="290" y="22" width="230" height="120"/>
+  <text class="label" x="300" y="42">Label A</text>
+  <rect class="field-bg" x="300" y="48" width="208" height="22" rx="4"/>
+  <text class="label" x="308" y="64" font-size="11">LineEdit</text>
+  <text class="label" x="300" y="88">Label B</text>
+  <rect class="field-bg" x="300" y="94" width="208" height="22" rx="4"/>
+  <text class="label" x="308" y="110" font-size="11">ComboBox  ▼</text>
+  <text class="slot" x="296" y="155">① Label column  ② Field column</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="165">① Label column (right-aligned in Horizontal)  ② Field column (any WidgetNode)</text>
+</svg>

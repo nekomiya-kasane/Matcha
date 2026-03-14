@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 80" width="340" height="80">
+  <!-- Button outer shape -->
+  <rect x="4" y="4" width="332" height="52" rx="6" ry="6" fill="#5b6abf" stroke="#3b2d5e" stroke-width="1.5"/>
+  <!-- Focus ring (2px inset, dashed) -->
+  <rect x="7" y="7" width="326" height="46" rx="4" ry="4" fill="none" stroke="#b8e4f9" stroke-width="2" stroke-dasharray="4 2" opacity="0.7"/>
+  <!-- paddingH left zone -->
+  <rect x="10" y="10" width="24" height="40" rx="2" ry="2" fill="#8b5fbf" opacity="0.25"/>
+  <text x="22" y="34" font-family="sans-serif" font-size="8" fill="#8b5fbf" text-anchor="middle">padH</text>
+  <!-- Icon slot -->
+  <rect x="38" y="17" width="26" height="26" rx="3" ry="3" fill="#9bf6ff" opacity="0.5"/>
+  <text x="51" y="34" font-family="sans-serif" font-size="9" fill="#2d2640" text-anchor="middle">Icon</text>
+  <!-- Gap zone -->
+  <rect x="68" y="17" width="14" height="26" rx="1" ry="1" fill="#caffbf" opacity="0.35"/>
+  <text x="75" y="34" font-family="sans-serif" font-size="7" fill="#2d2640" text-anchor="middle">gap</text>
+  <!-- Label text slot -->
+  <rect x="86" y="14" width="190" height="32" rx="3" ry="3" fill="#fdffb6" opacity="0.45"/>
+  <text x="181" y="35" font-family="sans-serif" font-size="13" fill="#2d2640" text-anchor="middle" font-weight="500">Button Label</text>
+  <!-- paddingH right zone -->
+  <rect x="280" y="10" width="24" height="40" rx="2" ry="2" fill="#8b5fbf" opacity="0.25"/>
+  <text x="292" y="34" font-family="sans-serif" font-size="8" fill="#8b5fbf" text-anchor="middle">padH</text>
+  <!-- Slot legend -->
+  <rect x="10" y="63" width="10" height="10" rx="1" fill="#9bf6ff" opacity="0.7"/>
+  <text x="24" y="72" font-family="sans-serif" font-size="8" fill="#2d2640">Icon (opt)</text>
+  <rect x="80" y="63" width="10" height="10" rx="1" fill="#caffbf" opacity="0.6"/>
+  <text x="94" y="72" font-family="sans-serif" font-size="8" fill="#2d2640">Gap</text>
+  <rect x="126" y="63" width="10" height="10" rx="1" fill="#fdffb6" opacity="0.7"/>
+  <text x="140" y="72" font-family="sans-serif" font-size="8" fill="#2d2640">Label (req)</text>
+  <rect x="200" y="63" width="10" height="10" rx="1" fill="#8b5fbf" opacity="0.4"/>
+  <text x="214" y="72" font-family="sans-serif" font-size="8" fill="#2d2640">Padding</text>
+  <rect x="262" y="63" width="10" height="10" rx="1" fill="none" stroke="#b8e4f9" stroke-width="1.5" stroke-dasharray="2 1"/>
+  <text x="276" y="72" font-family="sans-serif" font-size="8" fill="#2d2640">Focus ring</text>
+</svg>

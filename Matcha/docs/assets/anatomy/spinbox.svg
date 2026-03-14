@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="320" height="80">
+  <!-- SpinBox outer border -->
+  <rect x="4" y="4" width="312" height="48" rx="4" ry="4" fill="#fffffc" stroke="#3b2d5e" stroke-width="1.2"/>
+  <!-- padH left -->
+  <rect x="8" y="8" width="14" height="40" rx="2" fill="#8b5fbf" opacity="0.2"/>
+  <text x="15" y="32" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">pad</text>
+  <!-- Numeric text + suffix slot -->
+  <rect x="26" y="10" width="200" height="36" rx="3" fill="#fdffb6" opacity="0.4"/>
+  <text x="126" y="33" font-family="sans-serif" font-size="13" fill="#2d2640" text-anchor="middle">42  mm</text>
+  <!-- Up arrow button -->
+  <rect x="232" y="5" width="40" height="23" rx="3" fill="#9bf6ff" opacity="0.45" stroke="#3b2d5e" stroke-width="0.5"/>
+  <text x="252" y="20" font-family="sans-serif" font-size="12" fill="#2d2640" text-anchor="middle">▲</text>
+  <!-- Down arrow button -->
+  <rect x="232" y="28" width="40" height="23" rx="3" fill="#caffbf" opacity="0.45" stroke="#3b2d5e" stroke-width="0.5"/>
+  <text x="252" y="44" font-family="sans-serif" font-size="12" fill="#2d2640" text-anchor="middle">▼</text>
+  <!-- padH right -->
+  <rect x="278" y="8" width="14" height="40" rx="2" fill="#8b5fbf" opacity="0.2"/>
+  <text x="285" y="32" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">pad</text>
+  <!-- Legend -->
+  <rect x="4" y="62" width="10" height="10" rx="1" fill="#fdffb6" opacity="0.7"/>
+  <text x="18" y="71" font-family="sans-serif" font-size="8" fill="#2d2640">Text + suffix</text>
+  <rect x="95" y="62" width="10" height="10" rx="1" fill="#9bf6ff" opacity="0.7"/>
+  <text x="109" y="71" font-family="sans-serif" font-size="8" fill="#2d2640">Up btn</text>
+  <rect x="152" y="62" width="10" height="10" rx="1" fill="#caffbf" opacity="0.7"/>
+  <text x="166" y="71" font-family="sans-serif" font-size="8" fill="#2d2640">Down btn</text>
+  <rect x="220" y="62" width="10" height="10" rx="1" fill="#8b5fbf" opacity="0.4"/>
+  <text x="234" y="71" font-family="sans-serif" font-size="8" fill="#2d2640">Padding</text>
+</svg>

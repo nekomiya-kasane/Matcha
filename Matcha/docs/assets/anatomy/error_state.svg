@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #fffffc; }
+      .label { fill: #2d2640; font-size: 11px; }
+      .desc { fill: #8b5fbf; font-size: 10px; font-style: italic; }
+      .btn-primary { fill: #5b6abf; }
+      .btn-ghost { fill: none; stroke: #5b6abf; stroke-width: 1; }
+      .btn-text-light { fill: #fffffc; font-size: 10px; }
+      .btn-text-dark { fill: #5b6abf; font-size: 10px; }
+    </style>
+  </defs>
+  <!-- Container -->
+  <rect class="fill-bg" x="10" y="10" width="260" height="160" rx="6"/>
+  <rect class="border" x="10" y="10" width="260" height="160"/>
+  <!-- Error icon (48px) -->
+  <circle cx="140" cy="40" r="18" fill="#ffadad" opacity="0.3"/>
+  <text x="140" y="46" text-anchor="middle" font-size="18" fill="#ffadad">⚠</text>
+  <text class="desc" x="270" y="42">Error icon, 48px, Error6</text>
+  <!-- Title -->
+  <text class="label" x="140" y="76" text-anchor="middle" font-weight="700" font-size="12">Something went wrong</text>
+  <text class="desc" x="270" y="76">BodyBold</text>
+  <!-- Description -->
+  <text x="140" y="94" text-anchor="middle" font-size="10" fill="#8b5fbf">Technical detail, TextSecondary</text>
+  <text class="desc" x="270" y="94">Body, TextSecondary</text>
+  <!-- Buttons -->
+  <rect class="btn-primary" x="90" y="112" width="48" height="22" rx="4"/>
+  <text class="btn-text-light" x="114" y="126" text-anchor="middle">Retry</text>
+  <rect class="btn-ghost" x="146" y="112" width="48" height="22" rx="4"/>
+  <text class="btn-text-dark" x="170" y="126" text-anchor="middle">Report</text>
+  <text class="desc" x="270" y="126">Primary + Ghost</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="192">Template: "[What happened]. [What you can do]." | Centered in region</text>
+</svg>

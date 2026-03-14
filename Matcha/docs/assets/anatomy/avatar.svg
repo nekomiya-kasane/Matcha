@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; }
+      .label { fill: #2d2640; font-size: 12px; }
+      .slot { fill: #5b6abf; font-size: 11px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 11px; font-style: italic; }
+    </style>
+  </defs>
+  <!-- Initials mode -->
+  <text class="label" x="40" y="16" font-weight="700" text-anchor="middle">Initials mode</text>
+  <circle cx="40" cy="58" r="32" fill="#5b6abf" opacity="0.15" stroke="#5b6abf" stroke-width="1.5"/>
+  <circle cx="40" cy="58" r="20" fill="#5b6abf" opacity="0.25"/>
+  <text class="label" x="40" y="63" text-anchor="middle" font-weight="700" font-size="14" fill="#3b2d5e">JD</text>
+  <text class="desc" x="40" y="105" text-anchor="middle">(PrimaryBg)</text>
+  <text class="slot" x="40" y="120" text-anchor="middle">① Container  ② Initials</text>
+  <!-- Image mode -->
+  <text class="label" x="200" y="16" font-weight="700" text-anchor="middle">Image mode</text>
+  <circle cx="200" cy="58" r="32" fill="#b8e4f9" opacity="0.3" stroke="#5b6abf" stroke-width="1.5"/>
+  <circle cx="200" cy="58" r="20" fill="#9bf6ff" opacity="0.4"/>
+  <text class="label" x="200" y="63" text-anchor="middle" font-size="18">🖼</text>
+  <text class="desc" x="200" y="105" text-anchor="middle">(image fill)</text>
+  <text class="slot" x="200" y="120" text-anchor="middle">① Container  ② Image  ③ Border</text>
+  <!-- Icon mode -->
+  <text class="label" x="370" y="16" font-weight="700" text-anchor="middle">Icon mode</text>
+  <circle cx="370" cy="58" r="32" fill="#d8cfe8" opacity="0.3" stroke="#5b6abf" stroke-width="1.5"/>
+  <circle cx="370" cy="58" r="20" fill="#d8cfe8" opacity="0.5"/>
+  <text class="label" x="370" y="63" text-anchor="middle" font-size="18">👤</text>
+  <text class="desc" x="370" y="105" text-anchor="middle">(FillMuted)</text>
+  <text class="slot" x="370" y="120" text-anchor="middle">① Container  ② Icon</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="138">① Circular container (clipping mask)  ② Content (Initials/Image/Icon)  ③ Border ring (Image only)</text>
+</svg>

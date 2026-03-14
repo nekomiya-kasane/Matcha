@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 70" width="360" height="70">
+  <!-- Track background (unfilled) -->
+  <rect x="20" y="24" width="320" height="6" rx="3" fill="#d8cfe8" opacity="0.6"/>
+  <!-- Filled portion (left of thumb) -->
+  <rect x="20" y="24" width="160" height="6" rx="3" fill="#5b6abf"/>
+  <!-- Thumb -->
+  <circle cx="180" cy="27" r="9" fill="#fffffc" stroke="#3b2d5e" stroke-width="1.5"/>
+  <!-- Labels -->
+  <text x="90" y="18" font-family="sans-serif" font-size="8" fill="#5b6abf" text-anchor="middle">filled (Primary)</text>
+  <text x="280" y="18" font-family="sans-serif" font-size="8" fill="#8b5fbf" text-anchor="middle">unfilled (FillMuted)</text>
+  <text x="180" y="8" font-family="sans-serif" font-size="8" fill="#3b2d5e" text-anchor="middle">thumb (16px circle)</text>
+  <!-- Legend -->
+  <rect x="20" y="50" width="10" height="10" rx="1" fill="#5b6abf" opacity="0.8"/>
+  <text x="34" y="59" font-family="sans-serif" font-size="8" fill="#2d2640">Filled track</text>
+  <rect x="105" y="50" width="10" height="10" rx="1" fill="#d8cfe8" opacity="0.7"/>
+  <text x="119" y="59" font-family="sans-serif" font-size="8" fill="#2d2640">Unfilled track</text>
+  <circle cx="215" cy="55" r="5" fill="#fffffc" stroke="#3b2d5e" stroke-width="1"/>
+  <text x="224" y="59" font-family="sans-serif" font-size="8" fill="#2d2640">Thumb</text>
+</svg>

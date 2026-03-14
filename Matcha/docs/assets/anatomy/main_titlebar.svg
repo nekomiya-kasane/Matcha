@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 100" font-family="Segoe UI, sans-serif">
+  <style>
+    .bg-sunken { fill: #2d2640; }
+    .bg-primary { fill: #3b2d5e; }
+    .slot { fill: #5b6abf; opacity: 0.7; rx: 4; }
+    .slot-flex { fill: #8b5fbf; opacity: 0.3; rx: 4; }
+    .label { fill: #d8cfe8; font-size: 11px; text-anchor: middle; }
+    .dim { fill: #d8cfe8; font-size: 10px; fill-opacity: 0.6; text-anchor: middle; }
+    .row-label { fill: #fffffc; font-size: 10px; font-weight: 600; }
+  </style>
+  <!-- Row 1: SurfaceSunken, 40px -->
+  <rect width="720" height="44" class="bg-sunken"/>
+  <text x="8" y="14" class="row-label">Row 1 — SurfaceSunken, h=40</text>
+  <!-- Logo 40x40 -->
+  <rect x="4" y="18" width="24" height="24" class="slot"/>
+  <text x="16" y="50" class="dim">Logo</text>
+  <!-- MenuBar -->
+  <rect x="32" y="18" width="140" height="24" class="slot"/>
+  <text x="102" y="34" class="label">MenuBar</text>
+  <!-- Drag area (flex) -->
+  <rect x="178" y="18" width="340" height="24" class="slot-flex"/>
+  <text x="348" y="34" class="label">drag area (flex)</text>
+  <!-- QuickCmd -->
+  <rect x="524" y="18" width="70" height="24" class="slot"/>
+  <text x="559" y="34" class="label">QuickCmd</text>
+  <!-- Custom Btns -->
+  <rect x="600" y="18" width="50" height="24" class="slot"/>
+  <text x="625" y="34" class="label">Btns</text>
+  <!-- Window controls -->
+  <rect x="656" y="18" width="18" height="24" rx="2" fill="#5b6abf" opacity="0.5"/>
+  <text x="665" y="34" class="label">─</text>
+  <rect x="676" y="18" width="18" height="24" rx="2" fill="#5b6abf" opacity="0.5"/>
+  <text x="685" y="34" class="label">□</text>
+  <rect x="696" y="18" width="18" height="24" rx="2" fill="#ffadad" opacity="0.6"/>
+  <text x="705" y="34" class="label">×</text>
+  <!-- Row 2: PrimaryBg, 32px -->
+  <rect y="48" width="720" height="36" class="bg-primary"/>
+  <text x="8" y="60" class="row-label">Row 2 — PrimaryBg, h=32</text>
+  <!-- DocumentBar tabs -->
+  <rect x="4" y="66" width="60" height="16" rx="3" fill="#5b6abf" opacity="0.5"/>
+  <text x="34" y="78" class="label">Tab A</text>
+  <rect x="68" y="66" width="60" height="16" rx="3" fill="#8b5fbf" opacity="0.8"/>
+  <text x="98" y="78" class="label" font-weight="700">Tab B*</text>
+  <rect x="132" y="66" width="60" height="16" rx="3" fill="#5b6abf" opacity="0.5"/>
+  <text x="162" y="78" class="label">Tab C</text>
+  <rect x="196" y="66" width="20" height="16" rx="3" fill="#5b6abf" opacity="0.3"/>
+  <text x="206" y="78" class="label">+</text>
+  <text x="280" y="78" class="dim">DocumentBar</text>
+  <!-- Dimension annotations -->
+  <line x1="722" y1="0" x2="722" y2="44" stroke="#e8a840" stroke-width="0.5"/>
+  <text x="716" y="8" fill="#e8a840" font-size="9" text-anchor="end">40px</text>
+  <line x1="722" y1="48" x2="722" y2="84" stroke="#e8a840" stroke-width="0.5"/>
+  <text x="716" y="56" fill="#e8a840" font-size="9" text-anchor="end">32px</text>
+</svg>

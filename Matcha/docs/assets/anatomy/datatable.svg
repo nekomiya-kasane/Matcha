@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 200" width="480" height="200">
+  <!-- Outer frame -->
+  <rect x="4" y="4" width="460" height="155" rx="4" fill="none" stroke="#3b2d5e" stroke-width="1.2" stroke-dasharray="4,2"/>
+  <text x="10" y="14" font-family="sans-serif" font-size="7" fill="#3b2d5e" font-style="italic">DataTable</text>
+  <!-- Frozen Headers -->
+  <rect x="10" y="18" width="100" height="20" rx="2" fill="#fff0d6" opacity="0.5"/>
+  <text x="12" y="28" font-family="sans-serif" font-size="7" fill="#8b5fbf" font-style="italic">Frozen Headers</text>
+  <line x1="60" y1="18" x2="60" y2="38" stroke="#d8cfe8" stroke-width="0.5"/>
+  <text x="30" y="36" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">Col A</text>
+  <text x="80" y="36" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">Col B</text>
+  <!-- Scrollable Headers -->
+  <rect x="114" y="18" width="344" height="20" rx="2" fill="#fdffb6" opacity="0.35"/>
+  <text x="116" y="28" font-family="sans-serif" font-size="7" fill="#8b5fbf" font-style="italic">Scrollable Headers</text>
+  <line x1="228" y1="18" x2="228" y2="38" stroke="#d8cfe8" stroke-width="0.5"/>
+  <line x1="342" y1="18" x2="342" y2="38" stroke="#d8cfe8" stroke-width="0.5"/>
+  <text x="170" y="36" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">Col C</text>
+  <text x="280" y="36" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">Col D ▼</text>
+  <text x="400" y="36" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">Col E</text>
+  <!-- Frozen Cells -->
+  <rect x="10" y="40" width="100" height="54" rx="2" fill="#eaf8ff" opacity="0.2"/>
+  <line x1="60" y1="40" x2="60" y2="94" stroke="#d8cfe8" stroke-width="0.4"/>
+  <text x="30" y="54" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <text x="80" y="54" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <text x="30" y="70" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <text x="80" y="70" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <text x="30" y="86" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <text x="80" y="86" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <!-- Scrollable Cells -->
+  <rect x="114" y="40" width="344" height="54" rx="2" fill="#fffffc" stroke="#d8cfe8" stroke-width="0.4"/>
+  <line x1="228" y1="40" x2="228" y2="94" stroke="#d8cfe8" stroke-width="0.4"/>
+  <line x1="342" y1="40" x2="342" y2="94" stroke="#d8cfe8" stroke-width="0.4"/>
+  <text x="170" y="54" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <text x="280" y="54" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <text x="400" y="54" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <text x="170" y="70" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <text x="280" y="70" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <!-- Inline editor -->
+  <rect x="356" y="62" width="86" height="14" rx="2" fill="#caffbf" opacity="0.4" stroke="#5b6abf" stroke-width="0.8"/>
+  <text x="399" y="72" font-family="sans-serif" font-size="7" fill="#5b6abf" text-anchor="middle">[edit]</text>
+  <text x="170" y="86" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <text x="280" y="86" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <text x="400" y="86" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">val</text>
+  <!-- Row lines -->
+  <line x1="10" y1="58" x2="458" y2="58" stroke="#d8cfe8" stroke-width="0.3"/>
+  <line x1="10" y1="76" x2="458" y2="76" stroke="#d8cfe8" stroke-width="0.3"/>
+  <!-- Vertical scrollbar -->
+  <rect x="444" y="40" width="6" height="54" rx="3" fill="#d8cfe8" opacity="0.5"/>
+  <rect x="444" y="42" width="6" height="18" rx="3" fill="#8b5fbf" opacity="0.4"/>
+  <!-- Horizontal scrollbar -->
+  <rect x="114" y="98" width="326" height="6" rx="3" fill="#d8cfe8" opacity="0.5"/>
+  <rect x="114" y="98" width="100" height="6" rx="3" fill="#8b5fbf" opacity="0.4"/>
+  <!-- Empty state -->
+  <rect x="10" y="108" width="448" height="22" rx="2" fill="#fdffb6" opacity="0.15" stroke="#d8cfe8" stroke-width="0.5" stroke-dasharray="3,2"/>
+  <text x="234" y="122" font-family="sans-serif" font-size="8" fill="#8b5fbf" text-anchor="middle" font-style="italic">Empty State: "Click to add data" / "No matching rows"</text>
+  <!-- Annotation arrow for inline editor -->
+  <text x="448" y="72" font-family="sans-serif" font-size="7" fill="#8b5fbf">← inline editor</text>
+  <!-- Legend -->
+  <rect x="10" y="170" width="10" height="10" rx="1" fill="#fff0d6" opacity="0.6"/>
+  <text x="24" y="179" font-family="sans-serif" font-size="8" fill="#2d2640">Frozen header</text>
+  <rect x="105" y="170" width="10" height="10" rx="1" fill="#fdffb6" opacity="0.5"/>
+  <text x="119" y="179" font-family="sans-serif" font-size="8" fill="#2d2640">Scrollable header</text>
+  <rect x="215" y="170" width="10" height="10" rx="1" fill="#eaf8ff" opacity="0.4"/>
+  <text x="229" y="179" font-family="sans-serif" font-size="8" fill="#2d2640">Frozen cells</text>
+  <rect x="300" y="170" width="10" height="10" rx="1" fill="#caffbf" opacity="0.5"/>
+  <text x="314" y="179" font-family="sans-serif" font-size="8" fill="#2d2640">Inline editor</text>
+  <rect x="390" y="170" width="10" height="10" rx="1" fill="#8b5fbf" opacity="0.4"/>
+  <text x="404" y="179" font-family="sans-serif" font-size="8" fill="#2d2640">Scrollbar</text>
+</svg>

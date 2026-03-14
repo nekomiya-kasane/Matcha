@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" font-family="Segoe UI, sans-serif">
+  <style>
+    .chrome { fill: #2d2640; stroke: #5b6abf; stroke-width: 1; rx: 6; }
+    .titlebar { fill: #3b2d5e; }
+    .sidebar { fill: #2d2640; stroke: #5b6abf; stroke-width: 0.5; rx: 4; }
+    .content { fill: #1a1528; stroke: #5b6abf; stroke-width: 0.5; rx: 4; }
+    .pathbar { fill: #3b2d5e; rx: 3; }
+    .input { fill: #1a1528; stroke: #5b6abf; stroke-width: 0.5; rx: 3; }
+    .btn-primary { fill: #5b6abf; rx: 4; }
+    .btn-ghost { fill: none; stroke: #5b6abf; stroke-width: 1; rx: 4; }
+    .text-primary { fill: #fffffc; font-size: 12px; }
+    .text-secondary { fill: #d8cfe8; font-size: 11px; }
+    .text-dim { fill: #d8cfe8; font-size: 10px; fill-opacity: 0.6; }
+    .label { fill: #fffffc; font-size: 11px; font-weight: 600; }
+    .row-hover { fill: #5b6abf; opacity: 0.15; }
+    .sep { stroke: #5b6abf; stroke-width: 0.5; stroke-opacity: 0.3; }
+  </style>
+  <!-- Dialog Chrome -->
+  <rect width="560" height="360" class="chrome"/>
+  <!-- Title bar -->
+  <rect x="1" y="1" width="558" height="32" rx="6" class="titlebar"/>
+  <text x="16" y="22" class="label">Open File</text>
+  <text x="536" y="22" fill="#ffadad" font-size="14" text-anchor="middle">×</text>
+  <!-- Sidebar -->
+  <rect x="8" y="40" width="120" height="250" class="sidebar"/>
+  <text x="20" y="60" class="text-secondary">⭐ Favorites</text>
+  <text x="20" y="80" class="text-secondary">🏠 Home</text>
+  <text x="20" y="100" class="text-secondary">📁 Recent</text>
+  <text x="20" y="120" class="text-secondary">💻 This PC</text>
+  <!-- Path bar -->
+  <rect x="136" y="40" width="416" height="24" class="pathbar"/>
+  <text x="146" y="56" class="text-dim">C: / Users / Project / Assets</text>
+  <!-- File list header -->
+  <rect x="136" y="68" width="416" height="20" fill="#3b2d5e" opacity="0.5" rx="2"/>
+  <text x="146" y="82" class="text-dim" font-weight="600">Name</text>
+  <text x="370" y="82" class="text-dim" font-weight="600">Size</text>
+  <text x="460" y="82" class="text-dim" font-weight="600">Date</text>
+  <!-- File list rows -->
+  <text x="146" y="104" class="text-secondary">📁 textures</text>
+  <text x="370" y="104" class="text-dim">—</text>
+  <text x="460" y="104" class="text-dim">2025-01-10</text>
+  <rect x="136" y="110" width="416" height="20" class="row-hover"/>
+  <text x="146" y="124" class="text-primary">📄 model.obj</text>
+  <text x="370" y="124" class="text-dim">12 MB</text>
+  <text x="460" y="124" class="text-dim">2025-01-09</text>
+  <text x="146" y="144" class="text-secondary">📄 scene.gltf</text>
+  <text x="370" y="144" class="text-dim">3 MB</text>
+  <text x="460" y="144" class="text-dim">2025-01-08</text>
+  <!-- File name input -->
+  <text x="16" y="308" class="text-dim">File name:</text>
+  <rect x="90" y="296" width="340" height="24" class="input"/>
+  <text x="100" y="312" class="text-primary">model.obj</text>
+  <!-- File type combo -->
+  <text x="16" y="336" class="text-dim">File type:</text>
+  <rect x="90" y="324" width="340" height="24" class="input"/>
+  <text x="100" y="340" class="text-secondary">All Supported (*.obj;*.gltf)</text>
+  <text x="418" y="340" class="text-dim">▼</text>
+  <!-- Buttons -->
+  <rect x="450" y="324" width="46" height="24" class="btn-ghost"/>
+  <text x="473" y="340" class="text-secondary" text-anchor="middle">Cancel</text>
+  <rect x="502" y="324" width="46" height="24" class="btn-primary"/>
+  <text x="525" y="340" class="label" text-anchor="middle">Open</text>
+</svg>

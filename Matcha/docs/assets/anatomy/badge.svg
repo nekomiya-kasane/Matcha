@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 160" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #eaf8ff; opacity: 0.3; }
+      .label { fill: #2d2640; font-size: 12px; }
+      .slot { fill: #5b6abf; font-size: 11px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 11px; font-style: italic; }
+    </style>
+  </defs>
+  <!-- Dot mode -->
+  <text class="label" x="20" y="16" font-weight="700">Dot mode</text>
+  <rect class="fill-bg" x="20" y="24" width="160" height="80" rx="6"/>
+  <rect class="border" x="20" y="24" width="160" height="80"/>
+  <text class="label" x="70" y="70" text-anchor="middle" fill="#8b5fbf">parent content</text>
+  <!-- dot badge -->
+  <circle cx="168" cy="32" r="5" fill="#ffadad"/>
+  <text class="slot" x="182" y="36">① Dot (8px)</text>
+  <text class="desc" x="182" y="50">top-right anchor</text>
+  <!-- Count mode -->
+  <text class="label" x="240" y="16" font-weight="700">Count mode</text>
+  <rect class="fill-bg" x="240" y="24" width="160" height="80" rx="6"/>
+  <rect class="border" x="240" y="24" width="160" height="80"/>
+  <text class="label" x="290" y="70" text-anchor="middle" fill="#8b5fbf">parent content</text>
+  <!-- count badge -->
+  <rect x="368" y="24" width="32" height="18" rx="9" fill="#ffadad"/>
+  <text x="384" y="37" text-anchor="middle" font-size="11" fill="#2d2640" font-weight="700">42</text>
+  <text class="slot" x="240" y="118">① Badge indicator (dot or count pill)</text>
+  <text class="slot" x="240" y="132">② Contrast ring (1px Surface border)</text>
+  <!-- contrast ring illustration -->
+  <circle cx="168" cy="32" r="7" fill="none" stroke="#fffffc" stroke-width="1.5"/>
+  <rect x="366" y="22" width="36" height="22" rx="11" fill="none" stroke="#fffffc" stroke-width="1.5"/>
+  <!-- Legend -->
+  <text class="desc" x="20" y="155">① Badge indicator  ② Contrast ring (1px Surface border around badge)</text>
+</svg>

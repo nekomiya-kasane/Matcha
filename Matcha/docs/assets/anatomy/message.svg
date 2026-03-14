@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60" width="400" height="60">
+  <!-- Banner frame -->
+  <rect x="30" y="4" width="340" height="28" rx="4" fill="#fffffc" stroke="#3b2d5e" stroke-width="1"/>
+  <text x="36" y="14" font-family="sans-serif" font-size="7" fill="#3b2d5e" font-style="italic">Message Banner (centered, floating)</text>
+  <!-- Icon -->
+  <circle cx="50" cy="22" r="6" fill="#5b6abf" opacity="0.25"/>
+  <text x="50" y="25" font-family="sans-serif" font-size="8" fill="#5b6abf" text-anchor="middle">i</text>
+  <!-- Message text -->
+  <text x="64" y="24" font-family="sans-serif" font-size="9" fill="#2d2640">Message text content here</text>
+  <!-- Close button -->
+  <rect x="340" y="12" width="14" height="14" rx="7" fill="#d8cfe8" opacity="0.2"/>
+  <text x="347" y="22" font-family="sans-serif" font-size="9" fill="#3b2d5e" text-anchor="middle">×</text>
+  <!-- Legend -->
+  <circle cx="14" cy="48" r="4" fill="#5b6abf" opacity="0.25"/>
+  <text x="22" y="51" font-family="sans-serif" font-size="7" fill="#2d2640">Semantic icon</text>
+  <rect x="110" y="44" width="40" height="8" rx="1" fill="#fffffc" stroke="#d8cfe8" stroke-width="0.4"/>
+  <text x="154" y="51" font-family="sans-serif" font-size="7" fill="#2d2640">Message text</text>
+  <rect x="220" y="44" width="8" height="8" rx="4" fill="#d8cfe8" opacity="0.2"/>
+  <text x="232" y="51" font-family="sans-serif" font-size="7" fill="#2d2640">Close btn (Ghost)</text>
+</svg>

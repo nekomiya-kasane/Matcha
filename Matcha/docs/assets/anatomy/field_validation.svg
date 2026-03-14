@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .label { fill: #2d2640; font-size: 11px; }
+      .desc { fill: #8b5fbf; font-size: 10px; font-style: italic; }
+      .error-border { fill: #fffffc; stroke: #ffadad; stroke-width: 2; rx: 4; }
+      .error-text { fill: #ffadad; font-size: 10px; }
+    </style>
+  </defs>
+  <!-- LineEdit with error border -->
+  <rect class="error-border" x="10" y="10" width="240" height="32" rx="4"/>
+  <text class="label" x="18" y="30" font-size="10">Invalid input text...</text>
+  <text class="desc" x="260" y="30">Border: Error token, 2px</text>
+  <!-- Error message below -->
+  <text class="error-text" x="10" y="60" font-size="10">⚠ This field is required</text>
+  <text class="desc" x="260" y="60">Caption font, Error6, Px4 top margin</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="90">Border transition: Normal (200ms) OutCubic | On submit: first invalid field → focus + scroll-to-visible</text>
+</svg>

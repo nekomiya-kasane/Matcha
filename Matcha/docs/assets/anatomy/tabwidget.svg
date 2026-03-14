@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" width="400" height="160">
+  <!-- Outer frame -->
+  <rect x="4" y="4" width="380" height="115" rx="4" fill="none" stroke="#3b2d5e" stroke-width="1.2" stroke-dasharray="4,2"/>
+  <text x="10" y="14" font-family="sans-serif" font-size="7" fill="#3b2d5e" font-style="italic">TabWidget</text>
+  <!-- TabBar -->
+  <rect x="10" y="18" width="368" height="28" rx="2" fill="#fff0d6" opacity="0.3"/>
+  <text x="14" y="28" font-family="sans-serif" font-size="7" fill="#8b5fbf" font-style="italic">TabBar</text>
+  <!-- Tab items -->
+  <rect x="14" y="30" width="50" height="14" rx="2" fill="#d8cfe8" opacity="0.5"/>
+  <text x="39" y="40" font-family="sans-serif" font-size="9" fill="#2d2640" text-anchor="middle">Tab A</text>
+  <rect x="68" y="30" width="50" height="14" rx="2" fill="#d8cfe8" opacity="0.5"/>
+  <text x="93" y="40" font-family="sans-serif" font-size="9" fill="#2d2640" text-anchor="middle">Tab B</text>
+  <rect x="122" y="30" width="54" height="14" rx="2" fill="#5b6abf" opacity="0.25"/>
+  <text x="149" y="40" font-family="sans-serif" font-size="9" fill="#2d2640" text-anchor="middle" font-weight="bold">Tab C*</text>
+  <!-- Accent bar under active tab -->
+  <rect x="122" y="44" width="54" height="2" rx="1" fill="#5b6abf"/>
+  <line x1="14" y1="46" x2="378" y2="46" stroke="#d8cfe8" stroke-width="0.5"/>
+  <!-- TabContent area -->
+  <rect x="10" y="50" width="368" height="62" rx="2" fill="#eaf8ff" opacity="0.35" stroke="#5b6abf" stroke-width="0.6" stroke-dasharray="3,2"/>
+  <text x="14" y="60" font-family="sans-serif" font-size="7" fill="#8b5fbf" font-style="italic">TabContent</text>
+  <text x="194" y="86" font-family="sans-serif" font-size="10" fill="#2d2640" text-anchor="middle">(page content for active tab)</text>
+  <!-- Legend -->
+  <rect x="10" y="132" width="10" height="10" rx="1" fill="#d8cfe8" opacity="0.6"/>
+  <text x="24" y="141" font-family="sans-serif" font-size="8" fill="#2d2640">Inactive tab</text>
+  <rect x="100" y="132" width="10" height="10" rx="1" fill="#5b6abf" opacity="0.35"/>
+  <text x="114" y="141" font-family="sans-serif" font-size="8" fill="#2d2640">Active tab</text>
+  <rect x="185" y="132" width="16" height="3" rx="1" fill="#5b6abf"/>
+  <text x="205" y="141" font-family="sans-serif" font-size="8" fill="#2d2640">Accent bar</text>
+  <rect x="270" y="132" width="10" height="10" rx="1" fill="#eaf8ff" stroke="#5b6abf" stroke-width="0.5"/>
+  <text x="284" y="141" font-family="sans-serif" font-size="8" fill="#2d2640">Content area</text>
+</svg>

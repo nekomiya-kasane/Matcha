@@ -7,8 +7,61 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $mdPath    = Join-Path $scriptDir "Matcha_Design_System_Specification.md"
 $outPath   = Join-Path $scriptDir "Matcha_Design_System_Specification.html"
 
-# Read and base64-encode the markdown
-$mdBytes  = [System.IO.File]::ReadAllBytes($mdPath)
+# ---------------------------------------------------------------------------
+# Inline playground iframes: replace <iframe src="playground/..." data-playground="slug">
+# with <iframe srcdoc="..."> containing self-contained HTML (tokens + base + component)
+# ---------------------------------------------------------------------------
+$mdText = [System.IO.File]::ReadAllText($mdPath, [System.Text.Encoding]::UTF8)
+
+$playgroundDir = Join-Path $scriptDir "playground"
+$tokensCssPath = Join-Path $playgroundDir "tokens.css"
+$baseCssPath   = Join-Path $playgroundDir "base.css"
+
+$tokensCss = if (Test-Path $tokensCssPath) { [System.IO.File]::ReadAllText($tokensCssPath, [System.Text.Encoding]::UTF8) } else { "" }
+$baseCss   = if (Test-Path $baseCssPath)   { [System.IO.File]::ReadAllText($baseCssPath, [System.Text.Encoding]::UTF8) } else { "" }
+
+# Collect LiveCodes playground data: slug -> {html, css}
+$pattern = '<div\s+class="livecodes"\s+data-playground="([^"]*)"[^>]*>'
+$matches_ = [regex]::Matches($mdText, $pattern)
+Write-Host "Found $($matches_.Count) LiveCodes playground(s)."
+
+$playgroundData = @{}  # slug -> @{html=...; css=...}
+
+foreach ($m in $matches_) {
+    $slug = $m.Groups[1].Value
+    $componentFile = "$slug.html"
+    $componentPath = Join-Path $playgroundDir "components" $componentFile
+
+    if (Test-Path $componentPath) {
+        $componentHtml = [System.IO.File]::ReadAllText($componentPath, [System.Text.Encoding]::UTF8)
+    } else {
+        $componentHtml = "<p>Component not found: $componentFile</p>"
+    }
+
+    # Extract <style> from component file
+    $compStyle = ""
+    $compBody  = $componentHtml
+    if ($componentHtml -match '(?s)<style[^>]*>(.*?)</style>') {
+        $compStyle = $Matches[1]
+        $compBody  = $componentHtml -replace '(?s)<style[^>]*>.*?</style>', ''
+    }
+
+    # CSS = tokens + base + component style
+    $fullCss = $tokensCss + "`n`n" + $baseCss + "`n`n" + $compStyle
+    # HTML = component body wrapped with data-theme root
+    $fullHtml = '<div data-theme="light" data-density="default">' + "`n" + $compBody.Trim() + "`n</div>"
+
+    $playgroundData[$slug] = @{
+        html = $fullHtml
+        css  = $fullCss
+    }
+    Write-Host "  Prepared: $slug — HTML $($fullHtml.Length) chars, CSS $($fullCss.Length) chars"
+}
+
+Write-Host "LiveCodes playgrounds prepared."
+
+# Base64-encode the processed markdown
+$mdBytes  = [System.Text.Encoding]::UTF8.GetBytes($mdText)
 $mdBase64 = [Convert]::ToBase64String($mdBytes)
 
 # Build HTML in parts to avoid here-string interpolation issues
@@ -77,10 +130,28 @@ body {
   font-size: 14px; margin-bottom: 10px; color: var(--heading);
   padding-bottom: 6px; border-bottom: 2px solid var(--accent-periwinkle);
 }
-#sidebar ul { list-style: none; padding-left: 0; }
-#sidebar li { margin: 2px 0; }
-#sidebar li.toc-h2 { padding-left: 0; font-weight: 600; margin-top: 6px; }
+#sidebar ul { list-style: none; padding-left: 0; margin: 0; }
+#sidebar li { margin: 1px 0; }
+#sidebar li.toc-h1 { padding-left: 0; font-weight: 700; margin-top: 10px; font-size: 1.0em; color: var(--heading); }
+#sidebar li.toc-h2 { padding-left: 0; font-weight: 600; margin-top: 4px; }
 #sidebar li.toc-h3 { padding-left: 14px; }
+#sidebar li.toc-h4 { padding-left: 28px; font-size: 0.92em; color: #666; }
+#sidebar .toc-toggle {
+  cursor: pointer; user-select: none; display: flex; align-items: center; gap: 4px;
+  padding: 3px 6px; border-radius: 4px; transition: background 0.15s;
+}
+#sidebar .toc-toggle:hover { background: var(--accent-mauve); }
+#sidebar .toc-toggle::before {
+  content: '\25B6'; font-size: 8px; color: #999; transition: transform 0.2s; display: inline-block; width: 12px; flex-shrink: 0;
+}
+#sidebar .toc-toggle.expanded::before { transform: rotate(90deg); }
+#sidebar .toc-children { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+#sidebar .toc-children.open { max-height: 9999px; }
+#sidebar .toc-leaf a, #sidebar .toc-children a {
+  color: var(--fg); text-decoration: none; display: block;
+  padding: 2px 6px 2px 18px; border-radius: 4px; transition: background 0.15s, color 0.15s;
+}
+#sidebar .toc-leaf a:hover, #sidebar .toc-children a:hover { background: rgba(139,95,191,0.15); color: var(--heading); }
 #sidebar a {
   color: var(--fg); text-decoration: none; display: block;
   padding: 3px 6px; border-radius: 4px; transition: background 0.2s, color 0.2s;
@@ -147,6 +218,22 @@ hr {
   background: linear-gradient(90deg, var(--accent-blush), var(--accent-lemon), var(--accent-green), var(--accent-cyan), var(--accent-periwinkle), var(--accent-mauve));
 }
 img { max-width: 100%; height: auto; }
+/* === Inline TOC in content === */
+#inline-toc { margin: 1.2em 0 2em; padding: 24px 32px; background: linear-gradient(135deg, #f8f4ff 0%, #eaf8ff 50%, #f0fff0 100%); border: 1px solid var(--border); border-radius: 10px; }
+#inline-toc > .toc-title { font-size: 1.1em; font-weight: 700; color: var(--heading); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--accent-periwinkle); }
+#inline-toc ul { list-style: none; padding-left: 0; margin: 0; }
+#inline-toc li { margin: 1px 0; line-height: 1.5; }
+#inline-toc li.itoc-h1 { font-weight: 700; font-size: 1.0em; margin-top: 14px; padding-left: 0; color: var(--heading); }
+#inline-toc li.itoc-h1:first-child { margin-top: 0; }
+#inline-toc li.itoc-h2 { font-weight: 600; font-size: 0.95em; padding-left: 16px; margin-top: 4px; }
+#inline-toc li.itoc-h3 { font-weight: 400; font-size: 0.88em; padding-left: 32px; color: #555; }
+#inline-toc li.itoc-h4 { font-weight: 400; font-size: 0.84em; padding-left: 48px; color: #777; }
+#inline-toc a { color: var(--fg); text-decoration: none; transition: color 0.15s; }
+#inline-toc a:hover { color: var(--link-hover); text-decoration: underline; }
+iframe[data-playground] {
+  width: 100%; border: 1px solid var(--border); border-radius: 8px;
+  background: #fff; margin: 1em 0;
+}
 /* === Print: color-friendly, no sidebar === */
 @media print {
   #sidebar { display: none; }
@@ -260,25 +347,233 @@ renderMathInElement(document.getElementById('content'), {
   trust: true
 });
 
-// Build sidebar TOC
-const tocList = document.getElementById('toc-list');
-document.querySelectorAll('#content h2, #content h3').forEach(function(h) {
+// ---- Assign IDs to all headings ----
+document.querySelectorAll('#content h1, #content h2, #content h3, #content h4, #content h5').forEach(function(h) {
   if (!h.id) {
     h.id = h.textContent.trim().toLowerCase()
       .replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
   }
-  const li = document.createElement('li');
-  li.className = 'toc-' + h.tagName.toLowerCase();
-  const a = document.createElement('a');
-  a.href = '#' + h.id;
-  a.textContent = h.textContent;
-  li.appendChild(a);
-  tocList.appendChild(li);
 });
+
+// ---- Widget spec 12-section headings to exclude from TOC ----
+var widgetSpecHeadings = new Set([
+  'Synopsis', 'Anatomy', 'Usage Guidelines',
+  'Theme-Customizable Properties', 'Variant x State Token Mapping',
+  'Notification Catalog', 'UiNode Public API', 'Animation',
+  'Mathematical Model', 'Accessibility'
+]);
+function isWidgetSpecHeading(text) {
+  var t = text.replace(/\s*\u{1F195}$/u, '').trim();  // strip trailing 🆕
+  return widgetSpecHeadings.has(t);
+}
+
+// ---- Build collapsible sidebar TOC ----
+(function buildSidebarTOC() {
+  var tocList = document.getElementById('toc-list');
+  var headings = Array.from(document.querySelectorAll('#content h1, #content h2, #content h3'));
+  // Filter out widget spec sub-headings and TOC heading itself
+  headings = headings.filter(function(h) {
+    if (h.textContent.trim() === 'Table of Contents') return false;
+    if (isWidgetSpecHeading(h.textContent)) return false;
+    return true;
+  });
+
+  var i = 0;
+  while (i < headings.length) {
+    var h = headings[i];
+    var tag = h.tagName;  // H1, H2, H3
+    var li = document.createElement('li');
+    li.className = 'toc-' + tag.toLowerCase();
+
+    // Collect children: for H1, children are following H2s (and their H3s).
+    // For H2, children are following H3s. H3 has no children in sidebar.
+    var childLevel = (tag === 'H1') ? 'H2' : (tag === 'H2') ? 'H3' : null;
+    var children = [];
+    if (childLevel) {
+      var j = i + 1;
+      while (j < headings.length) {
+        var ct = headings[j].tagName;
+        // Stop at same or higher level
+        if (ct === tag || (tag === 'H2' && ct === 'H1') || (tag === 'H1' && false)) break;
+        if (ct === childLevel) children.push(headings[j]);
+        // For H1 parent, also collect H3 as grandchildren (they'll be nested under H2)
+        if (tag === 'H1' && ct === 'H3') { /* skip, will be handled by H2 parent */ }
+        j++;
+      }
+    }
+
+    if (children.length > 0 && (tag === 'H1' || tag === 'H2')) {
+      // Collapsible node
+      var toggle = document.createElement('div');
+      toggle.className = 'toc-toggle';
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.addEventListener('click', function(e) { e.stopPropagation(); });
+      toggle.appendChild(a);
+      li.appendChild(toggle);
+
+      var childUl = document.createElement('ul');
+      childUl.className = 'toc-children';
+      // Default: H1 nodes expanded, H2 nodes collapsed
+      if (tag === 'H1') {
+        toggle.classList.add('expanded');
+        childUl.classList.add('open');
+      }
+      toggle.addEventListener('click', function(ul, tgl) {
+        return function() { ul.classList.toggle('open'); tgl.classList.toggle('expanded'); };
+      }(childUl, toggle));
+
+      // We only add direct children here; H3 under H2 is handled when H2 is processed
+      // So for H2 parent, just add H3 children as flat list
+      if (tag === 'H2') {
+        children.forEach(function(ch) {
+          var cli = document.createElement('li');
+          cli.className = 'toc-h3';
+          var ca = document.createElement('a');
+          ca.href = '#' + ch.id;
+          ca.textContent = ch.textContent;
+          cli.appendChild(ca);
+          childUl.appendChild(cli);
+        });
+      }
+      li.appendChild(childUl);
+    } else {
+      // Leaf node
+      li.classList.add('toc-leaf');
+      var a2 = document.createElement('a');
+      a2.href = '#' + h.id;
+      a2.textContent = h.textContent;
+      li.appendChild(a2);
+    }
+
+    // Append to correct parent
+    if (tag === 'H3') {
+      // H3 is handled as child of H2, skip standalone append
+      i++; continue;
+    }
+    if (tag === 'H2') {
+      // Find the last H1 li's childUl to append to, or append to root
+      var lastH1Ul = tocList.querySelector(':scope > li.toc-h1:last-child > .toc-children');
+      if (lastH1Ul) {
+        lastH1Ul.appendChild(li);
+      } else {
+        tocList.appendChild(li);
+      }
+    } else {
+      tocList.appendChild(li);
+    }
+    i++;
+  }
+})();
+
+// ---- Build inline TOC (replaces "Table of Contents" placeholder) ----
+(function buildInlineTOC() {
+  var tocHeading = null;
+  document.querySelectorAll('#content h2').forEach(function(h) {
+    if (h.textContent.trim() === 'Table of Contents') tocHeading = h;
+  });
+  if (!tocHeading) return;
+
+  var headings = Array.from(document.querySelectorAll('#content h1, #content h2, #content h3, #content h4'));
+  var tocIdx = headings.indexOf(tocHeading);
+  var entries = headings.slice(tocIdx + 1).filter(function(h) {
+    return !isWidgetSpecHeading(h.textContent);
+  });
+
+  var container = document.createElement('nav');
+  container.id = 'inline-toc';
+  var title = document.createElement('div');
+  title.className = 'toc-title';
+  title.textContent = 'Table of Contents';
+  container.appendChild(title);
+
+  var ul = document.createElement('ul');
+  entries.forEach(function(h) {
+    var li = document.createElement('li');
+    li.className = 'itoc-' + h.tagName.toLowerCase();
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+  container.appendChild(ul);
+
+  var sibling = tocHeading.nextElementSibling;
+  var toRemove = [];
+  while (sibling && sibling.tagName !== 'H1' && sibling.tagName !== 'H2' && sibling.tagName !== 'HR') {
+    toRemove.push(sibling);
+    sibling = sibling.nextElementSibling;
+  }
+  toRemove.forEach(function(el) { el.remove(); });
+  tocHeading.replaceWith(container);
+})();
+
+// Initialize LiveCodes playgrounds
+(function() {
+  var pgData = window.__playgroundData || {};
+  var containers = document.querySelectorAll('.livecodes[data-playground]');
+  if (containers.length === 0) return;
+
+  // Load LiveCodes SDK from CDN
+  var script = document.createElement('script');
+  script.type = 'module';
+  var initCode = '';
+  containers.forEach(function(el) {
+    var slug = el.getAttribute('data-playground');
+    var data = pgData[slug];
+    if (!data) { el.innerHTML = '<p style="color:#999">Playground data not found: ' + slug + '</p>'; return; }
+    el.id = 'livecodes-' + slug;
+  });
+
+  // Build module script that imports LiveCodes and creates playgrounds
+  var moduleScript = document.createElement('script');
+  moduleScript.type = 'module';
+  moduleScript.textContent = [
+    'import { createPlayground } from "https://cdn.jsdelivr.net/npm/livecodes@0.7.0/livecodes.js";',
+    'var pgData = window.__playgroundData;',
+    'document.querySelectorAll(".livecodes[data-playground]").forEach(async function(el) {',
+    '  var slug = el.getAttribute("data-playground");',
+    '  var data = pgData[slug];',
+    '  if (!data) return;',
+    '  try {',
+    '    await createPlayground(el, {',
+    '      appUrl: "https://v35.livecodes.io/",',
+    '      loading: "lazy",',
+    '      config: {',
+    '        markup:  { language: "html", content: data.html },',
+    '        style:   { language: "css",  content: data.css },',
+    '        activeEditor: "markup",',
+    '      }',
+    '    });',
+    '  } catch(e) { console.warn("LiveCodes init failed for " + slug, e); }',
+    '});'
+  ].join('\n');
+  document.body.appendChild(moduleScript);
+})();
 </script>
 </body>
 </html>
 '@
+
+# Build playground data as JSON for injection into the HTML
+# Each entry: { slug: { html: "...", css: "..." } }
+# We JSON-encode with care to avoid breaking the JS string literals
+$pgEntries = @()
+foreach ($key in $playgroundData.Keys) {
+    $htmlEsc = $playgroundData[$key].html -replace '\\', '\\\\' -replace '"', '\"' -replace "`n", '\n' -replace "`r", ''  -replace '</script>', '<\/script>'
+    $cssEsc  = $playgroundData[$key].css  -replace '\\', '\\\\' -replace '"', '\"' -replace "`n", '\n' -replace "`r", ''  -replace '</script>', '<\/script>'
+    $pgEntries += "`"$key`":{`"html`":`"$htmlEsc`",`"css`":`"$cssEsc`"}"
+}
+$pgJson = "{" + ($pgEntries -join ",") + "}"
+
+# Inject playground data at the top of the render script
+$pgInject = "window.__playgroundData=$pgJson;`n"
+$htmlPart2 = $htmlPart2.Replace(
+    "mermaid.initialize(",
+    $pgInject + "mermaid.initialize("
+)
 
 # Combine: HTML part 1 + base64 markdown + HTML part 2
 $sb = [System.Text.StringBuilder]::new($htmlPart1.Length + $mdBase64.Length + $htmlPart2.Length + 10)

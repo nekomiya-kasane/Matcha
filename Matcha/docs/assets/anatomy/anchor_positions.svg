@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 200" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 4; }
+      .fill-bg { fill: #eaf8ff; }
+      .label { fill: #2d2640; font-size: 10px; }
+      .pos { fill: #5b6abf; font-size: 9px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 10px; font-style: italic; }
+    </style>
+  </defs>
+  <!-- Anchor widget -->
+  <rect class="fill-bg" x="120" y="60" width="200" height="80" rx="6"/>
+  <rect class="border" x="120" y="60" width="200" height="80"/>
+  <text class="label" x="220" y="104" text-anchor="middle" font-weight="600">[Anchor Widget]</text>
+  <!-- Top positions -->
+  <text class="pos" x="138" y="52">TopStart</text>
+  <text class="pos" x="207" y="52" text-anchor="middle">Top</text>
+  <text class="pos" x="282" y="52">TopEnd</text>
+  <circle cx="140" cy="60" r="3" fill="#5b6abf"/>
+  <circle cx="220" cy="60" r="3" fill="#5b6abf"/>
+  <circle cx="320" cy="60" r="3" fill="#5b6abf"/>
+  <!-- Bottom positions -->
+  <text class="pos" x="130" y="158">BottomStart</text>
+  <text class="pos" x="207" y="158" text-anchor="middle">Bottom</text>
+  <text class="pos" x="276" y="158">BottomEnd</text>
+  <circle cx="140" cy="140" r="3" fill="#5b6abf"/>
+  <circle cx="220" cy="140" r="3" fill="#5b6abf"/>
+  <circle cx="320" cy="140" r="3" fill="#5b6abf"/>
+  <!-- Left positions -->
+  <text class="pos" x="68" y="72" text-anchor="end">LeftStart</text>
+  <text class="pos" x="68" y="104" text-anchor="end">Left</text>
+  <text class="pos" x="68" y="136" text-anchor="end">LeftEnd</text>
+  <circle cx="120" cy="68" r="3" fill="#5b6abf"/>
+  <circle cx="120" cy="100" r="3" fill="#5b6abf"/>
+  <circle cx="120" cy="132" r="3" fill="#5b6abf"/>
+  <!-- Right positions -->
+  <text class="pos" x="332" y="72">RightStart</text>
+  <text class="pos" x="332" y="104">Right</text>
+  <text class="pos" x="332" y="136">RightEnd</text>
+  <circle cx="320" cy="68" r="3" fill="#5b6abf"/>
+  <circle cx="320" cy="100" r="3" fill="#5b6abf"/>
+  <circle cx="320" cy="132" r="3" fill="#5b6abf"/>
+  <!-- Legend -->
+  <text class="desc" x="10" y="190">12 anchor positions for Tooltip, ComboBox dropdown, Menu, DatePicker calendar, Cascader panel</text>
+</svg>

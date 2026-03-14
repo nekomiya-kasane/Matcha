@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 60" width="360" height="60">
+  <!-- Outer frame -->
+  <rect x="4" y="4" width="320" height="28" rx="4" fill="#fffffc" stroke="#3b2d5e" stroke-width="1.2"/>
+  <text x="10" y="14" font-family="sans-serif" font-size="7" fill="#3b2d5e" font-style="italic">SearchBox</text>
+  <!-- Search icon -->
+  <circle cx="18" cy="22" r="5" fill="none" stroke="#8b5fbf" stroke-width="1"/>
+  <line x1="22" y1="26" x2="25" y2="29" stroke="#8b5fbf" stroke-width="1"/>
+  <!-- Separator -->
+  <line x1="32" y1="12" x2="32" y2="28" stroke="#d8cfe8" stroke-width="0.5"/>
+  <!-- Placeholder text -->
+  <text x="40" y="24" font-family="sans-serif" font-size="9" fill="#8b5fbf" opacity="0.6">Search...</text>
+  <!-- Clear button -->
+  <rect x="296" y="14" width="14" height="14" rx="7" fill="#d8cfe8" opacity="0.3"/>
+  <text x="303" y="24" font-family="sans-serif" font-size="9" fill="#3b2d5e" text-anchor="middle">×</text>
+  <!-- Annotations -->
+  <text x="18" y="40" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">icon</text>
+  <text x="120" y="40" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">placeholder text</text>
+  <text x="303" y="40" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">clear btn</text>
+  <!-- Legend -->
+  <circle cx="14" cy="53" r="4" fill="none" stroke="#8b5fbf" stroke-width="0.8"/>
+  <text x="22" y="56" font-family="sans-serif" font-size="7" fill="#2d2640">Search icon</text>
+  <rect x="85" y="49" width="10" height="8" rx="1" fill="#fffffc" stroke="#d8cfe8" stroke-width="0.4"/>
+  <text x="99" y="56" font-family="sans-serif" font-size="7" fill="#2d2640">Input area</text>
+  <rect x="160" y="49" width="8" height="8" rx="4" fill="#d8cfe8" opacity="0.3"/>
+  <text x="172" y="56" font-family="sans-serif" font-size="7" fill="#2d2640">Clear button</text>
+</svg>

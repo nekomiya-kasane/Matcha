@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 160" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #fffffc; }
+      .label { fill: #2d2640; font-size: 11px; }
+      .desc { fill: #8b5fbf; font-size: 10px; font-style: italic; }
+      .icon-bg { fill: #5b6abf; opacity: 0.15; }
+      .shortcut { fill: #8b5fbf; font-size: 10px; }
+      .divider { stroke: #d8cfe8; stroke-width: 1; }
+      .mnemonic { text-decoration: underline; }
+    </style>
+  </defs>
+  <!-- Menu container -->
+  <rect class="fill-bg" x="10" y="10" width="300" height="130" rx="6"/>
+  <rect class="border" x="10" y="10" width="300" height="130"/>
+  <!-- Item 1: Save -->
+  <rect class="icon-bg" x="18" y="18" width="16" height="16" rx="2"/>
+  <text class="label" x="42" y="30"><tspan class="mnemonic">S</tspan>ave</text>
+  <text class="shortcut" x="280" y="30" text-anchor="end">Ctrl+S</text>
+  <!-- Item 2: Save As -->
+  <rect class="icon-bg" x="18" y="42" width="16" height="16" rx="2"/>
+  <text class="label" x="42" y="54">Save <tspan class="mnemonic">A</tspan>s...</text>
+  <text class="shortcut" x="280" y="54" text-anchor="end">Ctrl+Shift+S</text>
+  <!-- Separator -->
+  <line class="divider" x1="18" y1="66" x2="302" y2="66"/>
+  <!-- Item 3: Print -->
+  <rect class="icon-bg" x="18" y="74" width="16" height="16" rx="2"/>
+  <text class="label" x="42" y="86"><tspan class="mnemonic">P</tspan>rint</text>
+  <text class="shortcut" x="280" y="86" text-anchor="end">Ctrl+P</text>
+  <!-- Item 4: Exit -->
+  <rect class="icon-bg" x="18" y="98" width="16" height="16" rx="2"/>
+  <text class="label" x="42" y="110"><tspan class="mnemonic">E</tspan>xit</text>
+  <text class="shortcut" x="280" y="110" text-anchor="end">Alt+F4</text>
+  <!-- Annotations -->
+  <text class="desc" x="320" y="30">[icon 16x16]  mnemonic underline</text>
+  <text class="desc" x="320" y="54">shortcut right-aligned</text>
+  <text class="desc" x="320" y="66">NyanMenuSeparator</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="155">Underline = mnemonic char | Always visible in open menu | Disabled items: TextDisabled opacity</text>
+</svg>

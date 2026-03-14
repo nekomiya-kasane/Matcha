@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" width="380" height="100">
+  <!-- Panel A -->
+  <rect x="4" y="4" width="160" height="70" rx="3" fill="#eaf8ff" opacity="0.15" stroke="#3b2d5e" stroke-width="1"/>
+  <text x="8" y="14" font-family="sans-serif" font-size="7" fill="#3b2d5e" font-style="italic">Panel A</text>
+  <!-- Handle -->
+  <rect x="166" y="4" width="4" height="70" rx="1" fill="#5b6abf" opacity="0.5"/>
+  <!-- Hit-test area (dashed) -->
+  <rect x="162" y="4" width="12" height="70" rx="0" fill="none" stroke="#8b5fbf" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <!-- Panel B -->
+  <rect x="172" y="4" width="160" height="70" rx="3" fill="#caffbf" opacity="0.15" stroke="#3b2d5e" stroke-width="1"/>
+  <text x="176" y="14" font-family="sans-serif" font-size="7" fill="#3b2d5e" font-style="italic">Panel B</text>
+  <!-- Handle label -->
+  <line x1="168" y1="76" x2="168" y2="82" stroke="#8b5fbf" stroke-width="0.6"/>
+  <text x="168" y="90" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">Handle (4px visible, 8px hit-test)</text>
+  <!-- Legend -->
+  <rect x="260" y="10" width="8" height="8" rx="1" fill="#5b6abf" opacity="0.5"/>
+  <text x="272" y="17" font-family="sans-serif" font-size="7" fill="#2d2640">Handle (4px)</text>
+  <rect x="260" y="22" width="8" height="8" rx="0" fill="none" stroke="#8b5fbf" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <text x="272" y="29" font-family="sans-serif" font-size="7" fill="#2d2640">Hit-test (8px)</text>
+</svg>

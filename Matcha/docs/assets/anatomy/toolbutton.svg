@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 90" width="360" height="90">
+  <!-- Icon-only mode -->
+  <text x="4" y="12" font-family="sans-serif" font-size="9" fill="#3b2d5e" font-style="italic">Icon-only mode (common)</text>
+  <rect x="4" y="18" width="48" height="48" rx="4" ry="4" fill="#d8cfe8" stroke="#3b2d5e" stroke-width="1"/>
+  <!-- pad left -->
+  <rect x="7" y="21" width="8" height="42" rx="1" fill="#8b5fbf" opacity="0.25"/>
+  <!-- icon -->
+  <rect x="17" y="25" width="22" height="22" rx="3" fill="#9bf6ff" opacity="0.55"/>
+  <text x="28" y="40" font-family="sans-serif" font-size="9" fill="#2d2640" text-anchor="middle">Icon</text>
+  <!-- pad right -->
+  <rect x="41" y="21" width="8" height="42" rx="1" fill="#8b5fbf" opacity="0.25"/>
+
+  <!-- Icon+text mode -->
+  <text x="80" y="12" font-family="sans-serif" font-size="9" fill="#3b2d5e" font-style="italic">Icon + text mode</text>
+  <rect x="80" y="18" width="140" height="48" rx="4" ry="4" fill="#d8cfe8" stroke="#3b2d5e" stroke-width="1"/>
+  <!-- pad left -->
+  <rect x="83" y="21" width="8" height="42" rx="1" fill="#8b5fbf" opacity="0.25"/>
+  <!-- icon -->
+  <rect x="95" y="29" width="22" height="22" rx="3" fill="#9bf6ff" opacity="0.55"/>
+  <text x="106" y="44" font-family="sans-serif" font-size="9" fill="#2d2640" text-anchor="middle">Icon</text>
+  <!-- gap -->
+  <rect x="121" y="29" width="8" height="22" rx="1" fill="#caffbf" opacity="0.4"/>
+  <!-- label -->
+  <rect x="133" y="27" width="60" height="26" rx="2" fill="#fdffb6" opacity="0.5"/>
+  <text x="163" y="44" font-family="sans-serif" font-size="11" fill="#2d2640" text-anchor="middle">Label</text>
+  <!-- pad right -->
+  <rect x="197" y="21" width="8" height="42" rx="1" fill="#8b5fbf" opacity="0.25"/>
+
+  <!-- Legend -->
+  <rect x="4" y="74" width="10" height="10" rx="1" fill="#9bf6ff" opacity="0.7"/>
+  <text x="18" y="83" font-family="sans-serif" font-size="8" fill="#2d2640">Icon</text>
+  <rect x="50" y="74" width="10" height="10" rx="1" fill="#caffbf" opacity="0.6"/>
+  <text x="64" y="83" font-family="sans-serif" font-size="8" fill="#2d2640">Gap</text>
+  <rect x="92" y="74" width="10" height="10" rx="1" fill="#fdffb6" opacity="0.7"/>
+  <text x="106" y="83" font-family="sans-serif" font-size="8" fill="#2d2640">Label (opt)</text>
+  <rect x="165" y="74" width="10" height="10" rx="1" fill="#8b5fbf" opacity="0.4"/>
+  <text x="179" y="83" font-family="sans-serif" font-size="8" fill="#2d2640">Padding</text>
+</svg>

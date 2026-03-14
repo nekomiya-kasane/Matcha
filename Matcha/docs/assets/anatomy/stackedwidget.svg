@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #fffffc; }
+      .label { fill: #2d2640; font-size: 12px; }
+      .slot { fill: #5b6abf; font-size: 11px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 11px; font-style: italic; }
+    </style>
+  </defs>
+  <!-- Outer container -->
+  <rect class="fill-bg" x="10" y="10" width="300" height="120" rx="8"/>
+  <rect class="border" x="10" y="10" width="300" height="120"/>
+  <text class="desc" x="15" y="6" font-size="10">StackedWidget</text>
+  <!-- Page 0 (hidden, behind) -->
+  <rect x="28" y="28" width="240" height="60" rx="4" fill="#d8cfe8" opacity="0.3" stroke="#8b5fbf" stroke-width="1" stroke-dasharray="4"/>
+  <text class="label" x="100" y="62" opacity="0.5">[any widget content]</text>
+  <text class="desc" x="278" y="52">Page 0 (hidden)</text>
+  <text class="desc" x="278" y="66">z-index: 0, opacity: 0</text>
+  <!-- Page 1 (visible, in front) -->
+  <rect x="38" y="48" width="240" height="60" rx="4" fill="#eaf8ff" stroke="#5b6abf" stroke-width="1.5"/>
+  <text class="label" x="110" y="82" font-weight="600">[any widget content]</text>
+  <text class="desc" x="288" y="72">Page 1 (visible)</text>
+  <text class="desc" x="288" y="86">z-index: 1, opacity: 1</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="150">Child pages (0..N): any WidgetNode, one visible at a time via index</text>
+</svg>

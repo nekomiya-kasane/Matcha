@@ -1,0 +1,335 @@
+/* =============================================================================
+ * Matcha Design System — Base Styles
+ * Shared reset, typography, interaction state classes, component primitives.
+ *
+ * All classes use the design tokens defined in tokens.css.
+ * ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+ * Reset
+ * ------------------------------------------------------------------------ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Root typography (§3.1)
+ * ------------------------------------------------------------------------ */
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-line-height);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------------------------------------------------------------------------
+ * FontRole utility classes (§3.1)
+ * ------------------------------------------------------------------------ */
+.font-body         { font-size: var(--font-body-size);      font-weight: var(--font-body-weight); }
+.font-body-medium  { font-size: var(--font-body-size);      font-weight: var(--font-body-medium-weight); }
+.font-body-bold    { font-size: var(--font-body-size);      font-weight: var(--font-body-bold-weight); }
+.font-caption      { font-size: var(--font-caption-size);   font-weight: var(--font-caption-weight); }
+.font-heading      { font-size: var(--font-heading-size);   font-weight: var(--font-heading-weight); }
+.font-monospace    { font-family: var(--font-family-mono);  font-size: var(--font-monospace-size); font-weight: var(--font-monospace-weight); }
+.font-tooltip      { font-size: var(--font-tooltip-size);   font-weight: var(--font-tooltip-weight); }
+
+/* ---------------------------------------------------------------------------
+ * InteractionState base (§4.9.1 Standard Neutral Pattern)
+ *
+ * Usage: <div class="m-widget"> ... </div>
+ * States are applied via data attributes: data-state="hovered|pressed|disabled|focused"
+ * Variants via data-variant: data-variant="primary|ghost|danger"
+ * ------------------------------------------------------------------------ */
+
+/* -- Neutral (default) --------------------------------------------------- */
+.m-widget {
+  background: var(--color-fill);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  min-height: var(--size-md);
+  padding: var(--spacing-4) var(--spacing-8);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: var(--font-line-height);
+  cursor: pointer;
+  transition: background var(--duration-quick) var(--easing-out-cubic),
+              border-color var(--duration-quick) var(--easing-out-cubic),
+              color var(--duration-quick) var(--easing-out-cubic),
+              box-shadow var(--duration-quick) var(--easing-out-cubic),
+              opacity var(--duration-quick) var(--easing-out-cubic);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  user-select: none;
+}
+
+.m-widget:hover,
+.m-widget[data-state="hovered"] {
+  background: var(--color-fill-hover);
+  border-color: var(--color-border-strong);
+}
+
+.m-widget:active,
+.m-widget[data-state="pressed"] {
+  background: var(--color-fill-active);
+  border-color: var(--color-border-strong);
+}
+
+.m-widget[data-state="disabled"] {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.m-widget[data-state="focused"],
+.m-widget:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus);
+}
+
+/* -- Primary variant (§4.9.2) -------------------------------------------- */
+.m-widget[data-variant="primary"] {
+  background: var(--color-primary);
+  color: var(--color-on-accent);
+  border-color: var(--color-primary);
+}
+
+.m-widget[data-variant="primary"]:hover,
+.m-widget[data-variant="primary"][data-state="hovered"] {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.m-widget[data-variant="primary"]:active,
+.m-widget[data-variant="primary"][data-state="pressed"] {
+  background: var(--color-primary-active);
+  border-color: var(--color-primary-active);
+}
+
+.m-widget[data-variant="primary"][data-state="focused"],
+.m-widget[data-variant="primary"]:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-focus);
+}
+
+/* -- Ghost variant (§4.9.3) ---------------------------------------------- */
+.m-widget[data-variant="ghost"] {
+  background: transparent;
+  color: var(--color-text-primary);
+  border-color: transparent;
+}
+
+.m-widget[data-variant="ghost"]:hover,
+.m-widget[data-variant="ghost"][data-state="hovered"] {
+  background: var(--color-fill-hover);
+  border-color: var(--color-fill-hover);
+}
+
+.m-widget[data-variant="ghost"]:active,
+.m-widget[data-variant="ghost"][data-state="pressed"] {
+  background: var(--color-fill-active);
+  border-color: var(--color-fill-active);
+}
+
+/* -- Danger variant (§4.9.4) --------------------------------------------- */
+.m-widget[data-variant="danger"] {
+  background: var(--color-error);
+  color: var(--color-on-accent);
+  border-color: var(--color-error);
+}
+
+.m-widget[data-variant="danger"]:hover,
+.m-widget[data-variant="danger"][data-state="hovered"] {
+  background: var(--color-error-hover);
+  border-color: var(--color-error-hover);
+}
+
+.m-widget[data-variant="danger"]:active,
+.m-widget[data-variant="danger"][data-state="pressed"] {
+  background: var(--color-error-active);
+  border-color: var(--color-error-active);
+}
+
+/* ---------------------------------------------------------------------------
+ * Input field base (LineEdit, SpinBox, ComboBox trigger)
+ * ------------------------------------------------------------------------ */
+.m-input {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  min-height: var(--size-md);
+  padding: var(--spacing-4) var(--spacing-8);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: var(--font-line-height);
+  width: 100%;
+  outline: none;
+  transition: border-color var(--duration-quick) var(--easing-out-cubic),
+              box-shadow var(--duration-quick) var(--easing-out-cubic);
+}
+
+.m-input:hover {
+  border-color: var(--color-primary-hover);
+}
+
+.m-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
+}
+
+.m-input[data-state="error"] {
+  border-color: var(--color-error);
+  border-width: 2px;
+}
+
+.m-input[data-state="error"]:focus {
+  box-shadow: 0 0 0 2px rgba(245, 34, 45, 0.15);
+}
+
+.m-input[data-state="disabled"] {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+  background: var(--color-fill-muted);
+}
+
+.m-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* ---------------------------------------------------------------------------
+ * Panel / Container (§4.9, Card / GroupBox / CollapsibleSection)
+ * ------------------------------------------------------------------------ */
+.m-panel {
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-medium);
+  overflow: hidden;
+}
+
+.m-panel-elevated {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-medium);
+}
+
+/* ---------------------------------------------------------------------------
+ * Dialog shell
+ * ------------------------------------------------------------------------ */
+.m-dialog {
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-high);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.m-dialog-title-bar {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-12) var(--spacing-16);
+  gap: var(--spacing-8);
+  border-bottom: 1px solid var(--color-border-subtle);
+  min-height: var(--size-lg);
+}
+
+.m-dialog-title-bar .title {
+  flex: 1;
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  color: var(--color-text-primary);
+}
+
+.m-dialog-body {
+  padding: var(--spacing-16);
+  flex: 1;
+  color: var(--color-text-primary);
+}
+
+.m-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+/* ---------------------------------------------------------------------------
+ * Separator / Divider
+ * ------------------------------------------------------------------------ */
+.m-separator {
+  border: none;
+  border-top: 1px solid var(--color-separator);
+  margin: var(--spacing-8) 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Scrim (modal backdrop)
+ * ------------------------------------------------------------------------ */
+.m-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--color-scrim);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------------------------------------------------------------------------
+ * Semantic message colors (Alert, MessageBanner, Toast)
+ * Applies to elements with data-semantic="info|success|warning|error"
+ * ------------------------------------------------------------------------ */
+[data-semantic="info"]    { --msg-bg: var(--color-info-bg);    --msg-border: var(--color-info-border);    --msg-icon: var(--color-info); }
+[data-semantic="success"] { --msg-bg: var(--color-success-bg); --msg-border: var(--color-success-border); --msg-icon: var(--color-success); }
+[data-semantic="warning"] { --msg-bg: var(--color-warning-bg); --msg-border: var(--color-warning-border); --msg-icon: var(--color-warning); }
+[data-semantic="error"]   { --msg-bg: var(--color-error-bg);   --msg-border: var(--color-error-border);   --msg-icon: var(--color-error); }
+
+.m-message {
+  background: var(--msg-bg);
+  border: 1px solid var(--msg-border);
+  border-radius: var(--radius-default);
+  padding: var(--spacing-8) var(--spacing-12);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+}
+
+.m-message .icon {
+  color: var(--msg-icon);
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Utility: text colors
+ * ------------------------------------------------------------------------ */
+.text-primary   { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-tertiary  { color: var(--color-text-tertiary); }
+.text-disabled  { color: var(--color-text-disabled); }
+.text-error     { color: var(--color-error); }
+.text-success   { color: var(--color-success); }
+.text-warning   { color: var(--color-warning); }
+.text-on-accent { color: var(--color-on-accent); }
+
+/* ---------------------------------------------------------------------------
+ * Utility: layout
+ * ------------------------------------------------------------------------ */
+.flex-row    { display: flex; flex-direction: row; }
+.flex-col    { display: flex; flex-direction: column; }
+.flex-1      { flex: 1; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.gap-4       { gap: var(--spacing-4); }
+.gap-8       { gap: var(--spacing-8); }
+.gap-12      { gap: var(--spacing-12); }
+.gap-16      { gap: var(--spacing-16); }

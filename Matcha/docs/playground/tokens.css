@@ -1,0 +1,357 @@
+/* =============================================================================
+ * Matcha Design System — Design Tokens (CSS Custom Properties)
+ * Generated from: Matcha_Design_System_Specification.md
+ *
+ * Spec references:
+ *   §2 Color System (75 semantic tokens)
+ *   §3 Typography System (7 FontRoles)
+ *   §4 Spatial System (Spacing, Radius, Size, Elevation, Layer)
+ *   §5 Motion & Timing (Animation duration, Easing curves)
+ *   §7 Cursor Design (15 CursorTokens)
+ * ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+ * Light Theme (default)
+ * ------------------------------------------------------------------------ */
+:root,
+[data-theme="light"] {
+
+  /* == Neutral: Surface (5) ================================================
+   * §2.2 — Synthesized from Ant Design v5 + Radix 12-step semantics
+   * --------------------------------------------------------------------- */
+  --color-surface:            #FFFFFF;   /* App base bg           (Radix 1) */
+  --color-surface-container:  #F7F8FA;   /* Card, panel, sidebar  (Radix 2) */
+  --color-surface-elevated:   #FFFFFF;   /* Popup, dropdown, dialog (Radix 3) */
+  --color-surface-sunken:     #F3F3F5;   /* Recessed well, status bar */
+  --color-spotlight:          #FFFFFF;   /* Tooltip, floating highlight */
+
+  /* == Neutral: Fill (4) ================================================= */
+  --color-fill:               #F0F0F0;   /* Component default bg  (Radix 3) */
+  --color-fill-hover:         #E8E8E8;   /* Hovered bg            (Radix 4) */
+  --color-fill-active:        #E0E0E0;   /* Pressed/active bg     (Radix 5) */
+  --color-fill-muted:         #F5F5F5;   /* Disabled/subtle fill */
+
+  /* == Neutral: Border (3) =============================================== */
+  --color-border-subtle:      #E5E5E5;   /* Separator             (Radix 6) */
+  --color-border-default:     #D9D9D9;   /* Input/button resting  (Radix 7) */
+  --color-border-strong:      #B0B0B0;   /* Hovered border, focus (Radix 8) */
+
+  /* == Neutral: Text (4) ================================================= */
+  --color-text-primary:       #1A1A1A;   /* Body text             (Radix 12) */
+  --color-text-secondary:     #666666;   /* Description           (Radix 11) */
+  --color-text-tertiary:      #999999;   /* Placeholder, hint */
+  --color-text-disabled:      #CCCCCC;   /* Disabled, watermark */
+
+  /* == Primary Hue (10-step, §2.3) =======================================
+   * Seed: #1677FF — Brand / accent
+   * --------------------------------------------------------------------- */
+  --color-primary-bg:          #E6F4FF;  /* Step 1: lightest bg */
+  --color-primary-bg-hover:    #BAE0FF;  /* Step 2: bg hover */
+  --color-primary-border:      #91CAFF;  /* Step 3: colored border */
+  --color-primary-border-hover:#69B1FF;  /* Step 4: border hover */
+  --color-primary-hover:       #4096FF;  /* Step 5: component hover */
+  --color-primary:             #1677FF;  /* Step 6: base / seed */
+  --color-primary-active:      #0958D9;  /* Step 7: pressed/active */
+  --color-primary-text-hover:  #003EB3;  /* Step 8: text hover */
+  --color-primary-text:        #002C8C;  /* Step 9: text on neutral */
+  --color-primary-text-active: #001D66;  /* Step 10: text pressed */
+
+  /* == Success Hue (10-step) =============================================
+   * Seed: #52C41A
+   * --------------------------------------------------------------------- */
+  --color-success-bg:          #F6FFED;
+  --color-success-bg-hover:    #D9F7BE;
+  --color-success-border:      #B7EB8F;
+  --color-success-border-hover:#95DE64;
+  --color-success-hover:       #73D13D;
+  --color-success:             #52C41A;
+  --color-success-active:      #389E0D;
+  --color-success-text-hover:  #237804;
+  --color-success-text:        #135200;
+  --color-success-text-active: #092B00;
+
+  /* == Warning Hue (10-step) =============================================
+   * Seed: #FAAD14
+   * --------------------------------------------------------------------- */
+  --color-warning-bg:          #FFFBE6;
+  --color-warning-bg-hover:    #FFF1B8;
+  --color-warning-border:      #FFE58F;
+  --color-warning-border-hover:#FFD666;
+  --color-warning-hover:       #FFC53D;
+  --color-warning:             #FAAD14;
+  --color-warning-active:      #D48806;
+  --color-warning-text-hover:  #AD6800;
+  --color-warning-text:        #874D00;
+  --color-warning-text-active: #613400;
+
+  /* == Error Hue (10-step) ===============================================
+   * Seed: #FF4D4F
+   * --------------------------------------------------------------------- */
+  --color-error-bg:            #FFF2F0;
+  --color-error-bg-hover:      #FFCCC7;
+  --color-error-border:        #FFA39E;
+  --color-error-border-hover:  #FF7875;
+  --color-error-hover:         #FF4D4F;
+  --color-error:               #F5222D;
+  --color-error-active:        #CF1322;
+  --color-error-text-hover:    #A8071A;
+  --color-error-text:          #820014;
+  --color-error-text-active:   #5C0011;
+
+  /* == Info Hue (10-step) ================================================
+   * Seed: #1677FF — Independent from Primary per §2.3
+   * --------------------------------------------------------------------- */
+  --color-info-bg:             #E6F4FF;
+  --color-info-bg-hover:       #BAE0FF;
+  --color-info-border:         #91CAFF;
+  --color-info-border-hover:   #69B1FF;
+  --color-info-hover:          #4096FF;
+  --color-info:                #1677FF;
+  --color-info-active:         #0958D9;
+  --color-info-text-hover:     #003EB3;
+  --color-info-text:           #002C8C;
+  --color-info-text-active:    #001D66;
+
+  /* == Special Purpose (9, §2.4) ========================================= */
+  --color-on-accent:           #FFFFFF;  /* Text/icon on accent bg */
+  --color-on-accent-secondary: #E6F4FF;  /* Secondary text on accent bg */
+  --color-focus:               #1677FF;  /* Focus ring */
+  --color-selection:           rgba(22, 119, 255, 0.15); /* Selection highlight */
+  --color-link:                #1677FF;  /* Hyperlink */
+  --color-scrim:               rgba(0, 0, 0, 0.45);     /* Modal backdrop */
+  --color-overlay:             rgba(255, 255, 255, 0.85);/* Non-modal overlay */
+  --color-shadow:              rgba(0, 0, 0, 0.08);     /* Box-shadow base */
+  --color-separator:           #E5E5E5;  /* Horizontal/vertical rule */
+
+  /* == Spacing Tokens (16, §4.1) =========================================
+   * 4px base grid. Density multiplier applied via --density-scale.
+   * --------------------------------------------------------------------- */
+  --spacing-none:  0px;
+  --spacing-1:     1px;
+  --spacing-2:     2px;
+  --spacing-3:     3px;
+  --spacing-4:     4px;
+  --spacing-5:     5px;
+  --spacing-6:     6px;
+  --spacing-7:     7px;
+  --spacing-8:     8px;
+  --spacing-12:   12px;
+  --spacing-16:   16px;
+  --spacing-20:   20px;
+  --spacing-24:   24px;
+  --spacing-32:   32px;
+  --spacing-48:   48px;
+  --spacing-64:   64px;
+
+  /* == Radius Tokens (6, §4.3) =========================================== */
+  --radius-none:     0px;
+  --radius-small:    2px;
+  --radius-default:  3px;
+  --radius-medium:   4px;
+  --radius-large:    8px;
+  --radius-round:    9999px;  /* pill shape */
+
+  /* == Size Tokens (5, §4.4) — Component min-height ====================== */
+  --size-xs:  20px;
+  --size-sm:  24px;
+  --size-md:  32px;
+  --size-lg:  40px;
+  --size-xl:  48px;
+
+  /* == Elevation / Shadow (5 levels, §4.5) =============================== */
+  --shadow-flat:    none;
+  --shadow-low:     0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-medium:  0 2px 6px rgba(0, 0, 0, 0.12);
+  --shadow-high:    0 4px 12px rgba(0, 0, 0, 0.16);
+  --shadow-window:  0 8px 24px rgba(0, 0, 0, 0.20);
+
+  /* == Layer / Z-index (9, §4.6) ========================================= */
+  --z-base:          0;
+  --z-elevated:    100;
+  --z-sticky:      200;
+  --z-dropdown:    300;
+  --z-modal:       400;
+  --z-popover:     500;
+  --z-notification:600;
+  --z-overlay:     700;
+  --z-maximum:    9999;
+
+  /* == Typography (§3.1–3.3) =============================================
+   * Font family: platform-resolved. CSS uses system-ui fallback chain.
+   * --------------------------------------------------------------------- */
+  --font-family:      "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-family-mono: "Cascadia Mono", "SF Mono", "Consolas", monospace;
+
+  /* FontRole size / weight / line-height (§3.1) */
+  --font-body-size:         9pt;
+  --font-body-weight:       400;
+  --font-body-medium-weight:500;
+  --font-body-bold-weight:  600;
+  --font-caption-size:      8pt;
+  --font-caption-weight:    400;
+  --font-heading-size:      12pt;
+  --font-heading-weight:    600;
+  --font-monospace-size:    9pt;
+  --font-monospace-weight:  400;
+  --font-tooltip-size:      8pt;
+  --font-tooltip-weight:    400;
+  --font-line-height:       1.4;
+
+  /* == Animation Duration (§8.1) ========================================= */
+  --duration-instant:  0ms;
+  --duration-quick:  160ms;
+  --duration-normal: 200ms;
+  --duration-slow:   350ms;
+
+  /* == Easing Curves (§8.2) ==============================================
+   * CSS cubic-bezier approximations of the spec's mathematical definitions
+   * --------------------------------------------------------------------- */
+  --easing-linear:      linear;
+  --easing-out-cubic:   cubic-bezier(0.33, 1, 0.68, 1);
+  --easing-in-out-cubic:cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* == Interaction Timing (§8.7) ========================================= */
+  --timing-tooltip-delay:    500ms;
+  --timing-long-press:       500ms;
+  --timing-debounce-search:  300ms;
+  --timing-debounce-resize:  100ms;
+
+  /* == Disabled State (§2.7) ============================================= */
+  --disabled-opacity: 0.45;
+
+  /* == Density Scale (§4.2) ============================================== */
+  --density-scale: 1.0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Dark Theme
+ * §2.2 Dark column values
+ * ------------------------------------------------------------------------ */
+[data-theme="dark"] {
+  /* Neutral: Surface */
+  --color-surface:            #141414;
+  --color-surface-container:  #1F1F1F;
+  --color-surface-elevated:   #2A2A2A;
+  --color-surface-sunken:     #0F0F0F;
+  --color-spotlight:          #3A3A3A;
+
+  /* Neutral: Fill */
+  --color-fill:               #353535;
+  --color-fill-hover:         #424242;
+  --color-fill-active:        #4A4A4A;
+  --color-fill-muted:         #2A2A2A;
+
+  /* Neutral: Border */
+  --color-border-subtle:      #3A3A3A;
+  --color-border-default:     #4A4A4A;
+  --color-border-strong:      #606060;
+
+  /* Neutral: Text */
+  --color-text-primary:       #E8E8E8;
+  --color-text-secondary:     #A0A0A0;
+  --color-text-tertiary:      #707070;
+  --color-text-disabled:      #505050;
+
+  /* Primary (dark palette — Ant Design dark algorithm) */
+  --color-primary-bg:          #111A2C;
+  --color-primary-bg-hover:    #112545;
+  --color-primary-border:      #15325B;
+  --color-primary-border-hover:#15417E;
+  --color-primary-hover:       #1554AD;
+  --color-primary:             #1668DC;
+  --color-primary-active:      #3C89E8;
+  --color-primary-text-hover:  #65A9F3;
+  --color-primary-text:        #8DC5F8;
+  --color-primary-text-active: #B7DCFA;
+
+  /* Success (dark) */
+  --color-success-bg:          #162312;
+  --color-success-bg-hover:    #1D3712;
+  --color-success-border:      #274916;
+  --color-success-border-hover:#306317;
+  --color-success-hover:       #3C8618;
+  --color-success:             #49AA19;
+  --color-success-active:      #6ACA25;
+  --color-success-text-hover:  #8FDB46;
+  --color-success-text:        #B2E672;
+  --color-success-text-active: #D5F2A6;
+
+  /* Warning (dark) */
+  --color-warning-bg:          #2B2111;
+  --color-warning-bg-hover:    #443111;
+  --color-warning-border:      #594214;
+  --color-warning-border-hover:#7C5914;
+  --color-warning-hover:       #AA7714;
+  --color-warning:             #D89614;
+  --color-warning-active:      #E8B339;
+  --color-warning-text-hover:  #F3CC62;
+  --color-warning-text:        #F8DF8B;
+  --color-warning-text-active: #FAEDB5;
+
+  /* Error (dark) */
+  --color-error-bg:            #2C1618;
+  --color-error-bg-hover:      #451D1F;
+  --color-error-border:        #5B2526;
+  --color-error-border-hover:  #7E2E2F;
+  --color-error-hover:         #A6393B;
+  --color-error:               #D32029;
+  --color-error-active:        #E84749;
+  --color-error-text-hover:    #F37370;
+  --color-error-text:          #F89F9C;
+  --color-error-text-active:   #FAC8C6;
+
+  /* Info (dark) — same structure as Primary dark */
+  --color-info-bg:             #111A2C;
+  --color-info-bg-hover:       #112545;
+  --color-info-border:         #15325B;
+  --color-info-border-hover:   #15417E;
+  --color-info-hover:          #1554AD;
+  --color-info:                #1668DC;
+  --color-info-active:         #3C89E8;
+  --color-info-text-hover:     #65A9F3;
+  --color-info-text:           #8DC5F8;
+  --color-info-text-active:    #B7DCFA;
+
+  /* Special Purpose (dark) */
+  --color-on-accent:           #FFFFFF;
+  --color-on-accent-secondary: #111A2C;
+  --color-focus:               #1668DC;
+  --color-selection:           rgba(22, 104, 220, 0.25);
+  --color-link:                #1668DC;
+  --color-scrim:               rgba(0, 0, 0, 0.65);
+  --color-overlay:             rgba(20, 20, 20, 0.85);
+  --color-shadow:              rgba(0, 0, 0, 0.30);
+  --color-separator:           #3A3A3A;
+
+  /* Shadows (dark — deeper) */
+  --shadow-low:     0 1px 3px rgba(0, 0, 0, 0.20);
+  --shadow-medium:  0 2px 6px rgba(0, 0, 0, 0.28);
+  --shadow-high:    0 4px 12px rgba(0, 0, 0, 0.36);
+  --shadow-window:  0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------------------------------------------------------------------------
+ * Density: Compact (§4.2 — 0.875x)
+ * ------------------------------------------------------------------------ */
+[data-density="compact"] {
+  --density-scale: 0.875;
+  --spacing-4:   4px;  --spacing-8:   7px;  --spacing-12: 11px;
+  --spacing-16: 14px;  --spacing-24: 21px;  --spacing-32: 28px;
+  --spacing-48: 42px;  --spacing-64: 56px;
+  --size-xs: 18px; --size-sm: 21px; --size-md: 28px;
+  --size-lg: 35px; --size-xl: 42px;
+  --radius-medium: 4px; --radius-large: 7px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Density: Comfortable (§4.2 — 1.125x)
+ * ------------------------------------------------------------------------ */
+[data-density="comfortable"] {
+  --density-scale: 1.125;
+  --spacing-4:   5px;  --spacing-8:   9px;  --spacing-12: 14px;
+  --spacing-16: 18px;  --spacing-24: 27px;  --spacing-32: 36px;
+  --spacing-48: 54px;  --spacing-64: 72px;
+  --size-xs: 23px; --size-sm: 27px; --size-md: 36px;
+  --size-lg: 45px; --size-xl: 54px;
+  --radius-medium: 5px; --radius-large: 9px;
+}

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 160" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #fffffc; }
+      .label { fill: #2d2640; font-size: 11px; }
+      .desc { fill: #8b5fbf; font-size: 10px; font-style: italic; }
+    </style>
+    <linearGradient id="shimmer" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d8cfe8" stop-opacity="0.3"/>
+      <stop offset="40%" stop-color="#eaf8ff" stop-opacity="0.6"/>
+      <stop offset="60%" stop-color="#eaf8ff" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#d8cfe8" stop-opacity="0.3"/>
+    </linearGradient>
+  </defs>
+  <!-- Container -->
+  <rect class="fill-bg" x="10" y="10" width="280" height="120" rx="6"/>
+  <rect class="border" x="10" y="10" width="280" height="120"/>
+  <!-- Shimmer rows -->
+  <rect x="22" y="22" width="180" height="14" rx="3" fill="url(#shimmer)"/>
+  <rect x="210" y="22" width="60" height="14" rx="3" fill="url(#shimmer)"/>
+  <rect x="22" y="44" width="220" height="14" rx="3" fill="url(#shimmer)"/>
+  <rect x="250" y="44" width="28" height="14" rx="3" fill="url(#shimmer)"/>
+  <rect x="22" y="66" width="120" height="14" rx="3" fill="url(#shimmer)"/>
+  <rect x="150" y="66" width="130" height="14" rx="3" fill="url(#shimmer)"/>
+  <rect x="22" y="88" width="200" height="14" rx="3" fill="url(#shimmer)"/>
+  <rect x="22" y="110" width="160" height="14" rx="3" fill="url(#shimmer)"/>
+  <rect x="190" y="110" width="80" height="14" rx="3" fill="url(#shimmer)"/>
+  <!-- Annotations -->
+  <text class="desc" x="300" y="30">Row 1: shimmer blocks</text>
+  <text class="desc" x="300" y="52">Row 2</text>
+  <text class="desc" x="300" y="74">Row 3</text>
+  <text class="desc" x="300" y="96">Row 4</text>
+  <text class="desc" x="300" y="118">Row 5</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="150">Bg: FillMuted | Shimmer: Surface→FillMuted→Surface gradient | 1.5s Linear infinite | Width: 40-90% randomized</text>
+</svg>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 70" width="420" height="70">
+  <!-- Labels -->
+  <text x="120" y="10" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">lowThumb</text>
+  <line x1="120" y1="12" x2="120" y2="18" stroke="#8b5fbf" stroke-width="0.5"/>
+  <text x="120" y="17" font-family="sans-serif" font-size="8" fill="#8b5fbf" text-anchor="middle">▼</text>
+  <text x="280" y="10" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">highThumb</text>
+  <line x1="280" y1="12" x2="280" y2="18" stroke="#8b5fbf" stroke-width="0.5"/>
+  <text x="280" y="17" font-family="sans-serif" font-size="8" fill="#8b5fbf" text-anchor="middle">▼</text>
+  <!-- Track -->
+  <rect x="10" y="22" width="380" height="10" rx="5" fill="#d8cfe8" opacity="0.3" stroke="#3b2d5e" stroke-width="0.8"/>
+  <text x="14" y="30" font-family="sans-serif" font-size="6" fill="#8b5fbf" font-style="italic">Track</text>
+  <!-- Unfilled left -->
+  <rect x="10" y="22" width="110" height="10" rx="5" fill="#d8cfe8" opacity="0.2"/>
+  <!-- Filled range -->
+  <rect x="120" y="22" width="160" height="10" rx="0" fill="#5b6abf" opacity="0.4"/>
+  <!-- Unfilled right -->
+  <rect x="280" y="22" width="110" height="10" rx="5" fill="#d8cfe8" opacity="0.2"/>
+  <!-- Low thumb -->
+  <circle cx="120" cy="27" r="8" fill="#5b6abf" opacity="0.8"/>
+  <circle cx="120" cy="27" r="3" fill="#fffffc"/>
+  <!-- High thumb -->
+  <circle cx="280" cy="27" r="8" fill="#5b6abf" opacity="0.8"/>
+  <circle cx="280" cy="27" r="3" fill="#fffffc"/>
+  <!-- Region labels -->
+  <text x="60" y="44" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">(unfilled)</text>
+  <text x="200" y="44" font-family="sans-serif" font-size="7" fill="#5b6abf" text-anchor="middle">(filled range)</text>
+  <text x="340" y="44" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">(unfilled)</text>
+  <!-- Legend -->
+  <rect x="10" y="54" width="10" height="8" rx="4" fill="#d8cfe8" opacity="0.3"/>
+  <text x="24" y="61" font-family="sans-serif" font-size="7" fill="#2d2640">Unfilled track</text>
+  <rect x="110" y="54" width="10" height="8" rx="0" fill="#5b6abf" opacity="0.4"/>
+  <text x="124" y="61" font-family="sans-serif" font-size="7" fill="#2d2640">Filled range</text>
+  <circle cx="215" cy="58" r="4" fill="#5b6abf" opacity="0.8"/>
+  <text x="223" y="61" font-family="sans-serif" font-size="7" fill="#2d2640">Thumb</text>
+</svg>

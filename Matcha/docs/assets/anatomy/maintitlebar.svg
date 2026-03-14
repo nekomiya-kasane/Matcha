@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 110" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 4; }
+      .row1-bg { fill: #2d2640; }
+      .row2-bg { fill: #3b2d5e; }
+      .label { fill: #fffffc; font-size: 11px; }
+      .label-dark { fill: #2d2640; font-size: 11px; }
+      .slot { fill: #5b6abf; font-size: 11px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 10px; font-style: italic; }
+    </style>
+  </defs>
+  <!-- Row 1 -->
+  <rect class="row1-bg" x="10" y="10" width="680" height="36" rx="4"/>
+  <rect class="border" x="10" y="10" width="680" height="36"/>
+  <text class="desc" x="12" y="6" fill="#8b5fbf">Row 1 (SurfaceSunken, 40px)</text>
+  <!-- slots -->
+  <rect x="16" y="16" width="32" height="24" rx="3" fill="#5b6abf" opacity="0.3"/>
+  <text class="label" x="24" y="32" font-size="9">Logo</text>
+  <text class="slot" x="16" y="56">①</text>
+  <rect x="56" y="16" width="100" height="24" rx="3" fill="#5b6abf" opacity="0.2"/>
+  <text class="label" x="80" y="32" font-size="9">MenuBar</text>
+  <text class="slot" x="80" y="56">②</text>
+  <rect x="164" y="16" width="280" height="24" rx="3" fill="none" stroke="#5b6abf" stroke-width="1" stroke-dasharray="4"/>
+  <text class="label" x="260" y="32" text-anchor="middle" font-size="9" opacity="0.6">drag area (flex)</text>
+  <text class="slot" x="270" y="56">③</text>
+  <rect x="452" y="16" width="70" height="24" rx="3" fill="#8b5fbf" opacity="0.2"/>
+  <text class="label" x="468" y="32" font-size="9">QuickCmd</text>
+  <text class="slot" x="466" y="56">④</text>
+  <rect x="530" y="16" width="50" height="24" rx="3" fill="#8b5fbf" opacity="0.2"/>
+  <text class="label" x="540" y="32" font-size="9">Btns</text>
+  <text class="slot" x="540" y="56">⑤</text>
+  <!-- system buttons -->
+  <rect x="590" y="16" width="24" height="24" rx="2" fill="#5b6abf" opacity="0.2"/>
+  <text class="label" x="598" y="32" font-size="10">─</text>
+  <rect x="618" y="16" width="24" height="24" rx="2" fill="#5b6abf" opacity="0.2"/>
+  <text class="label" x="626" y="32" font-size="10">□</text>
+  <rect x="646" y="16" width="24" height="24" rx="2" fill="#ffadad" opacity="0.4"/>
+  <text class="label" x="654" y="32" font-size="10">×</text>
+  <text class="slot" x="618" y="56">⑥</text>
+  <!-- Row 2 -->
+  <rect class="row2-bg" x="10" y="50" width="680" height="30" rx="4"/>
+  <rect class="border" x="10" y="50" width="680" height="30"/>
+  <text class="desc" x="12" y="48" fill="#8b5fbf">Row 2 (PrimaryBg, 32px)</text>
+  <rect x="16" y="55" width="300" height="20" rx="3" fill="#5b6abf" opacity="0.15"/>
+  <text class="label" x="24" y="69" font-size="9">DocumentBar: Tab A | Tab B* | Tab C | +</text>
+  <text class="slot" x="330" y="69">⑦</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="100" fill="#8b5fbf">① LogoButton  ② MenuBar  ③ Drag area  ④ QuickCommand  ⑤ Global action btns  ⑥ System btns (Min/Max/Close)  ⑦ DocumentBar (Row 2)</text>
+</svg>

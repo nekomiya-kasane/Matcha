@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 90" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #eaf8ff; }
+      .label { fill: #2d2640; font-size: 12px; }
+      .slot { fill: #5b6abf; font-size: 11px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 11px; font-style: italic; }
+      .icon { fill: #e8a840; font-size: 18px; }
+    </style>
+  </defs>
+  <!-- outer border -->
+  <rect class="fill-bg" x="10" y="10" width="540" height="65" rx="6"/>
+  <rect class="border" x="10" y="10" width="540" height="65"/>
+  <!-- title -->
+  <text class="label" x="20" y="6" font-weight="700" font-size="11" fill="#3b2d5e">Alert Banner (inline, full width)</text>
+  <!-- icon slot -->
+  <text class="icon" x="28" y="42">⚠</text>
+  <text class="slot" x="22" y="62">①</text>
+  <!-- message text -->
+  <text class="label" x="60" y="40">Alert message text content here</text>
+  <text class="slot" x="60" y="56">②</text>
+  <!-- description line -->
+  <text class="desc" x="60" y="62" font-size="11">Optional description / detail text</text>
+  <text class="slot" x="280" y="56">③</text>
+  <!-- close button -->
+  <rect x="498" y="22" width="28" height="28" rx="4" fill="#d8cfe8" opacity="0.5"/>
+  <text class="label" x="506" y="42" font-size="16">×</text>
+  <text class="slot" x="504" y="62">④</text>
+  <!-- legend -->
+  <text class="desc" x="10" y="88">① Semantic icon  ② Title/message  ③ Description (optional)  ④ Close button (optional)</text>
+</svg>

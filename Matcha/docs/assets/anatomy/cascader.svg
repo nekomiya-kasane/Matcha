@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #eaf8ff; }
+      .fill-panel { fill: #fffffc; }
+      .label { fill: #2d2640; font-size: 12px; }
+      .slot { fill: #5b6abf; font-size: 11px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 11px; font-style: italic; }
+      .selected { fill: #5b6abf; opacity: 0.12; }
+    </style>
+  </defs>
+  <!-- Trigger -->
+  <rect class="fill-bg" x="10" y="10" width="380" height="36" rx="6"/>
+  <rect class="border" x="10" y="10" width="380" height="36"/>
+  <text class="label" x="20" y="33">Province / City / District</text>
+  <text class="label" x="362" y="33">▼</text>
+  <text class="slot" x="396" y="33">① Trigger</text>
+  <!-- arrow -->
+  <text class="desc" x="180" y="62">↓ (open)</text>
+  <!-- Level 0 -->
+  <rect class="fill-panel" x="10" y="72" width="150" height="100" rx="4"/>
+  <rect class="border" x="10" y="72" width="150" height="100"/>
+  <text class="desc" x="15" y="67" font-size="10">Level 0</text>
+  <text class="label" x="20" y="94">Province A   ▶</text>
+  <rect class="selected" x="12" y="100" width="146" height="22" rx="3"/>
+  <text class="label" x="20" y="116" font-weight="700">Province B   ▶</text>
+  <text class="label" x="20" y="138">Province C   ▶</text>
+  <text class="slot" x="20" y="158">②</text>
+  <!-- Level 1 -->
+  <rect class="fill-panel" x="170" y="72" width="150" height="100" rx="4"/>
+  <rect class="border" x="170" y="72" width="150" height="100"/>
+  <text class="desc" x="175" y="67" font-size="10">Level 1</text>
+  <text class="label" x="180" y="94">City A-1   ▶</text>
+  <rect class="selected" x="172" y="100" width="146" height="22" rx="3"/>
+  <text class="label" x="180" y="116" font-weight="700">City A-2   ▶</text>
+  <text class="label" x="180" y="138">City A-3   ▶</text>
+  <text class="slot" x="180" y="158">②</text>
+  <!-- Level 2 -->
+  <rect class="fill-panel" x="330" y="72" width="150" height="100" rx="4"/>
+  <rect class="border" x="330" y="72" width="150" height="100"/>
+  <text class="desc" x="335" y="67" font-size="10">Level 2</text>
+  <text class="label" x="340" y="94">District X</text>
+  <rect class="selected" x="332" y="100" width="146" height="22" rx="3"/>
+  <text class="label" x="340" y="116" font-weight="700">District Y</text>
+  <text class="label" x="340" y="138">District Z</text>
+  <text class="slot" x="340" y="158">②</text>
+  <!-- Chevron callout -->
+  <text class="slot" x="10" y="195">③ Chevron (▶) on non-leaf items</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="215">① Trigger field (ComboBox styling)  ② Level panels (one per depth, Menu styling)  ③ Chevron on non-leaf items</text>
+</svg>

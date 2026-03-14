@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" width="400" height="160">
+  <!-- Title -->
+  <text x="200" y="16" font-family="sans-serif" font-size="11" fill="#2d2640" text-anchor="middle" font-weight="600">Line (Separator) Anatomy</text>
+
+  <!-- === Horizontal variant === -->
+  <text x="20" y="42" font-family="sans-serif" font-size="10" fill="#3b2d5e" font-weight="600">Horizontal</text>
+
+  <!-- Parent container outline -->
+  <rect x="20" y="50" width="360" height="40" rx="3" ry="3" fill="none" stroke="#d8cfe8" stroke-width="1" stroke-dasharray="4 2"/>
+  <text x="385" y="74" font-family="sans-serif" font-size="7" fill="#d8cfe8" text-anchor="end">parent</text>
+
+  <!-- Margin zone left -->
+  <rect x="20" y="66" width="28" height="8" rx="1" ry="1" fill="#8b5fbf" opacity="0.2"/>
+  <text x="34" y="64" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">8px</text>
+
+  <!-- The 1px line -->
+  <line x1="48" y1="70" x2="352" y2="70" stroke="#5b6abf" stroke-width="1.5"/>
+
+  <!-- Margin zone right -->
+  <rect x="352" y="66" width="28" height="8" rx="1" ry="1" fill="#8b5fbf" opacity="0.2"/>
+  <text x="366" y="64" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="middle">8px</text>
+
+  <!-- Height annotation -->
+  <line x1="200" y1="76" x2="200" y2="86" stroke="#3b2d5e" stroke-width="0.6"/>
+  <text x="200" y="94" font-family="sans-serif" font-size="7" fill="#3b2d5e" text-anchor="middle">1px height · ColorToken::Separator</text>
+
+  <!-- === Vertical variant === -->
+  <text x="20" y="116" font-family="sans-serif" font-size="10" fill="#3b2d5e" font-weight="600">Vertical</text>
+
+  <!-- Parent container outline -->
+  <rect x="20" y="120" width="60" height="30" rx="3" ry="3" fill="none" stroke="#d8cfe8" stroke-width="1" stroke-dasharray="4 2"/>
+
+  <!-- Margin zone top -->
+  <rect x="47" y="120" width="6" height="6" rx="0" ry="0" fill="#8b5fbf" opacity="0.2"/>
+  <text x="62" y="126" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="start">8px</text>
+
+  <!-- The 1px vertical line -->
+  <line x1="50" y1="126" x2="50" y2="144" stroke="#5b6abf" stroke-width="1.5"/>
+
+  <!-- Margin zone bottom -->
+  <rect x="47" y="144" width="6" height="6" rx="0" ry="0" fill="#8b5fbf" opacity="0.2"/>
+  <text x="62" y="150" font-family="sans-serif" font-size="7" fill="#8b5fbf" text-anchor="start">8px</text>
+
+  <!-- Width annotation -->
+  <text x="50" y="160" font-family="sans-serif" font-size="7" fill="#3b2d5e" text-anchor="middle">1px width</text>
+
+  <!-- Legend -->
+  <rect x="160" y="122" width="8" height="8" rx="1" fill="#5b6abf"/>
+  <text x="172" y="130" font-family="sans-serif" font-size="8" fill="#2d2640">Separator (1px)</text>
+  <rect x="250" y="122" width="8" height="8" rx="1" fill="#8b5fbf" opacity="0.3"/>
+  <text x="262" y="130" font-family="sans-serif" font-size="8" fill="#2d2640">Margin (SpacingToken::Px8)</text>
+</svg>

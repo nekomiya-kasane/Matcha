@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 180" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #fffffc; }
+      .label { fill: #2d2640; font-size: 11px; }
+      .desc { fill: #8b5fbf; font-size: 10px; font-style: italic; }
+      .stack-bg { fill: #eaf8ff; }
+      .cmd { fill: #5b6abf; opacity: 0.15; stroke: #5b6abf; stroke-width: 0.8; rx: 3; }
+      .arrow { stroke: #5b6abf; stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#5b6abf"/>
+    </marker>
+  </defs>
+  <!-- Main box -->
+  <rect class="fill-bg" x="120" y="10" width="300" height="130" rx="6"/>
+  <rect class="border" x="120" y="10" width="300" height="130"/>
+  <text class="label" x="200" y="30" font-weight="700">CommandStack (per Document)</text>
+  <!-- undoStack -->
+  <text class="label" x="136" y="54" font-size="10">undoStack:</text>
+  <rect class="cmd" x="210" y="42" width="46" height="18" rx="3"/>
+  <text class="label" x="220" y="54" font-size="9">Cmd1</text>
+  <rect class="cmd" x="262" y="42" width="46" height="18" rx="3"/>
+  <text class="label" x="272" y="54" font-size="9">Cmd2</text>
+  <rect class="cmd" x="314" y="42" width="46" height="18" rx="3"/>
+  <text class="label" x="324" y="54" font-size="9">Cmd3</text>
+  <!-- redoStack -->
+  <text class="label" x="136" y="82" font-size="10">redoStack:</text>
+  <rect class="cmd" x="210" y="70" width="46" height="18" rx="3"/>
+  <text class="label" x="220" y="82" font-size="9">Cmd4</text>
+  <!-- maxDepth -->
+  <text class="label" x="136" y="110" font-size="10">maxDepth: 100</text>
+  <!-- Execute arrow -->
+  <line class="arrow" x1="30" y1="50" x2="116" y2="50"/>
+  <text class="label" x="40" y="44" font-size="10" font-weight="600">Execute</text>
+  <!-- Undo annotation -->
+  <text class="desc" x="430" y="54">← Undo pops here</text>
+  <!-- Redo annotation -->
+  <text class="desc" x="430" y="82">← Redo pops here</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="165">Execute: cmd.Execute()→push undo→clear redo | Undo: pop undo→cmd.Undo()→push redo | Redo: pop redo→cmd.Redo()→push undo</text>
+</svg>

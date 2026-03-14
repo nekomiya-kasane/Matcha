@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" width="360" height="200">
+  <!-- Title -->
+  <text x="180" y="18" font-family="sans-serif" font-size="12" fill="#2d2640" text-anchor="middle" font-weight="600">Icon Grid Anatomy (N = 16px example)</text>
+
+  <!-- Outer canvas 16x16 scaled to 120x120 -->
+  <rect x="30" y="34" width="120" height="120" rx="2" ry="2" fill="#eaf8ff" stroke="#3b2d5e" stroke-width="1.5"/>
+  <text x="90" y="170" font-family="sans-serif" font-size="9" fill="#3b2d5e" text-anchor="middle">16 × 16 px canvas</text>
+
+  <!-- 2px padding zones (scaled: 2/16 * 120 = 15px) -->
+  <!-- top padding -->
+  <rect x="30" y="34" width="120" height="15" rx="0" ry="0" fill="#8b5fbf" opacity="0.18"/>
+  <!-- bottom padding -->
+  <rect x="30" y="139" width="120" height="15" rx="0" ry="0" fill="#8b5fbf" opacity="0.18"/>
+  <!-- left padding -->
+  <rect x="30" y="49" width="15" height="90" rx="0" ry="0" fill="#8b5fbf" opacity="0.18"/>
+  <!-- right padding -->
+  <rect x="135" y="49" width="15" height="90" rx="0" ry="0" fill="#8b5fbf" opacity="0.18"/>
+
+  <!-- Safe area 12x12 scaled to 90x90 -->
+  <rect x="45" y="49" width="90" height="90" rx="1" ry="1" fill="none" stroke="#5b6abf" stroke-width="1.5" stroke-dasharray="4 2"/>
+
+  <!-- Glyph placeholder -->
+  <rect x="55" y="59" width="70" height="70" rx="4" ry="4" fill="#caffbf" opacity="0.4"/>
+  <text x="90" y="98" font-family="sans-serif" font-size="13" fill="#2d2640" text-anchor="middle" font-weight="500">Glyph</text>
+
+  <!-- Dimension annotations — right side -->
+  <!-- Canvas height -->
+  <line x1="165" y1="34" x2="165" y2="154" stroke="#3b2d5e" stroke-width="0.8"/>
+  <line x1="158" y1="34" x2="172" y2="34" stroke="#3b2d5e" stroke-width="0.8"/>
+  <line x1="158" y1="154" x2="172" y2="154" stroke="#3b2d5e" stroke-width="0.8"/>
+  <text x="180" y="98" font-family="sans-serif" font-size="9" fill="#3b2d5e" text-anchor="start">N px</text>
+
+  <!-- Padding top -->
+  <line x1="195" y1="34" x2="195" y2="49" stroke="#8b5fbf" stroke-width="0.8"/>
+  <line x1="188" y1="34" x2="202" y2="34" stroke="#8b5fbf" stroke-width="0.8"/>
+  <line x1="188" y1="49" x2="202" y2="49" stroke="#8b5fbf" stroke-width="0.8"/>
+  <text x="208" y="45" font-family="sans-serif" font-size="8" fill="#8b5fbf" text-anchor="start">2px pad</text>
+
+  <!-- Safe area height -->
+  <line x1="225" y1="49" x2="225" y2="139" stroke="#5b6abf" stroke-width="0.8"/>
+  <line x1="218" y1="49" x2="232" y2="49" stroke="#5b6abf" stroke-width="0.8"/>
+  <line x1="218" y1="139" x2="232" y2="139" stroke="#5b6abf" stroke-width="0.8"/>
+  <text x="238" y="98" font-family="sans-serif" font-size="8" fill="#5b6abf" text-anchor="start">12 × 12 safe</text>
+
+  <!-- Legend -->
+  <rect x="30" y="180" width="10" height="10" rx="1" fill="#8b5fbf" opacity="0.3"/>
+  <text x="44" y="189" font-family="sans-serif" font-size="8" fill="#2d2640">2px padding</text>
+  <rect x="110" y="180" width="10" height="10" rx="1" fill="none" stroke="#5b6abf" stroke-width="1" stroke-dasharray="2 1"/>
+  <text x="124" y="189" font-family="sans-serif" font-size="8" fill="#2d2640">Safe area</text>
+  <rect x="190" y="180" width="10" height="10" rx="1" fill="#caffbf" opacity="0.5"/>
+  <text x="204" y="189" font-family="sans-serif" font-size="8" fill="#2d2640">Glyph (1.5px stroke)</text>
+</svg>

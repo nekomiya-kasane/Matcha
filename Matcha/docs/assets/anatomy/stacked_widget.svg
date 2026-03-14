@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" font-family="Segoe UI, sans-serif">
+  <style>
+    .outer { fill: #2d2640; stroke: #5b6abf; stroke-width: 1; rx: 6; }
+    .page-hidden { fill: #3b2d5e; stroke: #5b6abf; stroke-width: 0.5; rx: 4; opacity: 0.4; stroke-dasharray: 4 2; }
+    .page-visible { fill: #3b2d5e; stroke: #8b5fbf; stroke-width: 1.5; rx: 4; }
+    .label { fill: #fffffc; font-size: 11px; text-anchor: middle; }
+    .dim { fill: #d8cfe8; font-size: 10px; fill-opacity: 0.6; }
+    .ann { fill: #e8a840; font-size: 9px; }
+  </style>
+  <!-- Outer container -->
+  <rect width="360" height="200" class="outer"/>
+  <text x="12" y="18" class="dim" font-weight="600">StackedWidget</text>
+  <!-- Page 0 (hidden) -->
+  <rect x="30" y="35" width="260" height="60" class="page-hidden"/>
+  <text x="160" y="70" class="label" opacity="0.5">[Page 0 content]</text>
+  <text x="300" y="55" class="ann">z: 0, opacity: 0</text>
+  <!-- Page 1 (visible) -->
+  <rect x="30" y="105" width="260" height="60" class="page-visible"/>
+  <text x="160" y="140" class="label">[Page 1 content]</text>
+  <text x="300" y="125" class="ann">z: 1, opacity: 1</text>
+  <!-- Annotations -->
+  <text x="12" y="192" class="dim">currentIndex = 1</text>
+  <text x="200" y="192" class="dim">Transition: fade / slide (configurable)</text>
+</svg>

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 200" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #fffffc; }
+      .label { fill: #2d2640; font-size: 12px; }
+      .slot { fill: #5b6abf; font-size: 11px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 11px; font-style: italic; }
+      .search-bg { fill: #eaf8ff; }
+      .selected { fill: #5b6abf; opacity: 0.1; }
+      .btn-bg { fill: #d8cfe8; }
+    </style>
+  </defs>
+  <!-- Source List -->
+  <rect class="fill-bg" x="10" y="10" width="220" height="160" rx="6"/>
+  <rect class="border" x="10" y="10" width="220" height="160"/>
+  <text class="label" x="15" y="6" font-weight="700" font-size="11" fill="#3b2d5e">Source List</text>
+  <!-- search box -->
+  <rect class="search-bg" x="18" y="18" width="204" height="24" rx="4"/>
+  <text class="label" x="28" y="35" font-size="11">🔍 Search</text>
+  <text class="slot" x="170" y="35">⑤</text>
+  <!-- items -->
+  <text class="label" x="28" y="60">☐ Item A</text>
+  <rect class="selected" x="18" y="64" width="204" height="20" rx="3"/>
+  <text class="label" x="28" y="80">☑ Item B</text>
+  <text class="label" x="28" y="100">☐ Item C</text>
+  <!-- title -->
+  <text class="desc" x="28" y="130">Title: Available (3)</text>
+  <text class="slot" x="28" y="150">⑥</text>
+  <text class="slot" x="18" y="182">①</text>
+  <!-- Move buttons -->
+  <rect class="btn-bg" x="248" y="65" width="36" height="28" rx="6"/>
+  <text class="label" x="260" y="84" text-anchor="middle" font-weight="700">▶</text>
+  <text class="slot" x="248" y="110">③</text>
+  <rect class="btn-bg" x="248" y="100" width="36" height="28" rx="6"/>
+  <text class="label" x="260" y="119" text-anchor="middle" font-weight="700">◀</text>
+  <text class="slot" x="248" y="145">④</text>
+  <!-- Target List -->
+  <rect class="fill-bg" x="302" y="10" width="220" height="160" rx="6"/>
+  <rect class="border" x="302" y="10" width="220" height="160"/>
+  <text class="label" x="307" y="6" font-weight="700" font-size="11" fill="#3b2d5e">Target List</text>
+  <!-- search box -->
+  <rect class="search-bg" x="310" y="18" width="204" height="24" rx="4"/>
+  <text class="label" x="320" y="35" font-size="11">🔍 Search</text>
+  <text class="slot" x="462" y="35">⑤</text>
+  <!-- items -->
+  <text class="label" x="320" y="60">☐ Item D</text>
+  <rect class="selected" x="310" y="64" width="204" height="20" rx="3"/>
+  <text class="label" x="320" y="80">☑ Item E</text>
+  <text class="label" x="320" y="100">☐ Item F</text>
+  <!-- title -->
+  <text class="desc" x="320" y="130">Title: Selected (3)</text>
+  <text class="slot" x="320" y="150">⑥</text>
+  <text class="slot" x="310" y="182">②</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="198">① Source list  ② Target list  ③ Move-right  ④ Move-left  ⑤ Search box (optional)  ⑥ Title + count (optional)</text>
+</svg>

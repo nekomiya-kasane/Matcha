@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 4; }
+      .fill-bg { fill: #fffffc; }
+      .header-bg { fill: #2d2640; }
+      .label { fill: #2d2640; font-size: 11px; }
+      .label-light { fill: #fffffc; font-size: 10px; }
+      .slot { fill: #5b6abf; font-size: 10px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 10px; font-style: italic; }
+      .divider { stroke: #d8cfe8; stroke-width: 1; }
+    </style>
+  </defs>
+  <!-- Outer window -->
+  <rect class="fill-bg" x="10" y="10" width="660" height="370" rx="8"/>
+  <rect class="border" x="10" y="10" width="660" height="370"/>
+  <!-- MainTitleBar Row 1 -->
+  <rect class="header-bg" x="12" y="12" width="656" height="32" rx="6"/>
+  <text class="label-light" x="20" y="32" font-weight="600">MainTitleBar (64px, 2 rows)</text>
+  <rect x="18" y="18" width="28" height="20" rx="3" fill="#5b6abf" opacity="0.3"/>
+  <text class="label-light" x="24" y="32" font-size="8">Logo</text>
+  <rect x="52" y="18" width="80" height="20" rx="3" fill="#5b6abf" opacity="0.2"/>
+  <text class="label-light" x="68" y="32" font-size="8">MenuBar</text>
+  <rect x="138" y="18" width="200" height="20" rx="3" fill="none" stroke="#5b6abf" stroke-width="0.8" stroke-dasharray="3"/>
+  <text class="label-light" x="200" y="32" text-anchor="middle" font-size="8" opacity="0.6">QuickCmds</text>
+  <rect x="344" y="18" width="80" height="20" rx="3" fill="#5b6abf" opacity="0.2"/>
+  <text class="label-light" x="364" y="32" font-size="8">DocBar</text>
+  <rect x="430" y="18" width="80" height="20" rx="3" fill="#5b6abf" opacity="0.15"/>
+  <text class="label-light" x="446" y="32" font-size="8">GlobalBtns</text>
+  <!-- system btns -->
+  <rect x="600" y="18" width="16" height="20" rx="2" fill="#5b6abf" opacity="0.2"/>
+  <rect x="620" y="18" width="16" height="20" rx="2" fill="#5b6abf" opacity="0.2"/>
+  <rect x="640" y="18" width="16" height="20" rx="2" fill="#ffadad" opacity="0.3"/>
+  <!-- Row 2 -->
+  <rect x="12" y="46" width="656" height="26" rx="3" fill="#3b2d5e"/>
+  <text class="label-light" x="20" y="63" font-size="9">Row 2: [DocumentBar tabs]</text>
+  <!-- WorkspaceFrame -->
+  <rect x="12" y="76" width="656" height="272" rx="3" fill="#eaf8ff" opacity="0.3"/>
+  <rect x="12" y="76" width="656" height="272" rx="3" fill="none" stroke="#5b6abf" stroke-width="1"/>
+  <text class="label" x="18" y="90" font-weight="600" font-size="10">WorkspaceFrame</text>
+  <!-- Document Area (main center) -->
+  <rect x="18" y="98" width="486" height="190" rx="4" fill="#fffffc"/>
+  <rect x="18" y="98" width="486" height="190" rx="4" fill="none" stroke="#5b6abf" stroke-width="1"/>
+  <text class="label" x="220" y="118" text-anchor="middle" font-weight="600" font-size="10">DocumentArea</text>
+  <!-- Viewports -->
+  <rect x="26" y="128" width="230" height="148" rx="3" fill="#b8e4f9" opacity="0.2"/>
+  <rect x="26" y="128" width="230" height="148" rx="3" fill="none" stroke="#5b6abf" stroke-width="0.8"/>
+  <text class="label" x="120" y="206" text-anchor="middle" font-size="10">Viewport (1)</text>
+  <rect x="262" y="128" width="236" height="148" rx="3" fill="#b8e4f9" opacity="0.2"/>
+  <rect x="262" y="128" width="236" height="148" rx="3" fill="none" stroke="#5b6abf" stroke-width="0.8"/>
+  <text class="label" x="360" y="206" text-anchor="middle" font-size="10">Viewport (2)</text>
+  <!-- ActionBar (docked bottom, below DocumentArea) -->
+  <rect x="18" y="292" width="486" height="36" rx="4" fill="#d8cfe8" opacity="0.3"/>
+  <rect x="18" y="292" width="486" height="36" rx="4" fill="none" stroke="#5b6abf" stroke-width="1"/>
+  <text class="label" x="200" y="314" text-anchor="middle" font-size="9" font-weight="600">ActionBar (docked bottom, h=auto)</text>
+  <!-- Property Panel -->
+  <rect x="510" y="98" width="150" height="230" rx="4" fill="#fff0d6" opacity="0.3"/>
+  <rect x="510" y="98" width="150" height="230" rx="4" fill="none" stroke="#5b6abf" stroke-width="1"/>
+  <text class="label" x="548" y="118" font-weight="600" font-size="10">Property Panel</text>
+  <text class="desc" x="548" y="132">(280px default)</text>
+  <!-- StatusBar -->
+  <rect x="12" y="352" width="656" height="22" rx="3" fill="#d8cfe8" opacity="0.3"/>
+  <rect x="12" y="352" width="656" height="22" rx="3" fill="none" stroke="#5b6abf" stroke-width="1"/>
+  <text class="label" x="20" y="367" font-size="9">StatusBar (24px)</text>
+  <text class="desc" x="130" y="367">[Left: status text]</text>
+  <text class="desc" x="300" y="367">[Center: coordinates]</text>
+  <text class="desc" x="500" y="367">[Right: progress]</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="394">Shell Layout: MainTitleBar (2 rows) → WorkspaceFrame (ActionBar + DocumentArea + PropertyPanel) → StatusBar</text>
+</svg>

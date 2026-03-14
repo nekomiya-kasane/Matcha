@@ -1,0 +1,324 @@
+<style>
+/* =======================================================================
+ * Confirm Dialog — §6.2.3
+ *
+ * Spec:
+ *   Width: 400px fixed
+ *   TitleBar: [Icon] Title [×], 40px height, BodyBold font, Px12+Px16 padding
+ *   Body: Message text, Body font, TextPrimary, max 3 lines, Px16 padding
+ *   Footer: [Cancel] [Confirm], right-aligned, Px12+Px16 padding
+ *   Confirm: Primary variant (or Danger for destructive)
+ *   Cancel: Secondary (neutral) variant
+ *   Shadow: ElevationToken::High (§4.5)
+ *   Radius: RadiusToken::Large = 8px (§4.3)
+ *   Animation: fade+scale entry 200ms OutCubic (§8.1)
+ * ======================================================================= */
+
+/* -- Scrim (modal backdrop, §2.4) --------------------------------------- */
+.demo-scrim {
+  position: relative;
+  width: 100%;
+  min-height: 360px;
+  background: var(--color-scrim);
+  border-radius: var(--radius-large);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* -- Dialog container --------------------------------------------------- */
+.confirm-dialog {
+  width: 400px;
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-high);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: dialog-enter var(--duration-normal) var(--easing-out-cubic) both;
+}
+
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* -- Title bar (§6.2.3: DialogTitleBar) --------------------------------- */
+.confirm-dialog__title-bar {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-12) var(--spacing-16);
+  gap: var(--spacing-8);
+  border-bottom: 1px solid var(--color-border-subtle);
+  min-height: var(--size-lg);             /* 40px */
+}
+
+.confirm-dialog__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-dialog__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.confirm-dialog__title {
+  flex: 1;
+  font-size: var(--font-heading-size);     /* 12pt */
+  font-weight: var(--font-heading-weight); /* 600 */
+  color: var(--color-text-primary);
+  line-height: var(--font-line-height);
+}
+
+.confirm-dialog__close {
+  width: var(--size-sm);                   /* 24px */
+  height: var(--size-sm);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-default);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: background var(--duration-quick) var(--easing-out-cubic),
+              color var(--duration-quick) var(--easing-out-cubic);
+}
+
+.confirm-dialog__close:hover {
+  background: var(--color-fill-hover);
+  color: var(--color-text-primary);
+}
+
+.confirm-dialog__close:active {
+  background: var(--color-fill-active);
+}
+
+.confirm-dialog__close svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* -- Body (§6.2.3: Padding Px16, Body font, TextPrimary) ---------------- */
+.confirm-dialog__body {
+  padding: var(--spacing-16);
+  color: var(--color-text-primary);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-line-height);
+  /* max 3 lines with ellipsis */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* -- Footer (§6.2.3: right-aligned buttons) ----------------------------- */
+.confirm-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+/* -- Buttons (§4.9 variant patterns) ------------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--size-md);              /* 32px */
+  padding: var(--spacing-4) var(--spacing-16);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-default);    /* 3px */
+  font-family: var(--font-family);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-line-height);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--duration-quick) var(--easing-out-cubic),
+              border-color var(--duration-quick) var(--easing-out-cubic),
+              color var(--duration-quick) var(--easing-out-cubic),
+              box-shadow var(--duration-quick) var(--easing-out-cubic),
+              opacity var(--duration-quick) var(--easing-out-cubic);
+}
+
+/* Neutral (Cancel) — §4.9.1 */
+.btn--secondary {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-default);
+}
+.btn--secondary:hover {
+  background: var(--color-fill-hover);
+  border-color: var(--color-border-strong);
+}
+.btn--secondary:active {
+  background: var(--color-fill-active);
+  border-color: var(--color-border-strong);
+}
+
+/* Primary (Confirm) — §4.9.2 */
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-on-accent);
+  border-color: var(--color-primary);
+}
+.btn--primary:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+.btn--primary:active {
+  background: var(--color-primary-active);
+  border-color: var(--color-primary-active);
+}
+
+/* Danger (Destructive confirm) — §4.9.4 */
+.btn--danger {
+  background: var(--color-error);
+  color: var(--color-on-accent);
+  border-color: var(--color-error);
+}
+.btn--danger:hover {
+  background: var(--color-error-hover);
+  border-color: var(--color-error-hover);
+}
+.btn--danger:active {
+  background: var(--color-error-active);
+  border-color: var(--color-error-active);
+}
+
+/* Focus ring — all buttons */
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus);
+}
+
+/* Disabled — §2.7 alpha orthogonality */
+.btn[data-state="disabled"] {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* -- Danger variant of entire dialog ------------------------------------ */
+.confirm-dialog[data-variant="danger"] .confirm-dialog__icon svg {
+  color: var(--color-error);
+}
+
+/* -----------------------------------------------------------------------
+ * Demo layout — shows both normal and danger variants side by side
+ * ----------------------------------------------------------------------- */
+.demo-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+}
+
+.demo-label {
+  font-size: var(--font-caption-size);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: -20px;
+  z-index: 1;
+  background: var(--color-surface);
+  padding: 2px 8px;
+  border-radius: var(--radius-default);
+}
+</style>
+
+<!-- =======================================================================
+  Demo: Confirm Dialog (normal + danger variants)
+  ======================================================================= -->
+<div class="demo-grid">
+
+  <!-- Label -->
+  <span class="demo-label">Normal Confirm</span>
+
+  <!-- Normal variant — scrim background -->
+  <div class="demo-scrim">
+    <div class="confirm-dialog" data-stateful>
+
+      <!-- TitleBar: [Icon] Title [×] -->
+      <div class="confirm-dialog__title-bar">
+        <span class="confirm-dialog__icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="10" r="8"/>
+            <line x1="10" y1="6.5" x2="10" y2="10.5"/>
+            <circle cx="10" cy="13.5" r="0.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        <span class="confirm-dialog__title">Save Changes</span>
+        <button class="confirm-dialog__close" data-stateful>
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <line x1="3" y1="3" x2="11" y2="11"/>
+            <line x1="11" y1="3" x2="3" y2="11"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="confirm-dialog__body">
+        You have unsaved changes in "Assembly_v3.catpart". Do you want to save before closing?
+      </div>
+
+      <!-- Footer: [Cancel] [Confirm] -->
+      <div class="confirm-dialog__footer">
+        <button class="btn btn--secondary" data-stateful>Cancel</button>
+        <button class="btn btn--primary" data-stateful>Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Label -->
+  <span class="demo-label">Danger Confirm (destructive)</span>
+
+  <!-- Danger variant -->
+  <div class="demo-scrim">
+    <div class="confirm-dialog" data-variant="danger" data-stateful>
+
+      <div class="confirm-dialog__title-bar">
+        <span class="confirm-dialog__icon" style="color: var(--color-error)">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8.6 3.3 1.5 15.5a1.5 1.5 0 0 0 1.3 2.2h14.4a1.5 1.5 0 0 0 1.3-2.2L11.4 3.3a1.5 1.5 0 0 0-2.8 0Z"/>
+            <line x1="10" y1="8" x2="10" y2="12"/>
+            <circle cx="10" cy="14.5" r="0.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        <span class="confirm-dialog__title">Delete 3 Nodes</span>
+        <button class="confirm-dialog__close" data-stateful>
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <line x1="3" y1="3" x2="11" y2="11"/>
+            <line x1="11" y1="3" x2="3" y2="11"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="confirm-dialog__body">
+        This will permanently delete 3 selected nodes and all their child geometry. This action cannot be undone.
+      </div>
+
+      <div class="confirm-dialog__footer">
+        <button class="btn btn--secondary" data-stateful>Cancel</button>
+        <button class="btn btn--danger" data-stateful>Delete</button>
+      </div>
+    </div>
+  </div>
+
+</div>

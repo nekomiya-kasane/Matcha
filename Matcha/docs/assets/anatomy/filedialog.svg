@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #fffffc; }
+      .fill-panel { fill: #eaf8ff; }
+      .label { fill: #2d2640; font-size: 11px; }
+      .slot { fill: #5b6abf; font-size: 11px; font-weight: 600; }
+      .desc { fill: #8b5fbf; font-size: 10px; font-style: italic; }
+      .header-bg { fill: #2d2640; }
+      .header-text { fill: #fffffc; font-size: 12px; }
+      .divider { stroke: #d8cfe8; stroke-width: 1; }
+    </style>
+  </defs>
+  <!-- Dialog chrome -->
+  <rect class="fill-bg" x="10" y="10" width="540" height="280" rx="8"/>
+  <rect class="border" x="10" y="10" width="540" height="280"/>
+  <!-- Title bar -->
+  <rect class="header-bg" x="10" y="10" width="540" height="30" rx="8"/>
+  <rect class="header-bg" x="10" y="28" width="540" height="12"/>
+  <text class="header-text" x="20" y="30" font-weight="700">Title: "Open File"</text>
+  <rect x="522" y="16" width="20" height="20" rx="3" fill="#ffadad" opacity="0.4"/>
+  <text class="header-text" x="528" y="30" font-size="12">×</text>
+  <text class="slot" x="554" y="30">①</text>
+  <!-- Sidebar -->
+  <rect class="fill-panel" x="18" y="48" width="110" height="180" rx="4"/>
+  <rect x="18" y="48" width="110" height="180" rx="4" fill="none" stroke="#5b6abf" stroke-width="1"/>
+  <text class="desc" x="22" y="44" font-size="10">Sidebar</text>
+  <text class="label" x="30" y="68">⭐ Favorites</text>
+  <text class="label" x="30" y="88">🏠 Home</text>
+  <text class="label" x="30" y="108">📁 Recent</text>
+  <text class="label" x="30" y="128">💻 This PC</text>
+  <text class="slot" x="56" y="200">②</text>
+  <!-- Path bar -->
+  <rect x="136" y="48" width="406" height="24" rx="4" fill="#d8cfe8" opacity="0.3"/>
+  <rect x="136" y="48" width="406" height="24" rx="4" fill="none" stroke="#5b6abf" stroke-width="1"/>
+  <text class="label" x="144" y="64">C: / Users / Project / Assets</text>
+  <text class="slot" x="544" y="64">③</text>
+  <!-- File list header -->
+  <line class="divider" x1="136" y1="78" x2="542" y2="78"/>
+  <text class="label" x="144" y="92" font-weight="700" font-size="10">Name</text>
+  <text class="label" x="330" y="92" font-weight="700" font-size="10">Size</text>
+  <text class="label" x="420" y="92" font-weight="700" font-size="10">Date</text>
+  <text class="slot" x="544" y="92">④</text>
+  <!-- File items -->
+  <text class="label" x="144" y="112">📁 textures</text>
+  <text class="label" x="330" y="112">—</text>
+  <text class="label" x="420" y="112">2025-01-10</text>
+  <rect x="138" y="116" width="400" height="18" rx="3" fill="#5b6abf" opacity="0.08"/>
+  <text class="label" x="144" y="132">📄 model.obj</text>
+  <text class="label" x="330" y="132">12 MB</text>
+  <text class="label" x="420" y="132">2025-01-09</text>
+  <text class="label" x="144" y="152">📄 scene.gltf</text>
+  <text class="label" x="330" y="152">3 MB</text>
+  <text class="label" x="420" y="152">2025-01-08</text>
+  <!-- File name input -->
+  <text class="label" x="22" y="248">File name:</text>
+  <rect x="100" y="236" width="320" height="22" rx="4" fill="#eaf8ff"/>
+  <rect x="100" y="236" width="320" height="22" rx="4" fill="none" stroke="#5b6abf" stroke-width="1"/>
+  <text class="label" x="108" y="252">model.obj</text>
+  <text class="slot" x="544" y="248">⑤</text>
+  <!-- File type filter -->
+  <text class="label" x="22" y="272">File type:</text>
+  <rect x="100" y="260" width="320" height="22" rx="4" fill="#eaf8ff"/>
+  <rect x="100" y="260" width="320" height="22" rx="4" fill="none" stroke="#5b6abf" stroke-width="1"/>
+  <text class="label" x="108" y="276" font-size="10">All Supported (*.obj;*.gltf)  ▼</text>
+  <text class="slot" x="544" y="272">⑥</text>
+  <!-- Action buttons -->
+  <rect x="410" y="262" width="56" height="24" rx="4" fill="#d8cfe8"/>
+  <text class="label" x="424" y="278" font-size="11">Cancel</text>
+  <rect x="474" y="262" width="56" height="24" rx="4" fill="#5b6abf"/>
+  <text x="490" y="278" font-size="11" fill="#fffffc">Open</text>
+  <text class="slot" x="544" y="282">⑦</text>
+  <!-- Legend -->
+  <text class="desc" x="10" y="306">① Title bar  ② Sidebar (favorites/locations)  ③ Path bar  ④ File list  ⑤ File name input  ⑥ File type filter  ⑦ Action buttons</text>
+</svg>

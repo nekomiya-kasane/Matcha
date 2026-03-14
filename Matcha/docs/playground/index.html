@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-density="default">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matcha Design System — Playground</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    /* =====================================================================
+     * Playground Shell Layout
+     * =================================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pg-toolbar-h: 40px;
+      --pg-border: #d0d0d0;
+      --pg-bg: #f6f6f8;
+      --pg-editor-bg: #1e1e2e;
+      --pg-tab-active: var(--color-primary);
+    }
+
+    body {
+      font-family: var(--font-family);
+      font-size: 13px;
+      color: #333;
+      background: var(--pg-bg);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* -- Toolbar --------------------------------------------------------- */
+    .pg-toolbar {
+      height: var(--pg-toolbar-h);
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--pg-border);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .pg-toolbar .logo {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--color-primary);
+      letter-spacing: -0.3px;
+    }
+
+    .pg-toolbar select {
+      padding: 4px 8px;
+      border: 1px solid var(--pg-border);
+      border-radius: 4px;
+      font-size: 12px;
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+    }
+
+    .pg-toolbar .spacer { flex: 1; }
+
+    .pg-toolbar label {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* -- Main split ------------------------------------------------------ */
+    .pg-main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* -- Editor pane (left) ---------------------------------------------- */
+    .pg-editor-pane {
+      width: 50%;
+      min-width: 280px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--pg-border);
+      background: var(--pg-editor-bg);
+    }
+
+    .pg-tabs {
+      display: flex;
+      background: #181825;
+      border-bottom: 1px solid #313244;
+      flex-shrink: 0;
+    }
+
+    .pg-tab {
+      padding: 8px 16px;
+      font-size: 12px;
+      font-family: var(--font-family-mono);
+      color: #888;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+
+    .pg-tab:hover { color: #ccc; }
+    .pg-tab.active {
+      color: #cdd6f4;
+      border-bottom-color: var(--pg-tab-active);
+    }
+
+    .pg-editor-wrap {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* CodeMirror overrides */
+    .pg-editor-wrap .cm-editor {
+      height: 100%;
+      font-size: 13px;
+    }
+    .pg-editor-wrap .cm-scroller {
+      overflow: auto;
+    }
+
+    /* -- Preview pane (right) -------------------------------------------- */
+    .pg-preview-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--color-surface);
+    }
+
+    .pg-preview-toolbar {
+      height: 32px;
+      background: var(--color-surface-container);
+      border-bottom: 1px solid var(--pg-border);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .pg-preview-toolbar .label {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pg-preview-toolbar .state-btn {
+      padding: 2px 8px;
+      font-size: 11px;
+      border: 1px solid var(--pg-border);
+      border-radius: 3px;
+      background: var(--color-surface);
+      cursor: pointer;
+      color: var(--color-text-secondary);
+      transition: all 0.15s;
+    }
+    .pg-preview-toolbar .state-btn:hover { background: var(--color-fill-hover); }
+    .pg-preview-toolbar .state-btn.active {
+      background: var(--color-primary);
+      color: var(--color-on-accent);
+      border-color: var(--color-primary);
+    }
+
+    .pg-preview-frame {
+      flex: 1;
+      border: none;
+      background: var(--color-surface);
+    }
+
+    /* -- Resize handle --------------------------------------------------- */
+    .pg-resize-handle {
+      width: 5px;
+      cursor: col-resize;
+      background: transparent;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .pg-resize-handle:hover,
+    .pg-resize-handle.dragging {
+      background: var(--color-primary);
+      opacity: 0.3;
+    }
+
+    /* -- Component list sidebar ------------------------------------------ */
+    .pg-sidebar {
+      width: 200px;
+      background: var(--color-surface-container);
+      border-right: 1px solid var(--pg-border);
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .pg-sidebar h3 {
+      padding: 12px 12px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-secondary);
+    }
+
+    .pg-sidebar a {
+      display: block;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: background 0.1s, border-color 0.1s;
+    }
+
+    .pg-sidebar a:hover { background: var(--color-fill-hover); }
+    .pg-sidebar a.active {
+      background: var(--color-primary-bg);
+      border-left-color: var(--color-primary);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toolbar -->
+  <div class="pg-toolbar">
+    <span class="logo">Matcha Playground</span>
+    <span class="spacer"></span>
+    <label>Theme:
+      <select id="themeSelect">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </label>
+    <label>Density:
+      <select id="densitySelect">
+        <option value="default">Default (1.0x)</option>
+        <option value="compact">Compact (0.875x)</option>
+        <option value="comfortable">Comfortable (1.125x)</option>
+      </select>
+    </label>
+  </div>
+
+  <!-- Main -->
+  <div class="pg-main">
+    <!-- Sidebar: component list -->
+    <nav class="pg-sidebar" id="sidebar">
+      <h3>Layout</h3>
+      <a href="?c=shell-layout">Shell Layout</a>
+      <a href="?c=property-panel">Property Panel</a>
+      <a href="?c=formlayout">FormLayout</a>
+      <h3>Dialogs</h3>
+      <a href="?c=dialog-confirm">Confirm Dialog</a>
+      <a href="?c=dialog-input">Input Dialog</a>
+      <a href="?c=dialog-wizard">Wizard Dialog</a>
+      <a href="?c=dialog-settings">Settings Dialog</a>
+      <a href="?c=dialog-about">About Dialog</a>
+      <h3>Feedback</h3>
+      <a href="?c=skeleton">Skeleton Loading</a>
+      <a href="?c=empty-state">Empty State</a>
+      <a href="?c=error-state">Error State</a>
+      <a href="?c=toast-stack">Toast Stack</a>
+      <h3>Interaction</h3>
+      <a href="?c=field-validation">Field Validation</a>
+      <a href="?c=anchor-positions">Anchor Positions</a>
+      <a href="?c=menu-item">Menu Item</a>
+    </nav>
+
+    <!-- Editor pane -->
+    <div class="pg-editor-pane" id="editorPane">
+      <div class="pg-tabs">
+        <div class="pg-tab active" data-tab="html">HTML</div>
+        <div class="pg-tab" data-tab="css">CSS</div>
+      </div>
+      <div class="pg-editor-wrap" id="editorWrap"></div>
+    </div>
+
+    <!-- Resize handle -->
+    <div class="pg-resize-handle" id="resizeHandle"></div>
+
+    <!-- Preview pane -->
+    <div class="pg-preview-pane">
+      <div class="pg-preview-toolbar">
+        <span class="label">Preview</span>
+        <span style="flex:1"></span>
+        <button class="state-btn" data-inject-state="hovered">Hover</button>
+        <button class="state-btn" data-inject-state="pressed">Press</button>
+        <button class="state-btn" data-inject-state="focused">Focus</button>
+        <button class="state-btn" data-inject-state="disabled">Disabled</button>
+        <button class="state-btn" data-inject-state="">Reset</button>
+      </div>
+      <iframe class="pg-preview-frame" id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+  </div>
+
+  <!-- Playground engine — CodeMirror 6 with textarea fallback -->
+  <script>
+    // =====================================================================
+    // Component registry
+    // =====================================================================
+    const COMPONENTS = {
+      "shell-layout":     "components/shell-layout.html",
+      "property-panel":   "components/property-panel.html",
+      "formlayout":       "components/formlayout.html",
+      "dialog-confirm":   "components/dialog-confirm.html",
+      "dialog-input":     "components/dialog-input.html",
+      "dialog-wizard":    "components/dialog-wizard.html",
+      "dialog-settings":  "components/dialog-settings.html",
+      "dialog-about":     "components/dialog-about.html",
+      "skeleton":         "components/skeleton.html",
+      "empty-state":      "components/empty-state.html",
+      "error-state":      "components/error-state.html",
+      "toast-stack":      "components/toast-stack.html",
+      "field-validation": "components/field-validation.html",
+      "anchor-positions": "components/anchor-positions.html",
+      "menu-item":        "components/menu-item.html",
+    };
+
+    // =====================================================================
+    // State
+    // =====================================================================
+    let currentTab = "html";
+    let htmlSource = "";
+    let cssSource  = "";
+    let updateTimer = null;
+    let cmLoaded = false;
+    let cmModules = {};
+
+    // =====================================================================
+    // Textarea fallback editor
+    // =====================================================================
+    function makeFallbackEditor(lang, doc) {
+      const wrap = document.getElementById("editorWrap");
+      wrap.innerHTML = "";
+      const ta = document.createElement("textarea");
+      ta.value = doc;
+      ta.spellcheck = false;
+      Object.assign(ta.style, {
+        width: "100%", height: "100%", resize: "none", border: "none",
+        background: "#1e1e2e", color: "#cdd6f4", padding: "12px",
+        fontFamily: "var(--font-family-mono)", fontSize: "13px",
+        lineHeight: "1.5", outline: "none", tabSize: 2,
+      });
+      ta.addEventListener("input", () => {
+        if (lang === "html") htmlSource = ta.value;
+        else                 cssSource  = ta.value;
+        schedulePreviewUpdate();
+      });
+      wrap.appendChild(ta);
+      return ta;
+    }
+
+    // =====================================================================
+    // CodeMirror editor (created after dynamic import succeeds)
+    // =====================================================================
+    function makeCMEditor(lang, doc) {
+      const { EditorView, basicSetup, htmlLang, cssLang, oneDark, EditorState } = cmModules;
+      const wrap = document.getElementById("editorWrap");
+      wrap.innerHTML = "";
+      return new EditorView({
+        state: EditorState.create({
+          doc,
+          extensions: [
+            basicSetup,
+            lang === "html" ? htmlLang() : cssLang(),
+            oneDark,
+            EditorView.updateListener.of(v => {
+              if (v.docChanged) {
+                if (lang === "html") htmlSource = v.state.doc.toString();
+                else                 cssSource  = v.state.doc.toString();
+                schedulePreviewUpdate();
+              }
+            }),
+            EditorView.theme({ "&": { height: "100%" }, ".cm-scroller": { overflow: "auto" } }),
+          ],
+        }),
+        parent: wrap,
+      });
+    }
+
+    function makeEditor(lang, doc) {
+      return cmLoaded ? makeCMEditor(lang, doc) : makeFallbackEditor(lang, doc);
+    }
+
+    // =====================================================================
+    // Preview rendering
+    // =====================================================================
+    function schedulePreviewUpdate() {
+      clearTimeout(updateTimer);
+      updateTimer = setTimeout(updatePreview, 200);
+    }
+
+    function updatePreview() {
+      const frame = document.getElementById("previewFrame");
+      const theme = document.documentElement.getAttribute("data-theme") || "light";
+      const density = document.documentElement.getAttribute("data-density") || "default";
+      const base = location.href.replace(/[^/]*$/, "");
+
+      const doc = `<!DOCTYPE html>
+<html lang="en" data-theme="${theme}" data-density="${density}">
+<head>
+  <meta charset="UTF-8">
+  <base href="${base}">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+  <style>${cssSource}</style>
+  <style>
+    body { padding: 24px; font-family: var(--font-family); font-size: var(--font-body-size);
+           color: var(--color-text-primary); background: var(--color-surface); }
+  </style>
+</head>
+<body>
+${htmlSource}
+</body>
+</html>`;
+      const iframeDoc = frame.contentDocument || frame.contentWindow.document;
+      iframeDoc.open();
+      iframeDoc.write(doc);
+      iframeDoc.close();
+    }
+
+    // =====================================================================
+    // Tab switching
+    // =====================================================================
+    document.querySelectorAll(".pg-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        const lang = tab.dataset.tab;
+        if (lang === currentTab) return;
+        currentTab = lang;
+        document.querySelectorAll(".pg-tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        makeEditor(lang, lang === "html" ? htmlSource : cssSource);
+      });
+    });
+
+    // =====================================================================
+    // Theme / Density switching
+    // =====================================================================
+    document.getElementById("themeSelect").addEventListener("change", e => {
+      document.documentElement.setAttribute("data-theme", e.target.value);
+      updatePreview();
+    });
+    document.getElementById("densitySelect").addEventListener("change", e => {
+      document.documentElement.setAttribute("data-density", e.target.value);
+      updatePreview();
+    });
+
+    // =====================================================================
+    // State injection (Hover/Press/Focus/Disabled)
+    // =====================================================================
+    document.querySelectorAll("[data-inject-state]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const state = btn.dataset.injectState;
+        document.querySelectorAll("[data-inject-state]").forEach(b => b.classList.remove("active"));
+        if (state) btn.classList.add("active");
+        const iframeDoc = document.getElementById("previewFrame").contentDocument;
+        if (!iframeDoc) return;
+        iframeDoc.querySelectorAll("[data-state]").forEach(el => el.removeAttribute("data-state"));
+        if (state) {
+          iframeDoc.querySelectorAll(".m-widget, .m-input, [data-stateful]").forEach(el => {
+            el.setAttribute("data-state", state);
+          });
+        }
+      });
+    });
+
+    // =====================================================================
+    // Resize handle
+    // =====================================================================
+    const handle = document.getElementById("resizeHandle");
+    const editorPane = document.getElementById("editorPane");
+    let resizing = false;
+    handle.addEventListener("mousedown", e => { resizing = true; handle.classList.add("dragging"); e.preventDefault(); });
+    document.addEventListener("mousemove", e => {
+      if (!resizing) return;
+      const r = document.querySelector(".pg-main").getBoundingClientRect();
+      const sw = document.querySelector(".pg-sidebar").offsetWidth;
+      editorPane.style.width = Math.max(200, Math.min(e.clientX - r.left - sw, r.width - sw - 200)) + "px";
+    });
+    document.addEventListener("mouseup", () => { if (resizing) { resizing = false; handle.classList.remove("dragging"); } });
+
+    // =====================================================================
+    // Load component
+    // =====================================================================
+    async function loadComponent(slug) {
+      const path = COMPONENTS[slug];
+      if (!path) return;
+      try {
+        const resp = await fetch(path);
+        if (!resp.ok) throw new Error(`${resp.status}`);
+        const text = await resp.text();
+        const styleMatch = text.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+        cssSource = styleMatch ? styleMatch[1].trim() : "";
+        htmlSource = text
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+          .replace(/<!DOCTYPE[^>]*>/i, "")
+          .replace(/<\/?html[^>]*>/gi, "")
+          .replace(/<head>[\s\S]*?<\/head>/gi, "")
+          .replace(/<\/?body[^>]*>/gi, "")
+          .trim();
+      } catch {
+        htmlSource = `<div style="padding:24px;color:var(--color-text-secondary)">
+  <h2>Component: ${slug}</h2>
+  <p style="margin-top:8px">File not yet created. Add <code>${COMPONENTS[slug]}</code></p>
+</div>`;
+        cssSource = "/* Component CSS will go here */";
+      }
+      document.querySelectorAll(".pg-sidebar a").forEach(a => {
+        a.classList.toggle("active", a.getAttribute("href") === `?c=${slug}`);
+      });
+      currentTab = "html";
+      document.querySelectorAll(".pg-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === "html"));
+      makeEditor("html", htmlSource);
+      updatePreview();
+    }
+
+    // Sidebar SPA navigation
+    document.querySelectorAll(".pg-sidebar a").forEach(a => {
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        const s = new URLSearchParams(a.getAttribute("href").replace("?","")).get("c");
+        if (s) { history.pushState(null, "", a.getAttribute("href")); loadComponent(s); }
+      });
+    });
+    window.addEventListener("popstate", () => {
+      loadComponent(new URLSearchParams(location.search).get("c") || "dialog-confirm");
+    });
+
+    // =====================================================================
+    // Init: load component, then attempt CodeMirror
+    // =====================================================================
+    const slug = new URLSearchParams(location.search).get("c") || "dialog-confirm";
+    loadComponent(slug);
+
+    // Async load CodeMirror 6 from CDN — graceful fallback if offline
+    (async () => {
+      try {
+        const [cm, langHtml, langCss, theme, state] = await Promise.all([
+          import("https://cdn.jsdelivr.net/npm/codemirror@6.65.7/+esm"),
+          import("https://cdn.jsdelivr.net/npm/@codemirror/lang-html@6.4.9/+esm"),
+          import("https://cdn.jsdelivr.net/npm/@codemirror/lang-css@6.3.1/+esm"),
+          import("https://cdn.jsdelivr.net/npm/@codemirror/theme-one-dark@6.1.2/+esm"),
+          import("https://cdn.jsdelivr.net/npm/@codemirror/state@6.5.2/+esm"),
+        ]);
+        cmModules = {
+          EditorView: cm.EditorView, basicSetup: cm.basicSetup,
+          htmlLang: langHtml.html, cssLang: langCss.css,
+          oneDark: theme.oneDark, EditorState: state.EditorState,
+        };
+        cmLoaded = true;
+        // Upgrade current editor from textarea to CodeMirror
+        makeEditor(currentTab, currentTab === "html" ? htmlSource : cssSource);
+        console.log("[Playground] CodeMirror 6 loaded successfully");
+      } catch (err) {
+        console.warn("[Playground] CodeMirror CDN unavailable, using textarea fallback:", err.message);
+      }
+    })();
+  </script>
+</body>
+</html>

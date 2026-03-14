@@ -1,6 +1,6 @@
 ﻿# Matcha: A Transitional UI Framework Subset
 
-> **Positioning & Limitations.** Much of this design system's technical foundation — Qt-based widget subclassing, imperative QPainter rendering, QSS-supplemented styling — has fallen significantly behind the frontier of modern UI frameworks. The frontier today is defined by: 
+> **Positioning & Limitations.** Much of this design system's technical foundation — Qt-based widget subclassing, imperative QPainter rendering, QSS-supplemented styling — has fallen significantly behind the frontier of modern UI frameworks. The frontier today is defined by:
 > 1. declarative UI descriptions compiled to GPU-composited render trees (Flutter/Impeller, SwiftUI/Metal, Slint, GPUI)
 > 2. reactive state binding with automatic incremental re-render (signals/effects models in Solid, Leptos, or xilem)
 > 3. constraint-based layout solvers replacing manual geometry (Cassowary in Auto Layout, Morphorm in Taffy/Dioxus)
@@ -12,695 +12,8 @@
 
 ## Table of Contents
 
-- [Matcha: A Transitional UI Framework Subset](#matcha-a-transitional-ui-framework-subset)
-  - [Table of Contents](#table-of-contents)
-- [Part 0 -- Motivation \& Theoretical Foundations](#part-0----motivation--theoretical-foundations)
-  - [Chapter 0. The Problem of UI Redesign under Architectural Inertia](#chapter-0-the-problem-of-ui-redesign-under-architectural-inertia)
-    - [0.1 From CATIA to COCA: What Went Wrong](#01-from-catia-to-coca-what-went-wrong)
-    - [0.2 The Semantic Gap: Why the Translation Layer Cannot Work](#02-the-semantic-gap-why-the-translation-layer-cannot-work)
-      - [The View-Model Entanglement Problem](#the-view-model-entanglement-problem)
-      - [Paradigm Translation is Not Adaptation](#paradigm-translation-is-not-adaptation)
-    - [0.3 Cognitive Load and the Phenomenology of "Distortion"](#03-cognitive-load-and-the-phenomenology-of-distortion)
-    - [0.4 Architectural Consequences: From Adapter to Anti-Corruption Layer Failure](#04-architectural-consequences-from-adapter-to-anti-corruption-layer-failure)
-      - [The Anti-Corruption Layer That Corrupts](#the-anti-corruption-layer-that-corrupts)
-      - [The Open-Closed Principle Violation](#the-open-closed-principle-violation)
-    - [0.5 The Design System as Architectural Response](#05-the-design-system-as-architectural-response)
-      - [Severing the View-Model Entanglement](#severing-the-view-model-entanglement)
-      - [The Isomorphism Criterion](#the-isomorphism-criterion)
-      - [The Noiseless Channel](#the-noiseless-channel)
-    - [0.6 Qt Designer Adaptation as Anti-Requirement](#06-qt-designer-adaptation-as-anti-requirement)
-      - [0.6.1 Build-System Coupling and ABI Fragility](#061-build-system-coupling-and-abi-fragility)
-      - [0.6.2 Static Topology versus Data-Driven Composition](#062-static-topology-versus-data-driven-composition)
-    - [0.7 Scope of This Document in Light of the Problem](#07-scope-of-this-document-in-light-of-the-problem)
-- [Part I -- Foundations](#part-i----foundations)
-  - [Chapter 1. Overview \& Design Philosophy](#chapter-1-overview--design-philosophy)
-    - [1.1 Document Scope \& Audience](#11-document-scope--audience)
-    - [1.2 Core Design Principles](#12-core-design-principles)
-      - [1.2.1 Separation of Concerns: What / How / When / Who](#121-separation-of-concerns-what--how--when--who)
-      - [1.2.2 Design-Code Isomorphism](#122-design-code-isomorphism)
-      - [1.2.3 Qt-Free Public Surface](#123-qt-free-public-surface)
-      - [1.2.4 Upward-Only Information Flow](#124-upward-only-information-flow)
-      - [1.2.5 Test-Driven Specification: Tests as Behavioral Contracts](#125-test-driven-specification-tests-as-behavioral-contracts)
-    - [1.3 Design Language Principles](#13-design-language-principles)
-    - [1.4 Three-Layer Token Architecture](#14-three-layer-token-architecture)
-      - [1.4.1 Token Architecture Depth (Industry Comparison)](#141-token-architecture-depth-industry-comparison)
-    - [1.5 Architecture Layer Diagram](#15-architecture-layer-diagram)
-    - [1.6 Terminology Glossary](#16-terminology-glossary)
-  - [Chapter 2. Color System](#chapter-2-color-system)
-    - [2.1 Color Token Vocabulary Overview](#21-color-token-vocabulary-overview)
-    - [2.2 Neutral Scale: Surface / Fill / Border / Text](#22-neutral-scale-surface--fill--border--text)
-    - [2.3 Semantic Hue Scales](#23-semantic-hue-scales)
-    - [2.4 Special Purpose Tokens](#24-special-purpose-tokens)
-    - [2.5 Tonal Palette Generation Algorithm](#25-tonal-palette-generation-algorithm)
-    - [2.6 Color Seeds \& JSON Configuration](#26-color-seeds--json-configuration)
-    - [2.7 Disabled State: Alpha Overlay Orthogonality](#27-disabled-state-alpha-overlay-orthogonality)
-    - [2.8 Contrast Checker \& WCAG Compliance](#28-contrast-checker--wcag-compliance)
-  - [Chapter 3. Typography System](#chapter-3-typography-system)
-    - [3.1 FontRole Enum](#31-fontrole-enum)
-    - [3.2 FontSpec Struct](#32-fontspec-struct)
-    - [3.3 Platform Font Selection](#33-platform-font-selection)
-    - [3.4 Font Scale System](#34-font-scale-system)
-    - [3.5 JSON Font Override](#35-json-font-override)
-    - [3.6 Dynamic Font Registration (Plugin)](#36-dynamic-font-registration-plugin)
-    - [3.7 Complete FontRole Resolution Table](#37-complete-fontrole-resolution-table)
-      - [3.7.1 Windows (Segoe UI)](#371-windows-segoe-ui)
-      - [3.7.2 macOS (SF Pro Text)](#372-macos-sf-pro-text)
-      - [3.7.3 Linux (Noto Sans)](#373-linux-noto-sans)
-      - [3.7.4 Font Scale Effect](#374-font-scale-effect)
-  - [Chapter 4. Spatial System](#chapter-4-spatial-system)
-    - [4.1 Spacing Tokens](#41-spacing-tokens)
-    - [4.2 Density System](#42-density-system)
-    - [4.3 Radius Tokens](#43-radius-tokens)
-    - [4.4 Size Tokens](#44-size-tokens)
-    - [4.5 Elevation \& Shadow System](#45-elevation--shadow-system)
-    - [4.6 Layer (Z-index) Tokens](#46-layer-z-index-tokens)
-    - [4.7 Density Scaling Effect Tables](#47-density-scaling-effect-tables)
-      - [4.7.1 Spacing Token Scaling](#471-spacing-token-scaling)
-      - [4.7.2 Size Token Scaling](#472-size-token-scaling)
-      - [4.7.3 Radius Token Scaling](#473-radius-token-scaling)
-      - [4.7.4 Shadow Scaling (ElevationToken)](#474-shadow-scaling-elevationtoken)
-  - [Chapter 5. Motion System](#chapter-5-motion-system)
-    - [5.1 Animation Duration Tokens](#51-animation-duration-tokens)
-    - [5.2 Easing Curve Tokens](#52-easing-curve-tokens)
-    - [5.3 Spring Dynamics](#53-spring-dynamics)
-    - [5.4 TransitionDef](#54-transitiondef)
-    - [5.5 Reduced Motion (WCAG 2.1 SC 2.3.3)](#55-reduced-motion-wcag-21-sc-233)
-    - [5.6 Speed Multiplier](#56-speed-multiplier)
-- [Part II -- Theme Engine](#part-ii----theme-engine)
-  - [Chapter 6. IThemeService Interface](#chapter-6-ithemeservice-interface)
-    - [6.1 Interface Overview \& Inheritance](#61-interface-overview--inheritance)
-    - [6.2 Theme Lifecycle API](#62-theme-lifecycle-api)
-    - [6.3 Token Query API](#63-token-query-api)
-    - [6.4 Icon Resolution API](#64-icon-resolution-api)
-    - [6.5 Declarative Style Resolution API](#65-declarative-style-resolution-api)
-    - [6.6 Component Override API](#66-component-override-api)
-    - [6.7 Dynamic Token API (Plugin Extension)](#67-dynamic-token-api-plugin-extension)
-    - [6.8 Font Scale API](#68-font-scale-api)
-    - [6.9 Density \& Direction API](#69-density--direction-api)
-    - [6.10 Test Support API](#610-test-support-api)
-    - [6.11 ThemeChanged Signal \& ThemeAware Mixin](#611-themechanged-signal--themeaware-mixin)
-  - [Chapter 7. JSON Theme Configuration](#chapter-7-json-theme-configuration)
-    - [7.1 Theme File Structure](#71-theme-file-structure)
-    - [7.2 Color Overrides](#72-color-overrides)
-    - [7.3 Color Seeds](#73-color-seeds)
-    - [7.4 Font Overrides](#74-font-overrides)
-    - [7.5 Spring Configuration](#75-spring-configuration)
-    - [7.6 Font Scale](#76-font-scale)
-    - [7.7 Theme Inheritance](#77-theme-inheritance)
-    - [7.8 Custom Theme Registration Flow](#78-custom-theme-registration-flow)
-    - [7.9 Validation](#79-validation)
-    - [7.10 Dark Mode Generation Rules](#710-dark-mode-generation-rules)
-    - [7.11 DTFM Integration](#711-dtfm-integration)
-  - [Chapter 8. NyanTheme Implementation](#chapter-8-nyantheme-implementation)
-    - [8.1 Token Storage](#81-token-storage)
-    - [8.2 BuildFonts() Platform Logic](#82-buildfonts-platform-logic)
-    - [8.3 BuildShadows() Algorithm](#83-buildshadows-algorithm)
-    - [8.4 BuildDefaultVariants()](#84-builddefaultvariants)
-    - [8.5 BuildGlobalStyleSheet()](#85-buildglobalstylesheet)
-    - [8.6 LoadPalette() JSON Parsing Pipeline](#86-loadpalette-json-parsing-pipeline)
-    - [8.7 TonalPaletteGenerator](#87-tonalpalettegenerator)
-    - [8.8 SetTheme() Execution Order](#88-settheme-execution-order)
-    - [8.9 NyanTheme Internal Member Layout](#89-nyantheme-internal-member-layout)
-    - [8.10 BuildDefaultVariants() Coverage](#810-builddefaultvariants-coverage)
-    - [8.11 BuildGlobalStyleSheet() QSS Generation](#811-buildglobalstylesheet-qss-generation)
-    - [8.12 Style \& Resource Reuse Iron Rules](#812-style--resource-reuse-iron-rules)
-    - [8.13 Existing Art Asset Inventory](#813-existing-art-asset-inventory)
-- [Part III -- Component Style System](#part-iii----component-style-system)
-  - [Chapter 9. Declarative Style Architecture](#chapter-9-declarative-style-architecture)
-    - [9.1 Motivation: Why Declarative Styling is Necessary](#91-motivation-why-declarative-styling-is-necessary)
-    - [9.2 Design-Code Isomorphism](#92-design-code-isomorphism)
-    - [9.3 Four Dimensions of Design Information Exchange](#93-four-dimensions-of-design-information-exchange)
-    - [9.4 WidgetStyleSheet Struct](#94-widgetstylesheet-struct)
-    - [9.5 StateStyle Struct](#95-statestyle-struct)
-    - [9.6 VariantStyle Struct](#96-variantstyle-struct)
-    - [9.7 ResolvedStyle Output](#97-resolvedstyle-output)
-    - [9.8 Density Scaling in Resolve()](#98-density-scaling-in-resolve)
-    - [9.9 Standard Variant Patterns](#99-standard-variant-patterns)
-      - [9.9.1 Standard Neutral Pattern (Secondary Button, Panel controls)](#991-standard-neutral-pattern-secondary-button-panel-controls)
-      - [9.9.2 Standard Primary Pattern (Brand CTA)](#992-standard-primary-pattern-brand-cta)
-      - [9.9.3 Ghost Pattern (Minimal visual weight)](#993-ghost-pattern-minimal-visual-weight)
-      - [9.9.4 Danger Pattern (Destructive action)](#994-danger-pattern-destructive-action)
-      - [9.9.5 Check Indicator Pattern](#995-check-indicator-pattern)
-      - [9.9.6 Toggle Track Pattern](#996-toggle-track-pattern)
-      - [9.9.7 Tab Pattern (Active/Inactive)](#997-tab-pattern-activeinactive)
-      - [9.9.8 Data Row Pattern (Default/Selected/Striped)](#998-data-row-pattern-defaultselectedstriped)
-    - [9.10 Implementation Stages](#910-implementation-stages)
-    - [9.11 Migration Example](#911-migration-example)
-    - [9.12 Four-Dimension Coverage Matrix](#912-four-dimension-coverage-matrix)
-  - [Chapter 10. Per-Widget Component Specification](#chapter-10-per-widget-component-specification)
-    - [10.1 PushButton](#101-pushbutton)
-      - [Synopsis](#synopsis)
-      - [Theme-Customizable Properties](#theme-customizable-properties)
-      - [Variant \& State Matrix](#variant--state-matrix)
-      - [Notification Catalog](#notification-catalog)
-      - [UiNode Public API](#uinode-public-api)
-      - [Animation Specification](#animation-specification)
-      - [Mathematical Model](#mathematical-model)
-      - [Accessibility Contract](#accessibility-contract)
-    - [10.2 ToolButton](#102-toolbutton)
-      - [Synopsis](#synopsis-1)
-      - [Theme-Customizable Properties](#theme-customizable-properties-1)
-      - [Variant \& State Matrix](#variant--state-matrix-1)
-      - [Notification Catalog](#notification-catalog-1)
-      - [UiNode Public API](#uinode-public-api-1)
-      - [Animation](#animation)
-      - [Accessibility](#accessibility)
-    - [10.3 LineEdit](#103-lineedit)
-      - [Synopsis](#synopsis-2)
-      - [Theme-Customizable Properties](#theme-customizable-properties-2)
-      - [Variant \& State Matrix](#variant--state-matrix-2)
-      - [Notification Catalog](#notification-catalog-2)
-      - [UiNode Public API](#uinode-public-api-2)
-      - [Animation](#animation-1)
-      - [Mathematical Model](#mathematical-model-1)
-      - [Accessibility](#accessibility-1)
-    - [10.4 SpinBox](#104-spinbox)
-      - [Synopsis](#synopsis-3)
-      - [Notification Catalog](#notification-catalog-3)
-      - [UiNode Public API](#uinode-public-api-3)
-      - [Mathematical Model](#mathematical-model-2)
-    - [10.5 DoubleSpinBox](#105-doublespinbox)
-      - [Synopsis](#synopsis-4)
-      - [Notification Catalog](#notification-catalog-4)
-      - [UiNode Public API](#uinode-public-api-4)
-      - [Mathematical Model](#mathematical-model-3)
-    - [10.6 ComboBox](#106-combobox)
-      - [Synopsis](#synopsis-5)
-      - [Notification Catalog](#notification-catalog-5)
-      - [UiNode Public API](#uinode-public-api-5)
-      - [Animation](#animation-2)
-    - [10.7 CheckBox](#107-checkbox)
-      - [Synopsis](#synopsis-6)
-      - [Theme-Customizable Properties](#theme-customizable-properties-3)
-      - [Variant \& State Matrix](#variant--state-matrix-3)
-      - [Notification Catalog](#notification-catalog-6)
-      - [UiNode Public API](#uinode-public-api-6)
-      - [Animation](#animation-3)
-      - [Mathematical Model](#mathematical-model-4)
-      - [Accessibility](#accessibility-2)
-    - [10.8 RadioButton](#108-radiobutton)
-      - [Synopsis](#synopsis-7)
-      - [Notification Catalog](#notification-catalog-7)
-      - [UiNode Public API](#uinode-public-api-7)
-      - [Accessibility](#accessibility-3)
-    - [10.9 Slider](#109-slider)
-      - [Synopsis](#synopsis-8)
-      - [Theme-Customizable Properties](#theme-customizable-properties-4)
-      - [State-Token Mapping](#state-token-mapping)
-      - [Notification Catalog](#notification-catalog-8)
-      - [UiNode Public API](#uinode-public-api-8)
-      - [Animation](#animation-4)
-      - [Mathematical Model](#mathematical-model-5)
-      - [Accessibility](#accessibility-4)
-    - [10.10 Toggle (Switch)](#1010-toggle-switch)
-      - [Synopsis](#synopsis-9)
-      - [Theme-Customizable Properties](#theme-customizable-properties-5)
-      - [State-Token Mapping](#state-token-mapping-1)
-      - [Notification Catalog](#notification-catalog-9)
-      - [UiNode Public API](#uinode-public-api-9)
-      - [Animation](#animation-5)
-      - [Mathematical Model](#mathematical-model-6)
-      - [Accessibility](#accessibility-5)
-    - [10.11 Label](#1011-label)
-      - [Synopsis](#synopsis-10)
-      - [Theme-Customizable Properties](#theme-customizable-properties-6)
-      - [Notification Catalog](#notification-catalog-10)
-      - [UiNode Public API](#uinode-public-api-10)
-      - [Accessibility](#accessibility-6)
-    - [10.12 Tag](#1012-tag)
-      - [Synopsis](#synopsis-11)
-      - [Theme-Customizable Properties](#theme-customizable-properties-7)
-      - [State-Token Mapping](#state-token-mapping-2)
-      - [Animation](#animation-6)
-    - [10.13 ScrollArea / ScrollBar](#1013-scrollarea--scrollbar)
-      - [Synopsis](#synopsis-12)
-      - [State-Token Mapping](#state-token-mapping-3)
-      - [Animation](#animation-7)
-    - [10.14 CollapsibleSection](#1014-collapsiblesection)
-      - [Synopsis](#synopsis-13)
-      - [Theme-Customizable Properties](#theme-customizable-properties-8)
-      - [Notification Catalog](#notification-catalog-11)
-      - [UiNode Public API](#uinode-public-api-11)
-      - [Animation](#animation-8)
-      - [Mathematical Model](#mathematical-model-7)
-      - [Accessibility](#accessibility-7)
-    - [10.15 Panel / GroupBox](#1015-panel--groupbox)
-    - [10.16 TabWidget](#1016-tabwidget)
-      - [Synopsis](#synopsis-14)
-      - [Variant \& State Matrix](#variant--state-matrix-4)
-      - [Animation](#animation-9)
-      - [Accessibility](#accessibility-8)
-    - [10.17 Dialog / DialogTitleBar / DialogFootBar](#1017-dialog--dialogtitlebar--dialogfootbar)
-      - [Synopsis](#synopsis-15)
-      - [Theme-Customizable Properties](#theme-customizable-properties-9)
-      - [Notification Catalog](#notification-catalog-12)
-      - [Animation](#animation-10)
-    - [10.18 ActionBar / ActionTab](#1018-actionbar--actiontab)
-      - [Synopsis](#synopsis-16)
-      - [Notification Catalog](#notification-catalog-13)
-    - [10.19 DataTable](#1019-datatable)
-      - [Synopsis](#synopsis-17)
-      - [Variant \& State Matrix](#variant--state-matrix-5)
-      - [ColumnDef (Widget Layer) / DataColumnDef (UiNode Layer)](#columndef-widget-layer--datacolumndef-uinode-layer)
-      - [Notification Catalog](#notification-catalog-14)
-      - [UiNode Public API (`DataTableNode`)](#uinode-public-api-datatablenode)
-      - [Painting Architecture](#painting-architecture)
-      - [Keyboard Navigation](#keyboard-navigation)
-      - [Accessibility](#accessibility-9)
-    - [10.20 ListWidget](#1020-listwidget)
-      - [Synopsis](#synopsis-18)
-      - [Notification Catalog](#notification-catalog-15)
-      - [UiNode Public API](#uinode-public-api-12)
-    - [10.21 TreeWidget (StructureTree)](#1021-treewidget-structuretree)
-      - [Synopsis](#synopsis-19)
-      - [Notification Catalog](#notification-catalog-16)
-      - [TreeItemNode (Data Model)](#treeitemnode-data-model)
-      - [UiNode Public API](#uinode-public-api-13)
-      - [Animation](#animation-11)
-    - [10.22 Menu System](#1022-menu-system)
-      - [Notification](#notification)
-      - [Animation](#animation-12)
-    - [10.23 StatusBar](#1023-statusbar)
-    - [10.24 Splitter](#1024-splitter)
-    - [10.25 PropertyGrid](#1025-propertygrid)
-      - [Synopsis](#synopsis-20)
-      - [Theme](#theme)
-      - [Notification Catalog](#notification-catalog-17)
-      - [UiNode Public API](#uinode-public-api-14)
-    - [10.26 ColorPicker / ColorSwatch](#1026-colorpicker--colorswatch)
-      - [ColorPicker](#colorpicker)
-      - [ColorSwatch](#colorswatch)
-    - [10.27 DocumentBar](#1027-documentbar)
-      - [Notification Catalog](#notification-catalog-18)
-    - [10.28 ProgressBar](#1028-progressbar)
-      - [Synopsis](#synopsis-21)
-      - [Theme-Customizable Properties](#theme-customizable-properties-10)
-      - [UiNode Public API](#uinode-public-api-15)
-      - [Animation (Indeterminate mode)](#animation-indeterminate-mode)
-      - [Mathematical Model](#mathematical-model-8)
-    - [10.29 Paginator](#1029-paginator)
-      - [Synopsis](#synopsis-22)
-      - [Notification Catalog](#notification-catalog-19)
-      - [UiNode Public API](#uinode-public-api-16)
-    - [10.30 SearchBox](#1030-searchbox)
-      - [Synopsis](#synopsis-23)
-      - [Notification Catalog](#notification-catalog-20)
-      - [UiNode Public API](#uinode-public-api-17)
-    - [10.31 RangeSlider](#1031-rangeslider)
-      - [Synopsis](#synopsis-24)
-      - [Notification Catalog](#notification-catalog-21)
-      - [UiNode Public API](#uinode-public-api-18)
-      - [Mathematical Model](#mathematical-model-9)
-    - [10.32 Notification (Toast)](#1032-notification-toast)
-      - [Synopsis](#synopsis-25)
-      - [Theme](#theme-1)
-      - [Notification Catalog](#notification-catalog-22)
-      - [UiNode Public API](#uinode-public-api-19)
-      - [Animation](#animation-13)
-    - [10.33 Tooltip](#1033-tooltip)
-    - [10.34 Message](#1034-message)
-      - [Synopsis](#synopsis-26)
-      - [Theme-Customizable Properties](#theme-customizable-properties-11)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping)
-      - [Notification Catalog](#notification-catalog-23)
-      - [UiNode Public API](#uinode-public-api-20)
-      - [Animation](#animation-14)
-      - [Mathematical Model](#mathematical-model-10)
-      - [Accessibility](#accessibility-10)
-    - [10.35 Alert](#1035-alert)
-      - [Synopsis](#synopsis-27)
-      - [Theme-Customizable Properties](#theme-customizable-properties-12)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping-1)
-      - [Notification Catalog](#notification-catalog-24)
-      - [UiNode Public API](#uinode-public-api-21)
-      - [Animation](#animation-15)
-      - [Mathematical Model](#mathematical-model-11)
-      - [Accessibility](#accessibility-11)
-    - [10.36 Avatar](#1036-avatar)
-      - [Synopsis](#synopsis-28)
-      - [Theme-Customizable Properties](#theme-customizable-properties-13)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping-2)
-      - [Notification Catalog](#notification-catalog-25)
-      - [UiNode Public API](#uinode-public-api-22)
-      - [Mathematical Model](#mathematical-model-12)
-      - [Accessibility](#accessibility-12)
-    - [10.37 Badge](#1037-badge)
-      - [Synopsis](#synopsis-29)
-      - [Theme-Customizable Properties](#theme-customizable-properties-14)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping-3)
-      - [Notification Catalog](#notification-catalog-26)
-      - [UiNode Public API](#uinode-public-api-23)
-      - [Mathematical Model](#mathematical-model-13)
-      - [Accessibility](#accessibility-13)
-    - [10.38 Cascader](#1038-cascader)
-      - [Synopsis](#synopsis-30)
-      - [Theme-Customizable Properties](#theme-customizable-properties-15)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping-4)
-      - [Notification Catalog](#notification-catalog-27)
-      - [UiNode Public API](#uinode-public-api-24)
-      - [Mathematical Model](#mathematical-model-14)
-      - [Accessibility](#accessibility-14)
-    - [10.39 Transfer](#1039-transfer)
-      - [Synopsis](#synopsis-31)
-      - [Theme-Customizable Properties](#theme-customizable-properties-16)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping-5)
-      - [Notification Catalog](#notification-catalog-28)
-      - [UiNode Public API](#uinode-public-api-25)
-      - [Mathematical Model](#mathematical-model-15)
-      - [Accessibility](#accessibility-15)
-    - [10.40 FormLayout](#1040-formlayout)
-      - [Synopsis](#synopsis-32)
-      - [Theme-Customizable Properties](#theme-customizable-properties-17)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping-6)
-      - [Notification Catalog](#notification-catalog-29)
-      - [UiNode Public API](#uinode-public-api-26)
-      - [Mathematical Model](#mathematical-model-16)
-      - [Accessibility](#accessibility-16)
-    - [10.41 DateTimePicker](#1041-datetimepicker)
-      - [Synopsis](#synopsis-33)
-      - [Theme-Customizable Properties](#theme-customizable-properties-18)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping-7)
-      - [Notification Catalog](#notification-catalog-30)
-      - [UiNode Public API](#uinode-public-api-27)
-      - [Mathematical Model](#mathematical-model-17)
-      - [Accessibility](#accessibility-17)
-    - [10.42 MainTitleBar](#1042-maintitlebar)
-      - [Synopsis](#synopsis-34)
-      - [Theme-Customizable Properties](#theme-customizable-properties-19)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping-8)
-      - [Notification Catalog](#notification-catalog-31)
-      - [UiNode Public API](#uinode-public-api-28)
-      - [Mathematical Model](#mathematical-model-18)
-      - [Accessibility](#accessibility-18)
-    - [10.43 LogoButton](#1043-logobutton)
-      - [Synopsis](#synopsis-35)
-      - [Theme-Customizable Properties](#theme-customizable-properties-20)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping-9)
-      - [Notification Catalog](#notification-catalog-32)
-      - [UiNode Public API](#uinode-public-api-29)
-      - [Mathematical Model](#mathematical-model-19)
-      - [Accessibility](#accessibility-19)
-    - [10.44 FileDialog](#1044-filedialog)
-      - [Synopsis](#synopsis-36)
-      - [Theme-Customizable Properties](#theme-customizable-properties-21)
-      - [Notification Catalog](#notification-catalog-33)
-      - [UiNode Public API](#uinode-public-api-30)
-      - [Mathematical Model](#mathematical-model-20)
-      - [Accessibility](#accessibility-20)
-    - [10.45 Line (Separator)](#1045-line-separator)
-      - [Synopsis](#synopsis-37)
-      - [Theme-Customizable Properties](#theme-customizable-properties-22)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping-10)
-      - [Notification Catalog](#notification-catalog-34)
-      - [UiNode Public API](#uinode-public-api-31)
-      - [Mathematical Model](#mathematical-model-21)
-      - [Accessibility](#accessibility-21)
-    - [10.46 StackedWidget](#1046-stackedwidget)
-      - [Synopsis](#synopsis-38)
-      - [Theme-Customizable Properties](#theme-customizable-properties-23)
-      - [Variant x State Token Mapping](#variant-x-state-token-mapping-11)
-      - [Notification Catalog](#notification-catalog-35)
-      - [UiNode Public API](#uinode-public-api-32)
-      - [Animation](#animation-16)
-      - [Mathematical Model](#mathematical-model-22)
-      - [Accessibility](#accessibility-22)
-  - [Chapter 11. WidgetKind Registry \& Component Override](#chapter-11-widgetkind-registry--component-override)
-    - [11.1 WidgetKind Enum (54 entries)](#111-widgetkind-enum-54-entries)
-    - [11.2 WidgetKind to UiNode Class Mapping](#112-widgetkind-to-uinode-class-mapping)
-    - [11.3 Variant System Architecture](#113-variant-system-architecture)
-    - [11.4 ComponentOverride Mechanism](#114-componentoverride-mechanism)
-    - [11.5 ComponentOverride Struct](#115-componentoverride-struct)
-    - [11.6 Override Priority Rules](#116-override-priority-rules)
-    - [11.7 Override Lifecycle](#117-override-lifecycle)
-    - [11.8 Variant Color Override (Advanced)](#118-variant-color-override-advanced)
-- [Part IV -- Animation Engine](#part-iv----animation-engine)
-  - [Chapter 12. Animation Architecture](#chapter-12-animation-architecture)
-    - [12.1 Design Principles](#121-design-principles)
-    - [12.2 IAnimationService Interface](#122-ianimationservice-interface)
-    - [12.3 AnimationPropertyId Enum](#123-animationpropertyid-enum)
-    - [12.4 AnimatableValue Tagged Union](#124-animatablevalue-tagged-union)
-    - [12.5 TransitionHandle](#125-transitionhandle)
-    - [12.6 GroupMode and GroupId](#126-groupmode-and-groupid)
-    - [12.7 Interruption Re-targeting](#127-interruption-re-targeting)
-    - [12.8 Group Animation Architecture](#128-group-animation-architecture)
-  - [Chapter 13. Spring Animation Physics](#chapter-13-spring-animation-physics)
-    - [13.1 Damped Harmonic Oscillator Model](#131-damped-harmonic-oscillator-model)
-    - [13.2 Semi-Implicit Euler Integration](#132-semi-implicit-euler-integration)
-    - [13.3 Convergence Detection](#133-convergence-detection)
-    - [13.4 CFL Stability Condition](#134-cfl-stability-condition)
-    - [13.5 Multi-Type Spring Interpolation](#135-multi-type-spring-interpolation)
-  - [Chapter 14. Widget Animation Integration](#chapter-14-widget-animation-integration)
-    - [14.1 ThemeAware::AnimateTransition() Helpers](#141-themeawareanimatetransition-helpers)
-    - [14.2 State Transition Animation](#142-state-transition-animation)
-    - [14.3 Animation Notifications](#143-animation-notifications)
-    - [14.4 Animation in Test Mode](#144-animation-in-test-mode)
-    - [14.5 Per-Widget Animation Catalog (Summary Index)](#145-per-widget-animation-catalog-summary-index)
-  - [Chapter 15. Accessibility: Reduced Motion](#chapter-15-accessibility-reduced-motion)
-    - [15.1 WCAG 2.1 SC 2.3.3 Compliance](#151-wcag-21-sc-233-compliance)
-    - [15.2 OS Detection](#152-os-detection)
-    - [15.3 Behavioral Contract](#153-behavioral-contract)
-- [Part V -- Iconography \& Cursors](#part-v----iconography--cursors)
-  - [Chapter 16. Icon System](#chapter-16-icon-system)
-    - [16.1 Design Philosophy](#161-design-philosophy)
-    - [16.2 URI Hierarchy Design](#162-uri-hierarchy-design)
-      - [16.2.1 URI Scheme](#1621-uri-scheme)
-      - [16.2.2 Built-in URI Prefix](#1622-built-in-uri-prefix)
-      - [16.2.3 Plugin URI Convention](#1623-plugin-uri-convention)
-      - [16.2.4 URI Resolution Order](#1624-uri-resolution-order)
-    - [16.3 Icon Design Language](#163-icon-design-language)
-      - [16.3.1 Grid Specification](#1631-grid-specification)
-      - [16.3.2 Style Principles](#1632-style-principles)
-      - [16.3.3 Size-Specific Optimization](#1633-size-specific-optimization)
-    - [16.4 Icon Classification Taxonomy](#164-icon-classification-taxonomy)
-      - [16.4.1 Seven Functional Categories](#1641-seven-functional-categories)
-      - [16.4.2 Domain-Specific Categories (Plugin-Registered)](#1642-domain-specific-categories-plugin-registered)
-      - [16.4.3 Naming Convention](#1643-naming-convention)
-    - [16.5 Color Inheritance Model](#165-color-inheritance-model)
-      - [16.5.1 Single-Token Colorization](#1651-single-token-colorization)
-      - [16.5.2 Colorization Algorithm](#1652-colorization-algorithm)
-      - [16.5.3 State-Dependent Color Mapping](#1653-state-dependent-color-mapping)
-      - [16.5.4 Semantic Status Icons](#1654-semantic-status-icons)
-    - [16.6 SVG Format Requirements](#166-svg-format-requirements)
-      - [16.6.1 Authoring Rules](#1661-authoring-rules)
-      - [16.6.2 File Organization](#1662-file-organization)
-    - [16.7 Resolution Pipeline](#167-resolution-pipeline)
-      - [16.7.1 API](#1671-api)
-      - [16.7.2 Pipeline Stages](#1672-pipeline-stages)
-      - [16.7.3 Cache Architecture](#1673-cache-architecture)
-    - [16.8 RTL Icon Flipping](#168-rtl-icon-flipping)
-      - [16.8.1 Flippable vs Non-Flippable](#1681-flippable-vs-non-flippable)
-      - [16.8.2 Flippability Determination](#1682-flippability-determination)
-      - [16.8.3 Flip Implementation](#1683-flip-implementation)
-    - [16.9 Plugin Icon Registration](#169-plugin-icon-registration)
-      - [16.9.1 Registration API](#1691-registration-api)
-      - [16.9.2 Registration Lifecycle](#1692-registration-lifecycle)
-      - [16.9.3 Unregistration](#1693-unregistration)
-    - [16.10 Accessibility Considerations](#1610-accessibility-considerations)
-  - [Chapter 17. Cursor System](#chapter-17-cursor-system)
-    - [17.1 CursorToken Enum](#171-cursortoken-enum)
-    - [17.2 Widget State -\> Cursor Mapping](#172-widget-state---cursor-mapping)
-- [Part VI -- Accessibility \& Internationalization](#part-vi----accessibility--internationalization)
-  - [Chapter 18. Accessibility Infrastructure](#chapter-18-accessibility-infrastructure)
-    - [18.1 A11yRole Enum](#181-a11yrole-enum)
-    - [18.2 WidgetNode Accessibility Properties](#182-widgetnode-accessibility-properties)
-    - [18.3 Focus Management](#183-focus-management)
-      - [18.3.1 Tab Key Interception](#1831-tab-key-interception)
-      - [18.3.2 Focus Scope](#1832-focus-scope)
-      - [18.3.3 FocusManager Service](#1833-focusmanager-service)
-      - [18.3.4 Focus Ring Painting](#1834-focus-ring-painting)
-    - [18.4 ContrastChecker API](#184-contrastchecker-api)
-    - [18.5 A11yAudit (Test-Time Auditor)](#185-a11yaudit-test-time-auditor)
-    - [18.6 High Contrast Theme](#186-high-contrast-theme)
-    - [18.7 Keyboard Navigation Map](#187-keyboard-navigation-map)
-    - [18.8 Screen Reader Announcements](#188-screen-reader-announcements)
-    - [18.9 Focus Trap in Modal Dialogs](#189-focus-trap-in-modal-dialogs)
-    - [18.10 Live Region Support](#1810-live-region-support)
-    - [18.11 Mnemonic (Access Key) System](#1811-mnemonic-access-key-system)
-      - [18.11.1 Terminology](#18111-terminology)
-      - [18.11.2 Applicable Widget Types](#18112-applicable-widget-types)
-      - [18.11.3 Activation Modes](#18113-activation-modes)
-      - [18.11.4 Underline Visibility](#18114-underline-visibility)
-      - [18.11.5 Menu Bar Mnemonic Behavior](#18115-menu-bar-mnemonic-behavior)
-      - [18.11.6 Menu Item Mnemonic Behavior](#18116-menu-item-mnemonic-behavior)
-      - [18.11.7 Dialog Control Mnemonic Behavior](#18117-dialog-control-mnemonic-behavior)
-      - [18.11.8 Label Buddy Mechanism](#18118-label-buddy-mechanism)
-      - [18.11.9 GroupBox Mnemonic Behavior](#18119-groupbox-mnemonic-behavior)
-      - [18.11.10 ActionBar / Toolbar Mnemonic Behavior](#181110-actionbar--toolbar-mnemonic-behavior)
-      - [18.11.11 CollapsibleSection Mnemonic Behavior](#181111-collapsiblesection-mnemonic-behavior)
-      - [18.11.12 Mnemonic Scope and Conflict Resolution](#181112-mnemonic-scope-and-conflict-resolution)
-      - [18.11.13 Rendering Specification](#181113-rendering-specification)
-      - [18.11.14 Controls Exempt from Mnemonic](#181114-controls-exempt-from-mnemonic)
-      - [18.11.15 Mnemonic Assignment Guidelines](#181115-mnemonic-assignment-guidelines)
-      - [18.11.16 Internationalization Considerations](#181116-internationalization-considerations)
-      - [18.11.17 Screen Reader Integration](#181117-screen-reader-integration)
-      - [18.11.18 Architecture: MnemonicManager](#181118-architecture-mnemonicmanager)
-  - [Chapter 19. Internationalization](#chapter-19-internationalization)
-    - [19.1 Text Direction (LTR / RTL)](#191-text-direction-ltr--rtl)
-    - [19.2 Layout Direction Impact](#192-layout-direction-impact)
-    - [19.3 Icon Flipping](#193-icon-flipping)
-    - [19.4 Font Fallback for CJK / RTL Scripts](#194-font-fallback-for-cjk--rtl-scripts)
-    - [19.5 Number and Date Formatting](#195-number-and-date-formatting)
-    - [19.6 Bidirectional Text in Labels](#196-bidirectional-text-in-labels)
-- [Part VII -- Plugin Extension](#part-vii----plugin-extension)
-  - [Chapter 20. Dynamic Token Extension](#chapter-20-dynamic-token-extension)
-    - [20.1 DynamicColorDef Struct](#201-dynamiccolordef-struct)
-    - [20.2 DynamicFontDef Struct](#202-dynamicfontdef-struct)
-    - [20.3 DynamicSpacingDef Struct](#203-dynamicspacingdef-struct)
-    - [20.4 Registration API](#204-registration-api)
-    - [20.5 Query API](#205-query-api)
-    - [20.6 Theme-Aware Dynamic Colors](#206-theme-aware-dynamic-colors)
-    - [20.7 Naming Convention](#207-naming-convention)
-    - [20.8 Unregistration](#208-unregistration)
-    - [20.9 Dynamic Token Lifecycle](#209-dynamic-token-lifecycle)
-    - [20.10 Storage Implementation](#2010-storage-implementation)
-  - [Chapter 21. Custom Theme Registration](#chapter-21-custom-theme-registration)
-    - [21.1 Registration Flow](#211-registration-flow)
-    - [21.2 ThemeEntry Storage](#212-themeentry-storage)
-    - [21.3 Theme Inheritance](#213-theme-inheritance)
-    - [21.4 Multiple Registration](#214-multiple-registration)
-    - [21.5 Built-in Theme Constants](#215-built-in-theme-constants)
-    - [21.6 Theme Discovery Pattern](#216-theme-discovery-pattern)
-    - [21.7 Theme Change Signal](#217-theme-change-signal)
-  - [Chapter 22. C ABI (NyanCApi)](#chapter-22-c-abi-nyancapi)
-    - [22.1 Theme Control API](#221-theme-control-api)
-    - [22.2 Dynamic Token API (C ABI)](#222-dynamic-token-api-c-abi)
-    - [22.3 Icon Registration API (C ABI)](#223-icon-registration-api-c-abi)
-    - [22.4 Error Codes](#224-error-codes)
-    - [22.5 C ABI Usage Example](#225-c-abi-usage-example)
-    - [22.6 Thread Safety](#226-thread-safety)
-    - [22.7 Memory Ownership](#227-memory-ownership)
-- [Part VIII -- Testing \& Validation](#part-viii----testing--validation)
-  - [Chapter 23. Test Infrastructure](#chapter-23-test-infrastructure)
-    - [23.1 SetAnimationOverride(0)](#231-setanimationoverride0)
-    - [23.2 A11yAudit Integration](#232-a11yaudit-integration)
-    - [23.3 WidgetTestFixture](#233-widgettestfixture)
-    - [23.4 NotificationSpy Test Pattern](#234-notificationspy-test-pattern)
-    - [23.5 Theme Testing Patterns](#235-theme-testing-patterns)
-    - [23.6 Visual Regression Testing (Strategy)](#236-visual-regression-testing-strategy)
-  - [Chapter 24. JSON Validation Pipeline](#chapter-24-json-validation-pipeline)
-    - [24.1 tokens\_schema.json](#241-tokens_schemajson)
-    - [24.2 validate\_tokens.py](#242-validate_tokenspy)
-    - [24.3 CI Integration](#243-ci-integration)
-    - [24.4 Adding a New Theme File](#244-adding-a-new-theme-file)
-  - [Chapter 25. Design Token Consistency Checks](#chapter-25-design-token-consistency-checks)
-    - [25.1 static\_assert Guards](#251-static_assert-guards)
-    - [25.2 Enum-to-NameTable Synchronization](#252-enum-to-nametable-synchronization)
-    - [25.3 WidgetStyleSheet Coverage Test](#253-widgetstylesheet-coverage-test)
-    - [25.4 Token Roundtrip Test](#254-token-roundtrip-test)
-    - [25.5 Cross-Theme Contrast Verification](#255-cross-theme-contrast-verification)
-    - [25.6 Test Coverage Target](#256-test-coverage-target)
-- [Part IX. UI Architecture](#part-ix-ui-architecture)
-    - [Why a Design System Specification Includes Framework Architecture](#why-a-design-system-specification-includes-framework-architecture)
-  - [Chapter 26. UiNode Tree Architecture](#chapter-26-uinode-tree-architecture)
-    - [26.1 Application / Shell / WindowNode Split](#261-application--shell--windownode-split)
-    - [26.2 UiNode Base Class](#262-uinode-base-class)
-    - [26.3 Container Node Inventory](#263-container-node-inventory)
-    - [26.4 WidgetNode Typed Subclasses (Scheme D)](#264-widgetnode-typed-subclasses-scheme-d)
-    - [26.5 Notification Architecture](#265-notification-architecture)
-    - [26.6 Cascade Menu Behavior](#266-cascade-menu-behavior)
-      - [26.6.1 Structural Rules](#2661-structural-rules)
-      - [26.6.2 Opening \& Positioning](#2662-opening--positioning)
-      - [26.6.3 Hover \& Submenu Interaction](#2663-hover--submenu-interaction)
-      - [26.6.4 Dismissal Rules](#2664-dismissal-rules)
-      - [26.6.5 Keyboard Navigation](#2665-keyboard-navigation)
-      - [26.6.6 Multi-Level Cascade (3+ Levels)](#2666-multi-level-cascade-3-levels)
-      - [26.6.7 UiNode-Layer Event Routing](#2667-uinode-layer-event-routing)
-      - [26.6.8 Notification](#2668-notification)
-    - [26.7 Plugin System](#267-plugin-system)
-      - [26.7.1 IExpansionPlugin Interface](#2671-iexpansionplugin-interface)
-      - [26.7.2 PluginHost](#2672-pluginhost)
-      - [26.7.3 Plugin C Entry Point](#2673-plugin-c-entry-point)
-    - [26.8 Application Shutdown Sequence](#268-application-shutdown-sequence)
-      - [26.8.1 Core Invariant](#2681-core-invariant)
-      - [26.8.2 Five-Phase Shutdown Model](#2682-five-phase-shutdown-model)
-      - [26.8.3 Canonical Shutdown Code](#2683-canonical-shutdown-code)
-  - [Chapter 27. Multi-Window \& Floating Tab Protocol](#chapter-27-multi-window--floating-tab-protocol)
-    - [27.1 WindowNode Inner Component Table](#271-windownode-inner-component-table)
-    - [27.2 Document-DocumentPage One-to-Many Model](#272-document-documentpage-one-to-many-model)
-    - [27.3 Tab Drag-Out / Drag-Back Protocol](#273-tab-drag-out--drag-back-protocol)
-    - [27.4 Tab Drag \& Drop Specification](#274-tab-drag--drop-specification)
-    - [27.5 Z-Order Strategy (Qt Window Flags)](#275-z-order-strategy-qt-window-flags)
-  - [Chapter 28. Viewport System](#chapter-28-viewport-system)
-    - [28.1 Data Model](#281-data-model)
-    - [28.2 State Machine](#282-state-machine)
-    - [28.3 Keyboard Shortcuts](#283-keyboard-shortcuts)
-    - [28.4 Viewport Behavior Notifications](#284-viewport-behavior-notifications)
-    - [28.5 Viewport Widget Classes](#285-viewport-widget-classes)
-    - [28.6 IViewportRenderer Interface](#286-iviewportrenderer-interface)
-    - [28.7 IViewportHost](#287-iviewporthost)
-    - [28.8 Push vs. Pull Model](#288-push-vs-pull-model)
-    - [28.9 Wayland Strategy](#289-wayland-strategy)
-    - [28.10 Timing Hazards \& Mitigations](#2810-timing-hazards--mitigations)
-  - [Chapter 29. ActionBar Drag \& Dock Behavior](#chapter-29-actionbar-drag--dock-behavior)
-    - [29.1 Dock States](#291-dock-states)
-    - [29.2 Drag State Machine](#292-drag-state-machine)
-    - [29.3 Drop Scenarios](#293-drop-scenarios)
-    - [29.4 Collapse Behavior](#294-collapse-behavior)
-- [Part X. Implementation Roadmap](#part-x-implementation-roadmap)
-  - [Chapter 30. Implementation Roadmap Summary](#chapter-30-implementation-roadmap-summary)
-    - [30.1 Guiding Principles](#301-guiding-principles)
-    - [30.2 Phase Timeline](#302-phase-timeline)
-    - [30.3 Widget Library Tiers](#303-widget-library-tiers)
-    - [30.4 Testing Strategy](#304-testing-strategy)
-- [Appendices](#appendices)
-  - [Appendix A. Design System Glossary](#appendix-a-design-system-glossary)
-    - [A.1 Foundation Layer](#a1-foundation-layer)
-    - [A.2 Token Layer](#a2-token-layer)
-    - [A.3 Component Layer](#a3-component-layer)
-    - [A.4 Animation Layer](#a4-animation-layer)
-    - [A.5 Service Layer](#a5-service-layer)
-    - [A.6 UI Architecture Layer](#a6-ui-architecture-layer)
-  - [Appendix B. UI State Snapshot (Undo/Redo Bridge)](#appendix-b-ui-state-snapshot-undoredo-bridge)
-    - [B.1 Design Principle](#b1-design-principle)
-    - [B.2 ISnapshotable Interface](#b2-isnapshotable-interface)
-    - [B.3 Per-Service Snapshot Coverage](#b3-per-service-snapshot-coverage)
-  - [Appendix C. Workbench \& Workshop Architecture](#appendix-c-workbench--workshop-architecture)
-    - [C.1 The Problem: UI Reconfiguration under Document-Type Polymorphism](#c1-the-problem-ui-reconfiguration-under-document-type-polymorphism)
-    - [C.2 CATIA V5 Workshop/Workbench Model (Reference Architecture)](#c2-catia-v5-workshopworkbench-model-reference-architecture)
-      - [C.2.1 Conceptual Model](#c21-conceptual-model)
-      - [C.2.2 Key Abstractions](#c22-key-abstractions)
-      - [C.2.3 Workshop vs. Workbench: The Precise Distinction](#c23-workshop-vs-workbench-the-precise-distinction)
-      - [C.2.4 Command Header and Lazy Loading](#c24-command-header-and-lazy-loading)
-    - [C.3 Entity Resolution Order and Command Visibility](#c3-entity-resolution-order-and-command-visibility)
-    - [C.4 Addin Extension Model](#c4-addin-extension-model)
-      - [C.4.1 Workshop Addin](#c41-workshop-addin)
-      - [C.4.2 Workbench Addin](#c42-workbench-addin)
-      - [C.4.3 Addin Discovery](#c43-addin-discovery)
-    - [C.5 Activation Lifecycle](#c5-activation-lifecycle)
-      - [C.5.1 Document Switch (Workshop Transition)](#c51-document-switch-workshop-transition)
-      - [C.5.2 Task Mode Switch (Workbench Transition within Same Workshop)](#c52-task-mode-switch-workbench-transition-within-same-workshop)
-    - [C.6 Matcha Mapping: From CATIA Concepts to UiNode Tree](#c6-matcha-mapping-from-catia-concepts-to-uinode-tree)
-    - [C.7 Matcha Workshop/Workbench Architecture](#c7-matcha-workshopworkbench-architecture)
-      - [C.7.1 Design Principles](#c71-design-principles)
-      - [C.7.2 Type-Safe Identifiers](#c72-type-safe-identifiers)
-      - [C.7.3 Command Header Descriptor](#c73-command-header-descriptor)
-      - [C.7.4 Tab and Toolbar Blueprints](#c74-tab-and-toolbar-blueprints)
-      - [C.7.5 Workshop Descriptor](#c75-workshop-descriptor)
-      - [C.7.6 Workbench Descriptor](#c76-workbench-descriptor)
-      - [C.7.7 Addin Descriptor](#c77-addin-descriptor)
-    - [C.8 Lifecycle Interfaces](#c8-lifecycle-interfaces)
-      - [C.8.1 IWorkbenchLifecycle](#c81-iworkbenchlifecycle)
-      - [C.8.2 IWorkshopContributor](#c82-iworkshopcontributor)
-    - [C.9 WorkshopRegistry](#c9-workshopregistry)
-      - [C.9.1 API](#c91-api)
-      - [C.9.2 Command Resolution Order](#c92-command-resolution-order)
-      - [C.9.3 Validation](#c93-validation)
-    - [C.10 WorkbenchManager State Machine](#c10-workbenchmanager-state-machine)
-      - [C.10.1 State](#c101-state)
-      - [C.10.2 ActivateWorkshop(workshopId) -\> bool](#c102-activateworkshopworkshopid---bool)
-      - [C.10.3 ActivateWorkbench(workbenchId) -\> bool](#c103-activateworkbenchworkbenchid---bool)
-      - [C.10.4 PushWorkbench / PopWorkbench](#c104-pushworkbench--popworkbench)
-      - [C.10.5 MaterializeTabs (Blueprint to UiNode)](#c105-materializetabs-blueprint-to-uinode)
-    - [C.11 Timing and Safety Guarantees](#c11-timing-and-safety-guarantees)
-  - [Appendix D. Business-Layer ABI Boundary](#appendix-d-business-layer-abi-boundary)
-    - [D.1 Architecture](#d1-architecture)
-    - [D.2 Rules](#d2-rules)
-  - [Appendix E. Application Architecture Glossary](#appendix-e-application-architecture-glossary)
-    - [E.1 Top-Level Container \& Document Management](#e1-top-level-container--document-management)
-    - [E.2 Docking \& Panel System](#e2-docking--panel-system)
-    - [E.3 Functional Area Architecture](#e3-functional-area-architecture)
-    - [E.4 Viewport \& Graphics Region Architecture](#e4-viewport--graphics-region-architecture)
-    - [E.5 Modal \& Modeless Interaction Framework](#e5-modal--modeless-interaction-framework)
+> **TOC will be regenerated after all content is finalized.**
+> See `doc_plan.md` for the complete 7-pillar structure.
 
 ---
 ---
@@ -841,26 +154,38 @@ Each part addresses a specific failure mode observed in systems that lack a desi
 
 ---
 
-# Part I -- Foundations
 
-> Chapters 1-5. Defines all primitive design tokens and their semantic roles.
-> These chapters are the **vocabulary** of the design system.
+---
 
-## Chapter 1. Overview & Design Philosophy
+# Part I -- Design Language Specification
 
-### 1.1 Document Scope & Audience
+> 🆕 **Post-v1 structural reorganization.** Part I is the designer's complete expression of the
+> Matcha design system. It defines all visual, typographic, spatial, stylistic, interactive, and
+> motion specifications needed to implement the UI from scratch.
+>
+> **7-pillar structure**: I.1 Foundations & Principles · I.2 Tokens · I.3 Typography ·
+> I.4 Style · I.5 Widgets · I.6 Layout · I.7 Interaction · I.8 Motion
+>
+> Later Parts (II–VIII) provide architecture and implementation details that realize
+> Part I's design intent. Part I cross-references those Parts where appropriate.
+
+## I.1 Foundations & Principles
+
+### Chapter 1. Overview & Design Philosophy
+
+#### 1.1 Document Scope & Audience
 
 - What this document covers (complete design system spec)
 - Who should read it (widget authors, plugin devs, theme designers, QA)
 - What it does NOT cover (application-level UX patterns, domain logic)
 
-### 1.2 Core Design Principles
+#### 1.2 Core Design Principles
 
 Matcha is governed by six architectural principles that apply across all Parts
 of this specification. Each principle is introduced here and expanded in the
 relevant chapter.
 
-#### 1.2.1 Separation of Concerns: What / How / When / Who
+##### 1.2.1 Separation of Concerns: What / How / When / Who
 
 Every visual property passes through four separable concerns:
 
@@ -875,7 +200,7 @@ This separation ensures that adding a new widget (What) does not require
 modifying the theme engine (How), that animation behavior (When) is independent
 of visual values, and that plugin customization (Who) has a bounded blast radius.
 
-#### 1.2.2 Design-Code Isomorphism
+##### 1.2.2 Design-Code Isomorphism
 
 The design system and the C++ implementation must be **structurally isomorphic**:
 every element in the design spec has a 1:1 counterpart in code, and vice versa.
@@ -891,7 +216,7 @@ This eliminates the "design drift" problem where implementation gradually
 diverges from the design spec. See Chapter 9 for the four-dimension model
 and quantified motivation.
 
-#### 1.2.3 Qt-Free Public Surface
+##### 1.2.3 Qt-Free Public Surface
 
 All public interfaces in Layer 0 (`fw` namespace) are Qt-free. Layer 1 (`gui`)
 uses Qt types only in implementation, never in abstract interfaces consumed
@@ -909,7 +234,7 @@ functions, enabling Python/Rust/C# bindings. Future backend replacement
 (e.g., Qt -> custom renderer) only affects `NyanTheme`/`NyanAnimation`
 implementations, not the public API surface.
 
-#### 1.2.4 Upward-Only Information Flow
+##### 1.2.4 Upward-Only Information Flow
 
 Notifications propagate **upward only** (child -> parent -> ancestor), never
 downward or sideways. This constraint, borrowed from CATIA V5's
@@ -924,7 +249,7 @@ CommandNode inserted as a child of both the producer's subtree and the
 consumer's subtree) provides a structured workaround. See Chapter 26.5 for
 the 3-layer subscription safety model.
 
-#### 1.2.5 Test-Driven Specification: Tests as Behavioral Contracts
+##### 1.2.5 Test-Driven Specification: Tests as Behavioral Contracts
 
 In Matcha's development methodology, **tests are written before or alongside
 implementation, not after**. Tests serve a dual role:
@@ -1036,7 +361,7 @@ that breaks keyboard navigation will be caught immediately.
 > See Chapter 23 for test infrastructure details (`WidgetTestFixture`,
 > `NotificationSpy`, `A11yAudit`).
 
-### 1.3 Design Language Principles
+#### 1.3 Design Language Principles
 
 Matcha's visual design language is built on five principles:
 
@@ -1048,7 +373,7 @@ Matcha's visual design language is built on five principles:
    different user contexts (power user vs touch screen)
 5. **Theme-extensible** -- Unlimited custom themes via JSON; plugins extend tokens at runtime
 
-### 1.4 Three-Layer Token Architecture
+#### 1.4 Three-Layer Token Architecture
 
 ```mermaid
 graph TD
@@ -1089,7 +414,7 @@ graph TD
     CO --> WS
 ```
 
-#### 1.4.1 Token Architecture Depth (Industry Comparison)
+##### 1.4.1 Token Architecture Depth (Industry Comparison)
 
 Matcha achieves 7 levels of token depth. Most web design systems stop at 4-5.
 
@@ -1105,7 +430,7 @@ Matcha achieves 7 levels of token depth. Most web design systems stop at 4-5.
 
 **Design rule.** All visual properties are expressed as semantic design tokens, not raw values. This enables theme switching, density scaling, and accessibility overrides without widget code changes. Every widget must use `IThemeService::Resolve()` instead of hard-coded colors/sizes.
 
-### 1.5 Architecture Layer Diagram
+#### 1.5 Architecture Layer Diagram
 
 ```mermaid
 graph LR
@@ -1134,26 +459,136 @@ graph LR
     TA --> W
 ```
 
-### 1.6 Terminology Glossary
+#### 1.6 Terminology Glossary
 
-| Term | Definition |
-|------|-----------|
-| **Token** | A named, semantic design value (color, spacing, duration, etc.) that abstracts the concrete visual parameter from its usage context |
-| **Variant** | A visual sub-type of a widget (e.g., PushButton has Primary, Secondary, Ghost, Danger variants) |
-| **State** | An interaction state of a widget (`InteractionState` enum: Normal, Hovered, Pressed, Disabled, Focused, Selected, Error, DragOver) |
-| **Density** | A global UI compactness level that scales spacing, radius, shadow, and component sizes |
-| **WidgetKind** | An enum identifying each widget type for style sheet resolution (54 entries) |
-| **ResolvedStyle** | A fully concrete style snapshot (QColor, QFont, px values) produced by `IThemeService::Resolve()` |
-| **ThemeAware** | A mixin class that auto-connects widgets to the theme engine and provides style accessors |
-| **WidgetStyleSheet** | Per-widget-kind composite of geometry tokens + variant color maps |
-| **ComponentOverride** | Per-widget-class token deviations registered by widget authors or plugins |
-| **DynamicToken** | A plugin-registered token (color, font, or spacing) that extends the core vocabulary at runtime |
+> Quick-start glossary of the ~25 most important terms. For the complete
+> reference (~120 entries with C++ types and spec cross-references), see
+> **Appendix A. Design System Glossary**.
+
+##### 1.6.1 Core Architecture
+
+| Term | 中文 | Definition |
+|------|------|-----------|
+| **Token** | 设计令牌 | A named, semantic design value (color, spacing, duration, etc.) that abstracts the concrete visual parameter from its usage context |
+| **Variant** | 变体 | A visual sub-type of a widget (e.g., PushButton has Primary, Secondary, Ghost, Danger variants) |
+| **State** | 交互状态 | An interaction state of a widget (`InteractionState` enum: Normal, Hovered, Pressed, Disabled, Focused, Selected, Error, DragOver) |
+| **Density** | 密度等级 | A global UI compactness level that scales spacing, radius, shadow, and component sizes |
+| **WidgetKind** | 组件类型 | An enum identifying each widget type for style sheet resolution (54+ entries) |
+| **ResolvedStyle** | 解析样式 | A fully concrete style snapshot (QColor, QFont, px values) produced by `IThemeService::Resolve()` |
+| **ThemeAware** | 主题感知混入 | A mixin class that auto-connects widgets to the theme engine and provides style accessors |
+| **WidgetStyleSheet** | 组件样式表 | Per-widget-kind composite of geometry tokens + variant color maps |
+| **ComponentOverride** | 组件覆盖 | Per-widget-class token deviations registered by widget authors or plugins |
+| **DynamicToken** | 动态令牌 | A plugin-registered token (color, font, or spacing) that extends the core vocabulary at runtime |
+
+##### 1.6.2 UiNode Tree & Architecture
+
+| Term | 中文 | Definition |
+|------|------|-----------|
+| **UiNode** | UI 节点 | Pure C++ node in the logical tree — not a QWidget. Decouples domain model from Qt rendering |
+| **CommandNode** | 命令节点 | UiNode base class providing parent-child hierarchy, notification dispatch, and subscription management |
+| **Shell** | 应用外壳 | UiNode root of the application. Holds references to MainWindow, ActionBar, DocumentManager |
+| **Notification** | 通知 | Typed message propagated upward through the UiNode tree; the sole communication channel from widget to business logic |
+
+##### 1.6.3 Design Theory & Cognitive Science
+
+| Term | 中文 | Definition |
+|------|------|-----------|
+| **Affordance** | 功能可供性 | An action possibility that an object offers to a user (Don Norman). In Matcha: what a widget *can do* |
+| **Signifier** | 示能符号 | A perceivable indicator of an affordance — what tells the user *how* to interact (Don Norman, §7.12) |
+| **Cognitive Load** | 认知负荷 | The total mental effort required to use the interface. Governed by Hick's Law, Miller's Law (7±2), Fitts' Law (§7.13) |
+| **Hick's Law** | 希克定律 | Decision time $T = a + b \cdot \log_2(n+1)$: fewer choices → faster decisions |
+| **Miller's Law** | 米勒定律 | Working memory limit of 7±2 items. Constrains menu items, tab counts, form fields per section |
+| **Fitts' Law** | 费茨定律 | Movement time $T = a + b \cdot \log_2(1 + D/W)$: larger targets closer to cursor → faster acquisition |
+
+##### 1.6.4 Accessibility & Internationalization
+
+| Term | 中文 | Definition |
+|------|------|-----------|
+| **WCAG** | 网页内容无障碍指南 | Web Content Accessibility Guidelines. Matcha enforces WCAG 2.1 AA contrast (≥ 4.5:1) as a hard constraint |
+| **Reduced Motion** | 减弱动效 | Accessibility mode where all animations snap to target value (0 ms). Honors OS `prefers-reduced-motion` |
+| **Focus Trap** | 焦点陷阱 | A focus scope that prevents Tab from leaving a container (e.g., modal dialog, onboarding tooltip) |
+| **Mnemonic** | 助记键 | Keyboard shortcut activated by Alt+underlined letter (e.g., `Alt+F` for File). §7.9.11 |
+| **RTL / LTR** | 右到左/左到右 | Text direction enum affecting padding, icon position, chevron direction, menu cascade side (§7.10) |
+
+#### 1.7 Content & Writing Guidelines 🆕
+
+> 🆕 Post-v1 supplement.
+> UI copy style guide ensuring consistent voice, terminology, and messaging across
+> all Matcha widgets. Based on NN/g writing for interfaces guidelines.
+
+##### 1.7.1 Voice & Tone
+
+| Attribute | Guideline |
+|-----------|-----------|
+| **Voice** | Professional, concise, technical. Appropriate for CAD/CAE engineering context. |
+| **Tense** | Present tense for states ("File is saved"), imperative for actions ("Save file"). |
+| **Person** | Second person for instructions ("Select a file"), impersonal for states ("3 items selected"). |
+| **Sentence case** | Use sentence case for all UI text except proper nouns. "Save as template" not "Save As Template". |
+| **Punctuation** | No period on single-sentence labels, tooltips, or button text. Use periods in multi-sentence descriptions. |
+
+##### 1.7.2 Button Label Rules
+
+| Pattern | Example | Anti-pattern |
+|---------|---------|-------------|
+| Verb (+ object) | "Save", "Delete file", "Export as PDF" | "OK", "Yes", "Submit" (too generic) |
+| Specific over generic | "Discard changes" | "No" |
+| Match the action | "Remove from list" | "Delete" (when item is not destroyed) |
+| Destructive = explicit | "Delete 3 nodes permanently" | "Delete" (ambiguous scope) |
+
+**Exception**: Standard dialog buttons "OK" and "Cancel" are acceptable when the dialog title
+already describes the action (e.g., title = "Save changes?", buttons = "Save" / "Don't save" / "Cancel").
+
+##### 1.7.3 Error Message Template
+
+```
+[What happened]. [Why it happened (if known)]. [What to do next].
+```
+
+| Component | Guideline | Example |
+|-----------|-----------|---------|
+| **What** | Describe the failure state, not the technical cause | "Could not save file" not "IOException" |
+| **Why** | Optional — include only if actionable | "The disk is full." |
+| **What next** | Provide a recovery action | "Free up space and try again." |
+
+**Full example**: "Could not save file. The disk is full. Free up space and try again."
+
+##### 1.7.4 Placeholder Text
+
+| Widget | Placeholder purpose | Example |
+|--------|-------------------|---------|
+| LineEdit | Describe expected input format | "Enter file name..." |
+| SearchBox | Describe search scope | "Search nodes..." |
+| ComboBox | Describe what to select | "Select material..." |
+
+Rules:
+- Use ellipsis (`...`) at the end of placeholder text
+- Do not repeat the label text in the placeholder
+- Placeholder disappears on focus (not on first keystroke)
+
+##### 1.7.5 Tooltip Text
+
+- Maximum 2 sentences (≤ 80 characters preferred)
+- First sentence: what the control does
+- Second sentence (optional): keyboard shortcut or additional context
+- Example: "Undo the last action. Ctrl+Z"
+
+##### 1.7.6 Terminology Consistency
+
+Maintain a project-level glossary. Within a single application:
+- Use one term per concept (e.g., always "node" or always "element", never both)
+- Use the same term in UI, documentation, and code identifiers
+- Prefer domain terms familiar to the target user (e.g., "mesh" not "polygon soup" in CAE context)
 
 ---
 
-## Chapter 2. Color System
 
-### 2.1 Color Token Vocabulary Overview
+## I.2 Tokens
+
+> Visual primitive definitions: color, spatial, icon design language, cursor.
+
+### Chapter 2. Color System
+
+#### 2.1 Color Token Vocabulary Overview
 
 75 semantic color tokens organized in four categories:
 
@@ -1164,7 +599,7 @@ graph LR
 | Special Purpose | 9 | Unique functional names |
 | **Total** | **75** | |
 
-### 2.2 Neutral Scale: Surface / Fill / Border / Text
+#### 2.2 Neutral Scale: Surface / Fill / Border / Text
 
 > 16 tokens. Synthesized from Ant Design v5 neutral categories + Radix 12-step semantics.
 
@@ -1219,7 +654,7 @@ graph TD
 | `TextTertiary` | -- | `colorTextTertiary` | Placeholder, hint text | `#999999` | `#707070` |
 | `TextDisabled` | -- | `colorTextQuaternary` | Disabled text, watermark | `#CCCCCC` | `#505050` |
 
-### 2.3 Semantic Hue Scales
+#### 2.3 Semantic Hue Scales
 
 > 5 hues x 10 steps = 50 tokens.
 
@@ -1252,7 +687,7 @@ Each hue follows the **Ant Design 10-step model**:
 > If the brand primary changes to red/purple, Info must remain blue to avoid
 > semantic collision with Error.
 
-### 2.4 Special Purpose Tokens
+#### 2.4 Special Purpose Tokens
 
 | Token | Count | Purpose | Industry Reference |
 |-------|:-----:|---------|-------------------|
@@ -1266,7 +701,7 @@ Each hue follows the **Ant Design 10-step model**:
 | `Shadow` | 1 | Box-shadow base color | Fluent `colorNeutralShadow*` |
 | `Separator` | 1 | Horizontal/vertical rule | Carbon `border-subtle` |
 
-### 2.5 Tonal Palette Generation Algorithm
+#### 2.5 Tonal Palette Generation Algorithm
 
 **Input**: Seed color (sRGB), ThemeMode (Light/Dark)
 **Output**: 10-step tonal ramp as `std::array<QColor, 10>`
@@ -1296,7 +731,7 @@ flowchart LR
 
 OKLCH provides perceptual uniformity: equal lightness steps produce equal perceived brightness changes. HSL suffers from the Helmholtz-Kohlrausch effect. The implementation requires sRGB <-> OKLCH conversion functions and gamut clamping for high-chroma seeds.
 
-### 2.6 Color Seeds & JSON Configuration
+#### 2.6 Color Seeds & JSON Configuration
 
 Theme JSON files support a `"colorSeeds"` object for algorithmic palette generation:
 
@@ -1315,7 +750,7 @@ Theme JSON files support a `"colorSeeds"` object for algorithmic palette generat
 When a seed is provided, the 10-step palette for that hue is generated algorithmically.
 Individual step colors can still be overridden by explicit hex values in the JSON.
 
-### 2.7 Disabled State: Alpha Overlay Orthogonality
+#### 2.7 Disabled State: Alpha Overlay Orthogonality
 
 Disabled state is **orthogonal** to color semantics. Instead of per-variant disabled
 tokens, a uniform alpha overlay is applied:
@@ -1329,7 +764,7 @@ where `kDisabledOpacity = 0.45F` (45% opacity).
 This prevents combinatorial explosion of `{variant} x {hue} x {state}` tokens.
 The framework applies this automatically when `InteractionState::Disabled` is active.
 
-### 2.8 Contrast Checker & WCAG Compliance
+#### 2.8 Contrast Checker & WCAG Compliance
 
 **Class**: `ContrastChecker` (static utility)
 
@@ -1352,145 +787,9 @@ $$R_{\text{lin}} = \begin{cases} \dfrac{R/255}{12.92} & \text{if } R/255 \le 0.0
 
 ---
 
-## Chapter 3. Typography System
+### Chapter 4. Spatial System
 
-### 3.1 FontRole Enum
-
-| Role | Default Size | Default Weight | Line Height | Letter Spacing | Use Case |
-|------|:----------:|:-----------:|:----------:|:-------------:|----------|
-| `Body` | 9pt | Normal (400) | 1.4x | 0px | Default widget text |
-| `BodyMedium` | 9pt | Medium (500) | 1.4x | 0px | NyanLabel NameState |
-| `BodyBold` | 9pt | Medium+Bold (600) | 1.4x | 0px | NyanLabel TitleState |
-| `Caption` | 8pt | Normal (400) | 1.4x | 0px | ToolButton text, ActionBar tabs |
-| `Heading` | 12pt | DemiBold (600) | 1.4x | 0px | Dialog titles, section headers |
-| `Monospace` | 9pt | Normal (400) | 1.4x | 0px | Code display, LineEdit numeric |
-| `ToolTip` | 8pt | Normal (400) | 1.4x | 0px | Tooltip overlays |
-
-### 3.2 FontSpec Struct
-
-```cpp
-struct FontSpec {
-    QString family;                     // Platform-resolved font family
-    int     sizeInPt      = 9;          // DPI-independent point size
-    int     weight        = 400;        // QFont::Weight (Normal=400, Bold=700)
-    bool    italic        = false;      // Italic style flag
-    qreal   lineHeightMultiplier = 1.4; // Line height = fontSize * multiplier
-    qreal   letterSpacing = 0.0;        // Extra letter spacing in px
-};
-```
-
-### 3.3 Platform Font Selection
-
-| Platform | Primary Family | Monospace Family | Selection Method |
-|----------|---------------|-----------------|-----------------|
-| Windows | Segoe UI | Cascadia Mono / Consolas | `QFontDatabase::systemFont(GeneralFont)` |
-| macOS | SF Pro | SF Mono / Menlo | `QFontDatabase::systemFont(GeneralFont)` |
-| Linux | Noto Sans | Noto Sans Mono / DejaVu Sans Mono | `QFontDatabase::systemFont(GeneralFont)` |
-
-### 3.4 Font Scale System
-
-**Global font scale** multiplies all FontRole base sizes:
-
-| Preset | Factor | Use Case |
-|--------|:------:|----------|
-| `FontSizePreset::Small` | 0.875x | Compact text for dense UIs |
-| `FontSizePreset::Medium` | 1.0x | Default |
-| `FontSizePreset::Large` | 1.25x | Accessibility / large displays |
-
-**Custom factor**: `SetFontScale(float)` clamped to `[kFontScaleMin=0.5, kFontScaleMax=3.0]`.
-
-**Effective size**: $\text{actualPt} = \text{basePt} \times \text{fontScaleFactor} \times \text{densityScale}$
-
-### 3.5 JSON Font Override
-
-Per-FontRole customization via the `"fonts"` JSON object:
-
-```json
-{
-  "fonts": {
-    "Heading": { "size": 14, "weight": 700 },
-    "Body":    { "size": 10 }
-  }
-}
-```
-
-**Fields**: `size` (int, point size) and `weight` (int, QFont weight).
-Unspecified fields retain platform defaults.
-
-### 3.6 Dynamic Font Registration (Plugin)
-
-Plugins register domain-specific fonts:
-
-```cpp
-DynamicFontDef defs[] = {
-    { "CAD/PropertyGrid", FontSpec{ "Consolas", 8, 400 } },
-};
-theme.RegisterDynamicFonts(defs);
-
-// Query
-auto font = theme.DynamicFont("CAD/PropertyGrid"); // -> std::optional<FontSpec>
-```
-
-The global `_fontScale` is applied to dynamic font queries.
-
-### 3.7 Complete FontRole Resolution Table
-
-Actual font parameters after platform detection and default scale (1.0x).
-
-#### 3.7.1 Windows (Segoe UI)
-
-| Role | Family | Size (pt) | Weight | Italic | Line Height |
-|------|--------|:---------:|:------:|:------:|:-----------:|
-| `Body` | Segoe UI | 9 | 400 | No | 1.4x |
-| `BodyMedium` | Segoe UI | 9 | 500 | No | 1.4x |
-| `BodyBold` | Segoe UI | 9 | 600 | No | 1.4x |
-| `Caption` | Segoe UI | 8 | 400 | No | 1.4x |
-| `Heading` | Segoe UI | 12 | 600 | No | 1.4x |
-| `Monospace` | Cascadia Code | 9 | 400 | No | 1.4x |
-| `ToolTip` | Segoe UI | 8 | 400 | No | 1.4x |
-
-#### 3.7.2 macOS (SF Pro Text)
-
-| Role | Family | Size (pt) | Weight | Italic | Line Height |
-|------|--------|:---------:|:------:|:------:|:-----------:|
-| `Body` | SF Pro Text | 9 | 400 | No | 1.4x |
-| `BodyMedium` | SF Pro Text | 9 | 500 | No | 1.4x |
-| `BodyBold` | SF Pro Text | 9 | 600 | No | 1.4x |
-| `Caption` | SF Pro Text | 8 | 400 | No | 1.4x |
-| `Heading` | SF Pro Text | 12 | 600 | No | 1.4x |
-| `Monospace` | SF Mono | 9 | 400 | No | 1.4x |
-| `ToolTip` | SF Pro Text | 8 | 400 | No | 1.4x |
-
-#### 3.7.3 Linux (Noto Sans)
-
-| Role | Family | Size (pt) | Weight | Italic | Line Height |
-|------|--------|:---------:|:------:|:------:|:-----------:|
-| `Body` | Noto Sans | 9 | 400 | No | 1.4x |
-| `BodyMedium` | Noto Sans | 9 | 500 | No | 1.4x |
-| `BodyBold` | Noto Sans | 9 | 600 | No | 1.4x |
-| `Caption` | Noto Sans | 8 | 400 | No | 1.4x |
-| `Heading` | Noto Sans | 12 | 600 | No | 1.4x |
-| `Monospace` | Noto Sans Mono | 9 | 400 | No | 1.4x |
-| `ToolTip` | Noto Sans | 8 | 400 | No | 1.4x |
-
-#### 3.7.4 Font Scale Effect
-
-With font scale $s$, actual point size $= \max(\lfloor \text{basePt} \cdot s + 0.5 \rfloor,\; 6)$.
-
-| Scale | Body | Caption | Heading | Monospace |
-|:-----:|:----:|:-------:|:-------:|:---------:|
-| 0.5x | 6pt (clamped) | 6pt | 6pt | 6pt |
-| 0.875x (Small) | 8pt | 7pt | 11pt | 8pt |
-| 1.0x (Medium) | 9pt | 8pt | 12pt | 9pt |
-| 1.25x (Large) | 11pt | 10pt | 15pt | 11pt |
-| 2.0x | 18pt | 16pt | 24pt | 18pt |
-| 3.0x | 27pt | 24pt | 36pt | 27pt |
-
----
-
-## Chapter 4. Spatial System
-
-### 4.1 Spacing Tokens
+#### 4.1 Spacing Tokens
 
 | Token | Base px | Typical Use |
 |-------|:-------:|------------|
@@ -1516,7 +815,7 @@ sub-multiples (1, 2, 3) for fine-grained adjustments.
 
 **Actual pixel output**: $\lfloor \text{basePx} \times \text{densityScale} + 0.5 \rfloor$.
 
-### 4.2 Density System
+#### 4.2 Density System
 
 ```mermaid
 graph LR
@@ -1533,7 +832,7 @@ graph LR
 
 **API**: `SetDensity(DensityLevel)` -> rebuilds QSS + emits `ThemeChanged`.
 
-### 4.3 Radius Tokens
+#### 4.3 Radius Tokens
 
 | Token | Base px | Use Case |
 |-------|:-------:|----------|
@@ -1546,7 +845,7 @@ graph LR
 
 Density-scaled in `Resolve()`: $\text{radiusPx} = \text{Radius}(\text{token}) \times \text{densityScale}$.
 
-### 4.4 Size Tokens
+#### 4.4 Size Tokens
 
 | Token | Base px | Component Mapping |
 |-------|:-------:|------------------|
@@ -1558,7 +857,7 @@ Density-scaled in `Resolve()`: $\text{radiusPx} = \text{Radius}(\text{token}) \t
 
 Density-scaled: $\text{actualPx} = \text{kBaseSizePx}[\text{token}] \times \text{densityScale}$.
 
-### 4.5 Elevation & Shadow System
+#### 4.5 Elevation & Shadow System
 
 | Level | offsetY | blurRadius | opacity | Use Case |
 |-------|:-------:|:---------:|:-------:|----------|
@@ -1572,7 +871,7 @@ Density-scaled: $\text{actualPx} = \text{kBaseSizePx}[\text{token}] \times \text
 
 Shadow `offsetY` and `blurRadius` are density-scaled in `Resolve()`.
 
-### 4.6 Layer (Z-index) Tokens
+#### 4.6 Layer (Z-index) Tokens
 
 | Token | Z-index | Use Case |
 |-------|:-------:|----------|
@@ -1586,11 +885,11 @@ Shadow `offsetY` and `blurRadius` are density-scaled in `Resolve()`.
 | `Overlay` | 700 | Full-screen overlays |
 | `Maximum` | 9999 | Debug overlays |
 
-### 4.7 Density Scaling Effect Tables
+#### 4.7 Density Scaling Effect Tables
 
 Shows actual pixel values for key tokens at each density level.
 
-#### 4.7.1 Spacing Token Scaling
+##### 4.7.1 Spacing Token Scaling
 
 | Token | Base | Compact (0.875x) | Default (1.0x) | Comfortable (1.125x) |
 |-------|:----:|:-----------------:|:--------------:|:--------------------:|
@@ -1605,7 +904,7 @@ Shows actual pixel values for key tokens at each density level.
 | `Px48` | 48 | 42 | 48 | 54 |
 | `Px64` | 64 | 56 | 64 | 72 |
 
-#### 4.7.2 Size Token Scaling
+##### 4.7.2 Size Token Scaling
 
 | Token | Base | Compact | Default | Comfortable |
 |-------|:----:|:-------:|:-------:|:-----------:|
@@ -1615,7 +914,7 @@ Shows actual pixel values for key tokens at each density level.
 | `Lg` | 40 | 35 | 40 | 45 |
 | `Xl` | 48 | 42 | 48 | 54 |
 
-#### 4.7.3 Radius Token Scaling
+##### 4.7.3 Radius Token Scaling
 
 | Token | Base | Compact | Default | Comfortable |
 |-------|:----:|:-------:|:-------:|:-----------:|
@@ -1626,7 +925,7 @@ Shows actual pixel values for key tokens at each density level.
 | `Large` | 8 | 7 | 8 | 9 |
 | `Round` | 255 | 255 | 255 | 255 |
 
-#### 4.7.4 Shadow Scaling (ElevationToken)
+##### 4.7.4 Shadow Scaling (ElevationToken)
 
 | Level | Base offsetY | Compact | Default | Comfortable |
 |-------|:-----------:|:-------:|:-------:|:-----------:|
@@ -1646,696 +945,940 @@ Shows actual pixel values for key tokens at each density level.
 
 ---
 
-## Chapter 5. Motion System
+### Chapter 6. Icon Design Language
 
-### 5.1 Animation Duration Tokens
+> Complete reference for icon identification, design language, URI hierarchy,
+> color inheritance, resolution pipeline, and plugin extensibility.
 
-| Token | Duration | Perception Threshold | Use Case |
-|-------|:--------:|---------------------|----------|
-| `Instant` | 0ms | -- | No animation / test mode |
-| `Quick` | 160ms | Causality (~100ms) | Micro-interactions (hover, focus) |
-| `Normal` | 200ms | Attention window (~200ms) | Standard state transitions |
-| `Slow` | 350ms | Deliberate transition | Page transitions, expand/collapse |
+#### 6.1 Design Philosophy
 
-### 5.2 Easing Curve Tokens
+An icon system for a CAD/CAE desktop application faces fundamentally different
+constraints than web icon libraries:
 
-| Token | Curve | Use Case |
-|-------|-------|----------|
-| `Linear` | Linear interpolation | Progress bars, deterministic animations |
-| `OutCubic` | Decelerate (cubic) | Default for most transitions (exit fast) |
-| `InOutCubic` | Accelerate then decelerate | Page transitions, modal entry |
-| `Spring` | Spring dynamics (see 5.3) | Natural, physics-based motion |
+| Constraint | Web (Material/Lucide) | Desktop CAD (Matcha) | Design Consequence |
+|------------|----------------------|----------------------|-------------------|
+| **Icon count** | 1,000-5,000 general-purpose | 300-800 domain-specific + general | Need open registry, not closed enum |
+| **Extensibility** | npm package update | Plugin DLL at runtime | URI-based, not ordinal-based |
+| **Colorization** | CSS `color` property | Theme-aware, multi-token | SVG `fill`/`stroke` replacement at load |
+| **Size range** | 16-48px, discrete | 12-32px, 5 discrete sizes | Pixel-grid aligned at each size |
+| **Semantic density** | Low (generic actions) | High (mesh op vs part op vs sketch op) | Hierarchical classification needed |
+| **DPI awareness** | CSS handles scaling | Qt devicePixelRatio | Integer pixel sizes, no fractional |
 
-**Mathematical definitions**:
+**Core design decision**: Replace the closed `IconToken` enum with an open
+URI-based `IconId` system. This trades compile-time exhaustiveness for runtime
+extensibility -- the correct trade-off when plugin count is unbounded and icon
+vocabulary is domain-specific.
 
-- **Linear**: $f(t) = t$
-- **OutCubic**: $f(t) = 1 - (1 - t)^3$. Properties: $f(0)=0$, $f(1)=1$, $f'(0)=3$, $f'(1)=0$ (zero terminal velocity). Perceived as "fast start, slow finish" -- ideal for elements entering the viewport.
-- **InOutCubic**: $f(t) = 4t^3$ for $t < 0.5$; $f(t) = 1 - (-2t + 2)^3 / 2$ for $t \ge 0.5$. Properties: $f(0)=0$, $f(1)=1$, $f'(0)=0$, $f'(1)=0$ (zero velocity at both ends). Perceived as "ease in, ease out" -- ideal for page transitions.
-- **Spring**: Not a parametric curve. Solved via semi-implicit Euler integration (see 5.3).
+> **URI-Based Resource System** -- Replace closed `IconToken` enum with open multi-scheme URIs (`icon://`, `command://`, `string://`, etc.). Plugins register domain-specific resources under their own authority. FontAwesome 6 is a first-class built-in authority (`icon://fa/...`). Override and extend chains enable theming/rebranding without forking. Lookup uses per-scheme hash map dispatch; slight runtime cost, negligible with LRU caching.
 
-### 5.3 Spring Dynamics
+#### 6.2 URI Hierarchy Design
 
-**Model**: Damped harmonic oscillator
+##### 6.2.1 Multi-Scheme URI Architecture
 
-$$m \, x''(t) + c \, x'(t) + k \bigl(x(t) - x_{\text{target}}\bigr) = 0$$
+A 40M-LOC CAD/CAE system manages far more resource types than icons alone.
+Matcha adopts a **multi-scheme** URI design where each scheme maps to a
+dedicated resolver, enabling O(1) dispatch at the first level:
 
-where $m$ = mass, $c$ = damping, $k$ = stiffness.
+```
+<scheme>://<authority>/<path>[?<query>][#<fragment>]
+```
 
-**SpringSpec struct**: `{ mass=1.0, stiffness=200.0, damping=20.0 }`
+| Component | Description | Examples |
+|-----------|-------------|----------|
+| **Scheme** | Resource type discriminator | `icon`, `cursor`, `asset`, `string`, `help`, `command`, `setting`, `template`, `widget` |
+| **Authority** | Namespace owner (vendor / plugin) | `matcha`, `fa` (FontAwesome), `fea-plugin`, `cfd-viz` |
+| **Path** | Resource path within the authority | `save`, `toolbar/mesh-boolean`, `dialog.confirm.title` |
+| **Query** | Optional contextual parameters | `?size=24&variant=filled&color=%235b6abf` |
+| **Fragment** | Intra-resource anchor (not used in lookup) | `#example`, `#plural` |
 
-**JSON configuration**:
+**Scheme registry** (extensible — plugins may register additional schemes):
 
-```json
-{
-  "spring": {
-    "mass": 1.0,
-    "stiffness": 180.0,
-    "damping": 18.0
-  }
+| Scheme | Purpose | Example URI |
+|--------|---------|-------------|
+| `icon://` | Icon glyphs (SVG / raster / font glyph) | `icon://matcha/save?size=24&variant=filled` |
+| `icon://` | FontAwesome glyphs | `icon://fa/regular/floppy-disk?size=16` |
+| `cursor://` | Mouse cursor resources | `cursor://sketcher/crosshair` |
+| `asset://` | Generic static assets (textures, splash, thumbnails) | `asset://matcha/splash/default` |
+| `string://` | Localized strings | `string://matcha/dialog.confirm.title?locale=zh-CN` |
+| `help://` | Help docs / tooltip rich content | `help://fea-plugin/mesh-density#example` |
+| `command://` | Executable command identifiers | `command://matcha/file.save-as` |
+| `setting://` | User / workspace setting paths | `setting://matcha/editor.font-size` |
+| `template://` | File / project templates | `template://cfd-plugin/turbulence-model` |
+| `widget://` | Widget registration IDs (UiNode lookup) | `widget://matcha/property-grid` |
+
+**Design rationale**: Scheme-level dispatch is O(1) hash lookup, compared
+to parsing the full path to determine resource type. For a system with 50+
+plugins each registering 500+ resources, this architectural choice avoids
+linear-scan or regex-based routing entirely.
+
+**Industry comparison**:
+
+| System | Approach |
+|--------|----------|
+| VS Code | `codicon://`, `command://`, `file://`, `vscode-resource://` — multiple schemes |
+| 3DEXPERIENCE (Dassault) | `3dspace://`, `3dswym://`, `3dcompass://` — per-service scheme |
+| Eclipse | `platform:/plugin/`, `bundleentry:/`, `bundleresource:/` — scheme per source |
+| KDE Frameworks | `icon://`, `breeze://` — theme-aware dispatch |
+| **Matcha** | Multi-scheme with query parameters and override chain |
+
+##### 6.2.2 Query String Specification
+
+Query parameters carry contextual hints without changing the resource identity.
+Resolvers MAY ignore unsupported parameters.
+
+| Parameter | Applicable Schemes | Type | Description | Example |
+|-----------|--------------------|------|-------------|---------|
+| `size` | `icon://`, `cursor://` | `int` | Requested size in px | `?size=32` |
+| `variant` | `icon://`, `asset://` | `string` | Visual variant: `outlined` (default), `filled`, `sharp`, `animated` | `?variant=filled` |
+| `theme` | `icon://`, `asset://`, `cursor://` | `string` | Force light/dark override | `?theme=dark` |
+| `dpr` | `icon://`, `cursor://` | `float` | Device pixel ratio hint | `?dpr=2` |
+| `locale` | `string://`, `help://` | `string` | BCP 47 language tag | `?locale=ja-JP` |
+| `color` | `icon://` | `string` | Color override (URL-encoded CSS hex) | `?color=%235b6abf` |
+| `state` | `icon://` | `string` | Widget state: `normal`, `disabled`, `active` | `?state=disabled` |
+| `weight` | `icon://` | `string` | FontAwesome weight: `solid`, `regular`, `light`, `thin` | `?weight=solid` |
+| `version` | all | `string` | Cache-busting version tag | `?version=2.1.0` |
+
+**Fragment** (`#`) addresses intra-resource locations and is **not** part of
+the resolver key:
+
+| Use Case | Example |
+|----------|---------|
+| Help doc anchor | `help://matcha/popup-positioning#flip-strategy` |
+| Plural form of localized string | `string://matcha/item-count#plural` |
+| Sub-icon in SVG sprite sheet | `icon://matcha/toolbar-sprite#save` |
+
+##### 6.2.3 Built-in Authorities
+
+###### matcha (framework icons)
+
+```cpp
+namespace matcha::uri::icons {
+    inline constexpr ResourceUri Save    {"icon://matcha/save"};
+    inline constexpr ResourceUri Undo    {"icon://matcha/undo"};
+    inline constexpr ResourceUri Redo    {"icon://matcha/redo"};
+    inline constexpr ResourceUri Close   {"icon://matcha/close"};
+    inline constexpr ResourceUri ChevronR{"icon://matcha/chevron-right"};
+    // ~50 total framework icons
+}
+namespace matcha::uri::commands {
+    inline constexpr ResourceUri FileSave  {"command://matcha/file.save"};
+    inline constexpr ResourceUri FileSaveAs{"command://matcha/file.save-as"};
+    inline constexpr ResourceUri EditUndo  {"command://matcha/edit.undo"};
 }
 ```
 
-**Integration**: Semi-implicit Euler (SIE). Runs until convergence
-(velocity < threshold AND displacement < threshold).
+`ResourceUri` is a zero-allocation view type (see §6.2.7). All constants
+reside in `.rodata` — zero runtime cost.
 
-**API**: `IThemeService::Spring()` returns the global default `SpringSpec`.
-`IAnimationService::AnimateSpring()` accepts per-call override.
+###### fa (FontAwesome 6 Free / Pro)
 
-### 5.4 TransitionDef
-
-Per-widget animation configuration stored in `WidgetStyleSheet::transition`:
+Matcha provides **first-class FontAwesome integration** via the reserved
+authority `fa`. FontAwesome glyphs are addressed using the same URI scheme
+as SVG icons, enabling seamless mixing in any icon slot:
 
 ```cpp
-struct TransitionDef {
-    AnimationToken duration = AnimationToken::Normal;  // 200ms
-    EasingToken    easing   = EasingToken::OutCubic;   // Decelerate
+namespace matcha::uri::fa {
+    // Naming mirrors FA's own slug system exactly
+    inline constexpr ResourceUri FloppyDisk   {"icon://fa/floppy-disk"};
+    inline constexpr ResourceUri CircleCheck  {"icon://fa/circle-check"};
+    inline constexpr ResourceUri TriangleExcl {"icon://fa/triangle-exclamation"};
+    inline constexpr ResourceUri Gear         {"icon://fa/gear"};
+    inline constexpr ResourceUri Trash        {"icon://fa/trash"};
+}
+```
+
+**Weight selection**: FontAwesome supports multiple weights per glyph.
+The `weight` query parameter selects the variant:
+
+| Query | FA Style | OTF File |
+|-------|----------|----------|
+| (default or `?weight=regular`) | `fa-regular` | `fa-regular-400.otf` |
+| `?weight=solid` | `fa-solid` | `fa-solid-900.otf` |
+| `?weight=light` | `fa-light` | `fa-light-300.otf` (Pro only) |
+| `?weight=thin` | `fa-thin` | `fa-thin-100.otf` (Pro only) |
+| `?weight=brands` | `fa-brands` | `fa-brands-400.otf` |
+
+**Resolution**: The `FontAwesomeResolver` maps `icon://fa/<name>` to
+the corresponding Unicode codepoint, renders via `QPainter::drawText()`
+using the loaded OTF font, and applies `color` / `size` / `state` params:
+
+```cpp
+class FontAwesomeResolver final : public IResourceResolver {
+    // FA slug -> Unicode codepoint mapping (loaded from metadata JSON)
+    ankerl::unordered_dense::map<std::string_view, char32_t> _glyphMap;
+    QFont _fonts[4]; // regular, solid, light, thin
+
+public:
+    [[nodiscard]] auto scheme() const -> std::string_view override { return "icon"; }
+    [[nodiscard]] auto authority() const -> std::string_view { return "fa"; }
+
+    auto resolve(const ResourceUri& uri)
+        -> std::expected<ResolvedResource, ResourceError> override;
 };
 ```
 
-### 5.5 Reduced Motion (WCAG 2.1 SC 2.3.3)
+**FA Free ships with Matcha** (SIL OFL license). FA Pro is opt-in: drop
+the Pro OTF files into `<app>/fonts/fontawesome-pro/` and set
+`setting://matcha/icon.fontawesome-pro-enabled` to `true`.
 
-`SetReducedMotion(true)` -> all `Animate()` calls snap to target value immediately.
-`AnimationStarted` and `AnimationCompleted` notifications are still dispatched
-(so trigger-verification tests work).
+##### 6.2.4 Plugin URI Convention
 
-### 5.6 Speed Multiplier
+Plugins register their own authority — identical naming and categorization
+rules as built-in authorities:
 
-`SetSpeedMultiplier(float)`: 1.0 = normal, 0.5 = half speed, 2.0 = double.
-Affects all animation durations globally.
+```cpp
+// FEA plugin registers its icon directory
+iconResolver.registerAuthority("fea-plugin", pluginPath / "icons");
 
----
----
-
-# Part II -- Theme Engine
-
-> Chapters 6-8. The runtime infrastructure that resolves tokens to concrete values.
-
-## Chapter 6. IThemeService Interface
-
-### 6.1 Interface Overview & Inheritance
-
-```mermaid
-classDiagram
-    class ITokenRegistry {
-        <<interface>>
-        +SetDensity(DensityLevel) void
-        +CurrentDensity() DensityLevel
-        +SetDirection(TextDirection) void
-        +CurrentDirection() TextDirection
-        +SpacingPx(SpacingToken) int
-        +Radius(RadiusToken) int
-        +AnimationMs(AnimationToken) int
-    }
-
-    class IThemeService {
-        <<interface>>
-        +SetTheme(name) void
-        +CurrentTheme() QString
-        +CurrentMode() ThemeMode
-        +RegisterTheme(name, path, mode) void
-        +Color(ColorToken) QColor
-        +Font(FontRole) FontSpec
-        +Shadow(ElevationToken) ShadowSpec
-        +Easing(EasingToken) EasingCurveType
-        +Spring() SpringSpec
-        +ResolveIcon(IconId, IconSize, QColor) QIcon
-        +RegisterIconDirectory(prefix, dir) int
-        +ResolveStyleSheet(WidgetKind) WidgetStyleSheet
-        +Resolve(kind, variant, state) ResolvedStyle
-        +RegisterComponentOverrides(overrides) void
-        +RegisterDynamicTokens(defs) void
-    }
-
-    ITokenRegistry <|-- IThemeService : inherits
-
-    note for ITokenRegistry "Layer 0 fw (Qt-free)"
-    note for IThemeService "Layer 1 gui (Qt-dependent)\nEmits ThemeChanged signal"
+// Plugin provides both SVG custom icons AND can reference FA icons
+button.SetIcon(ResourceUri{"icon://fea-plugin/stress-field"});
+label.SetIcon(ResourceUri{"icon://fa/chart-line?weight=solid"});
 ```
 
-**Thread safety**: `IThemeService` is main-thread-only. All query methods are
-`const` and safe for concurrent reads from the paint thread, but mutation
-methods (`SetTheme`, `SetDensity`, etc.) must be called from the main thread.
+**Collision prevention rule**: Each plugin MUST use a unique authority
+matching `IExpansionPlugin::Id()`. The resolver rejects duplicate
+authority registration with a fatal error.
 
-### 6.2 Theme Lifecycle API
+##### 6.2.5 Override & Extend Resolution Chain
 
-| Method | Signature | Description |
-|--------|-----------|-------------|
-| `SetTheme` | `void SetTheme(const QString& name)` | Load and activate a theme by name. Emits `ThemeChanged`. |
-| `CurrentTheme` | `QString CurrentTheme() const` | Returns the name of the active theme. |
-| `CurrentMode` | `ThemeMode CurrentMode() const` | Returns `Light` or `Dark` classification of the active theme. |
-| `RegisterTheme` | `void RegisterTheme(const QString& name, const QString& jsonPath, ThemeMode mode)` | Register a custom theme. No slot limit. |
+Large CAD applications need the ability to **theme**, **rebrand**, and
+**extend** icons without forking the source. Matcha provides a layered
+override mechanism:
 
-**Built-in theme constants**: `kThemeLight`, `kThemeDark`, `kThemeHighContrast`.
+```
+Resolution priority (highest → lowest):
 
-**ThemeMode enum**: `enum class ThemeMode : uint8_t { Light, Dark }`.
+  1. User override      ~/.matcha/overrides/icon/matcha/save.svg
+  2. App override       <app>/overrides/icon/matcha/save.svg
+  3. Plugin override    (plugin registers same authority + path)
+  4. Theme variant      <theme>/icons/matcha/save.svg
+  5. Base registration  (original authority registration)
+```
 
-### 6.3 Token Query API
+```cpp
+// Example: app rebrands the "save" icon for their product
+iconResolver.registerOverride(
+    OverrideLayer::App,
+    ResourceUri{"icon://matcha/save"},
+    appPath / "brand-icons" / "save.svg"
+);
 
-All query methods are O(1) flat-array lookups.
+// Example: user overrides a FA icon with custom SVG
+iconResolver.registerOverride(
+    OverrideLayer::User,
+    ResourceUri{"icon://fa/gear"},
+    userOverridePath / "my-gear.svg"
+);
+```
 
-| Method | Input | Output | Notes |
-|--------|-------|--------|-------|
-| `Color(token)` | `ColorToken` | `QColor` | Indexed by `std::to_underlying(token)` |
-| `Font(role)` | `FontRole` | `const FontSpec&` | Cached, font-scale applied |
-| `Shadow(level)` | `ElevationToken` | `ShadowSpec` | Density-scaled |
-| `Easing(token)` | `EasingToken` | `QEasingCurve::Type` | Maps to Qt enum |
-| `Spring()` | -- | `SpringSpec` | Theme-configured spring parameters |
-| `SpacingPx(token)` | `SpacingToken` | `int` | Density-scaled (inherited from ITokenRegistry) |
-| `Radius(token)` | `RadiusToken` | `int` | Density-scaled (inherited from ITokenRegistry) |
-| `AnimationMs(token)` | `AnimationToken` | `int` | Duration in milliseconds |
+**Override rules**:
 
-### 6.4 Icon Resolution API
+| Rule | Detail |
+|------|--------|
+| **Same URI, different payload** | Override does NOT change the URI; callers are unaware |
+| **Layer ordering is strict** | User > App > Plugin > Theme > Base; no ambiguity |
+| **Per-query overrides** | `icon://matcha/save?variant=filled` and `icon://matcha/save` are distinct override targets |
+| **Hot reload** | File-watch on override directories; changed SVG is re-rasterized within 100ms |
+| **Fallback on missing** | If override file is deleted/corrupted, next layer takes over (with warning log) |
+| **Extend = register new path under existing authority** | A plugin can add `icon://matcha/my-new-glyph` without overriding anything |
 
-| Method | Signature | Description |
-|--------|-----------|-------------|
-| `ResolveIcon` | `QIcon ResolveIcon(const IconId& uri, IconSize size, QColor tint) const` | Load SVG, colorize, cache. DPI-aware. |
-| `RegisterIconDirectory` | `int RegisterIconDirectory(std::string_view uriPrefix, const QString& dirPath)` | Scan dir for .svg files, register each as `{prefix}/{filename}`. Returns count. |
-| `InvalidateIconCache` | `void InvalidateIconCache()` | Clear cached icons (call after theme change). |
+**Extend** (adding new icons to an existing authority):
 
-**Icon URI format**: `asset://matcha/icons/{name}` for built-in icons.
-Plugins use custom prefixes: `asset://myplugin/icons/{name}`.
+```cpp
+// Plugin adds domain icons under its own authority (normal case)
+iconResolver.registerAuthority("fea-plugin", pluginPath / "icons");
 
-**Colorization**: SVG `fill` and `stroke` attributes are replaced with the `tint` color.
-This enables single-source SVGs that adapt to any theme.
+// Plugin extends the "matcha" authority with additional icons
+// (only adds new paths; cannot shadow existing ones without explicit override)
+iconResolver.extendAuthority("matcha", pluginPath / "extra-matcha-icons");
+```
 
-### 6.5 Declarative Style Resolution API
+The distinction between **override** (replace existing) and **extend**
+(add new) is enforced:
+
+| Operation | Existing URI | New URI |
+|-----------|:------------:|:-------:|
+| `registerOverride()` | ✅ replaces | ❌ error |
+| `extendAuthority()` | ❌ skips (warns) | ✅ adds |
+| `registerAuthority()` | ❌ error (duplicate) | ✅ adds |
+
+##### 6.2.6 URI Resolution Order
+
+When `resolve(uri)` is called on the central `ResourceUriResolver`:
+
+1. **Scheme dispatch** — hash lookup on `uri.scheme()` → find `IResourceResolver*`
+2. **Authority dispatch** — resolver looks up `uri.authority()` in its registry
+3. **Override chain** — walk layers User → App → Plugin → Theme → Base
+4. **Path lookup** — hash lookup `uri.path()` within the resolved authority
+5. **Query application** — apply `size`, `color`, `variant`, `weight`, `state`, `dpr` to the raw resource
+6. **Cache check** — composite key `(uri.raw(), resolved_params_hash)` in LRU cache
+7. **Render** — SVG rasterize / font render / file load as appropriate
+8. **Return** — `std::expected<ResolvedResource, ResourceError>`
+
+**Performance**: Steps 1-4 are each O(1) hash lookups. Step 6 hits cache
+in >95% of cases (icons are reused heavily). Total cold-path cost: ~4 hash
+lookups + 1 SVG rasterize. Hot-path: 1 composite hash + cache hit.
+
+**Error behavior**: If resolution fails at any step, return
+`ResourceError{.uri, .step, .message}`. Callers receive a typed error,
+not a null icon. The framework renders a **magenta diamond** placeholder
+(visible in debug builds) so missing icons are immediately obvious.
+
+##### 6.2.7 C++ API: ResourceUri
+
+```cpp
+// Zero-allocation URI view — like string_view for URIs.
+// All data is a substring of the original string literal or runtime string.
+// Size: 32 bytes (pointer + length + 4 offset fields).
+class ResourceUri {
+public:
+    constexpr explicit ResourceUri(std::string_view raw) noexcept;
+
+    [[nodiscard]] constexpr auto raw()       const -> std::string_view;
+    [[nodiscard]] constexpr auto scheme()    const -> std::string_view; // "icon"
+    [[nodiscard]] constexpr auto authority() const -> std::string_view; // "matcha"
+    [[nodiscard]] constexpr auto path()      const -> std::string_view; // "save"
+    [[nodiscard]] constexpr auto query()     const -> std::string_view; // "size=24&variant=filled"
+    [[nodiscard]] constexpr auto fragment()  const -> std::string_view; // ""
+
+    // Typed query accessors (lazy-parsed on first call)
+    [[nodiscard]] auto queryParam(std::string_view key) const -> std::optional<std::string_view>;
+    [[nodiscard]] auto queryInt(std::string_view key)   const -> std::optional<int>;
+    [[nodiscard]] auto queryFloat(std::string_view key) const -> std::optional<float>;
+
+    // Builder — returns new URI with added/replaced query param
+    [[nodiscard]] auto withQuery(std::string_view key, std::string_view value) const -> std::string;
+
+    [[nodiscard]] auto hash() const -> std::size_t; // FNV-1a on raw()
+    auto operator==(const ResourceUri&) const -> bool = default;
+    auto operator<=>(const ResourceUri&) const = default;
+};
+
+// ADL-found hash for use in unordered containers
+auto hash_value(const ResourceUri& u) -> std::size_t;
+```
+
+##### 6.2.8 Resolver Registry
+
+```cpp
+class IResourceResolver {
+public:
+    virtual ~IResourceResolver() = default;
+    [[nodiscard]] virtual auto scheme() const -> std::string_view = 0;
+    [[nodiscard]] virtual auto resolve(const ResourceUri& uri)
+        -> std::expected<ResolvedResource, ResourceError> = 0;
+};
+
+// Central dispatcher — one per application
+class ResourceUriResolver {
+    ankerl::unordered_dense::map<std::string_view,
+        std::unique_ptr<IResourceResolver>> _resolvers;
+public:
+    void registerResolver(std::unique_ptr<IResourceResolver> r);
+
+    auto resolve(const ResourceUri& uri)
+        -> std::expected<ResolvedResource, ResourceError>;
+
+    // Override / extend helpers (delegate to scheme-specific resolver)
+    void registerOverride(OverrideLayer layer,
+                          const ResourceUri& target,
+                          std::filesystem::path replacement);
+    void extendAuthority(std::string_view authority,
+                         std::filesystem::path directory);
+};
+
+enum class OverrideLayer : uint8_t {
+    User    = 0, // highest priority
+    App     = 1,
+    Plugin  = 2,
+    Theme   = 3,
+    Base    = 4, // lowest priority (original registration)
+};
+```
+
+##### 6.2.9 Migration from Legacy `asset://` URIs
+
+For backward compatibility, URIs starting with `asset://<authority>/icons/`
+are auto-rewritten:
+
+| Legacy URI | Rewritten URI |
+|------------|---------------|
+| `asset://matcha/icons/save` | `icon://matcha/save` |
+| `asset://fea-plugin/icons/stress-field` | `icon://fea-plugin/stress-field` |
+| `asset://matcha/cursors/crosshair` | `cursor://matcha/crosshair` |
+
+The compatibility shim emits a **deprecation warning** (once per URI)
+in debug builds. It will be removed in Matcha 2.0.
+
+#### 6.3 Icon Design Language
+
+##### 6.3.1 Grid Specification
+
+All Matcha icons are designed on a **square pixel grid** with consistent
+optical sizing rules:
+
+| Property | Value | Rationale |
+|----------|-------|-----------|
+| **Canvas** | N x N px (where N = target IconSize) | 1:1 mapping to render size |
+| **Safe area** | 2px inset on each edge | Prevents optical clipping at small sizes |
+| **Stroke weight** | 1.5px (Sm/Md), 2.0px (Lg/Xl) | Maintains legibility across sizes |
+| **Corner radius** | 1px (internal shapes) | Consistent with RadiusToken::Small |
+| **Optical alignment** | Centered within safe area | Triangular shapes shift right 0.5-1px for optical centering |
+
+![Icon Grid Anatomy](assets/anatomy/icon_grid.svg)
+
+**Why fixed stroke weight, not proportional?** At 12-32px sizes, proportional
+stroke weight (e.g., 10% of canvas) produces strokes of 1.2px-3.2px, which
+causes sub-pixel rendering artifacts on non-Retina displays. Fixed weight
+at 1.5px snaps cleanly to the pixel grid at 1x DPR.
+
+##### 6.3.2 Style Principles
+
+| Principle | Description | Counter-example |
+|-----------|-------------|----------------|
+| **Outlined, not filled** | Default style uses stroke outlines, not solid fill | Avoids visual heaviness in dense toolbars |
+| **Geometric, not organic** | Shapes derived from circles, rectangles, 45-degree diagonals | Organic curves feel out of place in engineering UI |
+| **Minimal detail** | Each icon conveys one concept with minimum strokes | No decorative elements, no drop shadows |
+| **Neutral weight** | Visual weight balanced across the icon set | No icon should "pop" more than others at same size |
+| **Consistent metaphor** | Same real-world concept = same visual treatment | Arrow always means navigation, pencil always means edit |
+
+**Design thinking**: The outlined geometric style is chosen because:
+1. **Colorization**: Outlined icons respond better to single-color tinting than filled icons
+2. **Density**: Engineering toolbars pack 20-40 icons; outlined style reduces visual noise
+3. **Accessibility**: High contrast between stroke and background at all sizes
+4. **Scalability**: Geometric primitives scale cleanly across the 5 size stops
+
+##### 6.3.3 Size-Specific Optimization
+
+Icons are NOT simply scaled from a single master. Each IconSize has its own
+SVG optimized for that pixel grid:
+
+| IconSize | Pixels | Use Case | Optimization |
+|----------|:------:|----------|-------------|
+| `Xs` (12) | 12x12 | Inline indicators, tree expand/collapse | Simplified to 2-3 strokes max |
+| `Sm` (16) | 16x16 | Menu items, small buttons, status bar | Standard detail level |
+| `Md` (20) | 20x20 | Toolbar buttons (default) | Full detail level |
+| `Lg` (24) | 24x24 | Large toolbar, card headers | Additional detail possible |
+| `Xl` (32) | 32x32 | Feature icons, empty states | Maximum detail, optional fill |
+
+**Fallback rule**: If a specific size variant is not available, the resolution
+pipeline selects the nearest larger size and scales down (never scales up).
+Scaling down preserves detail; scaling up creates blurriness.
+
+#### 6.4 Icon Classification Taxonomy
+
+##### 6.4.1 Seven Functional Categories
+
+Icons are organized by their **semantic function**, not by visual appearance:
+
+| Category | URI Segment | Count | Description |
+|----------|-------------|:-----:|-------------|
+| **File** | `file-*` | ~8 | Document lifecycle: new, open, save, save-as, close, import, export, print |
+| **Edit** | `edit-*` | ~8 | Modification actions: undo, redo, cut, copy, paste, delete, select-all, find |
+| **View** | `view-*` | ~6 | Display control: zoom-in, zoom-out, fit-all, grid-toggle, wireframe, shaded |
+| **Navigation** | `nav-*` or directional | ~8 | Spatial movement: arrow-*, chevron-*, expand, collapse, home, back |
+| **Action** | (domain-specific) | ~10 | Generic actions: add, remove, refresh, settings, filter, sort, pin, lock |
+| **Status** | `status-*` | ~5 | State indicators: check, warning, error, info, loading |
+| **UI Chrome** | `ui-*` | ~5 | Framework chrome: close, minimize, maximize, restore, menu |
+
+##### 6.4.2 Domain-Specific Categories (Plugin-Registered)
+
+| Domain | Authority | Typical Icons | Count |
+|--------|-----------|--------------|:-----:|
+| **Part Design** | `part-design` | extrude, revolve, fillet, chamfer, pocket, pad, mirror, pattern | ~70 |
+| **Mesh Operations** | `mesh-ops` | boolean-union, boolean-subtract, boolean-intersect, refine, decimate | ~55 |
+| **Sketch** | `sketch` | line, arc, circle, rectangle, spline, dimension, constraint | ~40 |
+| **View Control** | `view-ctrl` | orbit, pan, zoom-window, section-plane, explode | ~50 |
+| **FEA** | `fea-plugin` | stress-field, displacement, mesh-quality, boundary-condition | ~30 |
+| **CFD** | `cfd-viz` | velocity-field, pressure-contour, streamline, particle-trace | ~20 |
+
+**Total icon assets**: ~830 (see section 8.13 for detailed art asset inventory).
+
+##### 6.4.3 Naming Convention
+
+Icon names within each category follow a consistent pattern:
+
+```
+<verb>-<object>[-<modifier>]
+```
+
+| Pattern | Example | Description |
+|---------|---------|-------------|
+| `<verb>` | `save`, `undo`, `close` | Single-action icons |
+| `<verb>-<object>` | `zoom-in`, `fit-all`, `select-face` | Action on target |
+| `<object>-<modifier>` | `arrow-right`, `chevron-down` | Parameterized variants |
+| `<state>` | `check`, `warning`, `error` | Status indicators |
+
+**Forbidden patterns**:
+- No size suffixes in names (size is a query parameter, not identity)
+- No color suffixes (color is determined by theme context)
+- No file extensions (`.svg` is an implementation detail)
+
+#### 6.5 Color Inheritance Model
+
+##### 6.5.1 Single-Token Colorization
+
+The default colorization model: each icon inherits a **single foreground color**
+from its widget context. This color is applied uniformly to all `stroke` and
+`fill` attributes in the SVG.
+
+```
+Icon Color = f(widget context)
+
+where:
+  - Button icon     -> ResolvedStyle.fg (from variant x state)
+  - Menu item icon  -> ColorToken::TextPrimary (normal) / TextDisabled (disabled)
+  - Status icon     -> Semantic color (Success/Warning/Error/Info hue step 6)
+  - Tree node icon  -> ColorToken::TextSecondary
+```
+
+**Why single-token, not multi-token?** Multi-colored icons (e.g., folder with
+yellow body + blue tab) create three problems:
+1. **Theme brittleness**: Each color must be mapped to a token; N colors = N bindings
+2. **Contrast unpredictability**: Color combinations may fail WCAG in some themes
+3. **Cognitive overhead**: Colored icons compete with semantic color signals (error red, success green)
+
+For the rare case where multi-color is needed (e.g., application logos), use
+pre-rendered PNG assets instead of colorized SVG.
+
+##### 6.5.2 Colorization Algorithm
+
+```
+For each SVG element:
+  1. If element has `fill` attribute and `fill != "none"`:
+     Replace fill value with tintColor
+  2. If element has `stroke` attribute and `stroke != "none"`:
+     Replace stroke value with tintColor
+  3. If element has `opacity` attribute: preserve as-is
+  4. If element has class="preserve-color": skip colorization
+```
+
+The `preserve-color` CSS class is an escape hatch for icons that must retain
+their original colors (rare; used only for brand logos in About dialogs).
+
+##### 6.5.3 State-Dependent Color Mapping
+
+Icon color tracks the widget's `InteractionState` through the resolved style:
+
+| Widget State | Icon Color Source | Typical Result (Light) | Typical Result (Dark) |
+|-------------|-------------------|----------------------|---------------------|
+| Normal | `ResolvedStyle.fg` | `TextPrimary` (~#1C1C1E) | `TextPrimary` (~#E5E5E7) |
+| Hovered | `ResolvedStyle.fg` | Same (hover changes bg, not fg) | Same |
+| Pressed | `ResolvedStyle.fg` | Slightly adjusted | Slightly adjusted |
+| Disabled | `ResolvedStyle.fg` | `TextDisabled` (~#A0A0A8) | `TextDisabled` (~#5C5C64) |
+| Focused | `ResolvedStyle.fg` | Same as Normal | Same as Normal |
+| Selected | `ResolvedStyle.fg` | `OnAccent` (white) on accent bg | `OnAccent` on accent bg |
+
+**Key principle**: The icon never independently determines its color. It always
+inherits from the enclosing widget's resolved style. This ensures visual
+consistency between icon and label text within the same widget.
+
+##### 6.5.4 Semantic Status Icons
+
+Exception to single-token model: status indicator icons (check, warning, error,
+info) use their **semantic hue color** rather than the widget foreground:
+
+| Status Icon | Color Token | Rationale |
+|------------|-------------|-----------|
+| `check` / `success` | `Success6` | Green conveys positive state |
+| `warning` | `Warning6` | Amber conveys caution |
+| `error` | `Error6` | Red conveys failure |
+| `info` | `Info6` | Blue conveys information |
+
+These are colorized with the hue step 6 (mid-tone) of the respective semantic
+palette, ensuring WCAG AA contrast against both Surface and SurfaceContainer
+backgrounds in all themes.
+
+#### 6.6 SVG Format Requirements
+
+##### 6.6.1 Authoring Rules
+
+| Rule | Detail | Rationale |
+|------|--------|-----------|
+| **Root `viewBox`** | Must be `"0 0 N N"` where N = target size | Enables correct scaling |
+| **No embedded styles** | No `<style>` block; use inline attributes | Colorization replaces inline attrs |
+| **No `<text>` elements** | Text must be converted to paths | Font unavailability on target system |
+| **No `<image>` references** | No embedded raster images | Defeats colorization purpose |
+| **No gradients** | Flat fills/strokes only | Gradients break single-token colorization |
+| **Coordinates snapped** | All coordinates on 0.5px grid | Prevents sub-pixel blur at 1x DPR |
+| **Minimal DOM** | Flatten groups, remove Illustrator metadata | Reduces parse time |
+| **`fill="currentColor"`** | Default fill value in source SVG | Signals colorization intent |
+
+##### 6.6.2 File Organization
+
+```
+Resources/Icons/
+  16/                     <- Sm size variants
+    save.svg
+    undo.svg
+    ...
+  20/                     <- Md size variants (default)
+    save.svg
+    undo.svg
+    ...
+  24/                     <- Lg size variants
+    save.svg
+    ...
+  32/                     <- Xl size variants
+    save.svg
+    ...
+```
+
+`RegisterIconDirectory()` scans the directory, registering each `.svg` file
+as a URI. Size selection happens at `ResolveIcon()` time based on the
+requested `IconSize`.
+
+#### 6.7 Resolution Pipeline
+
+##### 6.7.1 API
+
+```cpp
+auto IThemeService::ResolveIcon(const IconId& iconId,
+                                 IconSize size,
+                                 QColor tintColor) -> QIcon;
+```
+
+##### 6.7.2 Pipeline Stages
 
 ```mermaid
 flowchart LR
-    Input["Resolve(kind, variant, state)"] --> WSS[WidgetStyleSheet<br/>lookup by kind]
-    WSS --> VS[VariantStyle<br/>lookup by variant]
-    VS --> SS[StateStyle<br/>lookup by state]
-    SS --> RS[ResolvedStyle<br/>concrete Qt values]
-    Theme[NyanTheme<br/>Color/Font/Shadow arrays] --> RS
-    Density[DensityLevel] --> RS
+    A[IconId string] --> B{Cache lookup}
+    B -->|Hit| G[Return cached QIcon]
+    B -->|Miss| C[Registry lookup]
+    C -->|Not found| H[Return null QIcon]
+    C -->|Found path| D[Load SVG bytes]
+    D --> E[Colorize: replace fill/stroke]
+    E --> F[Rasterize at size x DPR]
+    F --> G2[Insert into cache]
+    G2 --> G
 ```
 
-| Method | Input | Output | Description |
-|--------|-------|--------|-------------|
-| `Resolve` | `WidgetKind, size_t variantIdx, InteractionState` | `ResolvedStyle` | One-call complete style resolution |
-| `ResolveStyleSheet` | `WidgetKind` | `const WidgetStyleSheet&` | Per-widget geometry + variant spans |
+##### 6.7.3 Cache Architecture
 
-**ResolvedStyle struct** (all fields are concrete Qt values):
+| Property | Value |
+|----------|-------|
+| **Key** | `(uri_string, size_px, rgba_u32)` triple |
+| **Value** | `QIcon` (contains `QPixmap` at target DPR) |
+| **Structure** | `std::unordered_map<CacheKey, QIcon>` with custom hash |
+| **Invalidation** | Full cache clear on `ThemeChanged` signal |
+| **Capacity** | Unbounded (typical working set: ~200-400 entries) |
+| **Thread safety** | Main thread only (same as all UI operations) |
 
-| Field | Type | Source |
-|-------|------|--------|
-| `background` | `QColor` | `StateStyle::background` -> `Color(token)` |
-| `foreground` | `QColor` | `StateStyle::foreground` -> `Color(token)` |
-| `border` | `QColor` | `StateStyle::border` -> `Color(token)` |
-| `radiusPx` | `int` | `WidgetStyleSheet::radius` -> `Radius(token) * density` |
-| `paddingHPx` | `int` | `WidgetStyleSheet::paddingH` -> `SpacingPx(token)` |
-| `paddingVPx` | `int` | `WidgetStyleSheet::paddingV` -> `SpacingPx(token)` |
-| `gapPx` | `int` | `WidgetStyleSheet::gap` -> `SpacingPx(token)` |
-| `minHeightPx` | `int` | `WidgetStyleSheet::minHeight` -> `ToPixels(token) * density` |
-| `borderWidthPx` | `int` | `StateStyle::borderWidth` -> `SpacingPx(token)` |
-| `font` | `QFont` | `WidgetStyleSheet::font` -> `Font(role)` |
-| `shadow` | `ShadowSpec` | `WidgetStyleSheet::elevation` -> `Shadow(token)` |
-| `opacity` | `float` | `StateStyle::opacity` (1.0 normal, <1.0 disabled) |
-| `durationMs` | `int` | `WidgetStyleSheet::transition.duration` -> `AnimationMs(token)` |
-| `easingType` | `int` | `WidgetStyleSheet::transition.easing` -> `Easing(token)` |
+**Why full invalidation on theme change?** Because tint colors change when
+the theme changes (dark ↔ light). Partial invalidation would require tracking
+which icons use which color tokens -- complexity not justified given that
+cache rebuild after theme switch takes < 50ms for 400 icons.
 
-### 6.6 Component Override API
+#### 6.8 RTL Icon Flipping
+
+##### 6.8.1 Flippable vs Non-Flippable
+
+Not all icons should be mirrored in RTL layouts. Only **directional** icons
+are flipped:
+
+| Flippable (mirror in RTL) | Non-Flippable (same in RTL) |
+|--------------------------|---------------------------|
+| `chevron-right`, `chevron-left` | `check`, `close`, `warning` |
+| `arrow-right`, `arrow-left` | `zoom-in`, `zoom-out` |
+| `undo`, `redo` | `settings`, `filter` |
+| `indent`, `outdent` | `save`, `delete` |
+| `nav-back`, `nav-forward` | Symmetric icons (plus, minus) |
+
+##### 6.8.2 Flippability Determination
 
 ```cpp
-struct ComponentOverride {
-    WidgetKind     kind;
-    RadiusToken    radius;        // Override radius for this widget class
-    SpacingToken   paddingH;      // Override horizontal padding
-    SpacingToken   paddingV;      // Override vertical padding
-    FontRole       font;          // Override font role
-    ElevationToken elevation;     // Override elevation
-};
+auto IsRtlFlippable(std::string_view iconId) -> bool;
 ```
 
-**Registration**: `RegisterComponentOverrides(std::span<const ComponentOverride>)`
+The function checks against a built-in set of known flippable icon names.
+Plugin icons are non-flippable by default. Plugins can register flippable
+icons by calling a registration API.
 
-**Priority**: ComponentOverride > BuildDefaultVariants() defaults.
+**Design rationale**: An opt-in flippable list (rather than opt-out) is safer.
+An incorrectly flipped domain icon (e.g., a mesh operation glyph) is more
+confusing than a non-flipped directional arrow.
 
-### 6.7 Dynamic Token API (Plugin Extension)
+##### 6.8.3 Flip Implementation
 
-| Definition Struct | Fields | Description |
-|------------------|--------|-------------|
-| `DynamicColorDef` | `name, lightValue, darkValue` | Theme-aware color (different values per mode) |
-| `DynamicFontDef` | `name, fontSpec` | Custom font specification |
-| `DynamicSpacingDef` | `name, basePx` | Custom spacing value (density-scaled) |
+RTL flip is applied at rasterization time (after colorization):
 
-| Method | Description |
-|--------|-------------|
-| `RegisterDynamicTokens(span<DynamicColorDef>)` | Register plugin colors |
-| `RegisterDynamicFonts(span<DynamicFontDef>)` | Register plugin fonts |
-| `RegisterDynamicSpacings(span<DynamicSpacingDef>)` | Register plugin spacings |
-| `DynamicColor(name) -> optional<QColor>` | Query by string name |
-| `DynamicFont(name) -> optional<FontSpec>` | Query by string name |
-| `DynamicSpacingPx(name) -> optional<int>` | Query by string name (density-scaled) |
-| `UnregisterDynamicTokens(span<string_view>)` | Remove by name |
+```cpp
+if (textDirection == TextDirection::RTL && IsRtlFlippable(iconId)) {
+    QImage img = pixmap.toImage().mirrored(true, false);  // horizontal flip
+    pixmap = QPixmap::fromImage(img);
+}
+```
 
-### 6.8 Font Scale API
+#### 6.9 Plugin Icon Registration
 
-| Method | Description |
-|--------|-------------|
-| `SetFontScale(float)` | Set custom font scale factor [0.5, 3.0] |
-| `FontScale() -> float` | Get current font scale |
-| `SetFontSizePreset(FontSizePreset)` | Set from preset (Small/Medium/Large) |
+##### 6.9.1 Registration API
 
-### 6.9 Density & Direction API
+```cpp
+auto IThemeService::RegisterIconDirectory(
+    std::string_view uriPrefix,
+    QString dirPath) -> int;
+```
 
-| Method | Description |
-|--------|-------------|
-| `SetDensity(DensityLevel)` | Set density (rebuilds QSS, emits ThemeChanged) |
-| `CurrentDensity() -> DensityLevel` | Get active density |
-| `SetDirection(TextDirection)` | Set LTR/RTL (rebuilds QSS, emits ThemeChanged) |
-| `CurrentDirection() -> TextDirection` | Get active direction |
+**Parameters**:
+- `uriPrefix`: URI prefix to register (e.g., `"icon://fea-plugin/"`)
+- `dirPath`: Filesystem directory containing `.svg` files
 
-### 6.10 Test Support API
+**Return**: Count of icons registered, or negative error code.
 
-| Method | Description |
-|--------|-------------|
-| `SetAnimationOverride(int forceMs)` | Force all animations to specified duration. 0 = instant snap. -1 = restore normal. |
+**Behavior**: Scans `dirPath` for `*.svg` files. For each file `foo.svg`,
+registers `"<uriPrefix>foo"` -> `"<dirPath>/foo.svg"` in the icon registry.
 
-### 6.11 ThemeChanged Signal & ThemeAware Mixin
-
-**Signal**: `void ThemeChanged(const QString& newThemeName)`
-
-Emitted by: `SetTheme()`, `SetDensity()`, `SetDirection()`, `SetFontScale()`.
-
-**ThemeAware mixin** (for widgets):
+##### 6.9.2 Registration Lifecycle
 
 ```mermaid
 sequenceDiagram
-    participant T as IThemeService
-    participant W as ThemeAware Widget
-    T->>W: ThemeChanged(name)
-    W->>W: _styleSheet = ResolveStyleSheet(kind)
-    W->>W: OnThemeChanged() [virtual]
-    W->>W: update() [QPainter repaint]
+    participant Plugin
+    participant Theme as IThemeService
+    participant Registry as IconRegistry
+
+    Plugin->>Theme: RegisterIconDirectory("icon://fea/", "/plugins/fea/icons")
+    Theme->>Registry: Scan directory for *.svg
+    Registry-->>Theme: Found 30 files
+    Theme-->>Plugin: return 30
+    Note over Theme: Icons now queryable via ResolveIcon()
+    Plugin->>Theme: ResolveIcon("icon://fea/stress-field", Md, color)
+    Theme-->>Plugin: QIcon (colorized, cached)
 ```
 
-| ThemeAware Method | Description |
-|-------------------|-------------|
-| `Theme() -> IThemeService&` | Access the global theme service |
-| `StyleSheet() -> const WidgetStyleSheet&` | Cached per-widget style sheet |
-| `OnThemeChanged()` | Virtual callback, override to trigger repaint |
-| `AnimateTransition(propId, from, to)` | Animate using TransitionDef from StyleSheet |
-| `PaintFocusRing(QPainter&, QRect, int radius)` | Draw standard focus indicator |
+##### 6.9.3 Unregistration
+
+Icons registered by a plugin are NOT automatically removed when the plugin
+stops. The icon registry is append-only during application lifetime.
+This is intentional: widgets may still hold references to `IconId` strings
+after plugin shutdown, and returning null icons would cause visual artifacts.
+
+#### 6.10 Accessibility Considerations
+
+| Requirement | Implementation |
+|------------|----------------|
+| **Decorative icons** | Icons next to text labels are decorative; set `QAccessible::NameChanged` to text only |
+| **Standalone icons** | Icon-only buttons MUST have `SetAccessibleName()` on the WidgetNode |
+| **High contrast** | Icons automatically adapt via colorization from high-contrast theme tokens |
+| **Reduced motion** | N/A (icons are static) |
+| **Minimum touch target** | Icon buttons must meet 32x32px minimum touch target regardless of icon size |
 
 ---
 
-## Chapter 7. JSON Theme Configuration
+### Chapter 7. Cursor Design
 
-### 7.1 Theme File Structure
+#### 7.1 CursorToken Enum
 
-```json
-{
-  "extends": "Light",
-  "colorSeeds": { ... },
-  "colors": { ... },
-  "fonts": { ... },
-  "spring": { ... },
-  "fontScale": 1.0
-}
+| Token | Qt Mapping | Description |
+|-------|-----------|-------------|
+| `Default` | `Qt::ArrowCursor` | Standard pointer |
+| `Pointer` | `Qt::PointingHandCursor` | Clickable element |
+| `Text` | `Qt::IBeamCursor` | Text input |
+| `Wait` | `Qt::WaitCursor` | Busy/loading |
+| `Crosshair` | `Qt::CrossCursor` | Precise selection |
+| `Move` | `Qt::SizeAllCursor` | Draggable element |
+| `SplitH` | `Qt::SplitHCursor` | Horizontal splitter |
+| `SplitV` | `Qt::SplitVCursor` | Vertical splitter |
+| `ResizeN` | `Qt::SizeVerCursor` | Resize north |
+| `ResizeE` | `Qt::SizeHorCursor` | Resize east |
+| `ResizeNE` | `Qt::SizeBDiagCursor` | Resize diagonal NE |
+| `ResizeNW` | `Qt::SizeFDiagCursor` | Resize diagonal NW |
+| `Forbidden` | `Qt::ForbiddenCursor` | Action not allowed |
+| `Grab` | `Qt::OpenHandCursor` | Grab-ready |
+| `Grabbing` | `Qt::ClosedHandCursor` | Currently grabbing |
+
+#### 7.2 Widget State -> Cursor Mapping
+
+Cursors are specified per-state in `StateStyle::cursor`:
+
+```cpp
+StateStyle normal  = { .cursor = CursorToken::Pointer };   // Clickable
+StateStyle disabled = { .cursor = CursorToken::Forbidden }; // Not allowed
+StateStyle dragging = { .cursor = CursorToken::Grabbing };  // Drag in progress
 ```
 
-All keys are optional. Missing keys inherit from `extends` theme or built-in defaults.
+The framework applies the cursor from the resolved `StateStyle` automatically
+when the widget's interaction state changes.
 
-### 7.2 Color Overrides
+---
+---
 
-The `"colors"` object maps ColorToken names to hex values:
 
-```json
-{
-  "colors": {
-    "Surface": "#FAFAFA",
-    "Primary": "#0052CC",
-    "TextPrimary": "#1A1A1A"
-  }
-}
+## I.3 Typography
+
+### Chapter 3. Typography System
+
+#### 3.1 FontRole Enum
+
+| Role | Default Size | Default Weight | Line Height | Letter Spacing | Use Case |
+|------|:----------:|:-----------:|:----------:|:-------------:|----------|
+| `Body` | 9pt | Normal (400) | 1.4x | 0px | Default widget text |
+| `BodyMedium` | 9pt | Medium (500) | 1.4x | 0px | NyanLabel NameState |
+| `BodyBold` | 9pt | Medium+Bold (600) | 1.4x | 0px | NyanLabel TitleState |
+| `Caption` | 8pt | Normal (400) | 1.4x | 0px | ToolButton text, ActionBar tabs |
+| `Heading` | 12pt | DemiBold (600) | 1.4x | 0px | Dialog titles, section headers |
+| `Monospace` | 9pt | Normal (400) | 1.4x | 0px | Code display, LineEdit numeric |
+| `ToolTip` | 8pt | Normal (400) | 1.4x | 0px | Tooltip overlays |
+
+#### 3.2 FontSpec Struct
+
+`FontSpec` is the resolved, platform-independent description of a font
+used by the theme system. Every `FontRole` in §3.1 maps to exactly one
+`FontSpec` instance at runtime. Widgets never construct `QFont` directly;
+instead they obtain a `FontSpec` from `IThemeService::Font(FontRole)` and
+the framework converts it to a `QFont` internally.
+
+**Design rationale**: Decoupling the logical font description (`FontSpec`)
+from `QFont` serves three purposes:
+
+1. **Serialization** — `FontSpec` is trivially serializable to JSON for
+   theme files and user overrides (§3.5), while `QFont` carries opaque
+   platform handles.
+2. **Scale-awareness** — `sizeInPt` stores the *base* size before
+   `FontScale` (§3.4) and density multipliers are applied. The actual
+   `QFont` point size is computed at resolve time:
+   $\text{actualPt} = \max(\lfloor \text{sizeInPt} \times \text{fontScale} \times \text{densityScale} + 0.5 \rfloor,\; 6)$
+3. **Line-height control** — `QFont` has no notion of line height.
+   `lineHeightMultiplier` is consumed by layout code to compute row
+   heights, ensuring consistent vertical rhythm across all widgets.
+
+```cpp
+struct FontSpec {
+    QString family;                     // Platform-resolved font family
+    int     sizeInPt      = 9;          // DPI-independent point size
+    int     weight        = 400;        // QFont::Weight (Normal=400, Bold=700)
+    bool    italic        = false;      // Italic style flag
+    qreal   lineHeightMultiplier = 1.4; // Line height = fontSize * multiplier
+    qreal   letterSpacing = 0.0;        // Extra letter spacing in px
+};
 ```
 
-Key names must exactly match the `ColorToken` enum member name (case-sensitive).
+| Field | Range / Default | Notes |
+|-------|----------------|-------|
+| `family` | Platform-dependent (§3.3) | Resolved at startup via `QFontDatabase::systemFont()`. Never hardcoded. |
+| `sizeInPt` | 6–72, default 9 | DPI-independent. The minimum of 6pt prevents illegible text even at extreme `FontScale`. |
+| `weight` | 100–900, default 400 | Maps to `QFont::Weight`. Common values: 400 (Normal), 600 (SemiBold), 700 (Bold). |
+| `italic` | `false` | Reserved for emphasis spans; no `FontRole` uses italic by default. |
+| `lineHeightMultiplier` | 1.0–2.5, default 1.4 | 1.4× is the WCAG-recommended minimum for body text readability. |
+| `letterSpacing` | -1.0–5.0 px, default 0.0 | Positive values for `Caption` / `Overline` roles improve legibility at small sizes. |
 
-### 7.3 Color Seeds
+#### 3.3 Platform Font Selection
 
-The `"colorSeeds"` object triggers algorithmic palette generation:
+| Platform | Primary Family | Monospace Family | Selection Method |
+|----------|---------------|-----------------|-----------------|
+| Windows | Segoe UI | Cascadia Mono / Consolas | `QFontDatabase::systemFont(GeneralFont)` |
+| macOS | SF Pro | SF Mono / Menlo | `QFontDatabase::systemFont(GeneralFont)` |
+| Linux | Noto Sans | Noto Sans Mono / DejaVu Sans Mono | `QFontDatabase::systemFont(GeneralFont)` |
 
-```json
-{
-  "colorSeeds": {
-    "primary": "#0052CC"
-  }
-}
-```
+#### 3.4 Font Scale System
 
-When a seed is provided, the TonalPaletteGenerator produces 10 steps for that hue.
-Explicit `"colors"` entries for the same hue override individual generated steps.
+**Global font scale** multiplies all FontRole base sizes:
 
-### 7.4 Font Overrides
+| Preset | Factor | Use Case |
+|--------|:------:|----------|
+| `FontSizePreset::Small` | 0.875x | Compact text for dense UIs |
+| `FontSizePreset::Medium` | 1.0x | Default |
+| `FontSizePreset::Large` | 1.25x | Accessibility / large displays |
+
+**Custom factor**: `SetFontScale(float)` clamped to `[kFontScaleMin=0.5, kFontScaleMax=3.0]`.
+
+**Effective size**: $\text{actualPt} = \text{basePt} \times \text{fontScaleFactor} \times \text{densityScale}$
+
+#### 3.5 JSON Font Override
+
+Per-FontRole customization via the `"fonts"` JSON object:
 
 ```json
 {
   "fonts": {
     "Heading": { "size": 14, "weight": 700 },
-    "Monospace": { "size": 10 }
+    "Body":    { "size": 10 }
   }
 }
 ```
 
-Keys match `FontRole` enum names. Fields: `size` (int pt), `weight` (int).
+**Fields**: `size` (int, point size) and `weight` (int, QFont weight).
+Unspecified fields retain platform defaults.
 
-### 7.5 Spring Configuration
+#### 3.6 Dynamic Font Registration (Plugin)
 
-```json
-{
-  "spring": {
-    "mass": 1.0,
-    "stiffness": 180.0,
-    "damping": 18.0
-  }
-}
+Plugins register domain-specific fonts:
+
+```cpp
+DynamicFontDef defs[] = {
+    { "CAD/PropertyGrid", FontSpec{ "Consolas", 8, 400 } },
+};
+theme.RegisterDynamicFonts(defs);
+
+// Query
+auto font = theme.DynamicFont("CAD/PropertyGrid"); // -> std::optional<FontSpec>
 ```
 
-### 7.6 Font Scale
+The global `_fontScale` is applied to dynamic font queries.
 
-```json
-{
-  "fontScale": 1.25
-}
-```
+#### 3.7 Complete FontRole Resolution Table
 
-Float value, clamped to [0.5, 3.0].
+Actual font parameters after platform detection and default scale (1.0x).
 
-### 7.7 Theme Inheritance
+##### 3.7.1 Windows (Segoe UI)
 
-The `"extends"` key references a registered theme by name:
+| Role | Family | Size (pt) | Weight | Italic | Line Height |
+|------|--------|:---------:|:------:|:------:|:-----------:|
+| `Body` | Segoe UI | 9 | 400 | No | 1.4x |
+| `BodyMedium` | Segoe UI | 9 | 500 | No | 1.4x |
+| `BodyBold` | Segoe UI | 9 | 600 | No | 1.4x |
+| `Caption` | Segoe UI | 8 | 400 | No | 1.4x |
+| `Heading` | Segoe UI | 12 | 600 | No | 1.4x |
+| `Monospace` | Cascadia Code | 9 | 400 | No | 1.4x |
+| `ToolTip` | Segoe UI | 8 | 400 | No | 1.4x |
 
-```json
-{
-  "extends": "Dark",
-  "colors": {
-    "Primary": "#BB86FC"
-  }
-}
-```
+##### 3.7.2 macOS (SF Pro Text)
 
-Inheritance is recursive. The resolution chain: this theme -> extends -> extends.extends -> built-in default.
+| Role | Family | Size (pt) | Weight | Italic | Line Height |
+|------|--------|:---------:|:------:|:------:|:-----------:|
+| `Body` | SF Pro Text | 9 | 400 | No | 1.4x |
+| `BodyMedium` | SF Pro Text | 9 | 500 | No | 1.4x |
+| `BodyBold` | SF Pro Text | 9 | 600 | No | 1.4x |
+| `Caption` | SF Pro Text | 8 | 400 | No | 1.4x |
+| `Heading` | SF Pro Text | 12 | 600 | No | 1.4x |
+| `Monospace` | SF Mono | 9 | 400 | No | 1.4x |
+| `ToolTip` | SF Pro Text | 8 | 400 | No | 1.4x |
 
-### 7.8 Custom Theme Registration Flow
+##### 3.7.3 Linux (Noto Sans)
 
-```mermaid
-sequenceDiagram
-    participant App
-    participant ITS as IThemeService
-    participant FS as Filesystem
+| Role | Family | Size (pt) | Weight | Italic | Line Height |
+|------|--------|:---------:|:------:|:------:|:-----------:|
+| `Body` | Noto Sans | 9 | 400 | No | 1.4x |
+| `BodyMedium` | Noto Sans | 9 | 500 | No | 1.4x |
+| `BodyBold` | Noto Sans | 9 | 600 | No | 1.4x |
+| `Caption` | Noto Sans | 8 | 400 | No | 1.4x |
+| `Heading` | Noto Sans | 12 | 600 | No | 1.4x |
+| `Monospace` | Noto Sans Mono | 9 | 400 | No | 1.4x |
+| `ToolTip` | Noto Sans | 8 | 400 | No | 1.4x |
 
-    App->>ITS: RegisterTheme("MyTheme", "/path/to/my.json", ThemeMode::Dark)
-    App->>ITS: SetTheme("MyTheme")
-    ITS->>FS: Read /path/to/my.json
-    ITS->>ITS: Resolve extends chain
-    ITS->>ITS: Apply colorSeeds (generate palettes)
-    ITS->>ITS: Apply colors (overrides)
-    ITS->>ITS: Apply fonts
-    ITS->>ITS: BuildGlobalStyleSheet()
-    ITS-->>App: ThemeChanged("MyTheme")
-```
+##### 3.7.4 Font Scale Effect
 
-### 7.9 Validation
+With font scale $s$, actual point size $= \max(\lfloor \text{basePt} \cdot s + 0.5 \rfloor,\; 6)$.
 
-**Schema**: `Resources/tokens_schema.json` (JSON Schema draft-07)
-
-**Validator**: `Scripts/validate_tokens.py` (invoked by CMake custom command)
-
-Validates:
-- All required color keys present
-- Hex color format (`#RRGGBB` or `#RRGGBBAA`)
-- No unknown top-level keys
-- Font size/weight ranges
-
-### 7.10 Dark Mode Generation Rules
-
-Dark mode is **not** a simple inversion. The palette generation algorithm requires:
-
-1. **HSV/HSB color space operations**: convert seed color to HSV
-2. **Bezier curves for lightness interpolation**: different parameters for light vs dark themes
-3. **Saturation clamping in dark mode**: cap saturation to avoid visual fatigue under sustained use
-4. **Port Ant Design's `generate()` function**: the algorithm produces 10 tonal steps from a seed
-
-**Design decisions**:
-
-| Decision | Resolution | Rationale |
-|----------|-----------|-----------|
-| `TextDisabled` vs `TextQuaternary` | Keep `TextDisabled` | Convenience token for always-disabled-looking text |
-| Info hue independence | Yes, independent from Primary | Info may need distinct hue in domain contexts |
-| Palette algorithm | Port Ant Design's `generate()` | Well-tested, industry-proven tonal generation |
-| Codegen tool | Python | Cross-platform, easy JSON I/O |
-| Merge `BgComponentStrong/Stronger` | Accept merge | Reduces token count without losing expressiveness |
-
-### 7.11 DTFM Integration
-
-The JSON palette format aligns with **W3C Design Tokens Format Module** (DTFM):
-
-- Each token has `$type` and `$value` fields
-- `$type` values: `color`, `dimension`, `fontFamily`, `fontWeight`, `duration`, `cubicBezier`
-- Theme files can reference other tokens via `{token.path}` syntax
-- Build-time codegen (Python) reads DTFM JSON and generates C++ constexpr arrays
+| Scale | Body | Caption | Heading | Monospace |
+|:-----:|:----:|:-------:|:-------:|:---------:|
+| 0.5x | 6pt (clamped) | 6pt | 6pt | 6pt |
+| 0.875x (Small) | 8pt | 7pt | 11pt | 8pt |
+| 1.0x (Medium) | 9pt | 8pt | 12pt | 9pt |
+| 1.25x (Large) | 11pt | 10pt | 15pt | 11pt |
+| 2.0x | 18pt | 16pt | 24pt | 18pt |
+| 3.0x | 27pt | 24pt | 36pt | 27pt |
 
 ---
 
-## Chapter 8. NyanTheme Implementation
 
-### 8.1 Token Storage
+## I.4 Style
 
-All token values are stored in flat `std::array` containers:
+> Token → Widget bridge: declarative style architecture, variant patterns, state matrices.
+> Implementation details (Resolve(), BuildDefaultVariants): see Part III.
 
-| Array | Type | Size | Index |
-|-------|------|:----:|-------|
-| `_colors` | `QColor` | 75 | `ColorToken` |
-| `_fonts` | `FontSpec` | 7 | `FontRole` |
-| `_shadows` | `ShadowSpec` | 5 | `ElevationToken` |
-| `_easings` | `QEasingCurve::Type` | 4 | `EasingToken` |
-| `_styleSheets` | `WidgetStyleSheet` | 54 | `WidgetKind` |
+### Chapter 4. Declarative Style Architecture
 
-Lookup: `_colors[std::to_underlying(token)]` -- O(1), cache-friendly.
-
-### 8.2 BuildFonts() Platform Logic
-
-1. Query `QFontDatabase::systemFont(QFontDatabase::GeneralFont)` for primary family
-2. Query monospace family: try "Cascadia Mono" (Win), "SF Mono" (mac), "Noto Sans Mono" (Linux)
-3. Populate `_fonts[role]` with platform family + role-specific size/weight
-4. Apply `_fontScale` multiplier
-
-### 8.3 BuildShadows() Algorithm
-
-For each `ElevationToken` level:
-- `offsetY = level * 1` (Linear scale)
-- `blurRadius = level * 3` (3x multiplier)
-- `opacity = level * 0.04` (4% per level)
-- Apply density scale to offsetY and blurRadius
-
-### 8.4 BuildDefaultVariants()
-
-Constructs `std::vector<VariantStyle>` for each `WidgetKind`.
-Each VariantStyle has 8 `StateStyle` entries (one per `InteractionState`).
-
-Detailed per-widget specifications in Chapter 10.
-
-### 8.5 BuildGlobalStyleSheet()
-
-Generates a global QSS string from design tokens, applied via
-`QApplication::setStyleSheet()`. Covers standard Qt widgets:
-QPushButton, QLineEdit, QTextEdit, QSpinBox, QComboBox, QScrollBar,
-QTabBar, QCheckBox, QRadioButton, QGroupBox, QSlider, QProgressBar,
-QToolTip, QMenu, QMenuBar, QHeaderView.
-
-Rebuilt on: `SetTheme()`, `SetDensity()`, `SetDirection()`.
-
-### 8.6 LoadPalette() JSON Parsing Pipeline
-
-```mermaid
-flowchart LR
-    A[Read JSON file] --> B{Has 'extends'?}
-    B -->|Yes| C[LoadPalette recursively for parent]
-    B -->|No| D[Start from built-in defaults]
-    C --> D
-    D --> E{Has 'colorSeeds'?}
-    E -->|Yes| F[Generate 10-step palette per seed]
-    E -->|No| G[Skip]
-    F --> G
-    G --> H{Has 'colors'?}
-    H -->|Yes| I[Override individual tokens]
-    H -->|No| J[Skip]
-    I --> J
-    J --> K[Apply fonts, spring, fontScale]
-    K --> L[BuildDefaultVariants]
-    L --> M[BuildGlobalStyleSheet]
-```
-
-### 8.7 TonalPaletteGenerator
-
-**Class**: `TonalPaletteGenerator` (static utility)
-
-| Method | Input | Output |
-|--------|-------|--------|
-| `GenerateLight(QColor seed)` | Seed color | `std::array<QColor, 10>` light-theme ramp |
-| `GenerateDark(QColor seed)` | Seed color | `std::array<QColor, 10>` dark-theme ramp |
-
-**Algorithm**: OKLCH lightness distribution with sRGB gamut clamping.
-See Chapter 2.5 for mathematical details.
-
-### 8.8 SetTheme() Execution Order
-
-Complete sequence when `SetTheme(name)` is called:
-
-```mermaid
-sequenceDiagram
-    participant Caller
-    participant NT as NyanTheme
-    participant TPG as TonalPaletteGenerator
-    participant QApp as QApplication
-
-    Caller->>NT: SetTheme("Dark")
-    NT->>NT: LoadPalette("Dark")
-    NT->>NT: Resolve extends chain
-    NT->>TPG: GenerateDark(seedColor) x5 hues
-    TPG-->>NT: 50 semantic colors
-    NT->>NT: Apply explicit color overrides
-    NT->>NT: BuildFonts()
-    NT->>NT: BuildShadows()
-    NT->>NT: BuildDefaultVariants()
-    NT->>NT: ApplyOverrides(_overrideRegistry)
-    NT->>NT: BuildGlobalStyleSheet()
-    NT->>QApp: setStyleSheet(qss)
-    NT-->>Caller: emit ThemeChanged("Dark")
-```
-
-### 8.9 NyanTheme Internal Member Layout
-
-| Member | Type | Initialized |
-|--------|------|-------------|
-| `_colors` | `std::array<QColor, 75>` | `LoadPalette()` |
-| `_fonts` | `std::array<FontSpec, 7>` | `BuildFonts()` |
-| `_shadows` | `std::array<ShadowSpec, 5>` | `BuildShadows()` |
-| `_easings` | `std::array<QEasingCurve::Type, 4>` | Constructor (static) |
-| `_styleSheets` | `std::array<WidgetStyleSheet, 54>` | `BuildDefaultVariants()` |
-| `_iconRegistry` | `unordered_map<string, QString>` | `RegisterIconDirectory()` |
-| `_dynamicColors` | `unordered_map<string, DynamicColorDef>` | `RegisterDynamicTokens()` |
-| `_dynamicFonts` | `unordered_map<string, DynamicFontDef>` | `RegisterDynamicFonts()` |
-| `_dynamicSpacings` | `unordered_map<string, DynamicSpacingDef>` | `RegisterDynamicSpacings()` |
-| `_themeRegistry` | `unordered_map<string, ThemeEntry>` | `RegisterTheme()` |
-| `_overrideRegistry` | `vector<ComponentOverride>` | `RegisterComponentOverrides()` |
-| `_currentTheme` | `QString` | `SetTheme()` |
-| `_currentMode` | `ThemeMode` | `SetTheme()` |
-| `_fontScale` | `float` | Constructor (1.0) |
-| `_density` | `DensityLevel` | Constructor (Default) |
-| `_direction` | `TextDirection` | Constructor (LTR) |
-| `_spring` | `SpringSpec` | `LoadPalette()` |
-| `_paletteDir` | `QString` | Constructor |
-
-### 8.10 BuildDefaultVariants() Coverage
-
-`BuildDefaultVariants()` must populate all 54 `WidgetKind` entries. The function
-internally dispatches to helper functions organized by widget tier:
-
-```cpp
-void NyanTheme::BuildDefaultVariants()
-{
-    BuildCoreInputVariants();       // PushButton, ToolButton, LineEdit, ...
-    BuildContainerVariants();       // ScrollArea, Panel, GroupBox, ...
-    BuildMenuVariants();            // MenuBar, Menu, MenuItem, ...
-    BuildApplicationVariants();     // DocumentBar, ProgressBar, Tooltip, ...
-    BuildDialogVariants();          // Dialog, DialogTitleBar, DialogFootBar, ...
-    BuildActionBarVariants();       // ActionTab, ActionToolbar
-    BuildShellVariants();           // MainTitleBar, StatusBar, DocumentToolBar, ...
-}
-```
-
-Each helper constructs `VariantStyle` arrays using token references, not raw
-color values. Example pattern:
-
-```cpp
-void NyanTheme::BuildCoreInputVariants()
-{
-    auto& sheet = _styleSheets[std::to_underlying(WidgetKind::PushButton)];
-    sheet.radius    = RadiusToken::Default;
-    sheet.paddingH  = SpacingToken::Px12;
-    sheet.paddingV  = SpacingToken::Px6;
-    sheet.font      = FontRole::BodyMedium;
-    sheet.elevation = ElevationToken::Low;
-    sheet.transition = { AnimationToken::Quick, EasingToken::OutCubic };
-
-    // Variant 0: Primary
-    sheet.variants[0].colors[Normal]   = { ColorToken::Primary,   ColorToken::OnAccent, ColorToken::Primary };
-    sheet.variants[0].colors[Hovered]  = { ColorToken::PrimaryHover, ColorToken::OnAccent, ColorToken::PrimaryHover };
-    sheet.variants[0].colors[Pressed]  = { ColorToken::PrimaryActive, ColorToken::OnAccent, ColorToken::PrimaryActive };
-    sheet.variants[0].colors[Disabled] = { ColorToken::Primary, ColorToken::OnAccent, ColorToken::Primary, 0.45F };
-    // ... (Focused, Selected, Error, DragOver)
-
-    // Variant 1: Secondary
-    // ... (similar pattern with neutral tokens)
-}
-```
-
-### 8.11 BuildGlobalStyleSheet() QSS Generation
-
-The generated QSS string covers ~300 lines of Qt stylesheet rules. Key patterns:
-
-| Qt Widget | QSS Properties Set |
-|-----------|-------------------|
-| `QPushButton` | `background-color`, `color`, `border`, `border-radius`, `padding`, `font` |
-| `QLineEdit` | `background-color`, `color`, `border`, `border-radius`, `padding`, `selection-*` |
-| `QComboBox` | `background-color`, `color`, `border`, `padding`, `::drop-down`, `::down-arrow` |
-| `QScrollBar` | `background`, `::handle`, `::add-line`, `::sub-line`, `width`/`height` |
-| `QTabBar::tab` | `background`, `color`, `border-bottom`, `padding`, `:selected`, `:hover` |
-| `QCheckBox::indicator` | `width`, `height`, `border`, `border-radius`, `:checked`, `:indeterminate` |
-| `QSlider::groove` | `background`, `height`/`width`, `border-radius` |
-| `QSlider::handle` | `background`, `width`, `height`, `border-radius`, `margin` |
-| `QProgressBar` | `background`, `color`, `border`, `text-align`, `::chunk` |
-| `QToolTip` | `background-color`, `color`, `border`, `padding`, `font` |
-| `QMenu` | `background-color`, `color`, `border`, `padding`, `::item`, `::separator` |
-| `QMenuBar` | `background-color`, `color`, `::item:selected`, `::item:pressed` |
-| `QHeaderView::section` | `background-color`, `color`, `border`, `padding`, `font` |
-
-All color values in the QSS are resolved from `_colors[token]` at generation time.
-No token names appear in the generated QSS â€” only resolved hex values.
-
-### 8.12 Style & Resource Reuse Iron Rules
-
-> **The existing visual identity (color palette, icon assets, ToolBench configs, menu definitions) is a product of UI/UX design work and MUST be preserved verbatim.** Refactoring changes the **code architecture**, not the **art output**.
-
-| Rule | Detail |
-|------|--------|
-| **R1: No color value changes** | ~85x2 color values in palette are canonical. No hex modification without designer sign-off. |
-| **R2: No icon replacement** | All SVG/PNG icons are design deliverables. Missing files get same-size placeholder, never delete `.qrc` entries. |
-| **R3: No style default changes** | `NyanAbstractStyle` defaults (Radius=3, Border=Line2, etc.) define the visual language. New `WidgetStyleSheet` must produce identical output. |
-| **R4: ToolBench/Menu configs preserved** | `.cfg` and `.json` resource files consumed verbatim. |
-| **R5: Theme path convention** | `:/<Theme>/<Theme>/...` pattern. `IThemeService::IconPath()` follows this. |
-| **R6: Font baseline** | ToolButton font: 11px logical. No size changes without designer approval. |
-
-### 8.13 Existing Art Asset Inventory
-
-| Asset Category | Count | Format |
-|---------------|-------|--------|
-| Basic UI icons (16px) | 44 | SVG |
-| App-level icons (20px) | 32 | SVG |
-| General operation icons (32px) | 15 | PNG |
-| Mesh operation icons (32px) | 55 | PNG |
-| Part design icons (32px) | 70 | PNG |
-| View control icons (32px) | 50 | PNG |
-| Sketch operation icons (32px) | 40 | PNG |
-| Special-purpose icons | 48 | PNG |
-| Application logos | Mixed | PNG/ICO |
-| Dark theme mirror | Same as above | Same |
-| **Total icon assets** | **~830** | SVG/PNG |
-
-> **Note**: The resource interface in this project maintains consistency with the future asset manager system, but does not provide concrete implementation. Migration will occur immediately after the asset manager system and resource compiler are merged into the mainstream.
-
----
-
-# Part III -- Component Style System
-
-> Chapters 9-11. The bridge between design tokens and widget painting.
-
-## Chapter 9. Declarative Style Architecture
-
-### 9.1 Motivation: Why Declarative Styling is Necessary
+#### 4.1 Motivation: Why Declarative Styling is Necessary
 
 The declarative style system was introduced to address a specific, measurable
 set of engineering deficiencies in traditional Qt widget painting:
@@ -2360,7 +1903,7 @@ introducing exactly that missing function: `IThemeService::Resolve()`.
 
 > For implementation stages and migration examples, see sections 9.10-9.12.
 
-### 9.2 Design-Code Isomorphism
+#### 4.2 Design-Code Isomorphism
 
 The target is `UI = f(state)` where:
 
@@ -2373,7 +1916,7 @@ structural isomorphism with the design component tree.
 
 **Design rule.** Widget painting uses `ResolvedStyle = Theme().Resolve(kind, variant, state)` — a pure function from (WidgetKind, variant index, InteractionState) to visual properties. This eliminates scattered `if/else` color logic in paint methods. All 54 widget kinds need complete variant x state matrices in `BuildDefaultVariants()`.
 
-### 9.3 Four Dimensions of Design Information Exchange
+#### 4.3 Four Dimensions of Design Information Exchange
 
 | Dimension | Content | Matcha Mechanism |
 |-----------|---------|-----------------|
@@ -2382,7 +1925,95 @@ structural isomorphism with the design component tree.
 | **Component FSM** | State enum, state-to-visual mapping | `InteractionState` + `StateStyle` + `VariantStyle` |
 | **Dynamic Behavior** | Animation duration, easing, spring | `TransitionDef` + `AnimationToken` + `EasingToken` + `SpringSpec` |
 
-### 9.4 WidgetStyleSheet Struct
+#### 4.4 Token Taxonomy 🆕
+
+> 🆕 Post-v1 supplement.
+> Aligns Matcha's token architecture with the W3C Design Tokens Community Group
+> specification (DTCG 2025.10) and Material Design 3's three-tier token model.
+
+Matcha tokens follow a **three-layer hierarchy**. Each layer adds semantic
+meaning and narrows the audience from "entire system" to "single component":
+
+```mermaid
+graph TB
+    subgraph Reference["Layer 1 — Reference Tokens (Primitive Palette)"]
+        R1["Neutral50 = #F5F5F5"]
+        R2["Blue600 = #2563EB"]
+        R3["Px4 = 4"]
+    end
+    subgraph System["Layer 2 — System Tokens (Semantic Role)"]
+        S1["Surface = Neutral50"]
+        S2["Primary = Blue600"]
+        S3["SpacingToken::Px4"]
+    end
+    subgraph Component["Layer 3 — Component Tokens (Per-Widget Override)"]
+        C1["Dialog.radius = Large"]
+        C2["PushButton.minHeight = Lg"]
+        C3["Slider.trackHeight = Px4"]
+    end
+    R1 --> S1
+    R2 --> S2
+    R3 --> S3
+    S1 --> C1
+    S2 --> C2
+    S3 --> C3
+```
+
+| Layer | DTCG Term | Matcha Mapping | Mutability | Example |
+|:-----:|-----------|---------------|:----------:|---------|
+| **1 — Reference** | Reference Token | Raw palette values in `NyanPalette` JSON (`colorSeeds`, spacing constants) | Theme-load only | `Neutral.50 = #F5F5F5` |
+| **2 — System** | System Token | `ColorToken`, `SpacingToken`, `RadiusToken`, `FontRole`, `ElevationToken`, `AnimationToken`, `EasingToken` enums | Theme-load only | `ColorToken::Surface` → resolves to `Neutral.50` in light, `Neutral.900` in dark |
+| **3 — Component** | Component Token | `WidgetStyleSheet` per `WidgetKind` + `ComponentOverride` registrations | Runtime (via `RegisterComponentOverrides`) | `Dialog.radius = RadiusToken::Large` overrides system default `RadiusToken::Default` |
+
+**Design rule.** Higher layers reference lower layers by alias, never by raw
+value. A `StateStyle` field like `background = ColorToken::Primary` is a
+system-token alias; `ComponentOverride{.kind=Dialog, .radius=Large}` is a
+component-token override. This ensures a single palette change at Layer 1
+propagates consistently through Layers 2 and 3.
+
+##### 4.4.1 Token Serialization (DTCG Alignment)
+
+Matcha's theme JSON files use a structure compatible with the W3C DTCG 2025.10
+format. The `$type` and `$value` properties map to Matcha token types:
+
+```jsonc
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "color": {
+    "primary": {
+      "$type": "color",
+      "$value": "#5b6abf",
+      "$description": "Brand primary — maps to ColorToken::Primary"
+    },
+    "surface": {
+      "$type": "color",
+      "$value": "{color.neutral.50}",  // alias reference
+      "$description": "Default background — maps to ColorToken::Surface"
+    }
+  },
+  "spacing": {
+    "px4": { "$type": "dimension", "$value": {"value": 4, "unit": "px"} },
+    "px8": { "$type": "dimension", "$value": {"value": 8, "unit": "px"} }
+  },
+  "transition": {
+    "default": {
+      "$type": "transition",
+      "$value": {
+        "duration": {"value": 150, "unit": "ms"},
+        "delay":    {"value": 0,   "unit": "ms"},
+        "timingFunction": [0.33, 0, 0.67, 1]
+      }
+    }
+  }
+}
+```
+
+The translation between DTCG JSON and C++ enums is handled by the theme loader
+(`NyanTheme::LoadPalette`). Custom tokens registered via
+`RegisterDynamicColor()` are stored as Layer 2 system tokens that override
+palette-provided values.
+
+#### 4.5 WidgetStyleSheet Struct
 
 ```cpp
 struct WidgetStyleSheet {
@@ -2423,7 +2054,7 @@ struct WidgetStyleSheet {
 | `transition` | `TransitionDef` | `{Normal, OutCubic}` | Animation config for state changes |
 | `variants` | `span<VariantStyle>` | -- | Non-owning view into variant color maps |
 
-### 9.5 StateStyle Struct
+#### 4.6 StateStyle Struct
 
 ```cpp
 struct StateStyle {
@@ -2445,7 +2076,7 @@ struct StateStyle {
 | `borderWidth` | `SpacingToken` | Border stroke width (focused = 2px) |
 | `cursor` | `CursorToken` | Mouse cursor shape |
 
-### 9.6 VariantStyle Struct
+#### 4.7 VariantStyle Struct
 
 ```cpp
 struct VariantStyle {
@@ -2456,9 +2087,68 @@ struct VariantStyle {
 8 states per variant: Normal, Hovered, Pressed, Disabled, Focused,
 Selected, Error, DragOver.
 
-### 9.7 ResolvedStyle Output
+##### 4.7.1 InteractionState Extended Discussion 🆕
 
-See Chapter 6.5 for the complete field table.
+> 🆕 Post-v1 supplement.
+
+The 8-state `InteractionState` enum covers the most common widget states.
+The following **extended states** are recognized by the design system but
+encoded differently to avoid combinatorial explosion:
+
+| Extended State | Encoding Strategy | Industry Precedent |
+|---------------|------------------|-------------------|
+| **FocusVisible** | `Focused` state + `bool isFocusVisible` flag on `WidgetNode`. Only shows focus ring when `true` (keyboard navigation). Mouse clicks set `Focused` but leave `isFocusVisible = false`. | CSS `:focus-visible` (WCAG 2.2 AA, SC 2.4.7) |
+| **Indeterminate** | CheckBox variant 2 (beyond unchecked=0, checked=1). Same 8 `InteractionState` slots apply per variant. | HTML `<input indeterminate>`, Compose `triStateToggle` |
+| **ReadOnly** | `Disabled` state with `opacity = 0.75` (higher than disabled 0.45). Cursor = `Default` instead of `Forbidden`. Encoded via a separate `ReadOnly` variant rather than a new state. | Qt `QLineEdit::setReadOnly`, ARIA `aria-readonly` |
+| **Loading** | Overlay spinner on `Normal` state. Not a separate `InteractionState` — handled by widget-specific `SetLoading(bool)` API that composites a `BusyIndicator` child. | M3 "Loading" button pattern |
+
+**Design rule.** `InteractionState` is intentionally kept to 8 values to
+ensure the variant × state matrix remains tractable ($V \times 8$ cells per
+widget, where $V$ is typically 1–4). Extended states are encoded as either
+additional variants or boolean flags, never as new `InteractionState` enum values.
+
+##### 4.7.2 Variant Naming Convention 🆕
+
+> 🆕 Post-v1 supplement.
+
+While `VariantStyle` is index-based at the C++ level (for cache-line density
+and zero-overhead `std::array` access), each variant index has a **canonical name**
+documented per widget in Chapter 10. The naming convention:
+
+| Index | Button Family | CheckBox | Toggle | Tab | Data Row |
+|:-----:|:-------------|:---------|:-------|:----|:---------|
+| 0 | `Secondary` (default) | `Unchecked` | `Off` | `Inactive` | `Default` |
+| 1 | `Primary` | `Checked` | `On` | `Active` | `Selected` |
+| 2 | `Ghost` | `Indeterminate` | — | — | `Striped` |
+| 3 | `Danger` | — | — | — | — |
+
+**Design rule.** The `WidgetKind`-specific variant index meaning is defined in
+each widget's §10.x specification. Widget code uses named constants
+(`kVariantPrimary = 1`, `kVariantGhost = 2`) rather than raw indices.
+
+#### 4.8 ResolvedStyle Output
+
+`ResolvedStyle` is the **fully concrete** output of `IThemeService::Resolve()`.
+All tokens are resolved to Qt types; widgets consume this directly in `paintEvent`
+without any further token lookups.
+
+| Field | Type | Source | Description |
+|-------|------|--------|-------------|
+| `background` | `QColor` | `StateStyle::background` → `Color()` | Background fill |
+| `foreground` | `QColor` | `StateStyle::foreground` → `Color()` | Text / icon color |
+| `border` | `QColor` | `StateStyle::border` → `Color()` | Border stroke color |
+| `radiusPx` | `int` | `WidgetStyleSheet::radius` × densityScale | Corner radius (px) |
+| `paddingHPx` | `int` | `WidgetStyleSheet::paddingH` → `SpacingPx()` | Horizontal padding (px) |
+| `paddingVPx` | `int` | `WidgetStyleSheet::paddingV` → `SpacingPx()` | Vertical padding (px) |
+| `gapPx` | `int` | `WidgetStyleSheet::gap` → `SpacingPx()` | Icon-text gap (px) |
+| `minHeightPx` | `int` | `WidgetStyleSheet::minHeight` × densityScale | Min component height (px) |
+| `borderWidthPx` | `int` | `StateStyle::borderWidth` → `SpacingPx()` | Border stroke width (px) |
+| `font` | `QFont` | `WidgetStyleSheet::font` → `Font()` + letterSpacing | Fully constructed font |
+| `lineHeightPx` | `int` | `QFontMetrics::height()` × lineHeightMultiplier | Line height (px) |
+| `shadow` | `ShadowSpec` | `WidgetStyleSheet::elevation` → `Shadow()` × densityScale | Box shadow parameters |
+| `opacity` | `float` | `StateStyle::opacity` | Widget opacity (0.0–1.0) |
+| `durationMs` | `int` | `TransitionDef::duration` → `AnimationMs()` | Transition duration (ms) |
+| `easingType` | `int` | `TransitionDef::easing` → `Easing()` | `QEasingCurve::Type` value |
 
 **Usage pattern** (target for all widgets):
 
@@ -2477,7 +2167,7 @@ void MyWidget::paintEvent(QPaintEvent*) {
 }
 ```
 
-### 9.8 Density Scaling in Resolve()
+#### 4.9 Density Scaling in Resolve()
 
 The following fields are density-scaled inside `Resolve()`:
 
@@ -2492,12 +2182,12 @@ The following fields are density-scaled inside `Resolve()`:
 | `shadow.offsetY` | $\text{base} \times \text{densityScale}$ |
 | `shadow.blurRadius` | $\text{base} \times \text{densityScale}$ |
 
-### 9.9 Standard Variant Patterns
+#### 4.10 Standard Variant Patterns
 
 Default `StateStyle` entries for the most commonly used variant patterns.
 Widgets reference these patterns in Chapter 10.
 
-#### 9.9.1 Standard Neutral Pattern (Secondary Button, Panel controls)
+##### 4.10.1 Standard Neutral Pattern (Secondary Button, Panel controls)
 
 Used by: PushButton(Secondary), ToolButton(Default), ComboBox, SpinBox, LineEdit.
 
@@ -2512,7 +2202,7 @@ Used by: PushButton(Secondary), ToolButton(Default), ComboBox, SpinBox, LineEdit
 | Error | `ErrorBg` | `Error` | `ErrorBorder` | 1.0 | `Pointer` |
 | DragOver | `PrimaryBg` | `TextPrimary` | `Primary` | 1.0 | `Move` |
 
-#### 9.9.2 Standard Primary Pattern (Brand CTA)
+##### 4.10.2 Standard Primary Pattern (Brand CTA)
 
 Used by: PushButton(Primary).
 
@@ -2524,7 +2214,7 @@ Used by: PushButton(Primary).
 | Disabled | `Primary` | `OnAccent` | `Primary` | 0.45 | `Forbidden` |
 | Focused | `Primary` | `OnAccent` | `Focus` | 1.0 | `Pointer` |
 
-#### 9.9.3 Ghost Pattern (Minimal visual weight)
+##### 4.10.3 Ghost Pattern (Minimal visual weight)
 
 Used by: PushButton(Ghost), ToolButton(Ghost).
 
@@ -2536,7 +2226,7 @@ Used by: PushButton(Ghost), ToolButton(Ghost).
 | Disabled | `Surface` | `TextDisabled` | `Surface` | 0.45 | `Forbidden` |
 | Focused | `Surface` | `TextPrimary` | `Focus` | 1.0 | `Pointer` |
 
-#### 9.9.4 Danger Pattern (Destructive action)
+##### 4.10.4 Danger Pattern (Destructive action)
 
 Used by: PushButton(Danger).
 
@@ -2548,7 +2238,7 @@ Used by: PushButton(Danger).
 | Disabled | `Error` | `OnAccent` | `Error` | 0.45 | `Forbidden` |
 | Focused | `Error` | `OnAccent` | `Focus` | 1.0 | `Pointer` |
 
-#### 9.9.5 Check Indicator Pattern
+##### 4.10.5 Check Indicator Pattern
 
 Used by: CheckBox (checked/unchecked variants), RadioButton.
 
@@ -2568,7 +2258,7 @@ Used by: CheckBox (checked/unchecked variants), RadioButton.
 | Hovered | `PrimaryHover` | `PrimaryHover` | `OnAccent` |
 | Pressed | `PrimaryActive` | `PrimaryActive` | `OnAccent` |
 
-#### 9.9.6 Toggle Track Pattern
+##### 4.10.6 Toggle Track Pattern
 
 Used by: ToggleSwitch.
 
@@ -2586,7 +2276,7 @@ Used by: ToggleSwitch.
 | Normal | `Primary` | `OnAccent` |
 | Hovered | `PrimaryHover` | `OnAccent` |
 
-#### 9.9.7 Tab Pattern (Active/Inactive)
+##### 4.10.7 Tab Pattern (Active/Inactive)
 
 Used by: TabWidget, DocumentBar, ActionTab.
 
@@ -2596,7 +2286,7 @@ Used by: TabWidget, DocumentBar, ActionTab.
 | Inactive | Hovered | `FillHover` | `TextPrimary` | none |
 | Active | Normal | `SurfaceElevated` | `Primary` | `Primary` (2px bottom) |
 
-#### 9.9.8 Data Row Pattern (Default/Selected/Striped)
+##### 4.10.8 Data Row Pattern (Default/Selected/Striped)
 
 Used by: DataTable, ListWidget, TreeWidget.
 
@@ -2607,7 +2297,7 @@ Used by: DataTable, ListWidget, TreeWidget.
 | Hovered | `FillHover` | `TextPrimary` | `BorderSubtle` |
 | Selected | `PrimaryBg` | `TextPrimary` | `Primary` |
 
-### 9.10 Implementation Stages
+#### 4.11 Implementation Stages
 
 | Stage | Description | Deliverable |
 |-------|-------------|-------------|
@@ -2620,32 +2310,9 @@ Used by: DataTable, ListWidget, TreeWidget.
 | 7 | `constexpr DefaultPalette.h` | Compile-time default palettes |
 | 8 | Migrate Tier 1 widgets | Replace hardcoded paint calls with `Resolve()` |
 | 9 | Migrate Tier 2+3 widgets | Complete migration |
-| 10 | Remove legacy paint code | Delete `svc.Color()` direct calls from `paintEvent` |
+| 10 | Remove legacy paint code | Replace all remaining direct `Color(token)` calls in `paintEvent` with `Resolve()`-based painting |
 
-### 9.11 Migration Example
-
-**Before** (hardcoded):
-
-```cpp
-void NyanPushButton::paintEvent(QPaintEvent*) {
-    auto& svc = ThemeService();
-    QColor bg = svc.Color(ColorToken::PrimaryNormal);
-    QColor fg = svc.Color(ColorToken::FgInverse);
-    // ... manual paint with raw colors
-}
-```
-
-**After** (declarative):
-
-```cpp
-void NyanPushButton::paintEvent(QPaintEvent*) {
-    auto style = ThemeService().Resolve(WidgetKind::PushButton, _variant, _state);
-    // style.bg, style.fg, style.border, style.radius, style.font, style.shadow
-    // ... paint with fully resolved values
-}
-```
-
-### 9.12 Four-Dimension Coverage Matrix
+#### 4.12 Four-Dimension Coverage Matrix
 
 | Dimension | Before RFC | After RFC |
 |-----------|-----------|-----------|
@@ -2654,9 +2321,270 @@ void NyanPushButton::paintEvent(QPaintEvent*) {
 | Component FSM | StateColors only | StateStyle (opacity, borderWidth, cursor) |
 | Dynamic Behavior | AnimationToken only | TransitionDef (duration + easing combined) |
 
+#### 4.13 Visual Grouping Rules 🆕
+
+> 🆕 Post-v1 supplement.
+> Design rules for visual grouping based on Gestalt principles (proximity, similarity,
+> common region, continuity). Defines when to use spacing vs borders vs background
+> to communicate hierarchical structure.
+
+##### 4.13.1 Grouping Mechanism Decision Tree
+
+```
+Are items semantically related?
+├── Yes → Should the group be visually distinct from surroundings?
+│   ├── Yes → Common Region (Panel background + border)
+│   │   └── Is the group collapsible? → CollapsibleSection
+│   └── No → Proximity (spacing alone)
+│       └── Items within group: Px4-Px8 gap
+│           Groups between each other: Px16-Px24 gap
+└── No → Separation
+    ├── Weak separation → Spacing (Px16+)
+    └── Strong separation → Line separator or Panel boundary
+```
+
+##### 4.13.2 Spacing Hierarchy
+
+| Level | Spacing Token | Use Case | Gestalt Principle |
+|-------|:------------:|----------|:-----------------:|
+| **Intra-element** | `Px4` | Icon-to-text gap within a button | Proximity (tight) |
+| **Intra-group** | `Px8` | Between items in a list/form section | Proximity (related) |
+| **Inter-group** | `Px16` | Between form sections, between toolbar groups | Proximity (separate) |
+| **Inter-region** | `Px24`–`Px32` | Between major UI regions (panel boundary, section break) | Common region boundary |
+
+**Rule**: The spacing ratio between adjacent hierarchy levels should be ≥ 2×.
+This ensures the Gestalt proximity principle creates unambiguous visual grouping.
+
+##### 4.13.3 Border vs Spacing vs Background
+
+| Mechanism | When to Use | Token |
+|-----------|-------------|-------|
+| **Spacing only** | Default grouping — items are related but no explicit boundary needed | `SpacingToken::Px8`–`Px16` |
+| **Subtle border** | Group needs a soft visual boundary (e.g., form field, card) | `BorderSubtle`, `Px1` width |
+| **Default border** | Group needs a clear boundary (e.g., panel edge, input field) | `BorderDefault`, `Px1` width |
+| **Background fill** | Group is a distinct container (e.g., Panel, GroupBox, Toolbar) | `SurfaceContainer` or `SurfaceSunken` |
+| **Border + background** | High-emphasis container (e.g., Dialog, elevated Card) | `SurfaceElevated` + `BorderDefault` + `ElevationToken` |
+| **Line separator** | Items within a flat list need visual separation without container nesting | `Line` widget, `Separator` color |
+
+##### 4.13.4 Nesting Depth Limit
+
+Maximum visual nesting depth: **3 levels** (container → sub-container → element group).
+
+| Depth | Example | Background |
+|:-----:|---------|-----------|
+| 0 | Window / main content area | `Surface` |
+| 1 | Panel / sidebar | `SurfaceContainer` |
+| 2 | GroupBox / CollapsibleSection within panel | `SurfaceSunken` |
+| 3 | Card / inline group within section | Spacing only (no additional background) |
+
+Beyond depth 3, use spacing and borders only — do not introduce additional background
+color layers, as they reduce contrast and readability.
+
+#### 4.14 SpringSpec Struct 🆕
+
+> 🆕 Post-v1 supplement.
+> Defines physics-based spring animation parameters, complementing the existing
+> `TransitionDef` (duration + easing) with a spring model for natural motion.
+> Industry alignment: Flutter `SpringDescription`, Jetpack Compose `spring()`,
+> UE5 `FSpringState`.
+
+```cpp
+struct SpringSpec {
+    float stiffness  = 300.0F;   // N/m  — higher = snappier
+    float damping    = 22.0F;    // Ns/m — higher = less oscillation
+    float mass       = 1.0F;     // kg   — heavier = more inertia
+};
+```
+
+| Field | Type | Default | Description |
+|-------|------|:-------:|-------------|
+| `stiffness` | `float` | 300 | Spring constant. Higher values produce faster convergence. |
+| `damping` | `float` | 22 | Damping ratio coefficient. Critical damping ≈ $2\sqrt{k \cdot m}$. |
+| `mass` | `float` | 1 | Mass of the animated element. Increasing mass slows motion. |
+
+**Pre-defined spring presets:**
+
+| Preset | stiffness | damping | Use Case |
+|--------|:---------:|:-------:|----------|
+| `Responsive` | 600 | 30 | Micro-interactions (toggle, checkbox) |
+| `Standard` | 300 | 22 | Button state transitions, panel resize |
+| `Gentle` | 150 | 18 | Dialog entrance, page transitions |
+| `Bouncy` | 400 | 12 | Playful feedback (drag-release, notification pop) |
+
+**Integration with TransitionDef.** A `TransitionDef` may optionally carry a
+`SpringSpec` instead of a fixed duration + easing curve:
+
+```cpp
+struct TransitionDef {
+    AnimationToken  duration = AnimationToken::Normal;  // used if spring == nullopt
+    EasingToken     easing   = EasingToken::OutCubic;
+    std::optional<SpringSpec> spring = std::nullopt;    // if set, overrides duration+easing
+};
+```
+
+When `spring` is set, the animation engine solves the damped harmonic oscillator
+ODE and ignores `duration`/`easing`. The animation terminates when displacement
+drops below 0.5px (perceptual convergence threshold).
+
+#### 4.15 Reduced Motion Strategy 🆕
+
+> 🆕 Post-v1 supplement.
+> Addresses WCAG 2.2 SC 2.3.3 (Animation from Interactions) and
+> `prefers-reduced-motion` system setting.
+
+Matcha respects the operating system's reduced-motion preference. The strategy
+follows a **two-tier** approach:
+
+| Tier | Condition | Behavior |
+|:----:|-----------|----------|
+| **1 — Decorative** | Animations that communicate no semantic information (hover glow, spring bounce, parallax) | **Eliminated entirely** — instant transition (`0ms`) |
+| **2 — Functional** | Animations that convey state change (collapse/expand, tab switch, dialog entrance) | **Simplified** — duration capped at `100ms`, easing set to `Linear`, spring disabled |
+
+**Detection:**
+
+```cpp
+// In IThemeService
+bool IsReducedMotionEnabled() const {
+    // Qt 6.7+: QStyleHints::colorScheme() doesn't cover motion yet,
+    // so we query the platform directly.
+#if defined(Q_OS_WIN)
+    BOOL enabled = FALSE;
+    SystemParametersInfoW(SPI_GETCLIENTAREAANIMATION, 0, &enabled, 0);
+    return !enabled;
+#elif defined(Q_OS_MACOS)
+    return [[NSWorkspace sharedWorkspace] accessibilityDisplayShouldReduceMotion];
+#else
+    // GTK: org.gnome.desktop.interface.enable-animations
+    return false; // fallback: animations enabled
+#endif
+}
+```
+
+**Resolve() integration.** When reduced motion is active, `Resolve()` modifies
+the returned `ResolvedStyle`:
+
+- `durationMs` → `0` (Tier 1) or `min(durationMs, 100)` (Tier 2)
+- `easingType` → `QEasingCurve::Linear` (Tier 2)
+- `spring` → `std::nullopt` (both tiers)
+
+Widgets do not need any special code — the reduced-motion behavior is fully
+encapsulated in the `Resolve()` path.
+
+#### 4.16 Component Override Mechanism 🆕
+
+> 🆕 Post-v1 supplement.
+> Allows applications, plugins, and theme packs to override per-widget style
+> sheets without modifying the base theme. Inspired by Material Design 3's
+> component-level theming and Jetpack Compose's `LocalContentColor`.
+
+A `ComponentOverride` is a sparse patch applied on top of the base
+`WidgetStyleSheet` for a specific `WidgetKind`:
+
+```cpp
+struct ComponentOverride {
+    WidgetKind               kind;
+    std::optional<RadiusToken>   radius;
+    std::optional<SpacingToken>  paddingH;
+    std::optional<SpacingToken>  paddingV;
+    std::optional<SizeToken>     minHeight;
+    std::optional<FontRole>      font;
+    std::optional<ElevationToken> elevation;
+    // State-level overrides (sparse: only non-nullopt fields apply)
+    std::optional<ColorToken>    normalBg;
+    std::optional<ColorToken>    normalFg;
+    std::optional<ColorToken>    hoveredBg;
+    std::optional<float>         disabledOpacity;
+};
+```
+
+**Registration API:**
+
+```cpp
+void IThemeService::RegisterComponentOverrides(
+    std::span<const ComponentOverride> overrides,
+    OverridePriority priority = OverridePriority::App
+);
+```
+
+**Resolution order** (highest priority wins):
+
+```mermaid
+graph LR
+    A["User Override<br/>(OverridePriority::User)"] --> B["App Override<br/>(OverridePriority::App)"]
+    B --> C["Plugin Override<br/>(OverridePriority::Plugin)"]
+    C --> D["Theme Pack<br/>(OverridePriority::Theme)"]
+    D --> E["Base WidgetStyleSheet<br/>(built-in default)"]
+```
+
+| Priority | Source | Example |
+|:--------:|--------|---------|
+| 1 (highest) | `User` | User preference: "I want larger buttons" → `PushButton.minHeight = Xl` |
+| 2 | `App` | App brand: "Our dialogs use rounded corners" → `Dialog.radius = Large` |
+| 3 | `Plugin` | Plugin theme: "FEA toolbar uses compact spacing" → `ToolButton.paddingH = Px2` |
+| 4 | `Theme` | Theme pack: "Dark Pro theme uses sharp radii" → `*.radius = Small` |
+| 5 (lowest) | Base | Built-in `WidgetStyleSheet` defaults defined in §4.5 |
+
+**Merge semantics.** Each `std::optional` field in `ComponentOverride` acts as
+a patch — if `has_value()`, it replaces the corresponding base field; otherwise,
+the base value is kept. Multiple overrides at the same priority level are
+applied in registration order (last wins).
+
+#### 4.17 Style Cascade Resolution 🆕
+
+> 🆕 Post-v1 supplement.
+> Defines the complete resolution algorithm that `IThemeService::Resolve()`
+> follows, combining all layers into a single `ResolvedStyle`.
+
+The full resolution pipeline for a call to
+`Resolve(WidgetKind kind, int variant, InteractionState state)`:
+
+```
+Step 1: Base WidgetStyleSheet
+   └─ Look up built-in WidgetStyleSheet for `kind`
+
+Step 2: Apply ComponentOverrides (§4.16)
+   └─ Merge overrides in priority order (User > App > Plugin > Theme > Base)
+   └─ Result: patched WidgetStyleSheet
+
+Step 3: Select VariantStyle
+   └─ patched.variants[variant]
+
+Step 4: Select StateStyle
+   └─ variantStyle.colors[state]
+
+Step 5: Resolve tokens to concrete values
+   ├─ ColorToken → QColor  (via current palette, light/dark)
+   ├─ FontRole   → QFont   (via platform font table + DPI scaling)
+   ├─ SpacingToken → int px (via density scale)
+   ├─ RadiusToken → int px  (via density scale)
+   ├─ ElevationToken → ShadowSpec (via density scale)
+   ├─ AnimationToken → int ms
+   └─ EasingToken → QEasingCurve::Type
+
+Step 6: Apply reduced-motion policy (§4.15)
+   └─ If prefers-reduced-motion: clamp duration, disable spring
+
+Step 7: Cache & return ResolvedStyle
+   └─ Cache key = (kind, variant, state, paletteVersion, densityLevel, reducedMotion)
+   └─ Cache invalidated on theme/palette/density change
+```
+
+**Complexity.** Each `Resolve()` call is O(1) on cache hit. Cache miss triggers
+O(k) merge where k = number of registered overrides for that `WidgetKind`
+(typically 0–2). The cache holds at most $W \times V_{max} \times 8$ entries
+where $W$ = number of `WidgetKind` values (~56) and $V_{max}$ = max variants
+per widget (~4), yielding ≤ 1792 cache slots × ~128 bytes ≈ **224 KB** worst case.
+
 ---
 
-## Chapter 10. Per-Widget Component Specification
+
+## I.5 Widgets
+
+> 46 components with full visual and behavioral specifications.
+> Each widget follows a 12-section template (Synopsis · Anatomy 🆕 · Theme ·
+> Variant×State · FSM 🆕 · Notifications · API · Animation · Math · Keyboard 🆕 · A11y · Usage 🆕).
+
+### Chapter 5. Per-Widget Component Specification
 
 > This chapter is the core deliverable of the design system. Each widget
 > is specified with a uniform 8-section template:
@@ -2694,7 +2622,7 @@ mathematical abstraction. Related widgets share behavioral patterns:
 
 ---
 
-### 10.1 PushButton
+#### 5.1 PushButton
 
 #### Synopsis
 
@@ -2705,6 +2633,53 @@ mathematical abstraction. Related widgets share behavioral patterns:
 | **Qt widget** | `NyanPushButton` (custom QPushButton subclass) |
 | **A11yRole** | `Button` |
 | **Variant enum** | `gui::ButtonVariant { Primary, Secondary, Ghost, Danger }` |
+
+#### Anatomy 🆕
+
+![PushButton Anatomy](assets/anatomy/pushbutton.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Leading icon (16×16) | Optional |
+| 2 | Label text (FontRole::Body) | Required (or accessible name for icon-only) |
+| 3 | Focus ring (2px Primary, inset) | Auto (keyboard focus) |
+
+#### Interaction FSM 🆕
+
+```mermaid
+stateDiagram-v2
+    [*] --> Normal
+    Normal --> Hover : MouseEnter
+    Hover --> Normal : MouseLeave
+    Hover --> Pressed : MouseDown
+    Pressed --> Hover : MouseUp (inside) → fire Activated
+    Pressed --> Normal : MouseUp (outside) → no action
+    Normal --> Focused : Tab focus
+    Focused --> Normal : Tab away
+    Focused --> Pressed : Space/Enter down
+    Normal --> Disabled : SetEnabled(false)
+    Disabled --> Normal : SetEnabled(true)
+```
+
+#### Keyboard Contract 🆕
+
+| Key | Action | Condition |
+|-----|--------|-----------|
+| `Space` | Fire `Activated` on key-up | Focused |
+| `Enter` | Fire `Activated` on key-down | Focused |
+| `Tab` | Move focus to next widget | Focused |
+| `Shift+Tab` | Move focus to previous widget | Focused |
+| `Alt+Mnemonic` | Focus + fire `Activated` | Mnemonic assigned |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use Primary for the single most important action per form/dialog | Use multiple Primary buttons in one view |
+| Use Danger variant for destructive actions (delete, discard) | Use Danger for non-destructive warnings |
+| Keep label text to 1-3 words, action verb first ("Save", "Delete item") | Use vague labels ("OK", "Submit", "Click here") |
+| Pair with a Secondary/Ghost cancel button in dialogs | Leave dialogs with only one button (unless confirmation) |
+| Use icon-only buttons only with `SetAccessibleName()` | Use icon-only without accessible name |
 
 #### Theme-Customizable Properties
 
@@ -2793,7 +2768,7 @@ When no icon: `textRect = contentRect`.
 
 ---
 
-### 10.2 ToolButton
+#### 5.2 ToolButton
 
 #### Synopsis
 
@@ -2803,6 +2778,42 @@ When no icon: `textRect = contentRect`.
 | **UiNode class** | `ToolButtonNode` |
 | **A11yRole** | `Button` |
 | **Variants** | Default (0), Active (1) |
+
+#### Anatomy 🆕
+
+![ToolButton Anatomy](assets/anatomy/toolbutton.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Icon (16×16) | Typical |
+| 2 | Label text (FontRole::Caption) | Optional |
+
+#### Interaction FSM 🆕
+
+Same as PushButton FSM, plus toggle mode:
+
+| Trigger | Non-Checkable | Checkable |
+|---------|:------------:|:---------:|
+| Click | Fire `Activated` | Toggle `checked` state + fire `Activated` |
+| Space/Enter | Fire `Activated` | Toggle `checked` state + fire `Activated` |
+| Right-click | Fire `RightClicked` | Fire `RightClicked` |
+
+#### Keyboard Contract 🆕
+
+| Key | Action | Condition |
+|-----|--------|-----------|
+| `Space` / `Enter` | Activate (toggle if checkable) | Focused |
+| `Tab` / `Shift+Tab` | Navigate focus | Focused |
+| `Alt+Mnemonic` | Focus + activate | Mnemonic assigned |
+| `Shift+F10` or `Menu` key | Fire `RightClicked` | Focused |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for toolbar/ActionBar actions | Use as primary action button (use PushButton) |
+| Prefer icon-only with tooltip in toolbars | Use text-only ToolButton (use PushButton instead) |
+| Use Active variant for toggled-on state | Mix ToolButton and PushButton in same toolbar row |
 
 #### Theme-Customizable Properties
 
@@ -2858,7 +2869,7 @@ Right-click context available via `RightClicked` notification.
 
 ---
 
-### 10.3 LineEdit
+#### 5.3 LineEdit
 
 #### Synopsis
 
@@ -2868,6 +2879,62 @@ Right-click context available via `RightClicked` notification.
 | **UiNode class** | `LineEditNode` |
 | **A11yRole** | `TextInput` |
 | **Variants** | Default (0) |
+
+#### Anatomy 🆕
+
+![LineEdit Anatomy](assets/anatomy/lineedit.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Prefix icon (16×16) | Optional |
+| 2 | Text content / Placeholder | Required |
+| 3 | Clear button (×) | Optional (shown when non-empty + focused) |
+| 4 | Suffix icon (16×16) | Optional |
+| 5 | Validation message (below) | On error state |
+
+#### Interaction FSM 🆕
+
+```mermaid
+stateDiagram-v2
+    [*] --> Normal
+    Normal --> Hover : MouseEnter
+    Hover --> Normal : MouseLeave
+    Hover --> Focused : Click
+    Normal --> Focused : Tab focus
+    Focused --> Normal : Focus lost (blur)
+    Focused --> Focused : Typing (TextChanged)
+    Focused --> Error : Validation fails
+    Error --> Focused : User edits text
+    Normal --> Disabled : SetEnabled(false)
+    Disabled --> Normal : SetEnabled(true)
+    Normal --> ReadOnly : SetReadOnly(true)
+    ReadOnly --> Normal : SetReadOnly(false)
+```
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| Any printable | Insert character at cursor |
+| `Backspace` | Delete char before cursor |
+| `Delete` | Delete char after cursor |
+| `Left` / `Right` | Move cursor |
+| `Home` / `End` | Move to start / end |
+| `Ctrl+A` | Select all |
+| `Ctrl+C` / `Ctrl+X` / `Ctrl+V` | Copy / Cut / Paste |
+| `Ctrl+Z` / `Ctrl+Y` | Undo / Redo (within field) |
+| `Enter` | Fire `ReturnPressed` + `EditingFinished` |
+| `Escape` | Revert to value at focus-enter (if configured) |
+| `Tab` / `Shift+Tab` | Move focus out |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Always pair with a visible `<label>` or `SetAccessibleName()` | Use placeholder text as the only label |
+| Show validation errors inline below the field | Only show errors in a distant toast |
+| Use `SetMaxLength()` for constrained inputs (e.g., postal code) | Allow unlimited input when a max length is known |
+| Use `SetPlaceholder()` for format hints ("e.g., user@example.com") | Put instructions in placeholder |
 
 #### Theme-Customizable Properties
 
@@ -2939,7 +3006,7 @@ Keyboard: standard text editing (Ctrl+A, Ctrl+C/V/X, Home/End, etc.).
 
 ---
 
-### 10.4 SpinBox
+#### 5.4 SpinBox
 
 #### Synopsis
 
@@ -2951,6 +3018,48 @@ Keyboard: standard text editing (Ctrl+A, Ctrl+C/V/X, Home/End, etc.).
 
 Same theme styling as LineEdit (radius, padding, minHeight). Up/down buttons
 use `ToolButton` styling internally.
+
+#### Anatomy 🆕
+
+![SpinBox Anatomy](assets/anatomy/spinbox.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Numeric text + suffix | Required |
+| 2 | Up arrow button (ToolButton) | Required |
+| 3 | Down arrow button (ToolButton) | Required |
+
+#### Interaction FSM 🆕
+
+Inherits LineEdit FSM for text editing. Additional transitions:
+
+| Trigger | Action |
+|---------|--------|
+| Click ▲ | `value = clamp(value + step, min, max)` → fire `IntValueChanged` |
+| Click ▼ | `value = clamp(value - step, min, max)` → fire `IntValueChanged` |
+| Hold ▲/▼ (>400ms) | Auto-repeat at 50ms interval, accelerating after 2s |
+| Direct text entry + Enter | Parse → clamp → fire `IntValueChanged` + `EditingFinished` |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Up` | Increment by step |
+| `Down` | Decrement by step |
+| `Page Up` | Increment by 10× step |
+| `Page Down` | Decrement by 10× step |
+| `Home` | Set to min |
+| `End` | Set to max |
+| Direct digits | Edit value as text |
+| `Enter` | Commit value, fire `EditingFinished` |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Set meaningful `min`/`max` range | Leave unbounded when domain is known |
+| Use `SetSuffix()` for units ("px", "mm", "°") | Put units in a separate label |
+| Use SpinBox for integer values, DoubleSpinBox for floats | Use LineEdit for numeric input |
 
 #### Notification Catalog
 
@@ -2976,7 +3085,7 @@ Display: `sprintf("%d%s", v, suffix)`.
 
 ---
 
-### 10.5 DoubleSpinBox
+#### 5.5 DoubleSpinBox
 
 #### Synopsis
 
@@ -2985,6 +3094,26 @@ Display: `sprintf("%d%s", v, suffix)`.
 | **WidgetKind** | `SpinBox` (shares WidgetKind with SpinBox) |
 | **UiNode class** | `DoubleSpinBoxNode` |
 | **A11yRole** | `SpinBox` |
+
+#### Anatomy 🆕
+
+Same as SpinBox (§5.4). Text displays floating-point value with configurable precision and suffix.
+
+#### Interaction FSM 🆕
+
+Same as SpinBox (§5.4). Step size is `double` instead of `int`.
+
+#### Keyboard Contract 🆕
+
+Same as SpinBox (§5.4). Additionally accepts `.` (decimal point) in text editing mode.
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for continuous numeric values (coordinates, angles, scale factors) | Use for discrete counts (use SpinBox) |
+| Set `SetPrecision()` to match domain needs (2 for mm, 4 for ratios) | Show excessive decimal places |
+| Set `SetStep()` to a meaningful increment for the domain | Use default step=1.0 for values in [0,1] range |
 
 #### Notification Catalog
 
@@ -3012,7 +3141,7 @@ Keyboard: Up/Down arrows increment/decrement by `s`.
 
 ---
 
-### 10.6 ComboBox
+#### 5.6 ComboBox
 
 #### Synopsis
 
@@ -3025,6 +3154,50 @@ Keyboard: Up/Down arrows increment/decrement by `s`.
 Same base styling as LineEdit. Dropdown arrow icon uses `TextSecondary`.
 Dropdown popup uses `SurfaceElevated` with `ElevationToken::Medium`,
 `LayerToken::Dropdown`.
+
+#### Anatomy 🆕
+
+![ComboBox Anatomy](assets/anatomy/combobox.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Selected item text / Placeholder | Required |
+| 2 | Dropdown arrow icon (▼) | Required |
+| 3 | Dropdown popup (list of UiNode items) | Auto |
+
+#### Interaction FSM 🆕
+
+```mermaid
+stateDiagram-v2
+    [*] --> Closed
+    Closed --> Open : Click / Space / Enter / Alt+Down
+    Open --> Closed : Click outside / Escape / Tab
+    Open --> Open : Arrow keys navigate items
+    Open --> Closed : Enter/Click on item → fire IndexChanged
+    Closed --> Hover : MouseEnter
+    Hover --> Closed : MouseLeave
+    Closed --> Disabled : SetEnabled(false)
+```
+
+#### Keyboard Contract 🆕
+
+| Key | Closed State | Open State |
+|-----|-------------|------------|
+| `Space` / `Enter` | Open dropdown | Select highlighted item, close |
+| `Alt+Down` / `Alt+Up` | Open / close dropdown | — |
+| `Up` / `Down` | Cycle selection without opening | Navigate highlight |
+| `Home` / `End` | Select first / last | Highlight first / last |
+| `Escape` | — | Close without selecting |
+| Type-ahead (letter keys) | Jump to first matching item | Jump to matching item |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for 5-15 predefined options | Use for >20 items (use SearchBox + list instead) |
+| Use for <5 items only if space is constrained | Use when RadioButton group would be clearer |
+| Set `SetPlaceholder()` for empty initial state | Leave default "select..." without context |
+| Use `SetEditable(true)` only when free-text fallback is needed | Make all combos editable by default |
 
 #### Notification Catalog
 
@@ -3064,7 +3237,7 @@ Dropdown popup: `SlideOffset` from -8px to 0px, `Quick` (160ms), `OutCubic`.
 
 ---
 
-### 10.7 CheckBox
+#### 5.7 CheckBox
 
 #### Synopsis
 
@@ -3074,6 +3247,43 @@ Dropdown popup: `SlideOffset` from -8px to 0px, `Quick` (160ms), `OutCubic`.
 | **UiNode class** | `CheckBoxNode` |
 | **A11yRole** | `CheckBox` |
 | **Variants** | Unchecked (0), Checked (1) |
+
+#### Anatomy 🆕
+
+![CheckBox Anatomy](assets/anatomy/checkbox.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Square indicator (16×16, custom painted) | Required |
+| 2 | Label text (FontRole::Body) | Required |
+
+#### Interaction FSM 🆕
+
+```mermaid
+stateDiagram-v2
+    [*] --> Unchecked
+    Unchecked --> Checked : Click / Space
+    Checked --> Unchecked : Click / Space
+    Unchecked --> Unchecked_Hover : MouseEnter
+    Checked --> Checked_Hover : MouseEnter
+    Unchecked --> Disabled : SetEnabled(false)
+    Checked --> Disabled : SetEnabled(false)
+```
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Space` | Toggle checked state |
+| `Tab` / `Shift+Tab` | Navigate focus |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for independent on/off choices | Use for mutually exclusive options (use RadioButton) |
+| Group related checkboxes vertically with 8px gap | Scatter unrelated checkboxes in a form |
+| Use a "Select all" checkbox for lists of >5 items | Leave "Select all" without indeterminate state support |
 
 #### Theme-Customizable Properties
 
@@ -3133,7 +3343,7 @@ Keyboard: `Space` toggles.
 
 ---
 
-### 10.8 RadioButton
+#### 5.8 RadioButton
 
 #### Synopsis
 
@@ -3147,6 +3357,40 @@ Identical token mapping to CheckBox, except:
 - Indicator shape: circle (12px diameter, density-scaled)
 - Inner dot: 6px circle, `OnAccent` when selected
 - Radio group exclusivity is handled by Qt's button group mechanism
+
+#### Anatomy 🆕
+
+![RadioButton Anatomy](assets/anatomy/radiobutton.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Circle indicator (12×12, custom painted) | Required |
+| 2 | Label text (FontRole::Body) | Required |
+
+#### Interaction FSM 🆕
+
+| Trigger | Unselected | Selected |
+|---------|:----------:|:--------:|
+| Click / Space | Select this, deselect others in group | No change |
+| Arrow keys (within group) | Move selection to adjacent radio | Move selection |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Space` | Select this radio button |
+| `Up` / `Left` | Select previous in group (wraps) |
+| `Down` / `Right` | Select next in group (wraps) |
+| `Tab` | Leave radio group (focus to next widget) |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for mutually exclusive options (2-7 choices) | Use for independent on/off (use CheckBox) |
+| Always pre-select one option | Leave all radios unselected |
+| Stack vertically with consistent 8px gap | Arrange in a grid (confuses grouping) |
+| Use for ≤7 options | Use for >7 options (use ComboBox) |
 
 #### Notification Catalog
 
@@ -3163,7 +3407,7 @@ Keyboard: Arrow keys move selection within group.
 
 ---
 
-### 10.9 Slider
+#### 5.9 Slider
 
 #### Synopsis
 
@@ -3172,6 +3416,49 @@ Keyboard: Arrow keys move selection within group.
 | **WidgetKind** | `Slider` |
 | **UiNode class** | `SliderNode` |
 | **A11yRole** | `Slider` |
+
+#### Anatomy 🆕
+
+![Slider Anatomy](assets/anatomy/slider.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Track (horizontal bar, 4px height) | Required |
+| 2 | Filled portion of track (left of thumb) | Required |
+| 3 | Thumb (circular handle, 16px) | Required |
+| 4 | Optional tick marks | Optional |
+
+#### Interaction FSM 🆕
+
+```mermaid
+stateDiagram-v2
+    [*] --> Normal
+    Normal --> ThumbHover : Mouse over thumb
+    ThumbHover --> Normal : Mouse leave thumb
+    ThumbHover --> Dragging : MousePress on thumb
+    Normal --> Dragging : Click on track (snap thumb)
+    Dragging --> Normal : MouseRelease → fire SliderReleased
+    Normal --> Disabled : SetEnabled(false)
+```
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Right` / `Up` | Increment by step |
+| `Left` / `Down` | Decrement by step |
+| `Page Up` | Increment by 10× step |
+| `Page Down` | Decrement by 10× step |
+| `Home` | Set to min |
+| `End` | Set to max |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for approximate/imprecise value selection | Use when exact value entry is needed (use SpinBox) |
+| Pair with a numeric readout (label or linked SpinBox) | Leave slider without visible current value |
+| Use filled track to show progress from min | Use two-sided fill unless it's a range slider |
 
 #### Theme-Customizable Properties
 
@@ -3246,7 +3533,7 @@ Keyboard: Left/Down = decrement, Right/Up = increment, PageUp/PageDown = 10x ste
 
 ---
 
-### 10.10 Toggle (Switch)
+#### 5.10 Toggle (Switch)
 
 #### Synopsis
 
@@ -3255,6 +3542,45 @@ Keyboard: Left/Down = decrement, Right/Up = increment, PageUp/PageDown = 10x ste
 | **WidgetKind** | `Toggle` |
 | **UiNode class** | `ToggleSwitchNode` |
 | **A11yRole** | `Toggle` |
+
+#### Anatomy 🆕
+
+![ToggleSwitch Anatomy](assets/anatomy/toggleswitch.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Track (pill-shaped container, 36×20px) | Required |
+| 2 | Thumb (circular handle, 16px) | Required |
+| 3 | Optional on/off label (not standard) | Optional |
+
+#### Interaction FSM 🆕
+
+```mermaid
+stateDiagram-v2
+    [*] --> Off
+    Off --> On : Click / Space → fire Toggled(true)
+    On --> Off : Click / Space → fire Toggled(false)
+    Off --> Off_Hover : MouseEnter
+    On --> On_Hover : MouseEnter
+    Off --> Disabled : SetEnabled(false)
+    On --> Disabled : SetEnabled(false)
+```
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Space` | Toggle on/off |
+| `Tab` / `Shift+Tab` | Navigate focus |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for instant on/off settings (no "Apply" needed) | Use for form submissions that require confirmation |
+| Provide clear label describing what "on" means | Use ambiguous labels like "Option A" |
+| Use CheckBox if the setting is part of a form with a submit action | Use Toggle for multi-select lists |
+| Place to the right of the label text | Place above or below the label |
 
 #### Theme-Customizable Properties
 
@@ -3311,7 +3637,7 @@ Keyboard: `Space` toggles.
 
 ---
 
-### 10.11 Label
+#### 5.11 Label
 
 #### Synopsis
 
@@ -3321,6 +3647,19 @@ Keyboard: `Space` toggles.
 | **UiNode class** | `LabelNode` |
 | **A11yRole** | `Label` |
 | **Variant enum** | `gui::LabelRole { Title, Name, Body, Caption }` |
+
+#### Anatomy 🆕
+
+Single text element. No internal structure beyond the text run itself.
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use `Title` role for section headings | Use `Title` for body text |
+| Use `Caption` for secondary/supplementary info | Use `Caption` for primary content |
+| Use `Name` for form field labels associated with inputs | Use free-standing labels without clear association |
+| Set explicit width or let parent layout constrain | Allow labels to expand infinitely |
 
 #### Theme-Customizable Properties
 
@@ -3355,7 +3694,7 @@ Role: `Label`. Not focusable unless contains links.
 
 ---
 
-### 10.12 Tag
+#### 5.12 Tag
 
 #### Synopsis
 
@@ -3363,6 +3702,23 @@ Role: `Label`. Not focusable unless contains links.
 |-----------|-------|
 | **WidgetKind** | `Tag` |
 | **A11yRole** | `Label` |
+
+#### Anatomy 🆕
+
+![Tag Anatomy](assets/anatomy/tag.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Tag text (FontRole::Caption) | Required |
+| 2 | Close icon (×) | Optional (closable variant only) |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for metadata labels, categories, filters | Use as action buttons |
+| Keep tag text short (1-3 words) | Put sentences in tags |
+| Use closable variant for user-removable filters | Make all tags closable if they represent fixed categories |
 
 #### Theme-Customizable Properties
 
@@ -3387,7 +3743,7 @@ None. Tags are static display elements.
 
 ---
 
-### 10.13 ScrollArea / ScrollBar
+#### 5.13 ScrollArea / ScrollBar
 
 #### Synopsis
 
@@ -3395,6 +3751,44 @@ None. Tags are static display elements.
 |-----------|-------|
 | **WidgetKind** | `ScrollArea` / `ScrollBar` |
 | **A11yRole** | `ScrollView` |
+
+#### Anatomy 🆕
+
+![ScrollArea Anatomy](assets/anatomy/scrollarea.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Viewport (clipped content area) | Required |
+| 2 | Vertical scrollbar (overlay) | Auto (when content overflows vertically) |
+| 3 | Horizontal scrollbar (overlay) | Auto (when content overflows horizontally) |
+
+#### Interaction FSM 🆕
+
+| Trigger | Action |
+|---------|--------|
+| Mouse wheel over viewport | Scroll vertically (or horizontally with Shift held) |
+| Drag scrollbar thumb | Scroll proportionally |
+| Click on scrollbar track | Page scroll toward click position |
+| Touch drag on viewport | Kinetic scroll with momentum |
+| Mouse enter viewport | Show scrollbar thumbs (fade in) |
+| Mouse leave viewport (no drag) | Hide scrollbar thumbs (fade out, 800ms delay) |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Up` / `Down` | Scroll one line (when viewport focused) |
+| `Page Up` / `Page Down` | Scroll one viewport height |
+| `Home` / `End` | Scroll to top / bottom |
+| `Space` (when no focusable child) | Page down |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use overlay scrollbars (Matcha default) | Use classic scrollbars that consume layout space |
+| Allow both vertical and horizontal scroll independently | Lock to one axis when content can overflow both ways |
+| Show scroll indicators on hover/touch for discoverability | Permanently hide scrollbars (kills discoverability) |
 
 #### State-Token Mapping
 
@@ -3414,7 +3808,7 @@ Thumb opacity: fade-in/fade-out when scroll area gains/loses hover.
 
 ---
 
-### 10.14 CollapsibleSection
+#### 5.14 CollapsibleSection
 
 #### Synopsis
 
@@ -3423,6 +3817,77 @@ Thumb opacity: fade-in/fade-out when scroll area gains/loses hover.
 | **WidgetKind** | `CollapsibleSection` |
 | **UiNode class** | `CollapsibleSectionNode` |
 | **A11yRole** | `Group` |
+
+#### Anatomy 🆕
+
+![CollapsibleSection Anatomy](assets/anatomy/collapsiblesection.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Chevron indicator (12px, rotates 0°→90°) | Required |
+| 2 | Title text (FontRole::BodyBold) | Required |
+| 3 | Content area (child widget container) | Required |
+| 4 | Bottom border separator | Required |
+
+#### Interaction FSM 🆕
+
+```mermaid
+stateDiagram-v2
+    [*] --> Collapsed
+    Collapsed --> Expanding : Click title / Enter / Space
+    Expanding --> Expanded : Animation complete
+    Expanded --> Collapsing : Click title / Enter / Space
+    Collapsing --> Collapsed : Animation complete
+```
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Enter` / `Space` | Toggle expand/collapse |
+| `Tab` | When expanded, move focus into content area |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use to organize property panels with many groups | Nest more than 2 levels deep |
+| Default to expanded for the most commonly used section | Collapse all sections by default (frustrates users) |
+| Use consistent section titles across similar panels | Use inconsistent casing or punctuation in titles |
+
+#### Accordion Mode 🆕
+
+> 🆕 Post-v1 supplement.
+
+When `SetAccordionGroup(groupId)` is called on sibling CollapsibleSections, they form an **accordion group** where expanding one section auto-collapses all other sections in the same group.
+
+| Property | Value |
+|----------|-------|
+| **Behavior** | Expanding section A → collapse all other sections in the same `groupId` |
+| **Animation** | Collapse animation of outgoing section runs simultaneously with expand animation of incoming section |
+| **Default** | Independent mode (no accordion). Accordion requires explicit `SetAccordionGroup()` call. |
+| **Empty state** | All sections collapsed is permitted (clicking the expanded section collapses it) |
+
+**API**:
+- `SetAccordionGroup(std::string groupId)` — join an accordion group
+- `ClearAccordionGroup()` — return to independent mode
+
+#### Nesting Rules 🆕
+
+> 🆕 Post-v1 supplement.
+
+| Nesting Depth | Indentation | Background | Example |
+|:-------------:|:-----------:|-----------|---------|
+| 0 (top-level) | 0px | `Surface` | Panel root sections |
+| 1 (nested) | +16px left padding | `SurfaceContainer` | Sub-sections within a section |
+| 2 (max) | +32px left padding | `SurfaceSunken` | Rare; deep property grouping |
+
+**Rules**:
+- Maximum nesting depth: **2 levels** (matching §4.13.4 visual nesting limit)
+- Beyond depth 2: flatten structure or use TabWidget/TreeWidget instead
+- Each nesting level adds `Px16` left padding to the content area
+- Chevron size stays 12px at all levels; title font stays `BodyBold`
+- Mnemonic scope: nested section mnemonics are scoped to their parent section. If parent is collapsed, child mnemonics are inactive (§7.9.11.11)
 
 #### Theme-Customizable Properties
 
@@ -3475,7 +3940,18 @@ Keyboard: `Enter`/`Space` toggles. Focus on title row.
 
 ---
 
-### 10.15 Panel / GroupBox
+#### 5.15 Panel / GroupBox
+
+#### Anatomy 🆕
+
+![Panel / GroupBox Anatomy](assets/anatomy/panel_groupbox.svg)
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use Panel for visual grouping without a header | Use Panel when a labeled section is needed (use GroupBox) |
+| Use GroupBox when a title + collapsible content is needed | Nest GroupBox inside GroupBox (use CollapsibleSection instead) |
 
 **Panel** (`WidgetKind::Panel`): `SurfaceContainer` bg, `BorderSubtle` border,
 `radius=Medium`. No notifications. Pure container.
@@ -3486,7 +3962,7 @@ border around the content area.
 
 ---
 
-### 10.16 TabWidget
+#### 5.16 TabWidget
 
 #### Synopsis
 
@@ -3495,6 +3971,44 @@ border around the content area.
 | **WidgetKind** | `TabWidget` |
 | **A11yRole** | `TabPanel` |
 | **Variants** | Inactive (0), Active (1) |
+
+#### Anatomy 🆕
+
+![TabWidget Anatomy](assets/anatomy/tabwidget.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Tab bar (horizontal row of tab items) | Required |
+| 2 | Active tab indicator (2px accent bar) | Required |
+| 3 | Tab content area (stacked pages) | Required |
+
+#### Interaction FSM 🆕
+
+```mermaid
+stateDiagram-v2
+    [*] --> Tab_A_Active
+    Tab_A_Active --> Tab_B_Active : Click Tab B / Arrow Right
+    Tab_B_Active --> Tab_A_Active : Click Tab A / Arrow Left
+    Tab_B_Active --> Tab_C_Active : Click Tab C / Arrow Right
+    note right of Tab_A_Active: Accent bar slides to active tab
+```
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Left` / `Right` | Switch to previous / next tab |
+| `Home` / `End` | Jump to first / last tab |
+| `Tab` | Move focus from tab bar into tab content |
+| `Shift+Tab` | Move focus back to tab bar from content |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for mutually exclusive content views | Use for sequential steps (use a Wizard/Stepper pattern) |
+| Keep tab labels short (1-2 words) | Use more than 7 tabs (consider overflow or different pattern) |
+| Show the most important tab first | Change tab order dynamically |
 
 #### Variant & State Matrix
 
@@ -3516,7 +4030,7 @@ Keyboard: Left/Right arrows switch tabs. Home/End jump to first/last.
 
 ---
 
-### 10.17 Dialog / DialogTitleBar / DialogFootBar
+#### 5.17 Dialog / DialogTitleBar / DialogFootBar
 
 #### Synopsis
 
@@ -3524,6 +4038,49 @@ Keyboard: Left/Right arrows switch tabs. Home/End jump to first/last.
 |-----------|-------|
 | **WidgetKind** | `Dialog` / `DialogTitleBar` / `DialogFootBar` |
 | **A11yRole** | `Dialog` or `AlertDialog` |
+
+#### Anatomy 🆕
+
+![Dialog Anatomy](assets/anatomy/dialog.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Backdrop overlay | Required |
+| 2 | DialogTitleBar (title + close button) | Required |
+| 3 | Content area (custom body) | Required |
+| 4 | DialogFootBar (action buttons) | Optional (informational dialogs may omit) |
+
+#### Interaction FSM 🆕
+
+```mermaid
+stateDiagram-v2
+    [*] --> Opening : Show dialog
+    Opening --> Open : Entrance animation complete
+    Open --> Closing_Accept : Accept button / Enter
+    Open --> Closing_Cancel : Cancel / Escape / Close button / Overlay click
+    Closing_Accept --> [*] : Exit animation + result=1
+    Closing_Cancel --> [*] : Exit animation + result=0
+    Open --> Open : CloseRequested vetoed (SetCancel)
+```
+
+**Focus trap**: While open, `Tab` / `Shift+Tab` cycle only within dialog children.
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Escape` | Dismiss dialog (fires `CloseRequested`) |
+| `Enter` | Activate default/primary button |
+| `Tab` / `Shift+Tab` | Cycle focus within dialog (trapped) |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for confirmations, critical decisions, focused input | Use for non-blocking information (use Toast/Notification) |
+| Keep dialog content concise and focused | Stack multiple dialogs (avoid dialog-over-dialog) |
+| Provide clear Accept and Cancel labels | Use generic "OK" / "Cancel" when specific verbs are possible |
+| Trap focus inside dialog while open | Allow focus to escape to background content |
 
 #### Theme-Customizable Properties
 
@@ -3553,7 +4110,7 @@ Backdrop: `Opacity` from 0 to 0.4, `Normal` (200ms).
 
 ---
 
-### 10.18 ActionBar / ActionTab
+#### 5.18 ActionBar / ActionTab
 
 #### Synopsis
 
@@ -3561,6 +4118,32 @@ Backdrop: `Opacity` from 0 to 0.4, `Normal` (200ms).
 |-----------|-------|
 | **WidgetKind** | `ActionBar` / `ActionTab` |
 | **A11yRole** | `Toolbar` / `Tab` |
+
+#### Anatomy 🆕
+
+![ActionBar Anatomy](assets/anatomy/actionbar.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Vertical tab list (ActionTab items) | Required |
+| 2 | Icon per tab (24px) | Required |
+| 3 | Label per tab (Caption) | Optional (may be icon-only) |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Up` / `Down` | Navigate between tabs |
+| `Enter` / `Space` | Activate selected tab |
+| `Home` / `End` | Jump to first / last tab |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use as the primary navigation sidebar | Use for in-content tab switching (use TabWidget) |
+| Keep tab count to 4-8 for primary actions | Exceed 10 tabs (consider grouping or overflow) |
+| Pin utility tabs (Settings) at the bottom | Mix navigation and action tabs without visual separation |
 
 **ActionBar**: `SurfaceContainer` bg, vertical tab strip on left.
 
@@ -3581,7 +4164,7 @@ Backdrop: `Opacity` from 0 to 0.4, `Normal` (200ms).
 
 ---
 
-### 10.19 DataTable
+#### 5.19 DataTable
 
 #### Synopsis
 
@@ -3594,6 +4177,29 @@ Backdrop: `Opacity` from 0 to 0.4, `Normal` (200ms).
 | **Variants** | Default (0), Selected (1), Striped (2) |
 
 Custom-painted table widget supporting rich column definitions, per-column sorting with custom comparators, row filtering (text or predicate), frozen (pinned) columns, multi-row selection, inline cell editing, per-row icons, and keyboard navigation. Does not use Qt Model/View — all painting and hit-testing is manual.
+
+#### Anatomy 🆕
+
+![DataTable Anatomy](assets/anatomy/datatable.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Header row (column titles + sort indicators) | Required |
+| 2 | Data rows (cells, alternating bg optional) | Required |
+| 3 | Frozen column region (left-pinned, no h-scroll) | Optional |
+| 4 | Inline cell editor (LineEdit overlay) | Conditional (on double-click if editable) |
+| 5 | Empty state text | Conditional (when row count = 0) |
+| 6 | Scrollbars (h/v, overlay style) | Auto |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Freeze key identifier columns (e.g., ID, Name) | Freeze more than 2-3 columns (limits scrollable space) |
+| Enable alternating row colors for dense data | Disable striping for tables with >10 rows |
+| Provide column resize handles for flexible layouts | Use fixed column widths that truncate content |
+| Show empty state with clear call-to-action | Leave table blank with no feedback |
+| Use multi-row selection for batch operations | Default to multi-select when single-select suffices |
 
 #### Variant & State Matrix
 
@@ -3712,7 +4318,7 @@ Widget layer additionally supports `SetFilterPredicate(RowFilterPredicate)` for 
 | `IsEditable() -> bool` | Query editable state |
 | `SetColumnWidth(int, int)` | Set width of column N in px |
 | `ColumnWidth(int) -> int` | Get width of column N |
-| `SetRowIcon(int, string_view)` | Set per-row icon (asset:// URI) |
+| `SetRowIcon(int, string_view)` | Set per-row icon (`icon://` URI) |
 
 **Scroll API:**
 
@@ -3746,13 +4352,84 @@ Hit-testing (`HitTestHeader`, `HitTestRow`, `HitTestColumnEdge`) uses the same f
 
 Navigation operates on the **display row** space (post-filter), mapping back to data rows for selection.
 
+#### Sort State FSM 🆕
+
+> 🆕 Post-v1 supplement.
+
+Column sort cycles through three states on header click:
+
+```mermaid
+stateDiagram-v2
+    [*] --> None
+    None --> Ascending : Click sortable header
+    Ascending --> Descending : Click same header again
+    Descending --> None : Click same header again
+    Ascending --> None : Click different header (reset this column)
+    Descending --> None : Click different header (reset this column)
+```
+
+| State | Visual Indicator | Header Icon |
+|-------|-----------------|-------------|
+| **None** | No indicator | (hidden) |
+| **Ascending** | `▲` icon, `Primary` color | `icon://matcha/sort-asc` |
+| **Descending** | `▼` icon, `Primary` color | `icon://matcha/sort-desc` |
+
+**Rules**:
+- Only one column can be sorted at a time (single-column sort)
+- Clicking a different column resets the previous column to `None`, sets new column to `Ascending`
+- Sort indicator icon: 12×12, right-aligned in header cell, `Px4` gap from header text
+- Programmatic `SortByColumn(col, SortOrder::None)` clears sort state
+
+#### Inline Edit FSM 🆕
+
+> 🆕 Post-v1 supplement.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Display
+    Display --> Editing : Double-click cell (if editable) / Enter key on focused cell
+    Editing --> Display : Enter (commit value)
+    Editing --> Display : Escape (cancel, restore original)
+    Editing --> Display : Click outside cell (commit value)
+    Editing --> Editing : Tab (commit current, edit next cell)
+```
+
+| State | Visual | Behavior |
+|-------|--------|----------|
+| **Display** | Normal cell rendering | Read-only, text painted directly |
+| **Editing** | LineEdit overlay positioned exactly over cell rect | Full text editing, auto-select-all on entry |
+
+**Commit/Cancel**:
+- `Enter`: commit edited value → `CellChanged` notification → return to Display
+- `Escape`: discard edit → restore original value → return to Display
+- `Tab`: commit current cell → advance to next editable cell in the row → enter Editing
+- Click outside: commit current cell → return to Display
+
+#### Column Drag Reorder 🆕
+
+> 🆕 Post-v1 supplement.
+
+Users can reorder columns by dragging column headers:
+
+| Phase | Behavior |
+|-------|----------|
+| **Initiation** | MouseDown on header + drag > 5px threshold |
+| **Dragging** | Ghost header follows cursor; insertion indicator (2px `Primary` vertical line) shows between columns |
+| **Drop** | Release mouse → column moves to new position; `ColumnOrderChanged` notification dispatched |
+| **Cancel** | `Escape` during drag → column returns to original position |
+
+**Constraints**:
+- Frozen columns cannot be dragged past the frozen boundary
+- Non-frozen columns cannot be dragged into the frozen region
+- Column order is persisted via `GetColumnOrder() -> vector<int>` / `SetColumnOrder(span<int>)`
+
 #### Accessibility
 
 Role: `Table`. Cell navigation via arrow keys. Selection announced via `SelectionChanged` notification.
 
 ---
 
-### 10.20 ListWidget
+#### 5.20 ListWidget
 
 #### Synopsis
 
@@ -3763,6 +4440,33 @@ Role: `Table`. Cell navigation via arrow keys. Selection announced via `Selectio
 | **A11yRole** | `List` |
 
 Similar token mapping to DataTable Default/Selected variants (single-column).
+
+#### Anatomy 🆕
+
+![ListWidget Anatomy](assets/anatomy/listwidget.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Item rows (UiNode subtree per item) | Required |
+| 2 | Selection highlight (PrimaryBg) | Conditional |
+| 3 | Vertical scrollbar | Auto |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Up` / `Down` | Navigate items |
+| `Home` / `End` | Jump to first / last item |
+| `Enter` | Activate selected item (fires `ItemDoubleClicked`) |
+| `Space` | Toggle selection (if multi-select) |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for single-column selectable lists | Use for tabular data (use DataTable) |
+| Use UiNode-based items for rich content | Limit to text-only when icons/layouts improve scannability |
+| Show selection feedback immediately | Allow empty selection when a default is expected |
 
 #### Notification Catalog
 
@@ -3793,7 +4497,7 @@ Each item's `Widget()` is embedded into the `QListWidget` row via `setItemWidget
 
 ---
 
-### 10.21 TreeWidget (StructureTree)
+#### 5.21 TreeWidget (StructureTree)
 
 #### Synopsis
 
@@ -3802,6 +4506,38 @@ Each item's `Widget()` is embedded into the `QListWidget` row via `setItemWidget
 | **WidgetKind** | `StructureTree` |
 | **UiNode class** | `TreeWidgetNode` |
 | **A11yRole** | `Tree` |
+
+#### Anatomy 🆕
+
+![TreeWidget Anatomy](assets/anatomy/treewidget.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Title bar (optional header) | Optional |
+| 2 | Tree items (nested, indented hierarchy) | Required |
+| 3 | Expand/collapse chevrons per branch node | Required |
+| 4 | Per-item icon | Optional |
+| 5 | Selection highlight | Conditional |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Up` / `Down` | Navigate visible items |
+| `Left` | Collapse current node (if expanded) or move to parent |
+| `Right` | Expand current node (if collapsed) or move to first child |
+| `Home` / `End` | Jump to first / last visible item |
+| `Enter` | Activate selected item |
+| `*` (asterisk) | Expand all siblings |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for hierarchical data (file trees, model structures) | Use for flat lists (use ListWidget) |
+| Provide context menu via `ContextMenuRequest` | Hard-code actions without context sensitivity |
+| Keep nesting depth reasonable (≤5 levels) | Auto-expand deeply nested trees on initial load |
+| Show icons for node type differentiation | Use identical icons for all node types |
 
 #### Notification Catalog
 
@@ -3857,7 +4593,39 @@ Expand/collapse chevron: `ArrowRotation` from 0 to 90 deg, `Normal` (200ms), `Ou
 
 ---
 
-### 10.22 Menu System
+#### 5.22 Menu System
+
+#### Anatomy 🆕
+
+![Menu System Anatomy](assets/anatomy/menusystem.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Menu items (icon + label + shortcut + submenu arrow) | Required |
+| 2 | Check items (checkmark + label) | Optional |
+| 3 | Separators (1px horizontal line) | Optional |
+| 4 | Submenu cascade (nested Menu) | Optional |
+
+#### Keyboard Contract 🆕
+
+| Key | Context | Action |
+|-----|---------|--------|
+| `Up` / `Down` | Menu open | Navigate items (skip separators) |
+| `Left` | Submenu open | Close submenu, return to parent |
+| `Right` | Item with submenu | Open submenu |
+| `Enter` / `Space` | Item focused | Activate item |
+| `Escape` | Menu open | Close current menu level |
+| `Alt+Letter` | MenuBar | Open menu by mnemonic |
+| `F10` | Any | Toggle MenuBar activation |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Group related items with separators | Create menus with >15 items without grouping |
+| Show keyboard shortcuts alongside items | Hide frequently-used actions deep in submenus |
+| Use check items for toggleable settings | Mix action items and navigation in the same menu |
+| Disable unavailable items (with reason in tooltip) | Remove items based on context (use disable instead) |
 
 **ContextMenu / Menu** (`WidgetKind::ContextMenu` / `Menu`):
 
@@ -3895,12 +4663,30 @@ Menu popup: `SlideOffset` from -4px to 0px + `Opacity` from 0 to 1, `Quick` (160
 
 ---
 
-### 10.23 StatusBar
+#### 5.23 StatusBar
 
 | Attribute | Value |
 |-----------|-------|
 | **WidgetKind** | `StatusBar` |
 | **A11yRole** | `Toolbar` |
+
+#### Anatomy 🆕
+
+![StatusBar Anatomy](assets/anatomy/statusbar.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Left-aligned status items | Optional |
+| 2 | Right-aligned utility items | Optional |
+| 3 | Separator between regions (implicit flex spacer) | Auto |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Show transient status messages (e.g., "Saved", "3 items selected") | Display critical errors only in status bar (use Dialog/Alert) |
+| Place frequently referenced info (cursor position, zoom) on the right | Overload with more than 4-5 items per side |
+| Use `Caption` font for compactness | Use status bar for interactive controls (use Toolbar) |
 
 `SurfaceSunken` bg, `Caption` font, `TextSecondary` fg.
 Items arranged via `StatusBarSide { Left, Right }` enum.
@@ -3908,11 +4694,38 @@ No notifications -- pure display container.
 
 ---
 
-### 10.24 Splitter
+#### 5.24 Splitter
 
 | Attribute | Value |
 |-----------|-------|
 | **WidgetKind** | `Splitter` |
+
+#### Anatomy 🆕
+
+![Splitter Anatomy](assets/anatomy/splitter.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Handle bar (draggable divider) | Required |
+| 2 | Left/Top panel | Required |
+| 3 | Right/Bottom panel | Required |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Left` / `Up` | Move handle toward start (when focused) |
+| `Right` / `Down` | Move handle toward end (when focused) |
+| `Home` | Move handle to minimum position |
+| `End` | Move handle to maximum position |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Set reasonable min sizes for both panels | Allow panels to collapse to 0px without a restore mechanism |
+| Use horizontal splitter for side-by-side panels | Nest more than 2 levels of splitters |
+| Show visual feedback (color change) on hover/drag | Use splitter for fixed-layout panels (use margins) |
 
 | State | Handle Color | Cursor |
 |-------|-------------|--------|
@@ -3924,7 +4737,7 @@ Handle width: 4px (8px hit-test area).
 
 ---
 
-### 10.25 PropertyGrid
+#### 5.25 PropertyGrid
 
 #### Synopsis
 
@@ -3933,6 +4746,35 @@ Handle width: 4px (8px hit-test area).
 | **WidgetKind** | `PropertyGrid` |
 | **UiNode class** | `PropertyGridNode` |
 | **A11yRole** | `Table` |
+
+#### Anatomy 🆕
+
+![PropertyGrid Anatomy](assets/anatomy/propertygrid.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Label column (`BodyBold`, right-aligned) | Required |
+| 2 | Value column (embedded editor widget) | Required |
+| 3 | Group header (collapsible section) | Optional |
+| 4 | Alternating row background | Auto |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Tab` | Move to next editor in value column |
+| `Shift+Tab` | Move to previous editor |
+| `Enter` | Commit current editor value |
+| `Escape` | Revert current editor to previous value |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Group related properties under named sections | Present a flat list of >20 ungrouped properties |
+| Match editor type to data type (SpinBox for numbers, ComboBox for enums) | Use text LineEdit for all property types |
+| Show property names in sentence case | Use internal variable names as property labels |
+| Use ColorSwatch for color properties | Use hex-text LineEdit for color input |
 
 #### Theme
 
@@ -3959,9 +4801,57 @@ which inherit their own WidgetKind styling.
 | `AddGroup(name)` | Add section group |
 | `Clear()` | Remove all |
 
+#### Custom Editor Registration 🆕
+
+> 🆕 Post-v1 supplement.
+
+Beyond the built-in `PropertyType` enum, applications and plugins can register custom editors for domain-specific property types.
+
+**Registration API**:
+
+```cpp
+// Register a factory that creates a custom editor widget for a given type name
+PropertyGridNode::RegisterEditorFactory(
+    std::string typeName,                           // e.g., "Vector3", "Quaternion", "FilePath"
+    std::function<QWidget*(QWidget* parent)> factory // creates the editor widget
+);
+
+// Unregister a custom editor
+PropertyGridNode::UnregisterEditorFactory(std::string typeName);
+```
+
+**Adding a custom-typed property**:
+
+```cpp
+grid->AddProperty("Position", "Vector3", "0, 0, 0");  // uses registered "Vector3" factory
+```
+
+**Editor contract**: custom editors must:
+1. Emit `editingFinished()` signal (or equivalent) when the user commits a value
+2. Provide `setValue(const QString&)` and `value() -> QString` for serialization
+3. Respect the PropertyGrid's `WidgetStyleSheet` for consistent visual appearance
+4. Support `setReadOnly(bool)` for disabled/read-only property rows
+
+**Built-in compound editors** 🆕:
+
+| Type Name | Editor Widget | Visual |
+|-----------|--------------|--------|
+| `Vector2` | 2× `DoubleSpinBox` (X, Y) side-by-side | `[X: 0.00] [Y: 0.00]` |
+| `Vector3` | 3× `DoubleSpinBox` (X, Y, Z) side-by-side | `[X: 0.00] [Y: 0.00] [Z: 0.00]` |
+| `Color4` | `ColorSwatch` + 4× `SpinBox` (R, G, B, A) | `[■] [R:255] [G:128] [B:0] [A:255]` |
+| `FilePath` | `LineEdit` + `Browse...` button | `[/path/to/file] [...]` |
+| `SliderInt` | `Slider` + `SpinBox` linked | `[━━●━━] [42]` |
+| `SliderDouble` | `Slider` + `DoubleSpinBox` linked | `[━━●━━] [3.14]` |
+
+**Compound editor layout**: editors within a single row use `HBox` layout with `Px4` gap. Each sub-editor shares the available value column width equally. Labels (X/Y/Z or R/G/B/A) use `Caption` font, `TextTertiary` color, 16px fixed width.
+
+**Priority resolution** when multiple factories are registered for the same type:
+1. Last-registered wins (plugin can override built-in)
+2. Warning logged: "Editor factory for type 'X' overridden by [plugin name]"
+
 ---
 
-### 10.26 ColorPicker / ColorSwatch
+#### 5.26 ColorPicker / ColorSwatch
 
 #### ColorPicker
 
@@ -3969,6 +4859,37 @@ which inherit their own WidgetKind styling.
 |-----------|-------|
 | **WidgetKind** | `ColorPicker` |
 | **UiNode class** | `ColorPickerNode` |
+
+#### Anatomy 🆕
+
+![ColorPicker Anatomy](assets/anatomy/colorpicker.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Saturation/Value 2D field | Required |
+| 2 | Hue bar (vertical or horizontal) | Required |
+| 3 | Alpha bar | Conditional (`AlphaEnabled`) |
+| 4 | Hex input field | Required |
+| 5 | RGB/A numeric inputs | Required |
+| 6 | Color preview (old vs new) | Required |
+| 7 | OK / Cancel buttons | Required |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Arrow keys` | Nudge selector in SV field (1% per press) |
+| `Tab` | Cycle between SV field → Hue → Alpha → Hex → RGB inputs |
+| `Enter` | Confirm color (equivalent to OK) |
+| `Escape` | Cancel and revert |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Open as modal dialog from ColorSwatch click | Embed full picker inline in PropertyGrid rows |
+| Show old/new color comparison | Only show the new color without reference |
+| Provide hex input for precise entry | Require mouse-only interaction |
 
 Domain-specific: displays literal colors (not themed). The picker area, hue bar,
 and alpha slider are painted with actual color values, not design tokens.
@@ -3990,12 +4911,40 @@ Dispatches `ColorChanged` on click (opens ColorPicker dialog).
 
 ---
 
-### 10.27 DocumentBar
+#### 5.27 DocumentBar
 
 | Attribute | Value |
 |-----------|-------|
 | **WidgetKind** | `DocumentBar` |
 | **A11yRole** | `TabPanel` |
+
+#### Anatomy 🆕
+
+![DocumentBar Anatomy](assets/anatomy/documentbar.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Tab items (icon + title + close button) | Required |
+| 2 | Active indicator (bottom border) | Required |
+| 3 | Overflow menu (when tabs exceed width) | Conditional |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+Tab` | Switch to next tab |
+| `Ctrl+Shift+Tab` | Switch to previous tab |
+| `Ctrl+W` | Close current tab |
+| `Ctrl+1..9` | Switch to tab by index |
+| `Middle-click` | Close clicked tab |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Show document-modified indicator (dot or bold) | Allow closing unsaved documents without confirmation |
+| Support tab reordering via drag | Open unlimited tabs without overflow handling |
+| Show tooltip with full path on hover | Truncate tab title to unrecognizable length |
 
 Tab strip for document pages. Uses TabWidget Active/Inactive styling.
 
@@ -4011,7 +4960,7 @@ Tab strip for document pages. Uses TabWidget Active/Inactive styling.
 
 ---
 
-### 10.28 ProgressBar
+#### 5.28 ProgressBar
 
 #### Synopsis
 
@@ -4022,6 +4971,24 @@ Tab strip for document pages. Uses TabWidget Active/Inactive styling.
 | **A11yRole** | `ProgressBar` |
 
 Pure display -- no user interaction, no notifications.
+
+#### Anatomy 🆕
+
+![ProgressBar Anatomy](assets/anatomy/progressbar.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Track (groove background) | Required |
+| 2 | Fill bar (colored progress) | Required |
+| 3 | Label (percentage text, optional) | Optional |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use determinate mode when progress is measurable | Use indeterminate for operations with known duration |
+| Place label above or beside (not overlapping fill) | Show 0% for extended periods (start at first measurable progress) |
+| Use `Success` variant on completion | Leave progress bar visible after operation completes |
 
 #### Theme-Customizable Properties
 
@@ -4058,7 +5025,7 @@ fillRect  = QRect(trackLeft, trackTop, fillWidth, grooveHeight)
 
 ---
 
-### 10.29 Paginator
+#### 5.29 Paginator
 
 #### Synopsis
 
@@ -4067,6 +5034,35 @@ fillRect  = QRect(trackLeft, trackTop, fillWidth, grooveHeight)
 | **WidgetKind** | `Paginator` |
 | **UiNode class** | `PaginatorNode` |
 | **A11yRole** | `Toolbar` |
+
+#### Anatomy 🆕
+
+![Paginator Anatomy](assets/anatomy/paginator.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Previous button (`←`) | Required |
+| 2 | Page number buttons | Required |
+| 3 | Ellipsis truncation (`...`) | Conditional (>7 pages) |
+| 4 | Next button (`→`) | Required |
+| 5 | Reset button | Optional |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Left` / `Right` | Navigate between page buttons |
+| `Enter` / `Space` | Activate focused page button |
+| `Home` | Go to first page |
+| `End` | Go to last page |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Show ellipsis for large page counts (>7 visible) | Display all 100+ page buttons simultaneously |
+| Disable Prev on first page, Next on last page | Hide navigation buttons instead of disabling |
+| Keep current page centered in visible range | Jump to page 1 on data refresh without user intent |
 
 #### Notification Catalog
 
@@ -4090,7 +5086,7 @@ Active page: `Primary` bg, `OnAccent` fg.
 
 ---
 
-### 10.30 SearchBox
+#### 5.30 SearchBox
 
 #### Synopsis
 
@@ -4099,6 +5095,34 @@ Active page: `Primary` bg, `OnAccent` fg.
 | **WidgetKind** | (shares `LineEdit`) |
 | **UiNode class** | `SearchBoxNode` |
 | **A11yRole** | `SearchBox` |
+
+#### Anatomy 🆕
+
+![SearchBox Anatomy](assets/anatomy/searchbox.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Search icon (leading, `TextTertiary`) | Required |
+| 2 | Text input area | Required |
+| 3 | Clear button (trailing, visible when non-empty) | Required |
+| 4 | Placeholder text | Required |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+F` | Focus search box (application-level shortcut) |
+| `Enter` | Submit search query |
+| `Escape` | Clear text and defocus |
+| `Ctrl+A` | Select all text |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Show clear button only when text is non-empty | Always show clear button (visual noise) |
+| Debounce `TextChanged` for live-search (150-300ms) | Fire search on every keystroke without debounce |
+| Show placeholder describing searchable content | Use generic "Search..." without context |
 
 LineEdit styling + search icon (`TextTertiary`) on the left.
 
@@ -4121,7 +5145,7 @@ LineEdit styling + search icon (`TextTertiary`) on the left.
 
 ---
 
-### 10.31 RangeSlider
+#### 5.31 RangeSlider
 
 #### Synopsis
 
@@ -4132,6 +5156,35 @@ LineEdit styling + search icon (`TextTertiary`) on the left.
 | **A11yRole** | `Slider` |
 
 Dual-handle slider defining a `[low, high]` sub-interval.
+
+#### Anatomy 🆕
+
+![RangeSlider Anatomy](assets/anatomy/rangeslider.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Track (groove) | Required |
+| 2 | Filled range between handles | Required |
+| 3 | Low thumb (draggable) | Required |
+| 4 | High thumb (draggable) | Required |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Tab` | Toggle focus between low and high thumb |
+| `Left` / `Down` | Decrease focused thumb by step |
+| `Right` / `Up` | Increase focused thumb by step |
+| `Home` | Set focused thumb to min (low) or low value (high) |
+| `End` | Set focused thumb to high value (low) or max (high) |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for filtering numeric ranges (price, date range) | Use for single-value selection (use Slider instead) |
+| Show current low/high values as labels | Allow handles to cross each other |
+| Provide adequate thumb hit area (>=24px) | Make range too narrow for meaningful selection |
 
 #### Notification Catalog
 
@@ -4166,7 +5219,7 @@ Constraint: `low <= high` enforced by the widget.
 
 ---
 
-### 10.32 Notification (Toast)
+#### 5.32 Notification (Toast)
 
 #### Synopsis
 
@@ -4175,6 +5228,35 @@ Constraint: `low <= high` enforced by the widget.
 | **WidgetKind** | `Notification` |
 | **UiNode class** | `NotificationNode` |
 | **A11yRole** | `Label` (live region) |
+
+#### Anatomy 🆕
+
+![Notification Anatomy](assets/anatomy/notification.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Left accent bar (semantic color) | Required |
+| 2 | Semantic icon (Info/Success/Warning/Error) | Required |
+| 3 | Message text | Required |
+| 4 | Action button | Optional |
+| 5 | Close button | Optional (auto-dismiss provides alternative) |
+
+#### Keyboard Contract 🆕
+
+| Key | Action |
+|-----|--------|
+| `Escape` | Dismiss topmost toast |
+| `Tab` | Focus action button (if present) |
+| `Enter` | Activate focused action button |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Auto-dismiss Info/Success after 3-5 seconds | Auto-dismiss Error toasts (require explicit close) |
+| Stack multiple toasts vertically with `Px8` gap | Overlap toasts or replace previous ones silently |
+| Limit to 3 visible toasts (queue the rest) | Show unlimited toasts flooding the screen |
+| Use action button for undo-able operations | Use toast for critical confirmations (use Dialog) |
 
 #### Theme
 
@@ -4225,12 +5307,42 @@ Constraint: `low <= high` enforced by the widget.
 
 ---
 
-### 10.33 Tooltip
+#### 5.33 Tooltip
 
 | Attribute | Value |
 |-----------|-------|
 | **WidgetKind** | `Tooltip` |
 | **A11yRole** | `Tooltip` |
+
+#### Anatomy 🆕
+
+![Tooltip Anatomy](assets/anatomy/tooltip.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Label text | Required |
+| 2 | Arrow / caret | Required |
+| 3 | Icon (RichTooltip only) | Optional |
+| 4 | Description line (RichTooltip only) | Optional |
+
+#### Positioning Rules 🆕
+
+| Rule | Detail |
+|------|--------|
+| **Preferred placement** | Above anchor, centered horizontally |
+| **Flip** | If clipped by viewport, flip to opposite side |
+| **Shift** | Slide along axis to stay within viewport (min 8px margin) |
+| **Arrow** | Always points to anchor center; shifts with tooltip |
+| **Show delay** | 500ms hover before appearance |
+| **Hide delay** | Immediate on mouse-leave; 100ms grace period when moving to tooltip |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for supplementary info (shortcuts, full name) | Put essential information only in tooltips |
+| Keep text under 80 characters | Use multi-paragraph content (use Popover instead) |
+| Show keyboard shortcut in tooltip for toolbar buttons | Show tooltip on disabled elements without explanation |
 
 `Spotlight` bg, `ToolTip` font, `TextPrimary` fg,
 `ElevationToken::Medium`, `LayerToken::Popover`.
@@ -4241,7 +5353,7 @@ Show delay: 500ms. Fade-in: `Opacity` 0->1, `Quick` (160ms).
 
 ---
 
-### 10.34 Message
+#### 5.34 Message
 
 #### Synopsis
 
@@ -4253,6 +5365,25 @@ Show delay: 500ms. Fade-in: `Opacity` 0->1, `Quick` (160ms).
 | **Role** | Transient feedback banner, auto-dismissing |
 | **Variants** | `MessageSemantic{Info, Success, Warning, Error}` |
 | **Category** | Dialog & Overlay (lifecycle FSM) |
+
+#### Anatomy 🆕
+
+![Message Anatomy](assets/anatomy/message.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Semantic icon (Info/Success/Warning/Error) | Required |
+| 2 | Message text | Required |
+| 3 | Close button (Ghost) | Optional |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for transient, non-critical feedback (save success, copy done) | Use for errors that require user action (use Alert instead) |
+| Keep message text to a single line | Put multi-line or complex content in a Message |
+| Use appropriate semantic variant matching the feedback type | Use Info variant for error conditions |
+| Let auto-dismiss handle removal (default 3s) | Set very short durations (< 1.5s) that users can't read |
 
 #### Theme-Customizable Properties
 
@@ -4314,7 +5445,7 @@ Position: centered horizontally at top of parent container.
 
 ---
 
-### 10.35 Alert
+#### 5.35 Alert
 
 #### Synopsis
 
@@ -4326,6 +5457,26 @@ Position: centered horizontally at top of parent container.
 | **Role** | Persistent inline feedback banner with optional close button |
 | **Variants** | `MessageSemantic{Info, Success, Warning, Error}` |
 | **Category** | Dialog & Overlay (lifecycle FSM) |
+
+#### Anatomy 🆕
+
+![Alert Banner Anatomy](assets/anatomy/alertbanner.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Semantic icon (Info/Success/Warning/Error) | Required |
+| 2 | Title / message text | Required |
+| 3 | Description text (second line) | Optional |
+| 4 | Close button (Ghost) | Optional (controlled by `SetClosable`) |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for persistent, contextual information the user should be aware of | Use for transient feedback (use Message instead) |
+| Place inline near the related content area | Float or overlay on top of other content |
+| Use Warning/Error for conditions requiring user attention | Use Info variant for critical errors |
+| Allow dismissal via close button when the alert is informational | Force non-dismissable alerts for non-critical info |
 
 #### Theme-Customizable Properties
 
@@ -4367,7 +5518,7 @@ Same as Message. Close button: `A11yRole::Button`, accessible name "Close alert"
 
 ---
 
-### 10.36 Avatar
+#### 5.36 Avatar
 
 #### Synopsis
 
@@ -4379,6 +5530,24 @@ Same as Message. Close button: `A11yRole::Button`, accessible name "Close alert"
 | **Role** | Circular user/entity representation |
 | **Variants** | `AvatarMode{Initials, Image, Icon}` |
 | **Category** | Static Display (stateless projection) |
+
+#### Anatomy 🆕
+
+![Avatar Anatomy](assets/anatomy/avatar.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Circular container (clipping mask) | Required |
+| 2 | Initials text / Image / Icon (mutually exclusive) | Required |
+| 3 | Border ring (Image mode only) | Optional |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use `Md` (32px) or larger for standalone avatars | Use `Xs` (20px) as the sole identifier (too small to read) |
+| Provide meaningful `SetAccessibleName()` for all modes | Leave accessible name empty for image-only avatars |
+| Use initials as fallback when image is unavailable | Show a broken image placeholder |
 
 #### Theme-Customizable Properties
 
@@ -4428,7 +5597,7 @@ Image: center-crop to circle using QPainterPath clipping.
 
 ---
 
-### 10.37 Badge
+#### 5.37 Badge
 
 #### Synopsis
 
@@ -4440,6 +5609,23 @@ Image: center-crop to circle using QPainterPath clipping.
 | **Role** | Numeric or dot indicator on parent widget |
 | **Variants** | `BadgeMode{Dot, Count}` |
 | **Category** | Static Display (stateless projection) |
+
+#### Anatomy 🆕
+
+![Badge Anatomy](assets/anatomy/badge.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Badge indicator (dot or count pill) | Required |
+| 2 | Contrast ring (1px `Surface` border) | Required |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use dot mode for binary "has notification" indication | Use dot mode when count matters |
+| Cap count display at 99+ for readability | Show exact counts above 999 |
+| Place on icon-only buttons, tabs, or avatars | Place on text labels or separators |
 
 #### Theme-Customizable Properties
 
@@ -4486,7 +5672,7 @@ Decorative. Not focusable. Parent widget's accessible description should include
 
 ---
 
-### 10.38 Cascader
+#### 5.38 Cascader
 
 #### Synopsis
 
@@ -4498,6 +5684,24 @@ Decorative. Not focusable. Parent widget's accessible description should include
 | **Role** | Multi-level hierarchical dropdown selector |
 | **Variants** | (single variant) |
 | **Category** | Discrete-Choice Selector (tree path selection) |
+
+#### Anatomy 🆕
+
+![Cascader Anatomy](assets/anatomy/cascader.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Trigger field (ComboBox styling) | Required |
+| 2 | Level panels (one per depth, Menu styling) | Auto |
+| 3 | Chevron (▶) on non-leaf items | Required |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use for hierarchical data (geography, category trees) | Use for flat lists (use ComboBox) |
+| Show selected path as breadcrumb in trigger | Only show the leaf value |
+| Limit tree depth to 3-4 levels | Allow unlimited nesting (UX degrades quickly) |
 
 #### Theme-Customizable Properties
 
@@ -4540,7 +5744,7 @@ Display text: `join(labels[p_0], " / ", labels[p_1], ..., labels[p_k])`.
 
 ---
 
-### 10.39 Transfer
+#### 5.39 Transfer
 
 #### Synopsis
 
@@ -4552,6 +5756,27 @@ Display text: `join(labels[p_0], " / ", labels[p_1], ..., labels[p_k])`.
 | **Role** | Dual-list selector with move operations |
 | **Variants** | (single variant) |
 | **Category** | Data Collection (subset selection: S ⊂ U) |
+
+#### Anatomy 🆕
+
+![Transfer Anatomy](assets/anatomy/transfer.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Source list (left, ListWidget) | Required |
+| 2 | Target list (right, ListWidget) | Required |
+| 3 | Move-right button (▶) | Required |
+| 4 | Move-left button (◀) | Required |
+| 5 | Search box per list | Optional |
+| 6 | List title + count | Optional |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use when user needs to select a subset from a large universe | Use for <10 items (use CheckBox group) |
+| Show item count in list headers | Hide how many items are available vs. selected |
+| Enable search when universe exceeds 20 items | Force users to scroll through hundreds of items without search |
 
 #### Theme-Customizable Properties
 
@@ -4598,7 +5823,7 @@ Move-left: `T' = T \ S` where `S` = selected items in target.
 
 ---
 
-### 10.40 FormLayout
+#### 5.40 FormLayout
 
 #### Synopsis
 
@@ -4610,6 +5835,24 @@ Move-left: `T' = T \ S` where `S` = selected items in target.
 | **Role** | Label-value grid for structured data entry |
 | **Variants** | `FormLayoutStyle{Horizontal, Vertical}` |
 | **Category** | Property Editing (key-value pairs) |
+
+#### Anatomy 🆕
+
+![FormLayout Anatomy](assets/anatomy/formlayout.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Label column (right-aligned in Horizontal) | Required |
+| 2 | Field column (any WidgetNode) | Required |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use Horizontal mode for wide forms (>500px width) | Use Horizontal when labels would truncate |
+| Use Vertical mode for narrow panels or mobile-like layouts | Mix Horizontal and Vertical in the same form |
+| Keep labels concise (1-3 words) | Use sentence-length labels |
+| Group related fields with section separators (Line widget) | Put >15 fields in one form without grouping |
 
 #### Theme-Customizable Properties
 
@@ -4653,7 +5896,7 @@ Layout: 2-column grid (Horizontal) or stacked label-above-field (Vertical).
 
 ---
 
-### 10.41 DateTimePicker
+#### 5.41 DateTimePicker
 
 #### Synopsis
 
@@ -4665,6 +5908,26 @@ Layout: 2-column grid (Horizontal) or stacked label-above-field (Vertical).
 | **Role** | Calendar/time popup for date-time selection |
 | **Variants** | `PickerMode{Date, Time, DateTime}` |
 | **Category** | Discrete-Choice Selector (date ∈ calendar grid) |
+
+#### Anatomy 🆕
+
+![DateTimePicker Anatomy](assets/anatomy/datetimepicker.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Trigger field (date/time display + icon) | Required |
+| 2 | Month navigation (◀ ▶ + month/year label) | Required |
+| 3 | Day grid (6×7 cells) | Required (Date/DateTime mode) |
+| 4 | Time spinners (hour:minute) | Required (Time/DateTime mode) |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use Date mode for date-only input (birthdays, deadlines) | Use DateTime when only date matters |
+| Set `SetMinDateTime`/`SetMaxDateTime` to constrain valid range | Allow selection of dates that are logically invalid |
+| Show the calendar icon in trigger for affordance | Use a plain text field for date input |
+| Pre-select today's date as default | Leave the picker empty without a sensible default |
 
 #### Theme-Customizable Properties
 
@@ -4723,7 +5986,7 @@ Time: `hour ∈ [0,23]`, `minute ∈ [0,59]`, `second ∈ [0,59]`.
 
 ---
 
-### 10.42 MainTitleBar
+#### 5.42 MainTitleBar
 
 #### Synopsis
 
@@ -4735,6 +5998,29 @@ Time: `hour ∈ [0,23]`, `minute ∈ [0,59]`, `second ∈ [0,59]`.
 | **Role** | Top-level window title bar with menu, document bar, quick command |
 | **Variants** | (single variant) |
 | **Category** | Application Shell (fixed-position chrome) |
+
+#### Anatomy 🆕
+
+![MainTitleBar Anatomy](assets/anatomy/main_titlebar.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | LogoButton (40×40) | Required |
+| 2 | MenuBar | Required |
+| 3 | Drag area (flex spacer, enables window drag) | Required |
+| 4 | QuickCommand slot | Optional |
+| 5 | Global action buttons slot | Optional |
+| 6 | System buttons (Minimize, Maximize, Close) | Required (Windows) |
+| 7 | DocumentBar (Row 2, full width) | Optional |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Keep Row 1 reserved for system-level controls only | Add application-specific toolbars to Row 1 |
+| Use DocumentBar (Row 2) for multi-document navigation | Put document tabs in a separate toolbar below |
+| Respect platform conventions for system button order | Rearrange Min/Max/Close button order |
+| Make drag area large enough for easy window dragging | Fill entire Row 1 with buttons leaving no drag area |
 
 #### Theme-Customizable Properties
 
@@ -4787,7 +6073,7 @@ Row 2: `[DocumentBar (full width)]`
 
 ---
 
-### 10.43 LogoButton
+#### 5.43 LogoButton
 
 #### Synopsis
 
@@ -4796,9 +6082,25 @@ Row 2: `[DocumentBar (full width)]`
 | **WidgetKind** | `LogoButton` |
 | **UiNode class** | `LogoButtonNode` |
 | **Qt widget** | `NyanLogoButton` |
-| **Role** | Application branding icon with optional menu |
+| **Role** | Application branding icon that opens application menu |
 | **Variants** | (single variant) |
-| **Category** | Application Shell (fixed-position chrome) |
+| **Category** | Action Trigger (tap → open app menu) |
+
+#### Anatomy 🆕
+
+![LogoButton Anatomy](assets/anatomy/logobutton.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Logo image (SVG, 24×24 content area) | Required |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use as the single entry point to the application menu | Duplicate with a separate "File" menu |
+| Keep the logo visually consistent across themes (brand color) | Change logo color with theme (use fixed brand color) |
+| Provide hover/pressed feedback like any button | Make it look like a static decoration |
 
 #### Theme-Customizable Properties
 
@@ -4838,7 +6140,7 @@ Single-state button: `f(clicked) -> open menu or emit notification`.
 
 ---
 
-### 10.44 FileDialog
+#### 5.44 FileDialog
 
 #### Synopsis
 
@@ -4850,6 +6152,29 @@ Single-state button: `f(clicked) -> open menu or emit notification`.
 | **Role** | Modal file selection dialog with browser |
 | **Variants** | `FileDialogMode{Open, Save, SelectDirectory}` |
 | **Category** | Dialog & Overlay (modal lifecycle FSM) |
+
+#### Anatomy 🆕
+
+![FileDialog Anatomy](assets/anatomy/file_dialog.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 1 | Dialog chrome (title + close) | Required |
+| 2 | Navigation sidebar | Required |
+| 3 | Path breadcrumb bar | Required |
+| 4 | File list (DataTable) | Required |
+| 5 | Filename input (LineEdit) | Required |
+| 6 | File type filter (ComboBox) | Required |
+| 7 | Action buttons (Cancel + Open/Save) | Required |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Pre-populate initial directory with last-used path | Always start at root directory |
+| Show file type filter matching the expected format | Show "All Files (*.*)" as the only option |
+| Enable multi-select for Open mode batch operations | Enable multi-select in Save mode |
+| Show file size and date columns for disambiguation | Show only file names |
 
 #### Theme-Customizable Properties
 
@@ -4893,7 +6218,7 @@ Inherits Dialog accessibility. File list: `Table` role. Path bar: `Navigation` r
 
 ---
 
-### 10.45 Line (Separator)
+#### 5.45 Line (Separator)
 
 #### Synopsis
 
@@ -4905,6 +6230,20 @@ Inherits Dialog accessibility. File list: `Table` role. Path bar: `Navigation` r
 | **Role** | Visual separator between content sections |
 | **Variants** | `LineOrientation{Horizontal, Vertical}` |
 | **Category** | Static Display (stateless projection) |
+
+#### Anatomy 🆕
+
+![Line Separator Anatomy](assets/anatomy/line_separator.svg)
+
+Single element — no slots. Purely decorative 1px rule in `Separator` color.
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use to visually separate logical groups within a panel | Use between every single item in a list |
+| Use Horizontal in vertical layouts, Vertical in horizontal layouts | Stack multiple Lines adjacently |
+| Prefer spacing alone when separation is subtle enough | Use Lines as primary structural elements |
 
 #### Theme-Customizable Properties
 
@@ -4942,7 +6281,7 @@ Degenerate rectangle: `width = parentWidth, height = 1px` (horizontal) or
 
 ---
 
-### 10.46 StackedWidget
+#### 5.46 StackedWidget
 
 #### Synopsis
 
@@ -4954,6 +6293,23 @@ Degenerate rectangle: `width = parentWidth, height = 1px` (horizontal) or
 | **Role** | Container showing one child at a time with transition animation |
 | **Variants** | (single variant) |
 | **Category** | Scrollable Container (index-based child visibility) |
+
+#### Anatomy 🆕
+
+![StackedWidget Anatomy](assets/anatomy/stacked_widget.svg)
+
+| Slot | Element | Required |
+|------|---------|:--------:|
+| 0..N | Child pages (any WidgetNode) | Min 1 |
+
+#### Usage Guidelines 🆕
+
+| Do | Don't |
+|----|-------|
+| Use with TabBar or SegmentedControl to switch pages | Use without a visible page selector |
+| Keep page count reasonable (< 10) | Use for dozens of pages (use navigation instead) |
+| Ensure all pages have similar minimum size | Mix vastly different-sized pages without constraints |
+| Use cross-fade transition for smooth page switching | Use instant switch without animation |
 
 #### Theme-Customizable Properties
 
@@ -5003,1060 +6359,772 @@ Transition: concurrent opacity animation on outgoing and incoming pages.
 
 ---
 
-## Chapter 11. WidgetKind Registry & Component Override
 
-> Complete reference for the widget registry, variant system, and component
-> override mechanism.
+## I.6 Layout 🆕
 
-### 11.1 WidgetKind Enum (54 entries)
+> 🆕 Post-v1 supplement.
+> Layout algorithms, composition templates, responsive rules, and loading/empty/error state templates.
+> This pillar defines how widgets are spatially arranged, how page-level compositions are structured,
+> and how the UI adapts to window size changes and data availability states.
 
-> **54 vs 66**: The `WidgetKind` enum has **54** entries because some widget
-> classes share a `WidgetKind` (e.g., `SpinBox` and `DoubleSpinBox` both use
-> `WidgetKind::SpinBox`). The total number of distinct widget *classes* is
-> **66** (see Chapter 30.3). The style system indexes by `WidgetKind`, so
-> shared-Kind widgets share the same `WidgetStyleSheet` and variant matrix.
+### 6.1 Layout Algorithm Specification 🆕
 
-Complete list organized by tier:
+> 🆕 Post-v1 supplement.
 
-| Tier | Widgets |
-|------|---------|
-| **Tier 1: Core Input** | PushButton, ToolButton, LineEdit, SpinBox, ComboBox, CheckBox, RadioButton, Slider, Toggle, Label, Tag |
-| **Tier 2: Container & Layout** | ScrollArea, ScrollBar, Panel, GroupBox, CollapsibleSection, TabWidget, Dialog, PopConfirm, ActionBar, DataTable, ListWidget, TableWidget, StructureTree, ContextMenu, StatusBar, Splitter, PropertyGrid, ColorPicker |
-| **Tier 3: Application** | DocumentBar, Legend, ProgressBar, ColorSwatch, Paginator, SelectionInput, StackedWidget, Tooltip |
-| **Menu System** | MenuBar, Menu, MenuItem, MenuSeparator, MenuCheckItem |
-| **Notification** | Notification |
-| **Title Bar** | MainTitleBar |
-| **Dialog System** | DialogTitleBar, DialogFootBar, FileDialog |
-| **ActionBar System** | ActionTab, ActionToolbar |
-| **Phase 3b** | Cascader, Transfer, FormLayout |
-| **Phase 3c** | Message, Alert, Avatar |
-| **Shell Split** | DocumentToolBar, LogoButton |
+#### 6.1.1 Layout Primitives
 
-### 11.2 WidgetKind to UiNode Class Mapping
-
-Each `WidgetKind` has a corresponding `WidgetNode` subclass:
-
-| WidgetKind | UiNode Class | Qt Widget Class | Variant Enum |
-|-----------|-------------|----------------|-------------|
-| `PushButton` | `PushButtonNode` | `NyanPushButton` | `ButtonVariant{Primary,Secondary,Ghost,Danger}` |
-| `ToolButton` | `ToolButtonNode` | `NyanToolButton` | `ButtonVariant{Default,Ghost}` |
-| `LineEdit` | `LineEditNode` | `NyanLineEdit` | (single variant) |
-| `SpinBox` | `SpinBoxNode` | `NyanSpinBox` | (single variant) |
-| `DoubleSpinBox` | `DoubleSpinBoxNode` | `NyanDoubleSpinBox` | (single variant) |
-| `ComboBox` | `ComboBoxNode` | `NyanComboBox` | (single variant) |
-| `CheckBox` | `CheckBoxNode` | `NyanCheckBox` | `CheckState{Unchecked,Checked,Indeterminate}` |
-| `RadioButton` | `RadioButtonNode` | `NyanRadioButton` | `CheckState{Unchecked,Checked}` |
-| `Slider` | `SliderNode` | `NyanSlider` | (single variant) |
-| `Toggle` | `ToggleNode` | `NyanToggle` | `ToggleState{Off,On}` |
-| `Label` | `LabelNode` | `NyanLabel` | (single variant) |
-| `Tag` | `TagNode` | `NyanTag` | `TagVariant{Default,Primary,Success,Warning,Error}` |
-| `ScrollArea` | `ScrollAreaNode` | `NyanScrollArea` | (single variant) |
-| `ScrollBar` | `ScrollBarNode` | `QScrollBar` | (single variant) |
-| `Panel` | `PanelNode` | `NyanPanel` | (single variant) |
-| `GroupBox` | `GroupBoxNode` | `NyanGroupBox` | `GroupState{Expanded,Collapsed}` |
-| `CollapsibleSection` | `CollapsibleSectionNode` | `NyanCollapsibleSection` | `GroupState{Expanded,Collapsed}` |
-| `TabWidget` | `TabWidgetNode` | `NyanTabWidget` | `TabState{Active,Inactive}` |
-| `Dialog` | `DialogNode` | `NyanDialog` | (single variant) |
-| `DataTable` | `DataTableNode` | `NyanDataTable` | `RowState{Default,Striped,Selected}` |
-| `ListWidget` | `ListWidgetNode` | `NyanListWidget` | `RowState{Default,Selected}` |
-| `StructureTree` | `StructureTreeNode` | `NyanStructureTree` | `TreeNodeState{Collapsed,Expanded}` |
-| `ContextMenu` | `ContextMenuNode` | `NyanContextMenu` | (single variant) |
-| `Menu` | `MenuNode` | `NyanMenu` | (single variant) |
-| `MenuItem` | `MenuItemNode` | `NyanMenuItem` | (single variant) |
-| `ProgressBar` | `ProgressBarNode` | `NyanProgressBar` | `ProgressStyle{Determinate,Indeterminate}` |
-| `Tooltip` | `TooltipNode` | `NyanTooltip` | (single variant) |
-| `Notification` | `NotificationNode` | `NyanNotification` | `AlertLevel{Info,Success,Warning,Error}` |
-| `DocumentBar` | `DocumentBarNode` | `NyanDocumentBar` | `TabState{Active,Inactive}` |
-| `StatusBar` | `StatusBarNode` | `NyanStatusBar` | (single variant) |
-| `Splitter` | `SplitterNode` | `NyanSplitter` | (single variant) |
-| `PropertyGrid` | `PropertyGridNode` | `NyanPropertyGrid` | (single variant) |
-| `ColorPicker` | `ColorPickerNode` | `NyanColorPicker` | (single variant) |
-| `ColorSwatch` | `ColorSwatchNode` | `NyanColorSwatch` | (single variant) |
-
-### 11.3 Variant System Architecture
-
-Each `WidgetKind` has a fixed number of variants. Each variant is a complete
-`VariantStyle` (8 `StateStyle` entries). The variant index selects the active
-color set.
-
-```mermaid
-classDiagram
-    class WidgetStyleSheet {
-        +RadiusToken radius
-        +SpacingToken paddingH
-        +SpacingToken paddingV
-        +span~VariantStyle~ variants
-    }
-    class VariantStyle {
-        +array~StateStyle,8~ colors
-    }
-    class StateStyle {
-        +ColorToken background
-        +ColorToken foreground
-        +ColorToken border
-        +float opacity
-        +CursorToken cursor
-    }
-    WidgetStyleSheet "1" --> "*" VariantStyle : variants
-    VariantStyle "1" --> "8" StateStyle : InteractionState
-```
-
-**Variant count by widget**:
-
-| Variants | Widgets |
-|:--------:|---------|
-| 1 | LineEdit, SpinBox, ComboBox, Slider, Label, ScrollArea, Panel, Dialog, Menu, Tooltip, StatusBar, Splitter |
-| 2 | Toggle(Off/On), CheckBox(Unchecked/Checked), RadioButton, GroupBox, CollapsibleSection, TabWidget, DocumentBar, ProgressBar |
-| 3 | CheckBox(+Indeterminate), DataTable(Default/Striped/Selected) |
-| 4 | PushButton(Primary/Secondary/Ghost/Danger), Notification(Info/Success/Warning/Error) |
-| 5 | Tag(Default/Primary/Success/Warning/Error) |
-
-### 11.4 ComponentOverride Mechanism
-
-Widget authors or plugins can register per-widget-class token deviations:
-
-```cpp
-ComponentOverride overrides[] = {
-    { WidgetKind::PushButton, RadiusToken::Large,
-      SpacingToken::Px12, SpacingToken::Px8,
-      FontRole::BodyBold, ElevationToken::Low },
-};
-theme.RegisterComponentOverrides(overrides);
-```
-
-### 11.5 ComponentOverride Struct
-
-```cpp
-struct ComponentOverride {
-    WidgetKind     kind;
-    std::optional<RadiusToken>    radius;
-    std::optional<SpacingToken>   paddingH;
-    std::optional<SpacingToken>   paddingV;
-    std::optional<SpacingToken>   gap;
-    std::optional<SizeToken>      minHeight;
-    std::optional<FontRole>       font;
-    std::optional<ElevationToken> elevation;
-    std::optional<TransitionDef>  transition;
-};
-```
-
-Only non-nullopt fields override the default. This allows selective overrides
-without specifying every field.
-
-### 11.6 Override Priority Rules
-
-```
-ComponentOverride > BuildDefaultVariants() > WidgetStyleSheet defaults
-```
-
-Overrides are applied during `SetTheme()` / theme change. They persist across
-theme switches (registered once, applied to every theme).
-
-### 11.7 Override Lifecycle
-
-```mermaid
-sequenceDiagram
-    participant Plugin
-    participant ITS as IThemeService
-    participant NyanTheme
-
-    Plugin->>ITS: RegisterComponentOverrides(overrides)
-    Note over ITS: Stores in _overrideRegistry
-    ITS->>NyanTheme: On next SetTheme() / ThemeChanged
-    NyanTheme->>NyanTheme: BuildDefaultVariants()
-    NyanTheme->>NyanTheme: ApplyOverrides(_overrideRegistry)
-    NyanTheme->>NyanTheme: BuildGlobalStyleSheet()
-```
-
-### 11.8 Variant Color Override (Advanced)
-
-For overriding specific variant x state color mappings:
-
-```cpp
-struct VariantColorOverride {
-    WidgetKind     kind;
-    int            variantIndex;
-    InteractionState state;
-    std::optional<ColorToken> background;
-    std::optional<ColorToken> foreground;
-    std::optional<ColorToken> border;
-    std::optional<float>      opacity;
-};
-```
-
-**Use case**: A plugin that needs PushButton(Primary) to use `Success` hue
-instead of `Primary` hue.
-
-```cpp
-VariantColorOverride override = {
-    .kind = WidgetKind::PushButton,
-    .variantIndex = 0,  // Primary
-    .state = InteractionState::Normal,
-    .background = ColorToken::Success,
-    .foreground = ColorToken::OnAccent,
-    .border = ColorToken::Success,
-};
-theme.RegisterVariantColorOverride(override);
-```
-
----
----
-
-# Part IV -- Animation Engine
-
-> Chapters 12-15. Centralized, token-driven animation architecture.
-
-## Chapter 12. Animation Architecture
-
-### 12.1 Design Principles
-
-| Principle | Description |
+| Primitive | Description |
 |-----------|-------------|
-| **What/How/When/Who separation** | Widget says WHAT to animate (PropertyId, from, to). Service decides HOW (duration, easing from WidgetStyleSheet). Framework decides WHEN (state change trigger). Test harness controls WHO (override to snap). |
-| **Qt-free public API** | `IAnimationService` uses `AnimationPropertyId`, `AnimatableValue`, `TransitionHandle` -- no `QPropertyAnimation`, `QVariant`, `QByteArray` in public interface. |
-| **State-space trajectory** | Animation is a trajectory in state space: `x(t): [0, T] -> ValueSpace`. Spring dynamics: ODE solution. Eased: parametric curve. |
+| **MainAxis** | The primary direction of child arrangement: `Horizontal` (left→right) or `Vertical` (top→bottom) |
+| **CrossAxis** | The perpendicular axis to MainAxis |
+| **MainAxisAlignment** | `Start`, `Center`, `End`, `SpaceBetween`, `SpaceAround`, `SpaceEvenly` |
+| **CrossAxisAlignment** | `Start`, `Center`, `End`, `Stretch` (default) |
+| **Overflow** | `Clip` (default), `Scroll`, `Wrap` |
 
-> **Qt-Free Public Animation API** -- `IAnimationService` uses `AnimatableValue`, `AnimationPropertyId`, `TransitionHandle` with no Qt types in public interface. Enables future backend replacement and simplifies C ABI wrapping. Internal conversion layer between `AnimatableValue` and `QVariant`/`QPropertyAnimation`.
+#### 6.1.2 HBox / VBox Distribution Algorithm
 
-### 12.2 IAnimationService Interface
+`ContainerNode(LayoutKind::Horizontal)` and `ContainerNode(LayoutKind::Vertical)` use
+the same algorithm, differing only in axis orientation.
 
-```mermaid
-classDiagram
-    class IAnimationService {
-        <<interface>>
-        +Animate(widget; propId; from; to; duration; easing) TransitionHandle
-        +AnimateSpring(widget; propId; from; to; spec) TransitionHandle
-        +AnimateGroup(specs; mode) GroupId
-        +Cancel(handle) void
-        +CancelAll(widget) void
-        +CancelGroup(gid) void
-        +IsRunning(handle) bool
-        +IsAnimatingProperty(widget; propId) bool
-        +SetReducedMotion(enabled) void
-        +SetSpeedMultiplier(factor) void
-    }
+**Input**: Ordered children `[c_0, ..., c_{n-1}]`, each with:
+- `minSize`: minimum extent along MainAxis (from widget's `minimumSizeHint()`)
+- `maxSize`: maximum extent (from widget's `maximumSize()`, default ∞)
+- `flex`: flex factor (default 0 = fixed size, >0 = proportional)
+- `preferredSize`: preferred extent (from widget's `sizeHint()`)
+
+**Available space**: `A = containerExtent - (n-1) × gap - 2 × padding`
+
+**Algorithm** (two-pass):
+
+```
+Pass 1: Allocate fixed-size children
+  fixedTotal = sum(preferredSize_i) for all i where flex_i == 0
+  remaining = A - fixedTotal
+
+Pass 2: Distribute remaining space to flex children
+  flexTotal = sum(flex_i) for all i where flex_i > 0
+  for each flex child i:
+    allocated_i = remaining × (flex_i / flexTotal)
+    allocated_i = clamp(allocated_i, minSize_i, maxSize_i)
+
+Pass 3: Handle overflow
+  if sum(allocated) > A:
+    switch (overflow):
+      Clip:   children are clipped at container boundary
+      Scroll: container becomes scrollable along MainAxis
+      Wrap:   children wrap to next row/column (Grid-like behavior)
 ```
 
-| Method | Input | Output | Description |
-|--------|-------|--------|-------------|
-| `Animate` | `WidgetNode*, AnimationPropertyId, AnimatableValue from, AnimatableValue to, AnimationToken, EasingToken` | `TransitionHandle` | Start eased animation. Auto re-targets from current interpolated value if same `(target, property)` is already animating. |
-| `AnimateSpring` | `WidgetNode*, AnimationPropertyId, AnimatableValue from, AnimatableValue to, SpringSpec` | `TransitionHandle` | Start spring animation. Same re-targeting behavior as `Animate`. |
-| `AnimateGroup` | `span<GroupAnimationSpec>, GroupMode` | `GroupId` | Parallel or sequential group. Each sub-animation registered individually for interruption isolation. |
-| `Cancel` | `TransitionHandle` | `void` | Cancel running animation. Dispatches `AnimationCancelled`. |
-| `CancelAll` | `WidgetNode*` | `void` | Cancel all animations for widget (standalone + group members). |
-| `CancelGroup` | `GroupId` | `void` | Cancel entire group and all member transitions. Dispatches `AnimationCancelled` per member. |
-| `IsRunning` | `TransitionHandle` | `bool` | Check if animation is active |
-| `IsAnimatingProperty` | `WidgetNode*, AnimationPropertyId` | `bool` | Check if property is being animated (standalone or group member) |
-| `SetReducedMotion` | `bool` | `void` | Enable/disable reduced motion |
-| `SetSpeedMultiplier` | `float` | `void` | Global speed factor |
+**Cross-axis sizing**: Each child's cross-axis extent is determined by `CrossAxisAlignment`:
+- `Stretch`: child fills the full cross-axis extent of the container
+- `Start`/`Center`/`End`: child uses its `sizeHint()` cross-axis, aligned accordingly
 
-### 12.3 AnimationPropertyId Enum
+**Spacing**: `SetSpacing(SpacingToken)` sets the gap between adjacent children.
+`SetPadding(SpacingToken)` sets the content inset on all four sides.
 
-| Property | Description | Value Type |
-|----------|-------------|-----------|
-| `Opacity` | Widget opacity (0.0-1.0) | Double |
-| `BackgroundColor` | Background fill color | Rgba |
-| `ForegroundColor` | Text/icon color | Rgba |
-| `BorderColor` | Border stroke color | Rgba |
-| `Position` | Widget position | Point2D |
-| `SlideOffset` | Translation offset for slide animations | Double |
-| `MaximumHeight` | QWidget::maximumHeight for expand/collapse | Int |
-| `MinimumHeight` | QWidget::minimumHeight | Int |
-| `ArrowRotation` | Chevron rotation angle (degrees) | Double |
-| `Scale` | Transform scale factor | Double |
-| `BorderWidth` | Border stroke width | Int |
-| `ContentHeight` | Content area height (expand/collapse) | Int |
-| `ScrollOffset` | Scroll position | Double |
-| `UserDefined` | Start of plugin-defined range (1000+) | Any |
+#### 6.1.3 Grid Layout
 
-### 12.4 AnimatableValue Tagged Union
+`ContainerNode(LayoutKind::Grid)` arranges children in a 2D grid.
+
+**Column definition**: `SetColumns(vector<ColumnDef>)` where:
 
 ```cpp
-struct AnimatableValue {
-    enum class Tag : uint8_t { Double, Int, Rgba, Point2D };
-    Tag tag;
-    union {
-        double  d;
-        int     i;
-        uint32_t rgba;    // Packed ARGB
-        struct { int x; int y; } pt;
-    };
-
-    static AnimatableValue FromDouble(double v);
-    static AnimatableValue FromInt(int v);
-    static AnimatableValue FromRgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-    static AnimatableValue FromPoint(int x, int y);
+struct ColumnDef {
+    enum Type { Fixed, Fraction, Auto };
+    Type   type;
+    float  value;  // px for Fixed, fr for Fraction, ignored for Auto
 };
 ```
 
-Qt-free. Internal `AnimationService` converts to `QVariant` for `QPropertyAnimation`.
+**Row sizing**: Rows are auto-sized to the tallest child in the row.
 
-### 12.5 TransitionHandle
+**Gutter**: `SetHGap(SpacingToken)`, `SetVGap(SpacingToken)`.
 
-```cpp
-struct TransitionHandle {
-    uint64_t id = 0;
-    explicit operator bool() const { return id != 0; }
-};
+**Responsive breakpoint**: `SetMinColumnWidth(int px)` — when enabled, the grid
+auto-calculates column count as `floor(containerWidth / minColumnWidth)`, overriding
+the explicit column definition. This enables responsive reflow without manual breakpoints.
+
+**Algorithm**:
+```
+1. Resolve column widths:
+   - Fixed: use value directly
+   - Auto: measure content, use max width in column
+   - Fraction: distribute remaining space proportionally
+2. Place children left-to-right, top-to-bottom
+3. Each cell: child aligned per CrossAxisAlignment within the cell rect
 ```
 
-Opaque handle for cancellation and status queries. Zero = invalid/no animation.
+#### 6.1.4 FormLayout Geometry
 
-### 12.6 GroupMode and GroupId
+`FormLayoutNode` provides a specialized 2-column layout for label-value pairs.
 
-| Mode | Description |
-|------|-------------|
-| `Parallel` | All animations in the group start simultaneously (`QParallelAnimationGroup`) |
-| `Sequential` | Each animation starts after the previous one completes (`QSequentialAnimationGroup`) |
+![FormLayout Geometry](assets/anatomy/formlayout_geometry.svg)
 
-`GroupId` is an opaque `enum class : uint64_t` returned by `AnimateGroup()`. Used by `CancelGroup()` to cancel the entire group.
-
-### 12.7 Interruption Re-targeting
-
-When `Animate()` or `AnimateSpring()` is called on a `(target, property)` pair that already has a running animation:
-
-1. The running animation's **current interpolated value** is captured via `QVariantAnimation::currentValue()`
-2. The running animation is stopped and an `AnimationCancelled` notification is dispatched
-3. The new animation starts from the **captured value** (not the caller-supplied `from`)
-
-This provides smooth visual continuity during rapid state changes (e.g., mouse hover flickering, button press/release during transition).
-
-```
-Time -->   |----old anim (bg: gray->blue)----X
-                                             |
-                                             +----new anim (bg: current->red)---->
-                                             ^
-                                             captured at ~60% interpolation
-```
-
-**Invariant**: If no existing animation is found on `(target, property)`, the caller-supplied `from` is used as-is.
-
-### 12.8 Group Animation Architecture
-
-Group animations provide multi-widget coordinated transitions. Key design:
-
-**Sub-animation registration**: Each `GroupAnimationSpec` produces an individual `TransitionEntry` registered in the active animation map with its own `TransitionHandle`. The entry carries an `owningGroup` field linking it back to the `GroupId`.
-
-**Interruption isolation**: Because group sub-animations are registered individually, a new `Animate()` call on the same `(target, property)` will correctly interrupt just that sub-animation while other group members continue. `CancelAll(widget)` also correctly finds and cancels group members for that widget.
-
-**Lifetime management**:
-
-| Scenario | Qt Object Lifetime | `_active` Entry |
-|----------|-------------------|-----------------|
-| Standalone animation finishes | `deleteLater()` by `OnFinished` | Erased, `AnimationCompleted` dispatched |
-| Group member finishes individually | Group owns Qt object | Erased from `_active`, `AnimationCompleted` dispatched |
-| Entire group finishes | Group `deleteLater()` by `OnGroupFinished` | All remaining members erased, `AnimationCompleted` dispatched per member |
-| `CancelGroup(gid)` called | Group `stop()` + `deleteLater()` | All members erased, `AnimationCancelled` dispatched per member |
-| External `Animate()` interrupts a group member | Only that sub-entry removed from `_active` | `AnimationCancelled` dispatched; group continues with remaining members |
-
-**Notification lifecycle** (per sub-animation within a group):
-
-```
-AnimateGroup() called
-  --> AnimationStarted(propId, subHandle)   [per spec]
-  ...
-  --> AnimationCompleted(propId, subHandle)  [on natural finish]
-  OR
-  --> AnimationCancelled(propId, subHandle)  [on Cancel/CancelAll/CancelGroup/re-target]
-```
+- **Horizontal mode** (default):
+  - Label column width: 33% of container (configurable via `SetLabelWidth(int percent)`)
+  - Label alignment: right-aligned, vertically centered to field
+  - Label font: `FontRole::BodyBold`
+  - Label color: `TextSecondary`
+  - Row gap: `SpacingToken::Px8`
+  - Label-field gap: `SpacingToken::Px12`
+  - Required indicator: red `*` after label text, color `Error6`
+- **Vertical mode**:
+  - Label above field, left-aligned
+  - Label-field gap: `SpacingToken::Px4`
+  - Row gap: `SpacingToken::Px12`
 
 ---
 
-## Chapter 13. Spring Animation Physics
+### 6.2 Composition Templates 🆕
 
-### 13.1 Damped Harmonic Oscillator Model
+> 🆕 Post-v1 supplement.
 
-The spring animation solves the second-order ODE:
+#### 6.2.1 Shell Layout Template
 
-$$m \, x''(t) + c \, x'(t) + k \bigl(x(t) - x_{\text{target}}\bigr) = 0$$
+The main application window follows this canonical layout:
 
-where:
-- $m$ = mass (default 1.0, dimensionless)
-- $c$ = damping coefficient (default 20.0)
-- $k$ = stiffness (default 200.0)
-- $x_{\text{target}}$ = target value
+![Shell Layout Template](assets/anatomy/shell_layout.svg)
 
-**Damping ratio**:
+**Default values**:
 
-$$\zeta = \frac{c}{2\sqrt{m \, k}}$$
+| Component | Default | Configurable |
+|-----------|---------|:------------:|
+| TitleBar height | 64px (2 rows × 32px) | No |
+| ActionBar dock edge | Bottom | Yes (4 edges) |
+| ActionBar height (docked) | Auto (content-driven) | No |
+| Property Panel width | 280px | Yes (min 200, max 400) |
+| Property Panel side | Right | Yes (Left/Right) |
+| Viewport default split | Single | Yes |
+| StatusBar height | 24px | No |
+| Minimum window size | 800 × 600 | No |
 
-| Regime | Condition | Behavior |
-|--------|-----------|----------|
-| Underdamped | $\zeta < 1$ | Oscillates around target, decaying |
-| Critically damped | $\zeta = 1$ | Fastest approach without overshoot |
-| Overdamped | $\zeta > 1$ | Slow exponential approach |
+#### 6.2.2 Property Panel Template
 
-Default `SpringSpec{1.0, 200.0, 20.0}` gives $\zeta \approx 0.707$ (underdamped, slight overshoot).
+![Property Panel Template](assets/anatomy/property_panel_template.svg)
 
-### 13.2 Semi-Implicit Euler Integration
+**Rules**:
+- Sections use `CollapsibleSection` with `SpacingToken::Px4` between sections
+- First section expanded by default; others follow user's last state (persisted)
+- Panel scrolls vertically; no horizontal scroll
+- Label-field pairs use `FormLayout(Horizontal)` inside each section
+- Panel min width: 200px; max width: 400px; default: 280px
 
-$$v(t + \Delta t) = v(t) + \Delta t \left( -\frac{k}{m}\bigl(x(t) - x_{\text{target}}\bigr) - \frac{c}{m}\,v(t) \right)$$
+#### 6.2.3 Dialog Templates
 
-$$x(t + \Delta t) = x(t) + \Delta t \cdot v(t + \Delta t)$$
+Five standard dialog types with canonical layouts:
 
-Semi-implicit Euler (symplectic): uses new velocity to update position.
-Energy-conserving for oscillatory systems. Fixed timestep: $\Delta t = 1/60$ (60 FPS).
+![Dialog Templates](assets/anatomy/dialog_templates.svg)
 
-### 13.3 Convergence Detection
+<div class="livecodes" data-playground="dialog-confirm" style="height:400px;"></div>
 
-Animation terminates when:
-- $|v(t)| < \varepsilon_v$ (default $\varepsilon_v = 0.01$)
-- $|x(t) - x_{\text{target}}| < \varepsilon_x$ (default $\varepsilon_x = 0.1$)
+| Dialog | Width | Key Features |
+|--------|-------|-------------|
+| **Confirm** | 400px | Icon+Title, message (max 3 lines), Cancel (Secondary) + Confirm (Primary/Danger) |
+| **Input** | 360px | Title, Label + LineEdit (auto-focused), Cancel + OK |
+| **Wizard** | 600px (min-h 400px) | Step indicators (● current/completed, ○ future, Px16 gap), StackedWidget content, Back (Ghost, hidden step 1) + Next/Finish (Primary) |
+| **Settings** | 720×500px | Category ListWidget (180px sidebar) + StackedWidget content, Cancel + Apply + OK |
+| **About** | 320px | App Icon (64×64), Name (Title font), Version (Caption), Copyright (Caption, Muted), single OK |
 
-Both conditions must hold simultaneously for `kSettleFrames` consecutive frames (default 3).
+- Destructive confirm: requires explicit typing of resource name (see §7.2 Error Prevention)
 
-### 13.4 CFL Stability Condition
+#### 6.2.4 Dialog Positioning
 
-For explicit Euler-like integrators, the CFL stability limit is:
-
-$$\Delta t < 2\sqrt{\frac{m}{k}}$$
-
-With $m=1, k=200$: $\Delta t_{\max} = 0.141\text{s}$. At 60 FPS, $\Delta t = 0.0167\text{s}$ -- safely within limits.
-
-If a custom `SpringSpec` violates CFL ($\Delta t > 2\sqrt{m/k}$), the engine:
-1. Logs a warning
-2. Falls back to `OutCubic` easing with `AnimationToken::Normal` duration
-
-### 13.5 Multi-Type Spring Interpolation
-
-| Type | Interpolation Strategy |
-|------|----------------------|
-| `Double` | Direct scalar spring |
-| `Int` | Scalar spring, rounded to int at output |
-| `Rgba` | Component-wise spring on R,G,B,A independently |
-| `Point2D` | Independent spring on x and y |
+| Dialog Type | Positioning Rule |
+|-------------|-----------------|
+| Modal | Centered in parent window |
+| Modeless | Offset (32, 32) from parent center; snap to peer dialogs |
+| Nested modal | Centered in parent dialog (not window) |
+| Resize | Free resize with min size constraint; remembered per dialog ID |
+| Drag | Draggable by title bar; clamped to screen geometry |
 
 ---
 
-## Chapter 14. Widget Animation Integration
+### 6.3 Responsive Rules 🆕
 
-### 14.1 ThemeAware::AnimateTransition() Helpers
+> 🆕 Post-v1 supplement.
 
-```cpp
-// Auto-resolve duration/easing from WidgetStyleSheet::transition
-TransitionHandle AnimateTransition(AnimationPropertyId propId,
-                                    AnimatableValue from,
-                                    AnimatableValue to);
+#### 6.3.1 Window Resize Priority Matrix
 
-// Explicit control
-TransitionHandle AnimateTransition(AnimationPropertyId propId,
-                                    AnimatableValue from,
-                                    AnimatableValue to,
-                                    AnimationToken duration,
-                                    EasingToken easing);
-```
+When the window shrinks below comfortable size, elements hide/collapse in this priority order:
 
-### 14.2 State Transition Animation
+| Priority | Element | Threshold | Action |
+|:--------:|---------|:---------:|--------|
+| 1 (first to hide) | Property Panel | Window width < 1000px | Auto-hide (toggle button remains) |
+| 2 | ActionBar labels | ActionBar width < 600px | Hide labels, show icons only |
+| 3 | StatusBar sections | Window width < 800px | Hide center section (coordinates) |
+| 4 | MenuBar overflow | MenuBar width < required | Last menus collapse into "⋯" overflow menu |
+| 5 | DocumentBar tabs | Tab bar width < required | Tabs overflow into dropdown |
+| 6 (last to hide) | Viewport | Never hidden | Single viewport mode if split doesn't fit |
 
-When `InteractionState` changes (e.g., Normal -> Hovered), the framework
-animates `BackgroundColor`, `ForegroundColor`, and `BorderColor` using the
-widget's `TransitionDef` (typically 200ms OutCubic).
+#### 6.3.2 Minimum Viable Window Size
+
+| Dimension | Value | Rationale |
+|-----------|:-----:|-----------|
+| Min width | 800px | MenuBar + single viewport + StatusBar |
+| Min height | 600px | TitleBar + ActionBar + viewport(300px min) + StatusBar |
+| Below minimum | Window refuses to resize smaller | `QWidget::setMinimumSize(800, 600)` |
+
+#### 6.3.3 ActionBar Collapse Thresholds
+
+| Condition | Behavior |
+|-----------|----------|
+| Docked, width > all tabs | Full: icons + labels |
+| Docked, width < all tabs | Compact: icons only, labels hidden |
+| Docked, width < icons | Overflow: last tabs move to "⋯" dropdown |
+| Undocked (floating) | Always full width; frame resizes to content |
+
+---
+
+### 6.4 Loading / Empty / Error State Templates 🆕
+
+> 🆕 Post-v1 supplement.
+
+#### 6.4.1 Three-State Model
+
+Every content region (DocumentArea, Property Panel, DataTable, ListWidget, TreeWidget)
+has three non-content states:
+
+| State | Visual | Priority |
+|-------|--------|:--------:|
+| **Loading** | Skeleton shimmer or spinner | 1 (highest) |
+| **Error** | Error icon + message + retry button | 2 |
+| **Empty** | Illustration + title + description + CTA | 3 |
+| **Content** | Normal widget content | 4 (lowest) |
+
+**Priority rule**: If `loading && error`, show Loading. If `!loading && error`, show Error.
+If `!loading && !error && empty`, show Empty. Otherwise, show Content.
+
+#### 6.4.2 Skeleton Shimmer
+
+For list/table/panel regions during initial data load:
+
+![Skeleton Shimmer](assets/anatomy/skeleton_shimmer.svg)
+
+- Background: `FillMuted`
+- Shimmer: linear gradient animation, `Surface` → `FillMuted` → `Surface`
+- Duration: 1.5s per cycle, `Linear` easing, infinite repeat
+- Block height: matches expected row height
+- Block width: randomized 40-90% of column width (seed from row index for consistency)
+- Row count: fill visible area (typically 5-8 rows)
+
+#### 6.4.3 Spinner
+
+For single-item or action-triggered loading:
+
+- Size: 24×24 (default), 16×16 (compact), 32×32 (large)
+- Color: `Primary` (or `OnAccent` on primary backgrounds)
+- Animation: 360° rotation, 800ms per revolution, `Linear` easing
+- Position: centered in the loading region
+
+#### 6.4.4 Empty State Template
+
+![Empty State Template](assets/anatomy/empty_state.svg)
+
+- Vertically and horizontally centered in the region
+- Spacing: Illustration → Title: `Px16`; Title → Description: `Px8`; Description → CTA: `Px16`
+
+**Scenario variants**:
+
+| Scenario | Title | Description | CTA |
+|----------|-------|-------------|-----|
+| No data yet | "No items" | "Click + to add your first item" | "Add Item" |
+| No search results | "No results found" | "Try adjusting your search or filters" | "Clear Filters" |
+| Empty document | "Empty document" | "Start by adding geometry or importing a file" | "Import" |
+
+#### 6.4.5 Error State Template
+
+![Error State Template](assets/anatomy/error_state.svg)
+
+**Error message template**: `"[What happened]. [What you can do]."`
+- Example: "Failed to load mesh data. Check your network connection and try again."
+
+---
+
+
+## I.7 Interaction
+
+> 🆕 Cross-component interaction patterns, accessibility design rules, and i18n design.
+
+### 7.1 Selection Model 🆕
+
+> 🆕 Post-v1 supplement.
+
+#### 7.1.1 Selection FSM
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Normal
-    Normal --> Hovered: mouseEnter
-    Hovered --> Normal: mouseLeave
-    Hovered --> Pressed: mouseDown
-    Pressed --> Hovered: mouseUp
-    Normal --> Focused: focusIn
-    Focused --> Normal: focusOut
-    Normal --> Disabled: setEnabled(false)
-    Disabled --> Normal: setEnabled(true)
-
-    note right of Hovered
-        bg: Fill -> FillHover (200ms OutCubic)
-        fg: TextPrimary (no change)
-        border: BorderDefault -> BorderStrong
-    end note
+    [*] --> None
+    None --> Single : Click item
+    Single --> Single : Click different item
+    Single --> Multi : Ctrl+Click another item
+    Single --> Range : Shift+Click another item
+    Multi --> Multi : Ctrl+Click (toggle)
+    Multi --> Single : Click without modifier
+    Range --> Range : Shift+Click (extend)
+    Range --> Single : Click without modifier
+    Single --> None : Escape / Click empty area
+    Multi --> None : Escape
+    Range --> None : Escape
+    None --> Multi : Ctrl+A (select all)
 ```
 
-### 14.3 Animation Notifications
+| State | Behavior |
+|-------|----------|
+| **None** | No items selected. Anchor = undefined. |
+| **Single** | Exactly one item selected. Anchor = selected item. |
+| **Multi** | Multiple discrete items selected. Anchor = last Ctrl+Clicked item. |
+| **Range** | Contiguous range `[anchor, focus]` selected. Anchor unchanged, focus = last clicked. |
 
-Three notification types dispatched via `WidgetNode::SendNotification()`:
+#### 7.1.2 Modifier Key Semantics
 
-| Notification | Payload | When |
-|-------------|---------|------|
-| `AnimationStarted` | `{ propertyId, handle }` | Animation begins (or snaps in test mode) |
-| `AnimationCompleted` | `{ propertyId, handle }` | Animation reaches target |
-| `AnimationCancelled` | `{ propertyId, handle }` | Animation cancelled by `Cancel()` or new animation on same property |
+| Gesture | Effect |
+|---------|--------|
+| **Click** (no modifier) | Clear selection, select clicked item, set anchor = focus = clicked |
+| **Ctrl+Click** | Toggle clicked item in/out of selection set. Anchor = clicked. |
+| **Shift+Click** | Select contiguous range `[anchor, clicked]`. Focus = clicked. Anchor unchanged. |
+| **Ctrl+A** | Select all items. Anchor = first, focus = last. |
+| **Escape** | Clear selection → None state. |
+| **Arrow keys** | Move focus. Without Shift: clear + select focused. With Shift: extend range. |
 
-### 14.4 Animation in Test Mode
+#### 7.1.3 Rubber-Band Selection
 
-When `SetAnimationOverride(0)` is active:
-- All `Animate()` calls set target value immediately (no interpolation)
-- `AnimationStarted` is dispatched (trigger-verification tests work)
-- `AnimationCompleted` is dispatched immediately after Started
-- No `QPropertyAnimation` objects are created
-- Zero visual delay -- all widget tests remain deterministic
+For spatial layouts (viewport, icon grid):
 
-### 14.5 Per-Widget Animation Catalog (Summary Index)
+- **Initiation**: MouseDown on empty area (not on any item)
+- **Rect**: `min(startPos, currentPos)` to `max(startPos, currentPos)`
+- **Selection**: All items whose bounding rect intersects the rubber-band rect
+- **Visual**: Semi-transparent `Primary` fill (opacity 0.15) + `Primary` border (1px)
+- **Modifier**: Ctrl held during rubber-band → additive (union with existing selection)
 
-> This table is a convenience index. The authoritative animation specification
-> for each widget is in its Chapter 10 "Animation" section.
+#### 7.1.4 Visual Specification
 
-| Widget | Animated Properties | Duration | Easing |
-|--------|-------------------|:--------:|--------|
-| PushButton | bg, fg, border colors | Normal | OutCubic |
-| Toggle | track color, thumb position | Normal | Spring |
-| GroupBox | ArrowRotation, ContentHeight | Slow | OutCubic |
-| CollapsibleSection | ArrowRotation, ContentHeight | Slow | OutCubic |
-| StackedWidget | Opacity (cross-fade) | Normal | OutCubic |
-| Notification | SlideOffset (slide-in/out) | Normal | OutCubic |
-| ComboBox | SlideOffset (dropdown) | Quick | OutCubic |
-| Menu | SlideOffset (popup) | Quick | OutCubic |
+| Element | Token | Description |
+|---------|-------|-------------|
+| Selected row background | `PrimaryBg` | Light accent background |
+| Selected row text | `Primary` | Accent text |
+| Focus indicator | 2px `Primary` border (focus ring) | Keyboard focus within selection |
+| Rubber-band fill | `Primary` opacity 0.15 | Drag selection rectangle |
+| Rubber-band border | `Primary` 1px | Drag selection rectangle border |
+
+#### 7.1.5 Cross-View Synchronization
+
+When multiple widgets observe the same data model (e.g., TreeWidget + DataTable):
+- `SharedSelectionModel`: a notification-based model that multiple widgets subscribe to
+- `SelectionChanged` notification carries the full `vector<int>` of selected indices
+- Each widget maps indices to its own visual representation independently
+- Selection changes from any source propagate to all observers
 
 ---
 
-## Chapter 15. Accessibility: Reduced Motion
+### 7.2 Form Validation 🆕
 
-### 15.1 WCAG 2.1 SC 2.3.3 Compliance
+> 🆕 Post-v1 supplement.
 
-WCAG Success Criterion 2.3.3 (AAA): Motion animation triggered by interaction
-can be disabled. Matcha provides `SetReducedMotion(true)` which instantly snaps
-all animations to their target values.
+#### 7.2.1 Validation Rule Types
 
-### 15.2 OS Detection
+| Rule | Parameters | Example |
+|------|-----------|---------|
+| `Required` | (none) | Field must not be empty |
+| `MinLength(n)` | `int n` | Text length ≥ n |
+| `MaxLength(n)` | `int n` | Text length ≤ n |
+| `Range(min, max)` | `double min, max` | Numeric value in `[min, max]` |
+| `Regex(pattern)` | `string pattern` | Text matches regex |
+| `Custom(predicate)` | `function<bool(string)>` | Application-defined rule |
+| `CrossField(otherField, predicate)` | `string fieldId, function` | Depends on another field's value |
 
-| Platform | API | Detection |
-|----------|-----|-----------|
-| Windows | `SystemParametersInfoW(SPI_GETCLIENTAREAANIMATION)` | Returns `FALSE` if animations disabled |
-| macOS | `NSWorkspace.accessibilityDisplayShouldReduceMotion` | Returns `YES` if reduce motion enabled |
-| Linux/GNOME | `org.gnome.desktop.interface.enable-animations` | GSettings boolean |
+#### 7.2.2 Validation Trigger Timing
 
-`Application::Initialize()` queries OS preference on startup and calls
-`AnimationService::SetReducedMotion()` accordingly.
+| Trigger | When | Use Case |
+|---------|------|----------|
+| **onChange** | After each keystroke (debounced 300ms) | Real-time feedback for format rules (e.g., email format) |
+| **onBlur** | When field loses focus | Standard validation timing for most fields |
+| **onSubmit** | When form submit is requested | Final validation gate before action |
 
-### 15.3 Behavioral Contract
+**Default**: `onBlur` for individual fields, `onSubmit` for form-level validation.
 
-When reduced motion is active:
-- `Animate()` snaps to target (0ms duration)
-- `AnimateSpring()` snaps to target
-- `AnimateGroup()` snaps all members
-- State transition colors snap (no interpolation)
-- `AnimationStarted` / `AnimationCompleted` are still dispatched
-- Scroll animations snap (no smooth scrolling)
-- Page transition cross-fades snap (instant switch)
+#### 7.2.3 Error Display Specification
 
----
----
+**Position**: Inline below the field (default).
 
-# Part V -- Iconography & Cursors
+![Field Validation Error](assets/anatomy/field_validation.svg)
 
-> Chapters 16-17.
+**Style**:
+- Field border: `Error` color, `Px2` width (overrides normal `Px1`)
+- Error text: `FontRole::Caption`, `Error6` color
+- Error icon: optional `⚠` prefix, `Error6` color, inline with text
+- Animation: field border color transition `Normal` (200ms) `OutCubic`
+- On submit with errors: first invalid field receives focus + scroll-to-visible
 
-## Chapter 16. Icon System
-
-> Complete reference for icon identification, design language, URI hierarchy,
-> color inheritance, resolution pipeline, and plugin extensibility.
-
-### 16.1 Design Philosophy
-
-An icon system for a CAD/CAE desktop application faces fundamentally different
-constraints than web icon libraries:
-
-| Constraint | Web (Material/Lucide) | Desktop CAD (Matcha) | Design Consequence |
-|------------|----------------------|----------------------|-------------------|
-| **Icon count** | 1,000-5,000 general-purpose | 300-800 domain-specific + general | Need open registry, not closed enum |
-| **Extensibility** | npm package update | Plugin DLL at runtime | URI-based, not ordinal-based |
-| **Colorization** | CSS `color` property | Theme-aware, multi-token | SVG `fill`/`stroke` replacement at load |
-| **Size range** | 16-48px, discrete | 12-32px, 5 discrete sizes | Pixel-grid aligned at each size |
-| **Semantic density** | Low (generic actions) | High (mesh op vs part op vs sketch op) | Hierarchical classification needed |
-| **DPI awareness** | CSS handles scaling | Qt devicePixelRatio | Integer pixel sizes, no fractional |
-
-**Core design decision**: Replace the closed `IconToken` enum with an open
-URI-based `IconId` system. This trades compile-time exhaustiveness for runtime
-extensibility -- the correct trade-off when plugin count is unbounded and icon
-vocabulary is domain-specific.
-
-> **URI-Based Icon System** -- Replace closed `IconToken` enum with open `asset://` URI strings. Plugins need to register domain-specific icons. Icon lookup uses string hash map instead of array index; slight runtime cost, negligible with caching.
-
-### 16.2 URI Hierarchy Design
-
-#### 16.2.1 URI Scheme
-
-All icon identifiers follow the `asset://` URI scheme:
-
-```
-asset://<authority>/<category>/<name>
-```
-
-| Component | Description | Examples |
-|-----------|-------------|---------|
-| **Scheme** | Always `asset://` | Fixed protocol identifier |
-| **Authority** | Icon set owner (vendor/plugin namespace) | `matcha`, `fea-plugin`, `cfd-viz` |
-| **Category** | Functional grouping within the authority | `icons`, `cursors`, `logos` |
-| **Name** | Leaf identifier (no extension) | `save`, `undo`, `mesh-boolean` |
-
-**Design rationale**: The three-level hierarchy (authority/category/name)
-mirrors the organizational structure of a plugin ecosystem:
-
-1. **Authority** prevents namespace collisions between independent plugins
-2. **Category** separates icon types (UI icons vs domain glyphs vs logos)
-3. **Name** identifies the specific glyph within its category
-
-#### 16.2.2 Built-in URI Prefix
-
-```cpp
-constexpr std::string_view kMatchaIconPrefix = "asset://matcha/icons/";
-```
-
-All framework-provided icons live under this prefix. The `fw::icons::`
-namespace provides compile-time constants:
-
-```cpp
-namespace fw::icons {
-    inline constexpr std::string_view Save       = "asset://matcha/icons/save";
-    inline constexpr std::string_view Undo       = "asset://matcha/icons/undo";
-    inline constexpr std::string_view Redo       = "asset://matcha/icons/redo";
-    inline constexpr std::string_view Close      = "asset://matcha/icons/close";
-    inline constexpr std::string_view ChevronR   = "asset://matcha/icons/chevron-right";
-    // ~50 total
-}
-```
-
-**Why `constexpr string_view` and not `constexpr char[]`**: `string_view` provides
-`.size()`, comparison operators, and hash support without heap allocation.
-The string data resides in `.rodata`. At callsite, `fw::icons::Save` is
-zero-cost -- no allocation, no copy, just a pointer+length pair.
-
-#### 16.2.3 Plugin URI Convention
-
-Plugins register their own authority:
-
-```cpp
-// FEA plugin registers its icon directory
-theme.RegisterIconDirectory("asset://fea-plugin/icons/",
-                            pluginPath + "/icons");
-
-// Usage in plugin code
-button.SetIcon("asset://fea-plugin/icons/stress-field");
-```
-
-**Collision prevention rule**: Each plugin MUST use a unique authority string.
-The convention is `<plugin-id>/icons/` where `plugin-id` matches
-`IExpansionPlugin::Id()`.
-
-#### 16.2.4 URI Resolution Order
-
-When `ResolveIcon(iconId, size, color)` is called:
-
-1. Look up `iconId` in `_iconRegistry` (hash map: `string -> filesystem path`)
-2. If found: load SVG from path, colorize, rasterize at `size` px
-3. If not found: return null `QIcon` (caller should handle gracefully)
-
-No fallback chain. No wildcard matching. This is intentional -- ambiguous
-resolution creates debugging nightmares in plugin-heavy environments.
-
-### 16.3 Icon Design Language
-
-#### 16.3.1 Grid Specification
-
-All Matcha icons are designed on a **square pixel grid** with consistent
-optical sizing rules:
-
-| Property | Value | Rationale |
-|----------|-------|-----------|
-| **Canvas** | N x N px (where N = target IconSize) | 1:1 mapping to render size |
-| **Safe area** | 2px inset on each edge | Prevents optical clipping at small sizes |
-| **Stroke weight** | 1.5px (Sm/Md), 2.0px (Lg/Xl) | Maintains legibility across sizes |
-| **Corner radius** | 1px (internal shapes) | Consistent with RadiusToken::Small |
-| **Optical alignment** | Centered within safe area | Triangular shapes shift right 0.5-1px for optical centering |
-
-```
-+------------------+     N = 16px example
-|  2px padding     |
-|  +------------+  |
-|  |            |  |     12 x 12 px safe area
-|  |   glyph   |  |     1.5px stroke weight
-|  |            |  |
-|  +------------+  |
-|                  |
-+------------------+
-```
-
-**Why fixed stroke weight, not proportional?** At 12-32px sizes, proportional
-stroke weight (e.g., 10% of canvas) produces strokes of 1.2px-3.2px, which
-causes sub-pixel rendering artifacts on non-Retina displays. Fixed weight
-at 1.5px snaps cleanly to the pixel grid at 1x DPR.
-
-#### 16.3.2 Style Principles
-
-| Principle | Description | Counter-example |
-|-----------|-------------|----------------|
-| **Outlined, not filled** | Default style uses stroke outlines, not solid fill | Avoids visual heaviness in dense toolbars |
-| **Geometric, not organic** | Shapes derived from circles, rectangles, 45-degree diagonals | Organic curves feel out of place in engineering UI |
-| **Minimal detail** | Each icon conveys one concept with minimum strokes | No decorative elements, no drop shadows |
-| **Neutral weight** | Visual weight balanced across the icon set | No icon should "pop" more than others at same size |
-| **Consistent metaphor** | Same real-world concept = same visual treatment | Arrow always means navigation, pencil always means edit |
-
-**Design thinking**: The outlined geometric style is chosen because:
-1. **Colorization**: Outlined icons respond better to single-color tinting than filled icons
-2. **Density**: Engineering toolbars pack 20-40 icons; outlined style reduces visual noise
-3. **Accessibility**: High contrast between stroke and background at all sizes
-4. **Scalability**: Geometric primitives scale cleanly across the 5 size stops
-
-#### 16.3.3 Size-Specific Optimization
-
-Icons are NOT simply scaled from a single master. Each IconSize has its own
-SVG optimized for that pixel grid:
-
-| IconSize | Pixels | Use Case | Optimization |
-|----------|:------:|----------|-------------|
-| `Xs` (12) | 12x12 | Inline indicators, tree expand/collapse | Simplified to 2-3 strokes max |
-| `Sm` (16) | 16x16 | Menu items, small buttons, status bar | Standard detail level |
-| `Md` (20) | 20x20 | Toolbar buttons (default) | Full detail level |
-| `Lg` (24) | 24x24 | Large toolbar, card headers | Additional detail possible |
-| `Xl` (32) | 32x32 | Feature icons, empty states | Maximum detail, optional fill |
-
-**Fallback rule**: If a specific size variant is not available, the resolution
-pipeline selects the nearest larger size and scales down (never scales up).
-Scaling down preserves detail; scaling up creates blurriness.
-
-### 16.4 Icon Classification Taxonomy
-
-#### 16.4.1 Seven Functional Categories
-
-Icons are organized by their **semantic function**, not by visual appearance:
-
-| Category | URI Segment | Count | Description |
-|----------|-------------|:-----:|-------------|
-| **File** | `file-*` | ~8 | Document lifecycle: new, open, save, save-as, close, import, export, print |
-| **Edit** | `edit-*` | ~8 | Modification actions: undo, redo, cut, copy, paste, delete, select-all, find |
-| **View** | `view-*` | ~6 | Display control: zoom-in, zoom-out, fit-all, grid-toggle, wireframe, shaded |
-| **Navigation** | `nav-*` or directional | ~8 | Spatial movement: arrow-*, chevron-*, expand, collapse, home, back |
-| **Action** | (domain-specific) | ~10 | Generic actions: add, remove, refresh, settings, filter, sort, pin, lock |
-| **Status** | `status-*` | ~5 | State indicators: check, warning, error, info, loading |
-| **UI Chrome** | `ui-*` | ~5 | Framework chrome: close, minimize, maximize, restore, menu |
-
-#### 16.4.2 Domain-Specific Categories (Plugin-Registered)
-
-| Domain | Authority | Typical Icons | Count |
-|--------|-----------|--------------|:-----:|
-| **Part Design** | `part-design` | extrude, revolve, fillet, chamfer, pocket, pad, mirror, pattern | ~70 |
-| **Mesh Operations** | `mesh-ops` | boolean-union, boolean-subtract, boolean-intersect, refine, decimate | ~55 |
-| **Sketch** | `sketch` | line, arc, circle, rectangle, spline, dimension, constraint | ~40 |
-| **View Control** | `view-ctrl` | orbit, pan, zoom-window, section-plane, explode | ~50 |
-| **FEA** | `fea-plugin` | stress-field, displacement, mesh-quality, boundary-condition | ~30 |
-| **CFD** | `cfd-viz` | velocity-field, pressure-contour, streamline, particle-trace | ~20 |
-
-**Total icon assets**: ~830 (see section 8.13 for detailed art asset inventory).
-
-#### 16.4.3 Naming Convention
-
-Icon names within each category follow a consistent pattern:
-
-```
-<verb>-<object>[-<modifier>]
-```
-
-| Pattern | Example | Description |
-|---------|---------|-------------|
-| `<verb>` | `save`, `undo`, `close` | Single-action icons |
-| `<verb>-<object>` | `zoom-in`, `fit-all`, `select-face` | Action on target |
-| `<object>-<modifier>` | `arrow-right`, `chevron-down` | Parameterized variants |
-| `<state>` | `check`, `warning`, `error` | Status indicators |
-
-**Forbidden patterns**:
-- No size suffixes in names (size is a query parameter, not identity)
-- No color suffixes (color is determined by theme context)
-- No file extensions (`.svg` is an implementation detail)
-
-### 16.5 Color Inheritance Model
-
-#### 16.5.1 Single-Token Colorization
-
-The default colorization model: each icon inherits a **single foreground color**
-from its widget context. This color is applied uniformly to all `stroke` and
-`fill` attributes in the SVG.
-
-```
-Icon Color = f(widget context)
-
-where:
-  - Button icon     -> ResolvedStyle.fg (from variant x state)
-  - Menu item icon  -> ColorToken::TextPrimary (normal) / TextDisabled (disabled)
-  - Status icon     -> Semantic color (Success/Warning/Error/Info hue step 6)
-  - Tree node icon  -> ColorToken::TextSecondary
-```
-
-**Why single-token, not multi-token?** Multi-colored icons (e.g., folder with
-yellow body + blue tab) create three problems:
-1. **Theme brittleness**: Each color must be mapped to a token; N colors = N bindings
-2. **Contrast unpredictability**: Color combinations may fail WCAG in some themes
-3. **Cognitive overhead**: Colored icons compete with semantic color signals (error red, success green)
-
-For the rare case where multi-color is needed (e.g., application logos), use
-pre-rendered PNG assets instead of colorized SVG.
-
-#### 16.5.2 Colorization Algorithm
-
-```
-For each SVG element:
-  1. If element has `fill` attribute and `fill != "none"`:
-     Replace fill value with tintColor
-  2. If element has `stroke` attribute and `stroke != "none"`:
-     Replace stroke value with tintColor
-  3. If element has `opacity` attribute: preserve as-is
-  4. If element has class="preserve-color": skip colorization
-```
-
-The `preserve-color` CSS class is an escape hatch for icons that must retain
-their original colors (rare; used only for brand logos in About dialogs).
-
-#### 16.5.3 State-Dependent Color Mapping
-
-Icon color tracks the widget's `InteractionState` through the resolved style:
-
-| Widget State | Icon Color Source | Typical Result (Light) | Typical Result (Dark) |
-|-------------|-------------------|----------------------|---------------------|
-| Normal | `ResolvedStyle.fg` | `TextPrimary` (~#1C1C1E) | `TextPrimary` (~#E5E5E7) |
-| Hovered | `ResolvedStyle.fg` | Same (hover changes bg, not fg) | Same |
-| Pressed | `ResolvedStyle.fg` | Slightly adjusted | Slightly adjusted |
-| Disabled | `ResolvedStyle.fg` | `TextDisabled` (~#A0A0A8) | `TextDisabled` (~#5C5C64) |
-| Focused | `ResolvedStyle.fg` | Same as Normal | Same as Normal |
-| Selected | `ResolvedStyle.fg` | `OnAccent` (white) on accent bg | `OnAccent` on accent bg |
-
-**Key principle**: The icon never independently determines its color. It always
-inherits from the enclosing widget's resolved style. This ensures visual
-consistency between icon and label text within the same widget.
-
-#### 16.5.4 Semantic Status Icons
-
-Exception to single-token model: status indicator icons (check, warning, error,
-info) use their **semantic hue color** rather than the widget foreground:
-
-| Status Icon | Color Token | Rationale |
-|------------|-------------|-----------|
-| `check` / `success` | `Success6` | Green conveys positive state |
-| `warning` | `Warning6` | Amber conveys caution |
-| `error` | `Error6` | Red conveys failure |
-| `info` | `Info6` | Blue conveys information |
-
-These are colorized with the hue step 6 (mid-tone) of the respective semantic
-palette, ensuring WCAG AA contrast against both Surface and SurfaceContainer
-backgrounds in all themes.
-
-### 16.6 SVG Format Requirements
-
-#### 16.6.1 Authoring Rules
-
-| Rule | Detail | Rationale |
-|------|--------|-----------|
-| **Root `viewBox`** | Must be `"0 0 N N"` where N = target size | Enables correct scaling |
-| **No embedded styles** | No `<style>` block; use inline attributes | Colorization replaces inline attrs |
-| **No `<text>` elements** | Text must be converted to paths | Font unavailability on target system |
-| **No `<image>` references** | No embedded raster images | Defeats colorization purpose |
-| **No gradients** | Flat fills/strokes only | Gradients break single-token colorization |
-| **Coordinates snapped** | All coordinates on 0.5px grid | Prevents sub-pixel blur at 1x DPR |
-| **Minimal DOM** | Flatten groups, remove Illustrator metadata | Reduces parse time |
-| **`fill="currentColor"`** | Default fill value in source SVG | Signals colorization intent |
-
-#### 16.6.2 File Organization
-
-```
-Resources/Icons/
-  16/                     <- Sm size variants
-    save.svg
-    undo.svg
-    ...
-  20/                     <- Md size variants (default)
-    save.svg
-    undo.svg
-    ...
-  24/                     <- Lg size variants
-    save.svg
-    ...
-  32/                     <- Xl size variants
-    save.svg
-    ...
-```
-
-`RegisterIconDirectory()` scans the directory, registering each `.svg` file
-as a URI. Size selection happens at `ResolveIcon()` time based on the
-requested `IconSize`.
-
-### 16.7 Resolution Pipeline
-
-#### 16.7.1 API
-
-```cpp
-auto IThemeService::ResolveIcon(const IconId& iconId,
-                                 IconSize size,
-                                 QColor tintColor) -> QIcon;
-```
-
-#### 16.7.2 Pipeline Stages
+#### 7.2.4 Field State FSM
 
 ```mermaid
-flowchart LR
-    A[IconId string] --> B{Cache lookup}
-    B -->|Hit| G[Return cached QIcon]
-    B -->|Miss| C[Registry lookup]
-    C -->|Not found| H[Return null QIcon]
-    C -->|Found path| D[Load SVG bytes]
-    D --> E[Colorize: replace fill/stroke]
-    E --> F[Rasterize at size x DPR]
-    F --> G2[Insert into cache]
-    G2 --> G
+stateDiagram-v2
+    [*] --> Pristine
+    Pristine --> Dirty : First edit (any character change)
+    Dirty --> Touched : First blur (focus-out)
+    Touched --> Validating : Trigger fires
+    Validating --> Valid : All rules pass
+    Validating --> Invalid : Any rule fails
+    Valid --> Dirty : User edits again
+    Invalid --> Dirty : User edits again
+    Dirty --> Validating : onChange trigger (debounced)
+    Touched --> Validating : onBlur trigger
 ```
 
-#### 16.7.3 Cache Architecture
+| State | Visual | Submit Allowed |
+|-------|--------|:--------------:|
+| Pristine | Normal border | Yes (skip validation) |
+| Dirty | Normal border | Depends on trigger |
+| Touched | Normal border | Depends on trigger |
+| Validating | Normal border (brief) | No |
+| Valid | Normal border (or Success border if configured) | Yes |
+| Invalid | Error border + error message | No |
+
+#### 7.2.5 Submit Flow
+
+```
+1. User triggers submit (Enter key or Submit button click)
+2. validateAll(): iterate all fields, fire onSubmit trigger
+3. If all Valid → execute onSubmit callback
+4. If any Invalid:
+   a. Focus first invalid field
+   b. Scroll to make it visible (smooth scroll, 200ms OutCubic)
+   c. Show all error messages simultaneously
+   d. Submit button remains enabled (user can retry after fixing)
+```
+
+#### 7.2.6 Error Prevention (Nielsen #5) 🆕
+
+| Pattern | When | Behavior |
+|---------|------|----------|
+| **Destructive action confirm** | Delete, overwrite, reset | Confirm dialog with Danger-variant button |
+| **Explicit typing confirm** | Irreversible destructive action (e.g., "Delete project") | Dialog requires user to type resource name to confirm |
+| **Input constraint** | Known invalid states | Disable submit button while any field is Invalid; disable increment button at max value |
+| **Undo availability** | After any destructive action | Show Toast with "Undo" action button (5s timeout) |
+
+---
+
+### 7.3 Scroll & Virtualization 🆕
+
+> 🆕 Post-v1 supplement.
+
+#### 7.3.1 Scroll Physics
+
+**Momentum scrolling** (after touch/trackpad flick release):
+
+$$v(t + \Delta t) = v(t) \times \text{friction}^{\Delta t}$$
+
+| Parameter | Value | Platform |
+|-----------|:-----:|---------|
+| friction | 0.95 per frame (60fps) | All |
+| Stop threshold | `abs(v) < 0.5` px/frame | All |
+| Max initial velocity | 5000 px/s | All |
+
+#### 7.3.2 Overscroll Behavior
+
+| Behavior | Description | Platform Default |
+|----------|-------------|:---------------:|
+| **Clamp** | Hard stop at boundary, no visual feedback | Windows |
+| **Bounce** | Spring-back from boundary, max 30px overshoot | macOS |
+| **Glow** | Edge glow indicator, no content displacement | (Android-style, optional) |
+
+**Bounce spring parameters**: `stiffness=300, damping=20, maxOverscroll=30px`
+
+#### 7.3.3 Snap Points
+
+After momentum scrolling ends, if snap points are defined:
+1. Find nearest snap point to current scroll position
+2. Animate to snap point: `200ms, OutCubic`
+
+`SnapAlignment` enum: `Start` (snap item's top to viewport top), `Center`, `End`.
+
+#### 7.3.4 Virtual Scrolling
+
+**Trigger**: `itemCount > virtualScrollThreshold` (default: 100, configurable per widget).
+
+**Strategy**:
+- Render only visible items + buffer zone (2× viewport height above and below)
+- Recycle pool: reuse widget instances for off-screen items
+- Total scroll extent: `itemCount × estimatedRowHeight` (adjusted as items are measured)
+- Scroll position → visible range: `firstVisible = floor(scrollY / rowHeight)`
+
+**Notification**: `VisibleRangeChanged(int firstVisible, int lastVisible)` — enables
+lazy data loading for the visible range.
+
+#### 7.3.5 Scroll-to-Focus
+
+When keyboard focus changes (Tab, mnemonic activation, programmatic `SetFocus()`):
+- If focused widget is outside the visible scroll area:
+  - Smooth scroll to make it visible: `200ms, OutCubic`
+  - Target position: widget fully visible with `Px8` margin from scroll edge
+- If already visible: no scroll
+
+---
+
+### 7.4 Popup Positioning 🆕
+
+> 🆕 Post-v1 supplement.
+
+#### 7.4.1 Anchor Alignment (12 Positions)
+
+![Anchor Positions (12)](assets/anatomy/anchor_positions.svg)
+
+**Default placements** by popup type:
+
+| Popup Type | Default Anchor | Offset |
+|-----------|:-------------:|:------:|
+| ComboBox dropdown | `BottomStart` | (0, 4) |
+| Menu (from MenuBar) | `BottomStart` | (0, 0) |
+| Submenu | `RightStart` | (0, 0) |
+| Tooltip | `Top` | (0, -8) |
+| DatePicker calendar | `BottomStart` | (0, 4) |
+| Cascader panel | `RightStart` | (0, 0) |
+| Context menu | At cursor position | (0, 0) |
+
+#### 7.4.2 Flip / Shift / Resize Strategy
+
+When the popup would extend beyond the screen, apply corrections in this order:
+
+```
+1. FLIP (primary axis):
+   If popup overflows on the primary axis (e.g., below screen for BottomStart),
+   flip to opposite side (TopStart).
+
+2. SHIFT (cross axis):
+   If popup overflows on the cross axis (e.g., right edge for BottomStart),
+   shift left until fully visible. Minimum 8px margin from screen edge.
+
+3. RESIZE:
+   If popup still overflows after flip+shift, reduce popup size:
+   maxHeight = availableSpace - 8px margin
+   Add internal ScrollArea if content exceeds maxHeight.
+```
+
+#### 7.4.3 Maximum Height Calculation
+
+$$\text{maxHeight} = \min(\text{requestedMax},\; \text{screenEdge} - \text{popupTop} - 8)$$
+
+- If `maxHeight < 120px` after flip: flip to opposite side and recalculate
+- If content exceeds maxHeight: popup gets internal `ScrollArea`
+- ComboBox dropdown: `maxHeight = min(300px, calculated)`
+- Menu: `maxHeight = min(400px, calculated)`
+
+#### 7.4.4 Screen Edge Detection
+
+Use `QScreen::availableGeometry()` (excludes taskbar/dock) for the screen containing
+the anchor widget. Safety margin: 8px from all edges.
+
+For multi-monitor setups: use the screen that contains the anchor widget's center point.
+
+### 7.5 Text Overflow & Truncation 🆕
+
+> 🆕 Post-v1 supplement.
+
+#### 7.5.1 Per-Widget Elide Rules
+
+| Widget | Elide Direction | Max Lines | Tooltip on Truncation |
+|--------|:--------------:|:---------:|:---------------------:|
+| PushButton label | Right | 1 | Yes |
+| ToolButton label | Right | 1 | Yes |
+| TabWidget tab title | Right | 1 | Yes (maxWidth=120px) |
+| Label | Right (default) | Configurable | Yes |
+| DataTable cell | Right | 1 | Yes |
+| TreeWidget node | Right | 1 | Yes |
+| ComboBox selected text | Right | 1 | Yes |
+| StatusBar text | Right | 1 | Yes |
+| Tag text | Right | 1 | No (tag should be short) |
+| Menu item label | None (always fit) | 1 | No |
+| Tooltip text | None | 3 (clamp) | No |
+| CollapsibleSection title | Right | 1 | Yes |
+
+#### 7.5.2 Multi-Line Clamp
+
+For widgets that support multiple lines (Label, Message description, Empty State text):
+- `SetMaxLines(int n)`: content is clamped to `n` lines
+- Last visible line shows "..." at the end if text is truncated
+- Line height: per `FontRole` line-height from Typography system
+
+#### 7.5.3 Truncation-Triggered Tooltip
+
+**Condition**: Tooltip is shown if and only if `text.isElided() == true`.
+
+**Behavior**:
+- Tooltip content = full untruncated text
+- Tooltip appears on hover with standard `tooltipDelay` (500ms, see §8.7)
+- If widget already has an explicit tooltip set, the explicit tooltip takes priority
+
+---
+
+### 7.6 Context Menu Composition 🆕
+
+> 🆕 Post-v1 supplement.
+
+#### 7.6.1 Multi-Source Item Contribution
+
+Context menus can receive items from multiple UiNode contributors in the tree:
+
+```
+ContextMenuRequest notification propagates upward:
+  WidgetNode (adds widget-specific items: Cut, Copy, Paste)
+  → ContainerNode (adds container items: Select All)
+  → WorkbenchNode (adds workbench items: Properties)
+  → ShellNode (adds global items: Preferences)
+```
+
+Each contributor appends items to the `ContextMenuBuilder` with:
+- **group** (`string`): logical grouping name (e.g., "edit", "view", "global")
+- **priority** (`int`): ordering within group (lower = earlier, default = 100)
+
+#### 7.6.2 Ordering Algorithm
+
+```
+1. Collect all contributed items
+2. Group items by `group` string
+3. Order groups: "edit" < "selection" < "view" < "navigate" < "global" (predefined order)
+4. Within each group: sort by priority (ascending)
+5. Insert separator between groups (auto-inserted, not manually added)
+6. Remove trailing/leading/duplicate separators
+```
+
+#### 7.6.3 Conditional Visibility
+
+Each menu item can have a `visibleWhen` predicate:
+
+| Predicate | Example |
+|-----------|---------|
+| `HasSelection` | "Cut", "Copy" visible only when selection exists |
+| `IsEditable` | "Paste" visible only when target accepts input |
+| `Always` | "Properties" always visible |
+| `Custom(fn)` | Application-defined condition |
+
+Items with `visibleWhen` returning `false` are excluded from the menu entirely (not grayed out).
+
+---
+
+### 7.7 Notification Stacking 🆕
+
+> 🆕 Post-v1 supplement.
+
+#### 7.7.1 Stacking Layout
+
+Multiple simultaneous notifications (Toasts) stack vertically:
+
+![Toast Stack](assets/anatomy/toast_stack.svg)
+
+| Parameter | Value |
+|-----------|-------|
+| Position | Top-right of window, offset (16, 16) from corner |
+| Stack direction | Downward (newest on top) |
+| Gap between toasts | `SpacingToken::Px8` |
+| Max visible | 3 (additional queued) |
+| Toast width | 320px (fixed) |
+
+#### 7.7.2 Queue Management
+
+- When `maxVisible` (3) is reached, new notifications enter a FIFO queue
+- When a visible toast dismisses, the next queued toast enters with its enter animation
+- Queue has no size limit, but oldest queued items expire after 30s without being shown
+
+#### 7.7.3 Priority Override
+
+| Priority | Behavior |
+|----------|----------|
+| `Normal` (default) | FIFO queue order |
+| `High` | Bypasses queue, immediately shows (pushing others down). If already at maxVisible, oldest Normal toast is force-dismissed. |
+| `Persistent` | Does not auto-dismiss. Must be manually dismissed or programmatically removed. Counts toward maxVisible. |
+
+#### 7.7.4 Toast Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Queued
+    Queued --> Entering : Slot available
+    Entering --> Visible : Enter animation complete (200ms)
+    Visible --> Exiting : Auto-dismiss timeout / user dismiss / programmatic
+    Exiting --> [*] : Exit animation complete (150ms)
+    Visible --> Visible : Hover (pause auto-dismiss timer)
+```
+
+- Auto-dismiss timeout: 5s (default), configurable per notification
+- Hover pauses the timeout; timer resumes on mouse leave
+- Dismiss button (`×`): always visible, triggers `Exiting` immediately
+
+---
+
+### 7.8 Drag & Drop Design 🆕
+
+> 🆕 Post-v1 supplement.
+
+#### 7.8.1 Generic DnD FSM
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> DragPending : MouseDown on draggable element
+    DragPending --> Idle : MouseUp (no drag started)
+    DragPending --> Dragging : Mouse moves > 5px (manhattan distance) OR 150ms hold
+    Dragging --> DropPreview : Mouse enters valid drop zone
+    DropPreview --> Dragging : Mouse leaves drop zone
+    DropPreview --> Dropped : MouseUp on valid drop zone
+    Dragging --> Cancelled : Escape key OR MouseUp outside any drop zone
+    Dropped --> Idle : Drop action complete
+    Cancelled --> Idle : Drag preview removed
+```
+
+#### 7.8.2 Drag Initiation Thresholds
+
+| Threshold | Value | Purpose |
+|-----------|:-----:|---------|
+| Manhattan distance | 5px | Prevent accidental drags from clicks |
+| Hold duration | 150ms | Alternative trigger for touch/pen |
+| Either condition | First to occur wins | Whichever threshold is reached first |
+
+#### 7.8.3 Drag Preview (Ghost)
 
 | Property | Value |
 |----------|-------|
-| **Key** | `(uri_string, size_px, rgba_u32)` triple |
-| **Value** | `QIcon` (contains `QPixmap` at target DPR) |
-| **Structure** | `std::unordered_map<CacheKey, QIcon>` with custom hash |
-| **Invalidation** | Full cache clear on `ThemeChanged` signal |
-| **Capacity** | Unbounded (typical working set: ~200-400 entries) |
-| **Thread safety** | Main thread only (same as all UI operations) |
+| Content | Semi-transparent snapshot of dragged element |
+| Opacity | 0.7 |
+| Scale | 0.9× original size |
+| Offset | Centered under cursor (or at grab point offset) |
+| Badge | Item count badge if dragging multiple items (e.g., "3 items") |
+| Shadow | `ElevationToken::Level3` |
 
-**Why full invalidation on theme change?** Because tint colors change when
-the theme changes (dark ↔ light). Partial invalidation would require tracking
-which icons use which color tokens -- complexity not justified given that
-cache rebuild after theme switch takes < 50ms for 400 icons.
+#### 7.8.4 Drop Zone Visual Feedback
 
-### 16.8 RTL Icon Flipping
+| State | Visual |
+|-------|--------|
+| **No drop zone** | Cursor: `CursorToken::NoDrop` |
+| **Valid drop zone (idle)** | No visual change |
+| **Valid drop zone (hover)** | 2px dashed `Primary` border + `PrimaryBg` overlay (opacity 0.1) |
+| **Drop position indicator** | 2px solid `Primary` line at insertion point (for list/tree reorder) |
+| **Invalid drop zone (hover)** | Cursor: `CursorToken::NoDrop`, no zone highlight |
 
-#### 16.8.1 Flippable vs Non-Flippable
+#### 7.8.5 Cursor Feedback During Drag
 
-Not all icons should be mirrored in RTL layouts. Only **directional** icons
-are flipped:
+| Drag State | Cursor |
+|-----------|--------|
+| Dragging (no zone) | `CursorToken::Grabbing` |
+| Over valid drop zone | `CursorToken::Copy` (if copy) or `CursorToken::Move` (if move) |
+| Over invalid zone | `CursorToken::NoDrop` |
 
-| Flippable (mirror in RTL) | Non-Flippable (same in RTL) |
-|--------------------------|---------------------------|
-| `chevron-right`, `chevron-left` | `check`, `close`, `warning` |
-| `arrow-right`, `arrow-left` | `zoom-in`, `zoom-out` |
-| `undo`, `redo` | `settings`, `filter` |
-| `indent`, `outdent` | `save`, `delete` |
-| `nav-back`, `nav-forward` | Symmetric icons (plus, minus) |
+#### 7.8.6 MIME Type Registration
 
-#### 16.8.2 Flippability Determination
+Draggable sources register their data format via MIME types:
 
-```cpp
-auto IsRtlFlippable(std::string_view iconId) -> bool;
-```
+| MIME Type | Use Case |
+|-----------|----------|
+| `application/x-matcha-widget-id` | Internal widget reorder (tabs, panels) |
+| `application/x-matcha-tree-nodes` | Tree node drag (JSON array of node IDs) |
+| `application/x-matcha-table-rows` | DataTable row drag |
+| `text/plain` | Text drag from LineEdit/Label |
+| `text/uri-list` | File references |
 
-The function checks against a built-in set of known flippable icon names.
-Plugin icons are non-flippable by default. Plugins can register flippable
-icons by calling a registration API.
+Drop zones declare which MIME types they accept. Only matching types trigger valid drop zone feedback.
 
-**Design rationale**: An opt-in flippable list (rather than opt-out) is safer.
-An incorrectly flipped domain icon (e.g., a mesh operation glyph) is more
-confusing than a non-flipped directional arrow.
+### 7.9 Accessibility Design
 
-#### 16.8.3 Flip Implementation
-
-RTL flip is applied at rasterization time (after colorization):
-
-```cpp
-if (textDirection == TextDirection::RTL && IsRtlFlippable(iconId)) {
-    QImage img = pixmap.toImage().mirrored(true, false);  // horizontal flip
-    pixmap = QPixmap::fromImage(img);
-}
-```
-
-### 16.9 Plugin Icon Registration
-
-#### 16.9.1 Registration API
-
-```cpp
-auto IThemeService::RegisterIconDirectory(
-    std::string_view uriPrefix,
-    QString dirPath) -> int;
-```
-
-**Parameters**:
-- `uriPrefix`: URI prefix to register (e.g., `"asset://fea-plugin/icons/"`)
-- `dirPath`: Filesystem directory containing `.svg` files
-
-**Return**: Count of icons registered, or negative error code.
-
-**Behavior**: Scans `dirPath` for `*.svg` files. For each file `foo.svg`,
-registers `"<uriPrefix>foo"` -> `"<dirPath>/foo.svg"` in the icon registry.
-
-#### 16.9.2 Registration Lifecycle
-
-```mermaid
-sequenceDiagram
-    participant Plugin
-    participant Theme as IThemeService
-    participant Registry as IconRegistry
-
-    Plugin->>Theme: RegisterIconDirectory("asset://fea/icons/", "/plugins/fea/icons")
-    Theme->>Registry: Scan directory for *.svg
-    Registry-->>Theme: Found 30 files
-    Theme-->>Plugin: return 30
-    Note over Theme: Icons now queryable via ResolveIcon()
-    Plugin->>Theme: ResolveIcon("asset://fea/icons/stress-field", Md, color)
-    Theme-->>Plugin: QIcon (colorized, cached)
-```
-
-#### 16.9.3 Unregistration
-
-Icons registered by a plugin are NOT automatically removed when the plugin
-stops. The icon registry is append-only during application lifetime.
-This is intentional: widgets may still hold references to `IconId` strings
-after plugin shutdown, and returning null icons would cause visual artifacts.
-
-### 16.10 Accessibility Considerations
-
-| Requirement | Implementation |
-|------------|----------------|
-| **Decorative icons** | Icons next to text labels are decorative; set `QAccessible::NameChanged` to text only |
-| **Standalone icons** | Icon-only buttons MUST have `SetAccessibleName()` on the WidgetNode |
-| **High contrast** | Icons automatically adapt via colorization from high-contrast theme tokens |
-| **Reduced motion** | N/A (icons are static) |
-| **Minimum touch target** | Icon buttons must meet 32x32px minimum touch target regardless of icon size |
-
----
-
-## Chapter 17. Cursor System
-
-### 17.1 CursorToken Enum
-
-| Token | Qt Mapping | Description |
-|-------|-----------|-------------|
-| `Default` | `Qt::ArrowCursor` | Standard pointer |
-| `Pointer` | `Qt::PointingHandCursor` | Clickable element |
-| `Text` | `Qt::IBeamCursor` | Text input |
-| `Wait` | `Qt::WaitCursor` | Busy/loading |
-| `Crosshair` | `Qt::CrossCursor` | Precise selection |
-| `Move` | `Qt::SizeAllCursor` | Draggable element |
-| `SplitH` | `Qt::SplitHCursor` | Horizontal splitter |
-| `SplitV` | `Qt::SplitVCursor` | Vertical splitter |
-| `ResizeN` | `Qt::SizeVerCursor` | Resize north |
-| `ResizeE` | `Qt::SizeHorCursor` | Resize east |
-| `ResizeNE` | `Qt::SizeBDiagCursor` | Resize diagonal NE |
-| `ResizeNW` | `Qt::SizeFDiagCursor` | Resize diagonal NW |
-| `Forbidden` | `Qt::ForbiddenCursor` | Action not allowed |
-| `Grab` | `Qt::OpenHandCursor` | Grab-ready |
-| `Grabbing` | `Qt::ClosedHandCursor` | Currently grabbing |
-
-### 17.2 Widget State -> Cursor Mapping
-
-Cursors are specified per-state in `StateStyle::cursor`:
-
-```cpp
-StateStyle normal  = { .cursor = CursorToken::Pointer };   // Clickable
-StateStyle disabled = { .cursor = CursorToken::Forbidden }; // Not allowed
-StateStyle dragging = { .cursor = CursorToken::Grabbing };  // Drag in progress
-```
-
-The framework applies the cursor from the resolved `StateStyle` automatically
-when the widget's interaction state changes.
-
----
----
-
-# Part VI -- Accessibility & Internationalization
-
-> Chapters 18-19.
-
-## Chapter 18. Accessibility Infrastructure
-
-### 18.1 A11yRole Enum
+#### 7.9.1 A11yRole Enum
 
 28 semantic roles for UI elements:
 
@@ -6069,7 +7137,7 @@ when the widget's interaction state changes.
 
 **Mapping**: Each `A11yRole` maps to `QAccessible::Role` at the widget layer.
 
-### 18.2 WidgetNode Accessibility Properties
+#### 7.9.2 WidgetNode Accessibility Properties
 
 | Method | Description |
 |--------|-------------|
@@ -6080,7 +7148,7 @@ when the widget's interaction state changes.
 | `IsFocusable() -> bool` | Whether widget can receive keyboard focus |
 | `SetFocusable(bool)` | Set focus capability |
 
-### 18.3 Focus Management
+#### 7.9.3 Focus Management
 
 The focus system has three layers:
 
@@ -6090,7 +7158,7 @@ The focus system has three layers:
 | **Focus scope** | `UiNode::SetFocusScope(bool)` | Marks a subtree boundary. Tab cycling is trapped within the scope. `DialogNode` sets this automatically in its constructor |
 | **Focus manager** | `FocusManager` (global service) | Centralized tracking of focused node, cross-region F6 cycling, save/restore for dialog open/close |
 
-#### 18.3.1 Tab Key Interception
+##### 7.9.3.1 Tab Key Interception
 
 When `SetFocusable(true)` is called on a `WidgetNode`, a `FocusTabEventFilter`
 (QObject event filter) is automatically installed on the underlying QWidget.
@@ -6104,7 +7172,7 @@ On Tab/Shift+Tab keypress:
 5. Notify `GetFocusManager()->NotifyFocusGained()` so the global tracker stays in sync
 6. Event is consumed (Qt native Tab order is bypassed)
 
-#### 18.3.2 Focus Scope
+##### 7.9.3.2 Focus Scope
 
 `UiNode::SetFocusScope(true)` creates a focus trap boundary. `FocusChain::Collect()`
 does not descend into child focus scopes, so Tab/Shift+Tab cycles only within the
@@ -6119,7 +7187,7 @@ Nodes that auto-set focus scope:
 Business-layer code may set focus scope on any `UiNode` for custom trapping (e.g.,
 a floating panel or an embedded wizard).
 
-#### 18.3.3 FocusManager Service
+##### 7.9.3.3 FocusManager Service
 
 `FocusManager` is created by `Application::Initialize()` and accessed globally
 via `GetFocusManager()`.
@@ -6171,7 +7239,7 @@ Before any region operation (`FocusRegionById`, `FocusNextRegion`, `NotifyFocusG
 `PurgeStaleRegions()` removes entries whose token has expired. This prevents
 dangling `root` pointer access when a region's UiNode subtree is destroyed.
 
-#### 18.3.4 Focus Ring Painting
+##### 7.9.3.4 Focus Ring Painting
 
 **Focus ring painting**: `ThemeAware::PaintFocusRing(QPainter&, QRect, int radius)`
 
@@ -6190,14 +7258,106 @@ flowchart TD
     D --> F[No focus ring]
 ```
 
-### 18.4 ContrastChecker API
+#### 7.9.4 ContrastChecker API
 
 See Chapter 2.8 for complete API reference.
 
 **Integration with A11yAudit**: The audit tool uses `ContrastChecker::MeetsAA()`
 to verify all text-on-background combinations in a widget tree.
 
-### 18.5 A11yAudit (Test-Time Auditor)
+##### 7.9.4.1 Color Vision Deficiency (CVD) Design Rules 🆕
+
+> 🆕 Post-v1 supplement.
+> Implements **WCAG 2.1 SC 1.4.1** (Use of Color): "Color is not used as the only
+> visual means of conveying information, indicating an action, prompting a response,
+> or distinguishing a visual element."
+>
+> Approximately 8% of males and 0.5% of females have some form of color vision
+> deficiency. In CAD/CAE engineering applications, relying solely on color to encode
+> validity, quality, or state is a critical accessibility failure.
+
+**Iron Rule**: Every piece of information conveyed by color **must** also be
+conveyed by at least one redundant, non-color channel:
+
+| Redundant Channel | Applies To | Example |
+|-------------------|-----------|---------|
+| **Icon / shape** | Semantic states | Error = red **+ ⚠ icon**; Success = green **+ ✓ icon** |
+| **Text label** | Status indicators | "Valid" / "Invalid" text alongside color dot |
+| **Pattern / texture** | Data visualization | Hatching + color in mesh quality map |
+| **Position / grouping** | Categorical data | Separate columns/rows, not just color coding |
+| **Typography weight** | Emphasis | Bold + color for selected item |
+| **Border / underline** | Links, active tabs | Underline + `Link` color for hyperlinks |
+
+**Per-Semantic-Color CVD Pairing Rules**:
+
+| Semantic Color Token | Hex (Light) | CVD-Safe Redundant Cue | Never Pair With |
+|---------------------|-------------|----------------------|----------------|
+| `Error` | #DC2626 (red) | Error icon (`icon://matcha/error`) + "Error" text | `Success` without icon — red/green indistinguishable for deuteranopia |
+| `Warning` | #F59E0B (amber) | Warning icon (`icon://matcha/warning`) + "Warning" text | `Success` — amber/green can confuse tritanopia |
+| `Success` | #16A34A (green) | Checkmark icon (`icon://matcha/check-circle`) + "Success" text | `Error` — see above |
+| `Info` | #2563EB (blue) | Info icon (`icon://matcha/info`) + "Info" text | Generally safe for all CVD types |
+
+**CVD Type Reference**:
+
+| Type | Prevalence (male) | Affected Colors | Design Implication |
+|------|:-----------------:|----------------|-------------------|
+| **Deuteranopia** (green-blind) | 6% | Red ↔ Green | Most common. Never use red vs green as sole differentiator. |
+| **Protanopia** (red-blind) | 2% | Red ↔ Green | Red appears darker/brownish. Ensure red elements have sufficient lightness contrast. |
+| **Tritanopia** (blue-yellow-blind) | 0.01% | Blue ↔ Yellow | Rare. Blue/purple confusion. Avoid blue vs purple as sole differentiator. |
+| **Achromatopsia** (total color-blind) | 0.003% | All | Extremely rare. High-contrast theme (§7.9.6) provides sufficient luminance differentiation. |
+
+**Per-Widget CVD Compliance Checklist**:
+
+| Widget / Pattern | Color-Only Risk | Required Redundant Cue |
+|-----------------|----------------|----------------------|
+| Form field error state | Red border only | Red border **+ error icon** below field **+ error message text** (§7.2) |
+| Form field success state | Green border only | Green border **+ checkmark icon** |
+| Toggle on/off | Green=on, gray=off | Color **+ handle position** (left=off, right=on) **+ "ON"/"OFF" label** (optional per §5.10) |
+| ProgressBar (success/error) | Green/red fill | Color **+ icon at end** **+ percentage text** |
+| Badge (severity) | Red/yellow/green dot | Color **+ severity text** or **+ icon** |
+| DataTable sort indicator | Highlighted column | Color **+ ▲/▼ arrow icon** (already specified in §5.19) |
+| Tree node state | Color-only selected highlight | Color **+ bold text weight** **+ left accent bar** |
+| Tab active indicator | Color underline | Color **+ 2px underline thickness** (vs 0px inactive) — already a shape cue |
+| StatusBar message severity | Color-coded text | Color **+ severity icon prefix** (§7.11) |
+| Chart / data visualization | Color-coded series | Color **+ distinct line pattern** (solid/dashed/dotted) **+ shape markers** (circle/square/triangle) |
+
+**Lightness Separation Rule**:
+
+When two semantic colors must be distinguishable (e.g., Error vs Warning in a
+multi-error summary), they must differ by at least **ΔL ≥ 20** in OKLCH lightness,
+ensuring distinguishability even under total desaturation:
+
+| Pair | L (Error) | L (Warning) | L (Success) | ΔL |
+|------|:---------:|:-----------:|:-----------:|:--:|
+| Error vs Warning | 0.55 | 0.75 | — | 20 ✅ |
+| Error vs Success | 0.55 | — | 0.60 | 5 ⚠️ → rely on icon, not lightness |
+| Warning vs Success | — | 0.75 | 0.60 | 15 ⚠️ → rely on icon, not lightness |
+
+When ΔL < 20, icon/shape redundancy is **mandatory** (not optional).
+
+**CVD Simulation in A11yAudit**:
+
+Extend the `A11yAudit` tool (§7.9.5) with CVD simulation checks:
+
+| Rule ID | Severity | Description |
+|---------|----------|-------------|
+| `a11y.cvd.color-only` | Error | Information conveyed by color alone without redundant cue |
+| `a11y.cvd.red-green-pair` | Warning | Red and green used as adjacent/paired indicators without icon differentiation |
+| `a11y.cvd.lightness-delta` | Warning | Two semantic colors in same context have ΔL < 20 without shape redundancy |
+
+**Implementation**: CVD simulation uses the Brettel-Viénot-Mollon (1997) algorithm
+to transform sRGB → LMS → simulated LMS → sRGB for each deficiency type. The
+simulation is test-time only (not runtime) and produces screenshot comparisons.
+
+**Designer Workflow**:
+
+1. Design with full-color palette as normal
+2. For every color-coded element, verify at least one non-color cue exists
+3. Run `A11yAudit` with CVD simulation on the widget tree
+4. Review simulated screenshots for deuteranopia and protanopia (covers 8% of males)
+5. Fix any `a11y.cvd.*` violations before shipping
+
+#### 7.9.5 A11yAudit (Test-Time Auditor)
 
 **Class**: `A11yAudit` (static utility, test-time only)
 
@@ -6215,6 +7375,9 @@ to verify all text-on-background combinations in a widget tree.
 | `a11y.contrast.below-aa` | Error | Text/bg contrast ratio < 4.5:1 |
 | `a11y.contrast.below-aa-large` | Warning | Large text contrast ratio < 3:1 |
 | `a11y.focus.unreachable` | Error | Focusable widget not reachable via Tab |
+| `a11y.cvd.color-only` | Error | Information conveyed by color alone without redundant non-color cue (§7.9.4.1) |
+| `a11y.cvd.red-green-pair` | Warning | Red and green used as adjacent/paired indicators without icon differentiation |
+| `a11y.cvd.lightness-delta` | Warning | Two semantic colors in same context have OKLCH ΔL < 20 without shape redundancy |
 
 **A11yViolation struct**:
 
@@ -6227,7 +7390,7 @@ struct A11yViolation {
 };
 ```
 
-### 18.6 High Contrast Theme
+#### 7.9.6 High Contrast Theme
 
 `kThemeHighContrast` is a registered built-in theme with:
 - All text tokens at maximum contrast (black on white / white on black)
@@ -6246,7 +7409,7 @@ struct A11yViolation {
 | `BorderDefault` | `#DCDCDE` | `#666666` | Much stronger |
 | `Focus` | `#0066FF` | `#0000FF` | Saturated blue |
 
-### 18.7 Keyboard Navigation Map
+#### 7.9.7 Keyboard Navigation Map
 
 Every interactive widget defines a keyboard interaction contract:
 
@@ -6282,7 +7445,7 @@ Every interactive widget defines a keyboard interaction contract:
 | SearchBox | `Escape` | Clear and blur |
 | CollapsibleSection | `Enter`, `Space` | Toggle expand/collapse |
 
-### 18.8 Screen Reader Announcements
+#### 7.9.8 Screen Reader Announcements
 
 Widgets automatically announce state changes to assistive technology:
 
@@ -6299,7 +7462,7 @@ Widgets automatically announce state changes to assistive technology:
 | Tree node expanded | "Expanded" |
 | Tree node collapsed | "Collapsed" |
 
-### 18.9 Focus Trap in Modal Dialogs
+#### 7.9.9 Focus Trap in Modal Dialogs
 
 When a `Dialog` is shown with `NyanDialog::exec()` or `NyanDialog::open()`:
 
@@ -6322,7 +7485,7 @@ flowchart TD
     G[Dialog closes] --> H[Restore saved focus target]
 ```
 
-### 18.10 Live Region Support
+#### 7.9.10 Live Region Support
 
 Notification toasts use ARIA live region semantics:
 
@@ -6335,7 +7498,7 @@ Notification toasts use ARIA live region semantics:
 
 Implemented via `QAccessible::updateAccessibility()` with appropriate event types.
 
-### 18.11 Mnemonic (Access Key) System
+#### 7.9.11 Mnemonic (Access Key) System
 
 > Comprehensive specification for keyboard mnemonic (access key) support across
 > all Matcha widget types. Mnemonics provide keyboard-driven navigation to UI
@@ -6345,7 +7508,7 @@ Implemented via `QAccessible::updateAccessibility()` with appropriate event type
 > **Reference**: Microsoft Win32 UX Guidelines — Keyboard / Access Keys;
 > Qt `QKeySequence::mnemonic()`; wxWidgets Mnemonic Tutorial.
 
-#### 18.11.1 Terminology
+##### 7.9.11.1 Terminology
 
 | Term | Definition |
 |------|-----------|
@@ -6356,7 +7519,7 @@ Implemented via `QAccessible::updateAccessibility()` with appropriate event type
 | **Buddy** | A non-labelled input control associated with a `LabelNode` via `SetBuddy()`. The label's mnemonic transfers focus to the buddy. |
 | **`&` syntax** | The ampersand character in a label string marks the next character as the mnemonic. Literal ampersand is escaped as `&&`. Example: `"&File"` → mnemonic `F`, displayed as `F̲ile`. |
 
-#### 18.11.2 Applicable Widget Types
+##### 7.9.11.2 Applicable Widget Types
 
 Mnemonic support is categorized by **activation behavior** (what happens when the mnemonic is triggered):
 
@@ -6376,7 +7539,7 @@ Mnemonic support is categorized by **activation behavior** (what happens when th
 | **ComboBox** | `ComboBoxNode` / `NyanComboBox` | Opens the dropdown and focuses | Via buddy label only — combo boxes lack visible mnemonic text |
 | **LineEdit / SpinBox** | `LineEditNode`, `SpinBoxNode`, etc. | Focuses the input | Via buddy label only |
 
-#### 18.11.3 Activation Modes
+##### 7.9.11.3 Activation Modes
 
 Mnemonic activation differs by context. Three distinct modes exist:
 
@@ -6410,7 +7573,7 @@ stateDiagram-v2
     DialogMnemonic --> Idle : Control activated/focused
 ```
 
-#### 18.11.4 Underline Visibility
+##### 7.9.11.4 Underline Visibility
 
 Following the Windows platform convention:
 
@@ -6434,7 +7597,7 @@ It is set to `false` when:
 
 All widgets that render mnemonic text must query `MnemonicState::ShouldShowUnderline()` in their `paintEvent()` and repaint when the state changes. `MnemonicState` emits a signal/notification to trigger global repaint.
 
-#### 18.11.5 Menu Bar Mnemonic Behavior
+##### 7.9.11.5 Menu Bar Mnemonic Behavior
 
 **Applies to**: `NyanMenuBar` / `MenuBarNode`
 
@@ -6462,7 +7625,7 @@ All widgets that render mnemonic text must query `MnemonicState::ShouldShowUnder
 
 **Left/Right navigation**: When a menu is open, Left/Right arrow keys cycle through adjacent menus. The new menu opens and the old one closes atomically (single-open invariant).
 
-#### 18.11.6 Menu Item Mnemonic Behavior
+##### 7.9.11.6 Menu Item Mnemonic Behavior
 
 **Applies to**: `NyanMenuItem` / `NyanMenuCheckItem` inside `NyanMenu`
 
@@ -6483,15 +7646,7 @@ All widgets that render mnemonic text must query `MnemonicState::ShouldShowUnder
 
 **Visual layout** (extending the existing `NyanMenuItem` spec):
 
-```
-┌──────────────────────────────────────────────┐
-│ [icon 16x16]  S̲ave                  Ctrl+S  │
-│ [icon 16x16]  Save &As...           Ctrl+Shift+S │
-│ ──────────────────────────────────────────── │
-│ [icon 16x16]  &Print                Ctrl+P  │
-│ [icon 16x16]  E̲xit                  Alt+F4  │
-└──────────────────────────────────────────────┘
-```
+![Menu Item Layout](assets/anatomy/menu_item_layout.svg)
 
 The underline is drawn on the mnemonic character within the text label. The shortcut text (right-aligned) is a separate `QKeySequence` display and has no underline.
 
@@ -6501,7 +7656,7 @@ The underline is drawn on the mnemonic character within the text label. The shor
 
 **Dynamic items** (e.g., recent files): Assign numeric mnemonics `&1`, `&2`, ... `&9`, `&0` for the first 10 items. Items beyond 10 have no mnemonic.
 
-#### 18.11.7 Dialog Control Mnemonic Behavior
+##### 7.9.11.7 Dialog Control Mnemonic Behavior
 
 **Applies to**: All interactive controls inside `NyanDialog` / `NyanInputDialog` / `NyanPopConfirm`
 
@@ -6536,7 +7691,7 @@ The underline is drawn on the mnemonic character within the text label. The shor
 | GroupBox | Focus transfers to first focusable child |
 | LineEdit / SpinBox / ComboBox | Focus transfers to the control (via buddy label) |
 
-#### 18.11.8 Label Buddy Mechanism
+##### 7.9.11.8 Label Buddy Mechanism
 
 **Applies to**: `LabelNode` / `NyanLabel`
 
@@ -6563,7 +7718,7 @@ class LabelNode : public WidgetNode {
 
 **Visual**: The label renders its text using `DrawMnemonicText()`. The underline appears only on the mnemonic character, not on the full label text.
 
-#### 18.11.9 GroupBox Mnemonic Behavior
+##### 7.9.11.9 GroupBox Mnemonic Behavior
 
 **Applies to**: `GroupBoxNode` / `NyanGroupBox`
 
@@ -6573,7 +7728,7 @@ class LabelNode : public WidgetNode {
 
 **When to use**: Assign a mnemonic to a group box only when there is a shortage of unique mnemonic characters for the individual controls within the group. Prefer individual control mnemonics when possible.
 
-#### 18.11.10 ActionBar / Toolbar Mnemonic Behavior
+##### 7.9.11.10 ActionBar / Toolbar Mnemonic Behavior
 
 **Applies to**: `ActionTabNode` / `ActionBarNode` tab buttons
 
@@ -6587,7 +7742,7 @@ ActionBar tabs and toolbar buttons in Matcha's ribbon-like interface follow a di
 
 If a tab label declares a mnemonic (e.g., `"&Mesh Operations"`), pressing `Alt+M` while the ActionBar has focus activates that tab. However, this is lower priority than menu bar mnemonics; if `Alt+M` matches a menu bar entry, the menu bar takes precedence.
 
-#### 18.11.11 CollapsibleSection Mnemonic Behavior
+##### 7.9.11.11 CollapsibleSection Mnemonic Behavior
 
 **Applies to**: `CollapsibleSectionNode` / `NyanCollapsibleSection`
 
@@ -6597,7 +7752,7 @@ If a tab label declares a mnemonic (e.g., `"&Mesh Operations"`), pressing `Alt+M
 
 **Use case**: Property panels in CAD applications often contain many collapsible sections. Mnemonics provide direct keyboard access to specific sections without scrolling.
 
-#### 18.11.12 Mnemonic Scope and Conflict Resolution
+##### 7.9.11.12 Mnemonic Scope and Conflict Resolution
 
 Mnemonics must be unique within a **scope**. Scopes are hierarchical and mirror the focus scope system (see 18.3.2):
 
@@ -6621,7 +7776,7 @@ Mnemonics must be unique within a **scope**. Scopes are hierarchical and mirror 
 | `a11y.mnemonic.duplicate` | Warning | Two or more controls in the same scope share a mnemonic character |
 | `a11y.mnemonic.missing` | Info | Interactive control with a visible label has no mnemonic assigned |
 
-#### 18.11.13 Rendering Specification
+##### 7.9.11.13 Rendering Specification
 
 **Mnemonic text parsing** (`MnemonicState::Parse`):
 
@@ -6655,7 +7810,7 @@ Mnemonics must be unique within a **scope**. Scopes are hierarchical and mirror 
    d. Draw a line from (x, y) to (x + charWidth, y) using the text color
 ```
 
-#### 18.11.14 Controls Exempt from Mnemonic
+##### 7.9.11.14 Controls Exempt from Mnemonic
 
 The following controls should **not** be assigned mnemonics (following Microsoft UX Guidelines):
 
@@ -6673,7 +7828,7 @@ The following controls should **not** be assigned mnemonics (following Microsoft
 
 **Exception**: A button labeled with a **non-standard** text that means OK or Cancel (e.g., `"&Save and Continue"`, `"&Discard Changes"`) **must** have an explicit mnemonic because Enter/Escape alone may be ambiguous when multiple commit buttons exist.
 
-#### 18.11.15 Mnemonic Assignment Guidelines
+##### 7.9.11.15 Mnemonic Assignment Guidelines
 
 Priority-ordered process for assigning mnemonics in a dialog or form:
 
@@ -6702,7 +7857,7 @@ Priority-ordered process for assigning mnemonics in a dialog or form:
 - **Prefer**: Wide characters (`W`, `M`, capitals), characters early in the label
 - **Avoid**: Narrow characters (`i`, `l`), characters with descenders (`g`, `j`, `p`, `q`, `y`), characters adjacent to descenders
 
-#### 18.11.16 Internationalization Considerations
+##### 7.9.11.16 Internationalization Considerations
 
 | Aspect | Requirement |
 |--------|-------------|
@@ -6711,7 +7866,7 @@ Priority-ordered process for assigning mnemonics in a dialog or form:
 | **RTL scripts** | Mnemonic underline position follows text direction. In RTL, the underline is visually in the same position relative to the character but the character itself is mirrored in layout. |
 | **Duplicate `&` escape** | `&&` renders a literal `&` without creating a mnemonic. This is required in any label that displays an ampersand (e.g., `"Save && Load"`). |
 
-#### 18.11.17 Screen Reader Integration
+##### 7.9.11.17 Screen Reader Integration
 
 | Event | Announcement |
 |-------|-------------|
@@ -6722,7 +7877,7 @@ Priority-ordered process for assigning mnemonics in a dialog or form:
 
 Mnemonic characters are communicated to assistive technology via `QAccessibleInterface::text(QAccessible::Accelerator)`, which returns `"Alt+{char}"` for the control's mnemonic. Screen readers announce this when the user queries control properties.
 
-#### 18.11.18 Architecture: MnemonicManager
+##### 7.9.11.18 Architecture: MnemonicManager
 
 `MnemonicManager` is the central coordinator for mnemonic dispatch. It is created
 by `Application::Initialize()` and accessed via `GetMnemonicManager()`.
@@ -6831,11 +7986,11 @@ sequenceDiagram
 
 ---
 
-## Chapter 19. Internationalization
+### 7.10 Internationalization Design
 
 > Complete i18n support reference for the design system.
 
-### 19.1 Text Direction (LTR / RTL)
+#### 7.10.1 Text Direction (LTR / RTL)
 
 **Enum**: `TextDirection { LTR, RTL }`
 
@@ -6844,7 +7999,7 @@ sequenceDiagram
 **Detection**: `QGuiApplication::layoutDirection()` returns the system default.
 Matcha respects this on initialization and allows runtime override.
 
-### 19.2 Layout Direction Impact
+#### 7.10.2 Layout Direction Impact
 
 | Aspect | LTR Behavior | RTL Behavior |
 |--------|-------------|-------------|
@@ -6860,13 +8015,13 @@ Matcha respects this on initialization and allows runtime override.
 | Close button | Top-right | Top-left |
 | Dialog buttons | OK right, Cancel left | OK left, Cancel right |
 
-### 19.3 Icon Flipping
+#### 7.10.3 Icon Flipping
 
 Directional icons auto-flip in RTL mode. See section 16.8 for the complete
 flippable/non-flippable classification, flippability determination API, and
 flip implementation details.
 
-### 19.4 Font Fallback for CJK / RTL Scripts
+#### 7.10.4 Font Fallback for CJK / RTL Scripts
 
 | Script | Fallback Family (Windows) | Fallback Family (macOS) | Fallback Family (Linux) |
 |--------|--------------------------|------------------------|------------------------|
@@ -6883,7 +8038,7 @@ Font fallback is handled by Qt's font matching engine. Matcha ensures the
 primary font family is set correctly per platform; Qt handles script-level
 fallback automatically.
 
-### 19.5 Number and Date Formatting
+#### 7.10.5 Number and Date Formatting
 
 Matcha does not provide its own i18n formatting library. Widgets that display
 numeric values (SpinBox, DoubleSpinBox, Paginator, ProgressBar) use Qt's
@@ -6897,7 +8052,7 @@ numeric values (SpinBox, DoubleSpinBox, Paginator, ProgressBar) use Qt's
 
 **DoubleSpinBox** respects locale decimal separator for both display and input parsing.
 
-### 19.6 Bidirectional Text in Labels
+#### 7.10.6 Bidirectional Text in Labels
 
 `NyanLabel` uses `Qt::LayoutDirectionAuto` for text alignment when no explicit
 alignment is set. Qt's bidirectional text algorithm (Unicode Bidi) handles
@@ -6914,15 +8069,2881 @@ label.node().SetProperty("textAlign", "center");
 ---
 ---
 
-# Part VII -- Plugin Extension
 
-> Chapters 20-22.
+### 7.11 Feedback & System Status (Nielsen #1) 🆕
 
-## Chapter 20. Dynamic Token Extension
+> 🆕 Post-v1 supplement.
+> Implements Nielsen's Heuristic #1: "Visibility of system status — The design should always
+> keep users informed about what is going on, through appropriate feedback within a reasonable
+> amount of time."
+
+#### 7.11.1 Response Time Budget
+
+| Response Time | User Perception | Required Feedback |
+|:-------------:|----------------|-------------------|
+| < 100ms | Instantaneous | None (direct visual response is sufficient) |
+| 100ms – 1s | Noticeable delay | Cursor change (`Wait` or `Progress`) |
+| 1s – 10s | Significant delay | Progress indicator (spinner or determinate bar) |
+| > 10s | Context switch | Progress bar with percentage + cancel button + estimated time |
+
+#### 7.11.2 Feedback Channels by Action Type
+
+| Action Type | Primary Feedback | Secondary Feedback | Example |
+|-------------|-----------------|-------------------|---------|
+| Toggle/Check | Immediate visual state change | State announcement (screen reader) | CheckBox checked |
+| Text input | Character echo | Validation message (debounced) | LineEdit typing |
+| Button click | Pressed state + ripple/scale anim | Action result (toast, state change) | PushButton click |
+| Drag | Ghost preview + drop zone highlight | Cursor change | Tab reorder |
+| Long operation | Progress bar | StatusBar text + toast on complete | File import |
+| Error | Error border + inline message | Toast (for form submit errors) | Validation fail |
+| Success | Toast notification | Status bar update | File saved |
+| Background task | StatusBar progress indicator | Toast on completion | Build process |
+
+#### 7.11.3 Progress Indicator Decision Tree
+
+```
+Is the operation duration known?
+├── Yes → Determinate progress bar (percentage)
+│   └── Duration > 30s? → Add "estimated time remaining" text
+└── No → Indeterminate progress
+    ├── Operation < 3s expected? → Spinner (24px)
+    └── Operation > 3s expected? → Indeterminate progress bar + descriptive text
+```
+
+#### 7.11.4 StatusBar as Ambient Feedback
+
+The StatusBar provides always-visible system status without interrupting workflow:
+
+| Section | Content | Update Trigger |
+|---------|---------|---------------|
+| Left | Last action result ("Saved", "3 items selected") | On action completion |
+| Center | Context info (cursor coordinates, zoom level) | On mouse/viewport change |
+| Right | Background task progress (mini bar + %) | On task progress tick |
+
+StatusBar text transitions: fade out old → fade in new, `100ms, OutCubic`.
+
+---
+
+### 7.12 Signifier Design (Affordance Theory) 🆕
+
+> 🆕 Post-v1 supplement.
+> Based on Don Norman's affordance/signifier distinction: affordances are possibilities
+> for action; signifiers are perceivable indicators of those affordances.
+
+#### 7.12.1 Visual Signifiers
+
+| Signifier | Communicates | Tokens Used |
+|-----------|-------------|-------------|
+| **Raised surface** (elevation shadow) | "I am clickable / draggable" | `ElevationToken::Level1-3` |
+| **Underline on hover** | "I am a link" | `Primary` color + underline decoration |
+| **Border + fill change on hover** | "I am interactive" | `FillHover`, `BorderDefault` |
+| **Cursor change** | Action available at this position | `CursorToken::*` |
+| **Mnemonic underline** | "Press Alt+this letter" | Underline decoration, `TextPrimary` |
+| **Chevron / arrow icon** | "Expand/collapse" or "Open submenu" | Icon rotation animation |
+| **Grip dots / drag handle** | "Drag me to reorder" | 6-dot grip icon, `TextMuted` |
+| **Resize cursor zone** | "Drag to resize" | 4px edge zones, `CursorToken::ResizeH/V` |
+| **Plus / Add icon** | "Create new item" | Icon in empty state or toolbar |
+| **Ellipsis (⋯)** | "More options available" | Overflow indicator |
+
+#### 7.12.2 State Signifiers
+
+| State | Visual Change | Purpose |
+|-------|--------------|---------|
+| **Disabled** | 40% opacity, no hover response | "Action not available now" |
+| **Readonly** | No border, no hover, text only | "View only, not editable" |
+| **Required** | Red `*` after label | "This field must be filled" |
+| **Invalid** | Error border + message | "Current value is not acceptable" |
+| **Loading** | Shimmer / spinner | "Content is being fetched" |
+| **Empty** | Illustration + message | "No data yet; here's how to add some" |
+| **Selected** | Accent background | "This item is in the active selection set" |
+| **Focused** | Focus ring (2px `Primary`) | "Keyboard input targets this element" |
+
+#### 7.12.3 Missing Signifier Audit Checklist
+
+For each widget, verify:
+- [ ] Can the user tell it is interactive (vs. static) without clicking?
+- [ ] Can the user tell what action will occur (click, drag, type)?
+- [ ] Can the user tell the current state (enabled, disabled, loading)?
+- [ ] Does hover provide additional affordance information?
+- [ ] Does the cursor change appropriately?
+- [ ] Is the mnemonic discoverable (Alt underline)?
+
+---
+
+### 7.13 Cognitive Load Thresholds 🆕
+
+> 🆕 Post-v1 supplement.
+> Design constraints derived from Hick's Law, Miller's Law (7±2), and cognitive load theory.
+
+#### 7.13.1 Choice Count Limits
+
+| Context | Maximum Items | If Exceeded | Law |
+|---------|:------------:|------------|:---:|
+| Menu items per level | 12 | Split into submenus or use categorized sections | Hick |
+| MenuBar top-level entries | 8 | Overflow into "⋯" menu | Hick |
+| Context menu items | 10 | Split into groups with separators | Hick |
+| ComboBox dropdown | 15 visible (scrollable) | Add search filter (SearchBox inside dropdown) | Hick |
+| Toolbar buttons (ActionBar) | 12 per tab | Split across multiple tabs | Hick |
+| Wizard steps | 7 | Merge steps or split into sub-wizards | Miller |
+| Tab count (TabWidget) | 8 | Overflow into dropdown selector | Miller |
+| Form fields per section | 7 | Split into multiple CollapsibleSections | Miller |
+
+**Hick's Law**: Decision time increases logarithmically with the number of choices.
+$$T = a + b \cdot \log_2(n + 1)$$
+Minimizing `n` per decision point reduces cognitive overhead.
+
+#### 7.13.2 Information Density Guidelines
+
+| Zone | Max Simultaneous Info Items | Rationale |
+|------|:--------------------------:|-----------|
+| StatusBar | 3 zones (left, center, right) | Peripheral attention, low priority |
+| Toast stack | 3 visible | Transient attention, queued for overflow |
+| Property Panel sections | 5 visible (others collapsed) | Working memory limit |
+| DataTable visible columns | 8 without horizontal scroll | Comparison capacity |
+| Dashboard widgets | 6 per screen | Overview comprehension |
+
+#### 7.13.3 Fitts' Law Considerations
+
+$$T = a + b \cdot \log_2\left(\frac{D}{W} + 1\right)$$
+
+Where `D` = distance to target, `W` = target width.
+
+| Design Decision | Fitts' Law Application |
+|-----------------|----------------------|
+| Minimum button size | 32×32px (touch: 44×44px) — ensures adequate `W` |
+| Corner/edge targets | Menus at top edge, close button at corner — effectively infinite `W` |
+| Frequently-used actions | Place near cursor's typical rest position (center of viewport) |
+| Destructive actions | Place away from constructive actions — increases `D` as a safety measure |
+| Submit button position | Bottom-right of form — consistent `D` from last field |
+
+#### 7.13.4 Recognition Over Recall (Nielsen #6)
+
+| Pattern | Implementation |
+|---------|---------------|
+| **Recent files** | Last 10 files shown in menu, full path + icon |
+| **Search suggestions** | As-you-type suggestions from command history |
+| **Persistent state** | Collapsed/expanded sections remembered per panel |
+| **Visual preview** | Color swatches shown inline in color picker, not just hex codes |
+| **Breadcrumb** | TreeWidget shows path to selected node in StatusBar |
+| **Undo history** | Named entries ("Undo: Delete 3 nodes") not just "Undo" |
+
+---
+
+### 7.14 Keyboard Shortcut Management System 🆕
+
+> 🆕 Post-v1 supplement.
+> Complete shortcut lifecycle: registration, scope resolution, conflict handling, discovery, customization.
+
+#### 7.14.1 Shortcut Scope Hierarchy
+
+Shortcuts are resolved in a strict scope priority order (highest wins):
+
+| Priority | Scope | Example | Lifetime |
+|:--------:|-------|---------|----------|
+| 1 (highest) | **Modal Dialog** | `Escape` = close dialog | While dialog is open |
+| 2 | **Focus Widget** | `Escape` = clear search in SearchBox | While widget has focus |
+| 3 | **Workbench** | `Ctrl+Shift+M` = Mesh Merge (Part Design workbench) | While workbench is active |
+| 4 | **Workshop** | `Ctrl+S` = Save document | While workshop is active |
+| 5 (lowest) | **Global** | `Ctrl+N` = New Document, `F1` = Help | Always |
+
+**Resolution algorithm**:
+
+```
+1. Event arrives at focused widget
+2. Walk scope stack from top (most specific) to bottom (Global)
+3. At each scope, check registered shortcuts for key sequence match
+4. First match wins → consume event, execute bound action
+5. No match → event propagates to Qt default handling
+```
+
+#### 7.14.2 Shortcut Registration
+
+```cpp
+struct ShortcutBinding {
+    QKeySequence    sequence;       // e.g., QKeySequence("Ctrl+Shift+Z")
+    ShortcutScope   scope;          // Global, Workshop, Workbench, Dialog, Widget
+    CommandId       commandId;      // bound command
+    QString         displayName;    // "Redo" — shown in menus and shortcut list
+    bool            overridable;    // true = user can reassign; false = system-locked
+};
+```
+
+**Registration rules**:
+- Each `CommandHeaderDescriptor` can declare a default shortcut
+- Plugins register shortcuts via `Shell::RegisterShortcut(ShortcutBinding)`
+- Duplicate sequences within the same scope → conflict (see §7.14.3)
+- Duplicate sequences across different scopes → higher-priority scope wins silently
+
+#### 7.14.3 Conflict Resolution
+
+| Situation | Behavior |
+|-----------|----------|
+| Same sequence, same scope, different commands | **Error at registration**: second registration fails, logged as warning. Plugin author must choose a different key. |
+| Same sequence, different scopes | **Normal**: higher-priority scope shadows lower. No warning. |
+| User reassigns a key that conflicts | **UI warning**: "This shortcut is already assigned to [Command]. Reassign?" → Yes removes old binding. |
+| Platform reserved keys (`Alt+F4`, `Ctrl+Tab`) | **Blocked**: cannot be registered by application. List maintained in `PlatformReservedKeys`. |
+
+#### 7.14.4 Standard Shortcut Table
+
+| Shortcut | Command | Scope |
+|----------|---------|-------|
+| `Ctrl+N` | New Document | Global |
+| `Ctrl+O` | Open Document | Global |
+| `Ctrl+S` | Save | Workshop |
+| `Ctrl+Shift+S` | Save As | Workshop |
+| `Ctrl+Z` | Undo | Workshop |
+| `Ctrl+Y` / `Ctrl+Shift+Z` | Redo | Workshop |
+| `Ctrl+X` / `Ctrl+C` / `Ctrl+V` | Cut / Copy / Paste | Focus Widget |
+| `Ctrl+A` | Select All | Focus Widget |
+| `Ctrl+F` | Find / Search | Workshop |
+| `F1` | Help | Global |
+| `F5` | Refresh / Rebuild | Workshop |
+| `F11` | Toggle Fullscreen | Global |
+| `Ctrl+W` | Close Tab | Workshop |
+| `Ctrl+Tab` / `Ctrl+Shift+Tab` | Next / Previous Tab | Workshop |
+| `Alt+F4` | Close Window | Platform (non-overridable) |
+
+#### 7.14.5 Shortcut Discovery
+
+Users discover shortcuts through multiple channels:
+
+| Channel | Format | Example |
+|---------|--------|---------|
+| **Menu items** | Right-aligned shortcut text | `Save    Ctrl+S` |
+| **Tooltips** | Parenthesized after description | "Save document (Ctrl+S)" |
+| **Shortcut Palette** | `Ctrl+K` opens searchable command palette | Fuzzy-match command names, shows bound key |
+| **Settings > Keyboard** | Full shortcut list, grouped by scope | Editable table with conflict detection |
+
+**Command Palette** (§7.14.5.1):
+- Trigger: `Ctrl+K` (global, non-overridable)
+- UI: Centered overlay, 480px wide, SearchBox + scrollable command list
+- Each row: `[Icon] [Command Name]  [Shortcut]  [Scope badge]`
+- Fuzzy search on command `displayName`
+- `Enter` executes selected command; `Escape` dismisses
+
+#### 7.14.6 User Customization
+
+- Stored in `$APP_CONFIG/shortcuts.json`
+- Format: `{ "commandId": "core.save", "sequence": "Ctrl+S", "scope": "Workshop" }`
+- User overrides merge on top of defaults; removing an override restores default
+- Export / Import shortcut profiles for team sharing
+
+#### 7.14.7 Multi-Key Sequences (Chords)
+
+Matcha supports two-key chord shortcuts:
+
+- Example: `Ctrl+K, Ctrl+C` (comment selection)
+- After first key (`Ctrl+K`), a 1500ms chord timeout begins
+- StatusBar shows "Waiting for second key of Ctrl+K..." during timeout
+- If timeout expires or non-matching key pressed → cancel chord, pass event through
+- Chords are always Global or Workshop scope (not Widget scope)
+
+---
+
+### 7.15 Error Boundary & Recovery Pattern 🆕
+
+> 🆕 Post-v1 supplement.
+> Error classification, display strategy, and recovery actions for framework-level and plugin-level errors.
+
+#### 7.15.1 Error Severity Classification
+
+| Severity | Definition | Display | Auto-Dismiss |
+|----------|-----------|---------|:------------:|
+| **Info** | Non-blocking informational message | Toast (`Info` semantic) | Yes (5s) |
+| **Warning** | Potential issue, user should be aware | Toast (`Warning` semantic) | Yes (8s) |
+| **Error** | Operation failed, user action needed | Alert banner (inline) or Dialog | No |
+| **Fatal** | Unrecoverable state, module/plugin must be unloaded | Full-region error page | No |
+
+#### 7.15.2 Display Strategy by Context
+
+| Context | Info | Warning | Error | Fatal |
+|---------|------|---------|-------|-------|
+| **Viewport** | StatusBar | Toast | Viewport overlay with retry | Viewport replaced by error page |
+| **Panel / PropertyGrid** | StatusBar | Inline Alert | Inline Alert + retry | Panel replaced by error page |
+| **Plugin** | StatusBar | Toast | Toast + "Disable Plugin" action | Plugin unloaded, Toast with "Restart" |
+| **Network / IO** | StatusBar | Toast | Dialog with retry/cancel | Dialog with "Save & Quit" |
+| **Data load** | — | — | Empty State (§6.4.5) with retry | Error State with "Report Bug" |
+
+#### 7.15.3 Error Page Template
+
+![Error Page Template](assets/anatomy/error_page.svg)
+
+#### 7.15.4 Recovery Actions
+
+| Error Type | Primary Action | Secondary Action |
+|-----------|---------------|-----------------|
+| Network timeout | "Retry" (re-attempt request) | "Work Offline" |
+| Plugin crash | "Restart Plugin" | "Disable Plugin" |
+| File save failure | "Retry" | "Save As..." (different location) |
+| Validation errors (batch) | "Fix First Error" (scroll + focus) | "Show All Errors" (summary panel) |
+| Renderer crash | "Retry" (reinitialize renderer) | "Switch to Software Renderer" |
+
+#### 7.15.5 Error Aggregation
+
+When multiple validation errors exist (e.g., form with 5 invalid fields):
+
+1. Inline: each field shows its own error below (§7.2.3)
+2. Summary: a single Alert banner at form top: "5 errors found. [Fix First]"
+3. "Fix First" button: scrolls to and focuses the first invalid field
+4. StatusBar: "[N] validation errors" count badge
+
+---
+
+### 7.16 Contextual Help & Onboarding 🆕
+
+> 🆕 Post-v1 supplement.
+> Implements Nielsen Heuristic #10 (Help and Documentation). Defines how the system
+> provides in-context assistance and first-run guidance.
+
+#### 7.16.1 Help Delivery Mechanisms
+
+| Mechanism | When to Use | Max Content | Trigger |
+|-----------|------------|:-----------:|---------|
+| **Tooltip** | Single-sentence explanation of a control | 80 chars, 1 sentence | Hover 500ms / keyboard focus |
+| **Rich Tooltip** | Control needs shortcut hint or secondary info | 2 lines: description + shortcut | Hover 500ms |
+| **Info Popover** | Concept needs multi-paragraph explanation, diagram, or link | 300 chars + optional image | Click `ⓘ` icon button |
+| **Inline Help Text** | Persistent guidance below a form field | 1 sentence, `Caption` font, `TextSecondary` | Always visible |
+| **Help Panel** | Extended documentation for a workflow or feature | Unlimited (scrollable) | `F1` or Help menu |
+| **Status Bar Hint** | Ephemeral guidance for current mouse/keyboard state | 1 line | Context-driven (e.g., drag in progress) |
+
+**Decision tree**:
+
+```
+Is the guidance essential to complete the task?
+├── Yes → Is it short (≤1 sentence)?
+│   ├── Yes → Inline Help Text (always visible below field)
+│   └── No → Help Panel (F1)
+└── No → Is it a single control explanation?
+    ├── Yes → Tooltip (hover/focus)
+    │   └── Has keyboard shortcut? → Rich Tooltip
+    └── No → Is it a concept/workflow?
+        ├── Short (≤300 chars) → Info Popover (click ⓘ)
+        └── Long → Help Panel (F1)
+```
+
+#### 7.16.2 Info Popover Specification
+
+![Info Popover](assets/anatomy/info_popover.svg)
+
+- **Width**: 280-360px, auto-height
+- **Positioning**: follows §7.4 Popup Positioning rules (prefer bottom, flip if clipped)
+- **Dismiss**: click outside, `Escape`, or `×` button
+- **Arrow**: 8px triangle pointing to trigger `ⓘ` button
+- **Z-layer**: `LayerToken::Popover` (400)
+
+#### 7.16.3 First-Run Onboarding Tour
+
+For first-time users, an optional step-by-step spotlight tour:
+
+| Element | Specification |
+|---------|--------------|
+| **Spotlight overlay** | Full-window semi-transparent backdrop (`Surface` at 60% opacity). Cutout circle/rect around target widget with 8px padding. |
+| **Tooltip card** | Positioned adjacent to cutout (§7.4 rules). Contains: step counter ("2 of 5"), title, body text, [Next] [Skip] buttons. |
+| **Navigation** | [Next] → advance step. [Skip] → dismiss tour. [Back] (from step 2+). `Escape` → dismiss. |
+| **Persistence** | Tour shown once per user profile. `$APP_CONFIG/onboarding.json`: `{ "tourId": "main_v1", "completed": true }` |
+| **Max steps** | 7 (Miller's Law). Each step highlights exactly one UI region. |
+| **Focus trap** | While tour is active, `Tab` cycles only within the tooltip card (not the main UI). |
+
+#### 7.16.4 Status Bar Contextual Hints
+
+During specific interaction modes, the StatusBar displays ephemeral guidance:
+
+| Mode | Status Bar Text |
+|------|----------------|
+| Drag in progress | "Drop on a panel to dock, or press Escape to cancel" |
+| Column resize | "Drag to resize column. Double-click to auto-fit." |
+| Multi-select active | "Hold Ctrl to toggle, Shift to extend range" |
+| Inline edit active | "Enter to confirm, Escape to cancel" |
+| Chord shortcut pending | "Waiting for second key of Ctrl+K..." |
+
+---
+
+### 7.17 Error Prevention & Destructive Action Safety 🆕
+
+> 🆕 Post-v1 supplement.
+> Implements Nielsen Heuristic #5 (Error Prevention). Defines safeguards that prevent
+> errors before they occur, complementing §7.15 (recovery after errors).
+
+#### 7.17.1 Destructive Action Classification
+
+| Severity | Definition | Examples | Required Safeguard |
+|----------|-----------|---------|-------------------|
+| **Low** | Easily undoable | Delete a node (Ctrl+Z available) | No confirmation; rely on Undo |
+| **Medium** | Undoable but with side effects | Delete a document tab (unsaved changes) | Single confirmation dialog |
+| **High** | Irreversible or broad impact | "Delete All", "Reset to Factory", "Purge Cache" | 2-step confirmation |
+| **Critical** | Affects external systems or data | Export overwrite, publish to server | 2-step + explicit typing |
+
+#### 7.17.2 Confirmation Dialog Patterns
+
+**Single confirmation** (Medium severity):
+
+```mermaid
+block-beta
+    columns 4
+    block:dialog:4
+        columns 4
+        icon["⚠ WarningIcon 32px"]:1 title["Delete 3 selected nodes?"]:3
+        space:1 desc["This action can be undone with Ctrl+Z."]:3
+        space:2 cancel["Cancel (Ghost)"]:1 del["Delete (Destructive)"]:1
+    end
+
+    style dialog fill:#fffffc,stroke:#e8a840,stroke-width:2px,color:#2d2640
+    style icon fill:#fff0d6,stroke:#e8a840,color:#2d2640
+    style title fill:#fffffc,stroke:none,color:#2d2640
+    style desc fill:#fffffc,stroke:none,color:#2d2640
+    style cancel fill:#d8cfe8,stroke:#5b6abf,color:#2d2640
+    style del fill:#ffadad,stroke:#3b2d5e,color:#2d2640
+```
+
+**2-step confirmation** (High severity):
+
+```mermaid
+block-beta
+    columns 4
+    block:dialog2:4
+        columns 4
+        icon2["✖ ErrorIcon 32px"]:1 title2["Reset all settings to factory defaults?"]:3
+        space:1 desc2["This cannot be undone."]:3
+        space:1 prompt["Type 'RESET' to confirm:"]:3
+        space:1 input["[ __________ ]"]:3
+        space:2 cancel2["Cancel (Ghost)"]:1 reset["Reset (Disabled)"]:1
+    end
+
+    style dialog2 fill:#fffffc,stroke:#ffadad,stroke-width:2px,color:#2d2640
+    style icon2 fill:#ffadad,stroke:#3b2d5e,color:#2d2640
+    style title2 fill:#fffffc,stroke:none,color:#2d2640
+    style desc2 fill:#fffffc,stroke:none,color:#2d2640
+    style prompt fill:#fffffc,stroke:none,color:#2d2640
+    style input fill:#eaf8ff,stroke:#5b6abf,color:#2d2640
+    style cancel2 fill:#d8cfe8,stroke:#5b6abf,color:#2d2640
+    style reset fill:#d8cfe8,stroke:#3b2d5e,color:#2d2640
+```
+
+- [Reset] button remains `Disabled` until the typed text matches the confirmation word exactly
+- Confirmation word: derived from action verb, UPPERCASE, shown in prompt
+- `Enter` submits only if button is enabled
+
+#### 7.17.3 Destructive Button Styling
+
+| Property | Value |
+|----------|-------|
+| Background | `Error` token (red) |
+| Foreground | `OnError` token (white) |
+| Hover | `Error` at 90% lightness |
+| Pressed | `Error` at 80% lightness |
+| Label | Action verb, never "OK" (e.g., "Delete", "Reset", "Overwrite") |
+| Position | Right side of dialog footer; maximum distance from Cancel button |
+
+#### 7.17.4 Input Constraint Prevention
+
+Prevent invalid input before submission rather than validating after:
+
+| Technique | Implementation | Example |
+|-----------|---------------|---------|
+| **Disable submit** | Submit button stays `Disabled` until all required fields pass validation | Form with empty required field |
+| **Input mask** | SpinBox enforces `[min, max]` range; invalid keystrokes rejected | SpinBox won't accept letters |
+| **Character limit** | LineEdit `SetMaxLength(n)` prevents typing beyond limit | Username max 32 chars |
+| **Type-ahead validation** | Real-time validation on each keystroke (§7.2 debounced) | Email format check |
+| **Smart defaults** | Pre-fill fields with sensible defaults to reduce blank submissions | "Untitled Document" as default name |
+| **Confirmation word** | Require explicit typing for irreversible actions (§7.17.2) | Type "DELETE" to confirm purge |
+
+#### 7.17.5 Undo as Error Prevention
+
+For Low-severity destructive actions, Undo (§Appendix B.4) is the primary prevention mechanism:
+
+- **Toast feedback**: "3 nodes deleted. [Undo]" — Toast with action button, auto-dismiss 8s
+- **Undo window**: action is reversible for at least 10 seconds (or until next operation modifies same state)
+- **Visual cue**: deleted items fade out with `Normal` (200ms) animation, giving user time to recognize and undo
+
+---
+
+### 7.18 Edge Case & Robustness Patterns 🆕
+
+> 🆕 Post-v1 supplement.
+> Defines defensive UI behaviors for edge conditions that are routinely encountered
+> in production but often omitted from design specs. Each pattern addresses a specific
+> failure mode that GUI developers must handle explicitly.
+
+#### 7.18.1 Double-Submit / Rapid-Click Prevention
+
+**Problem**: User double-clicks a "Submit" / "Save" / "Delete" button, triggering
+the action twice.
+
+**Solution**: Action Guard pattern.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Ready
+    Ready --> Executing : Click / Enter
+    Executing --> Ready : Action completes (success or error)
+    Executing --> Executing : Click ignored (guard active)
+```
+
+| Property | Specification |
+|----------|--------------|
+| Guard activation | Immediately on first click (before async action starts) |
+| Visual feedback | Button enters `Loading` state: spinner replaces icon, label changes to "Saving...", button is `Disabled` |
+| Guard duration | Until action callback returns (success or error), or 10s timeout (whichever is first) |
+| Timeout recovery | If action takes >10s, re-enable button + show Warning toast: "Operation is taking longer than expected" |
+| Scope | Per-button instance. Two different buttons may execute concurrently. |
+
+**Applies to**: All PushButton/ToolButton that trigger async operations (network,
+file I/O, heavy computation). Pure synchronous actions (toggle, navigate) do not
+need guards.
+
+#### 7.18.2 Scroll Position Restoration
+
+**Problem**: User scrolls a long list, navigates away (e.g., opens a dialog or
+switches tab), returns — scroll position is lost.
+
+| Scenario | Scroll Restore Rule |
+|----------|-------------------|
+| Dialog open/close | Restore underlying panel's scroll position exactly |
+| Tab switch (TabWidget) | Each tab remembers its own scroll position; restored on re-activation |
+| CollapsibleSection expand/collapse | Scroll to keep the toggled section header visible (§7.3.5 logic) |
+| DataTable sort/filter | Reset to scroll top (content has changed semantically) |
+| Virtual scroll data refresh | If item at previous `firstVisible` still exists, restore position; otherwise scroll to top |
+| Browser-style back/forward (if applicable) | Restore both scroll position and selection state |
+
+**Implementation**: Each scrollable container stores `{scrollX, scrollY}` in its
+UiNode state. On deactivation, save. On reactivation, restore with instant scroll
+(no animation).
+
+#### 7.18.3 Input Mode Switching (Keyboard ↔ Mouse ↔ Touch)
+
+**Problem**: User switches between keyboard and mouse mid-interaction. Focus ring
+appears/disappears inconsistently.
+
+| Input Mode | Detection | Visual Effect |
+|-----------|-----------|---------------|
+| **Keyboard** | Any `Tab`, `Arrow`, `Enter`, `Space` keypress | Show focus ring (§7.9.3.4) |
+| **Mouse** | Any `MouseMove`, `MouseDown` | Hide focus ring; show hover states |
+| **Touch** | `TouchBegin` event | Hide focus ring; enlarge hit targets to 44×44px minimum |
+
+**Switching rules**:
+- Mode switches **instantly** on the first event of the new input type
+- No hysteresis / debounce — immediate switch prevents "stuck" states
+- `IsFocusFromKeyboard()` flag on `FocusManager` tracks current mode
+- Mode is per-window (not global) — a multi-window app may have different modes
+
+#### 7.18.4 Reentrancy Guard for Notification Handlers
+
+**Problem**: A notification handler modifies widget state, which triggers another
+notification, which re-enters the same handler — infinite loop or corrupted state.
+
+| Defense | Mechanism |
+|---------|-----------|
+| **Handler reentrancy flag** | Each `AnalyseNotification()` override checks a per-node `_handlingNotification` bool. If already true, return immediately. |
+| **Deferred state changes** | State changes triggered by notification handlers should use `SendNotificationQueued()` (async) instead of `SendNotification()` (sync) to break the synchronous chain. |
+| **Max dispatch depth** | `CommandNode::SendNotification()` maintains a `_dispatchDepth` counter. If depth > 8, log error and abort dispatch. |
+
+```mermaid
+flowchart TD
+    A["Notification arrives"] --> B{"_handlingNotification?"}
+    B -->|Yes| C["Log warning, return"]
+    B -->|No| D["Set _handlingNotification = true"]
+    D --> E["Execute handler logic"]
+    E --> F{"Need to trigger<br/>another notification?"}
+    F -->|Yes| G["Use SendNotificationQueued()<br/>(deferred, breaks cycle)"]
+    F -->|No| H["Set _handlingNotification = false"]
+    G --> H
+```
+
+#### 7.18.5 Long-Press vs Click Disambiguation
+
+**Problem**: On touch/pen devices, a long-press (context menu) and a tap (click)
+use the same pointer-down event. Must disambiguate without accidental triggers.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> WaitingForLongPress : PointerDown
+    WaitingForLongPress --> Click : PointerUp before 500ms AND movement < 5px
+    WaitingForLongPress --> LongPress : 500ms elapsed AND movement < 10px
+    WaitingForLongPress --> DragStart : Movement ≥ 5px before 500ms
+    LongPress --> Idle : Context menu shown, pointer released
+    Click --> Idle : Click action executed
+    DragStart --> Idle : Drag sequence completes
+```
+
+| Threshold | Value | Configurable? |
+|-----------|:-----:|:------------:|
+| Long-press duration | 500ms (§8.7 `longPressThreshold`) | Yes, via timing token |
+| Tap movement tolerance | 5px (manhattan distance) | No |
+| Long-press movement tolerance | 10px | No |
+| Feedback | Subtle radial fill animation starts at 200ms, completes at 500ms | — |
+
+#### 7.18.6 Concurrent Async Operation Handling
+
+**Problem**: User triggers operation A (e.g., load file), then before A completes,
+triggers operation B (e.g., load different file). Two completion callbacks race.
+
+| Strategy | When to Use | Behavior |
+|----------|------------|----------|
+| **Last-write-wins** | Navigation, tab switch, search | Cancel/ignore A's result when B starts. Only B's result is applied. |
+| **Queue** | Sequential file save operations | B waits for A to complete, then executes. |
+| **Reject** | Already covered by §7.18.1 (action guard) | B is rejected while A is running. |
+
+**Implementation for last-write-wins**:
+- Each async operation gets a monotonically increasing `operationId`
+- On completion, compare callback's `operationId` with the node's `_currentOperationId`
+- If mismatch → discard result silently (stale response)
+- This is equivalent to the `_stateGeneration` mechanism (§28.5) applied at the UI level
+
+#### 7.18.7 Window Resize Layout Stability
+
+**Problem**: During rapid window resize, layout thrashes with expensive reflows.
+
+| Rule | Specification |
+|------|--------------|
+| **Debounce** | Layout recalculation is debounced at 100ms (§8.7 `debounceResize`) during active resize drag |
+| **Skeleton during resize** | For heavy content (DataTable >1000 rows, complex panels), show simplified layout during resize, full layout on resize end |
+| **Minimum window size** | Enforce minimum 800×600 (§6.3 responsive rules). Below minimum, window resize is clamped. |
+| **Priority collapse** | When width drops below thresholds, panels collapse in priority order (§6.3) |
+| **Animation freeze** | All running animations pause during resize and resume after debounce settles |
+
+#### 7.18.8 Graceful Degradation for Missing Resources
+
+**Problem**: Icon SVG file missing, font not installed, theme JSON malformed.
+
+| Missing Resource | Fallback | Visual |
+|-----------------|----------|--------|
+| Icon SVG | `icon://matcha/placeholder` (gray square with `?`) | Log warning, never crash |
+| Font family | Platform default sans-serif (§3.4 fallback chain) | Automatic via Qt font matching |
+| Theme JSON (parse error) | Keep previous theme, show Error toast: "Theme file is invalid" | Previous theme remains active |
+| Theme JSON (missing token) | Use default value from `NyanTheme::BuildDefaults()` | Log warning per missing token |
+| Image (broken URL) | Gray placeholder rect with broken-image icon | Same size as expected image |
+
+---
+
+## I.8 Motion
+
+> Time-based design language: duration tokens, easing curves, spring dynamics,
+> interaction timing, choreography, gesture-driven motion.
+
+### Chapter 5. Motion & Timing System
+
+#### 8.1 Animation Duration Tokens
+
+| Token | Duration | Perception Threshold | Use Case |
+|-------|:--------:|---------------------|----------|
+| `Instant` | 0ms | -- | No animation / test mode |
+| `Quick` | 160ms | Causality (~100ms) | Micro-interactions (hover, focus) |
+| `Normal` | 200ms | Attention window (~200ms) | Standard state transitions |
+| `Slow` | 350ms | Deliberate transition | Page transitions, expand/collapse |
+
+#### 8.2 Easing Curve Tokens
+
+| Token | Curve | Use Case |
+|-------|-------|----------|
+| `Linear` | Linear interpolation | Progress bars, deterministic animations |
+| `OutCubic` | Decelerate (cubic) | Default for most transitions (exit fast) |
+| `InOutCubic` | Accelerate then decelerate | Page transitions, modal entry |
+| `Spring` | Spring dynamics (see 5.3) | Natural, physics-based motion |
+
+**Mathematical definitions**:
+
+- **Linear**: $f(t) = t$
+- **OutCubic**: $f(t) = 1 - (1 - t)^3$. Properties: $f(0)=0$, $f(1)=1$, $f'(0)=3$, $f'(1)=0$ (zero terminal velocity). Perceived as "fast start, slow finish" -- ideal for elements entering the viewport.
+- **InOutCubic**: $f(t) = 4t^3$ for $t < 0.5$; $f(t) = 1 - (-2t + 2)^3 / 2$ for $t \ge 0.5$. Properties: $f(0)=0$, $f(1)=1$, $f'(0)=0$, $f'(1)=0$ (zero velocity at both ends). Perceived as "ease in, ease out" -- ideal for page transitions.
+- **Spring**: Not a parametric curve. Solved via semi-implicit Euler integration (see 5.3).
+
+#### 8.3 Spring Dynamics
+
+**Model**: Damped harmonic oscillator
+
+$$m \, x''(t) + c \, x'(t) + k \bigl(x(t) - x_{\text{target}}\bigr) = 0$$
+
+where $m$ = mass, $c$ = damping, $k$ = stiffness.
+
+**SpringSpec struct**: `{ mass=1.0, stiffness=200.0, damping=20.0 }`
+
+**JSON configuration**:
+
+```json
+{
+  "spring": {
+    "mass": 1.0,
+    "stiffness": 180.0,
+    "damping": 18.0
+  }
+}
+```
+
+**Integration**: Semi-implicit Euler (SIE). Runs until convergence
+(velocity < threshold AND displacement < threshold).
+
+**API**: `IThemeService::Spring()` returns the global default `SpringSpec`.
+`IAnimationService::AnimateSpring()` accepts per-call override.
+
+#### 8.4 TransitionDef
+
+Per-widget animation configuration stored in `WidgetStyleSheet::transition`:
+
+```cpp
+struct TransitionDef {
+    AnimationToken duration = AnimationToken::Normal;  // 200ms
+    EasingToken    easing   = EasingToken::OutCubic;   // Decelerate
+};
+```
+
+#### 8.5 Reduced Motion (WCAG 2.1 SC 2.3.3)
+
+`SetReducedMotion(true)` -> all `Animate()` calls snap to target value immediately.
+`AnimationStarted` and `AnimationCompleted` notifications are still dispatched
+(so trigger-verification tests work).
+
+#### 8.6 Speed Multiplier
+
+`SetSpeedMultiplier(float)`: 1.0 = normal, 0.5 = half speed, 2.0 = double.
+Affects all animation durations globally.
+
+---
+---
+
+
+### 8.7 Interaction Timing Tokens 🆕
+
+> 🆕 Post-v1 supplement.
+
+These tokens define non-animation timing intervals that govern interaction responsiveness.
+They are distinct from animation duration tokens (§8.1) — those control visual motion,
+while these control when interactions trigger, debounce, or timeout.
+
+#### 8.7.1 Timing Token Table
+
+| Token | Value | Use Case |
+|-------|:-----:|----------|
+| `hoverDelay` | 200ms | Delay before hover state activates (prevents flicker on quick mouse pass) |
+| `tooltipDelay` | 500ms | Delay before tooltip appears on hover |
+| `tooltipDismissDelay` | 100ms | Grace period when mouse moves between tooltip trigger and tooltip itself |
+| `longPressThreshold` | 500ms | Duration for long-press recognition (touch/pen) |
+| `doubleClickWindow` | 400ms | Maximum interval between two clicks to count as double-click |
+| `debounceSearch` | 300ms | Debounce interval for search-as-you-type |
+| `debounceResize` | 100ms | Debounce interval for window resize layout recalculation |
+| `autoSaveInterval` | 30000ms | Interval for auto-save (if enabled) |
+| `idleTimeout` | 60000ms | Time before UI enters idle mode (reduce animation frequency) |
+| `repeatKeyInitial` | 500ms | Delay before key repeat starts (matches OS default) |
+| `repeatKeyInterval` | 33ms | Interval between key repeats (~30 repeats/s, matches OS default) |
+| `dragInitDelay` | 150ms | Hold duration before drag initiates (alternative to distance threshold) |
+| `toastDismissTimeout` | 5000ms | Auto-dismiss delay for Toast notifications |
+| `menuOpenDelay` | 200ms | Delay before submenu opens on hover |
+| `menuCloseDelay` | 300ms | Grace period before submenu closes when mouse leaves |
+
+#### 8.7.2 Platform Overrides
+
+| Token | Windows | macOS | Linux |
+|-------|:-------:|:-----:|:-----:|
+| `doubleClickWindow` | `GetDoubleClickTime()` | 500ms (system) | 400ms (default) |
+| `repeatKeyInitial` | `SystemParametersInfo(SPI_GETKEYBOARDDELAY)` | System | System |
+| `repeatKeyInterval` | `SystemParametersInfo(SPI_GETKEYBOARDSPEED)` | System | System |
+| `hoverDelay` | `SystemParametersInfo(SPI_GETMOUSEHOVERTIME)` | 200ms | 200ms |
+
+When OS APIs are available, Matcha queries the system value at startup and stores it
+in the timing token registry. Fallback values in the table above apply when the query fails.
+
+---
+
+### 8.8 Choreography 🆕
+
+> 🆕 Post-v1 supplement.
+
+Choreography defines how multiple elements animate in coordinated sequence rather than
+independently. It creates visual coherence and directs user attention.
+
+#### 8.8.1 Stagger Pattern
+
+When multiple sibling elements enter or exit simultaneously (e.g., list items loading,
+menu items appearing):
+
+$$\text{delay}_i = \text{baseDelay} + i \times \text{staggerInterval}$$
+
+| Parameter | Default | Configurable |
+|-----------|:-------:|:------------:|
+| `baseDelay` | 0ms | Yes |
+| `staggerInterval` | 30ms | Yes |
+| `maxStagger` | 300ms (cap total delay at 10 items) | Yes |
+| Animation per item | `Opacity 0→1, TranslateY +8→0` | Per-widget |
+| Duration per item | 150ms, `OutCubic` | Per-widget |
+
+**Example**: A menu with 8 items opens. Each item fades in and slides up with
+30ms delay between each: items appear at 0, 30, 60, 90, 120, 150, 180, 210ms.
+
+#### 8.8.2 Cascade Pattern
+
+For hierarchical reveal (e.g., expanding a tree branch, opening nested panels):
+
+```
+Parent animates first (200ms)
+  → Child level 1 begins at parent's 60% mark (120ms into parent)
+    → Child level 2 begins at child-1's 60% mark
+```
+
+| Parameter | Value |
+|-----------|:-----:|
+| Cascade trigger | Parent animation reaches 60% progress |
+| Max cascade depth | 3 levels |
+| Beyond depth 3 | All remaining levels appear instantly |
+
+#### 8.8.3 Sequence Pattern
+
+For step-by-step transitions where one animation must complete before the next begins:
+
+```
+Step 1: Old content fades out (150ms, OutCubic)
+Step 2: Container resizes to new content height (200ms, OutCubic)
+Step 3: New content fades in (150ms, OutCubic)
+Total: 500ms
+```
+
+**Use cases**:
+- Page/tab transitions in StackedWidget
+- Wizard step changes
+- Expanding/collapsing CollapsibleSection with content swap
+
+#### 8.8.4 Shared Element Transition 🆕
+
+When an element conceptually moves between two locations (e.g., tab indicator sliding,
+ActionBar tab moving between dock positions):
+
+1. Capture source element's position and size
+2. Capture target element's position and size
+3. Animate a proxy element from source rect to target rect
+4. Duration: `Normal` (200ms), `OutCubic`
+5. On complete: hide proxy, show target element
+
+**Example**: TabWidget active indicator — the 2px bottom accent bar slides
+horizontally from the old tab to the new tab, rather than fading out/in.
+
+---
+
+### 8.9 Gesture-Driven Motion 🆕
+
+> 🆕 Post-v1 supplement.
+
+Motion that is directly driven by user input position (finger/pen/mouse drag),
+rather than triggered as a fire-and-forget animation.
+
+#### 8.9.1 Direct Manipulation Principle
+
+During a drag gesture, the UI element follows the input device with zero perceived latency:
+
+$$\text{elementPosition}(t) = \text{inputPosition}(t) - \text{grabOffset}$$
+
+No easing, no animation delay — the element tracks 1:1 with the input.
+
+Animation (easing, spring) only applies **after release**, when the element settles
+to its final position.
+
+#### 8.9.2 Gesture-Animation Handoff
+
+```mermaid
+stateDiagram-v2
+    [*] --> Tracking : Gesture begins
+    Tracking --> Tracking : Input moves (direct manipulation, no easing)
+    Tracking --> Settling : Gesture ends (finger/mouse release)
+    Settling --> [*] : Animation complete
+
+    note right of Tracking
+        Position = input position - grabOffset
+        No animation, instant tracking
+    end note
+
+    note right of Settling
+        Spring/easing to final position
+        Inherits velocity from gesture
+    end note
+```
+
+**Velocity inheritance**: When the gesture ends, the settling animation's initial
+velocity equals the gesture's velocity at release. This creates a natural momentum
+effect — a fast flick results in a faster settle, a slow release in a gentle settle.
+
+$$v_{\text{initial}} = \frac{\Delta \text{position}}{\Delta t}\bigg|_{t=\text{release}}$$
+
+#### 8.9.3 Gesture-Driven Widget Behaviors
+
+| Widget | Gesture | Tracking | Settle |
+|--------|---------|----------|--------|
+| Slider | Thumb drag | Thumb follows mouse X | Snap to nearest step (if stepped) |
+| ScrollArea | Content drag | Content follows mouse Y | Momentum scroll (§7.3.1) |
+| SplitHandle | Divider drag | Divider follows mouse | Snap to nearest valid position |
+| ActionBar tab | Tab reorder drag | Tab follows mouse X | Snap to insertion point |
+| Dialog titlebar | Window drag | Window follows mouse | Snap to screen edge (if near) |
+| Dropdown | Scroll within dropdown | List follows mouse Y | Momentum + snap to item |
+
+#### 8.9.4 Resistance / Rubber-Banding
+
+When a gesture attempts to move an element beyond its bounds:
+
+$$\text{visualOffset} = \text{bound} + \frac{\text{overscroll}}{1 + |\text{overscroll}| / k}$$
+
+Where `k` is the resistance factor:
+
+| Context | k value | Effect |
+|---------|:-------:|--------|
+| ScrollArea overscroll | 100 | Light resistance, max ~50px visual overshoot |
+| Slider beyond min/max | 30 | Heavy resistance, max ~15px visual overshoot |
+| Dialog beyond screen edge | 200 | Very light resistance |
+
+On release: spring-back to bound with `stiffness=300, damping=20`.
+
+---
+
+## I.9 Designer-Developer Handoff Contract 🆕
+
+> 🆕 Post-v1 supplement.
+> This section is the **single-page summary** of the entire Part I design language.
+> Its purpose is operational: given this section alone, a UI designer knows exactly
+> what artifacts to produce, in what format and granularity; a GUI programmer knows
+> exactly how each artifact maps to C++ code. Together, the two roles can implement
+> Matcha from scratch with all correct details.
+
+### I.9.1 Five-Layer Delivery Model
+
+Matcha's deliverables are organized into five abstraction layers, inspired by
+Jesse James Garrett's UX planes, Don Norman's three levels of processing
+(Visceral → Behavioral → Reflective), and Atomic Design (atoms → pages).
+Each layer depends only on layers below it. The designer and programmer work
+**bottom-up**: Layer 1 must be complete before Layer 2 can begin, and so on.
+
+```mermaid
+graph TB
+    subgraph L5["Layer 5 · Experience"]
+        direction LR
+        E1["Onboarding tour"]
+        E2["Error recovery workflow"]
+        E3["Undo / destructive-action protection"]
+        E4["Keyboard shortcut system"]
+        E5["i18n / L10n"]
+        E6["Brand / theme pack"]
+    end
+    subgraph L4["Layer 4 · Composition"]
+        direction LR
+        C1["Page layout templates"]
+        C2["Dialog presets & positioning"]
+        C3["Responsive collapse rules"]
+        C4["Loading / Empty / Error states"]
+        C5["Window constraints"]
+    end
+    subgraph L3["Layer 3 · Behavior"]
+        direction LR
+        B1["Popup positioning"]
+        B2["Menu cascading timing"]
+        B3["Scroll physics"]
+        B4["Gesture-animation handoff"]
+        B5["Drag & Drop"]
+        B6["Tooltip behavior"]
+        B7["Text overflow rules"]
+        B8["Cognitive load limits"]
+    end
+    subgraph L2["Layer 2 · Component"]
+        direction LR
+        W1["56+ widget spec sheets<br/>(12-section template)"]
+        W2["Signifier audit per widget"]
+    end
+    subgraph L1["Layer 1 · Foundation"]
+        direction LR
+        T1["Color tokens"]
+        T2["Spatial tokens"]
+        T3["Typography scale"]
+        T4["Icon library"]
+        T5["Cursor assignments"]
+        T6["Style architecture"]
+        T7["Motion tokens"]
+    end
+    L1 --> L2 --> L3 --> L4 --> L5
+```
+
+| Layer | Norman Level | Garrett Plane | Deliverable Count | Work Volume |
+|:-----:|:------------:|:-------------:|:-----------------:|:-----------:|
+| L1 Foundation | Visceral | Surface | ~15 artifact types | One-time global |
+| L2 Component | Behavioral | Skeleton | 56 × 12 = ~672 sections | Highest (per-widget) |
+| L3 Behavior | Behavioral | Structure | ~40 cross-cutting specs | Medium (shared rules) |
+| L4 Composition | Behavioral → Reflective | Structure | ~20 templates | Medium (per-page) |
+| L5 Experience | Reflective | Strategy + Scope | ~25 specifications | Low-medium (per-workflow) |
+
+### I.9.2 Complete Artifact Catalog
+
+Deliverables are organized by abstraction layer, not by document chapter.
+Each sub-section lists what the designer delivers and how the programmer consumes it.
+
+#### I.9.2.1 Layer 1 — Foundation
+
+> **Norman: Visceral** · **Garrett: Surface** · **Atomic: Atoms**
+>
+> One-time, global definitions. These are the "periodic table of elements"
+> from which all higher layers are composed. ~15 artifact types, defined once.
+
+##### 1A. Color Tokens
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Neutral scale (16 tokens) | JSON: `$type: "color"`, `$value: "#rrggbb"` | 1 entry per token, light + dark | §2.2 |
+| Semantic hue scales (5 hues × 10 steps) | JSON: same | 50 entries, light + dark | §2.3 |
+| Special-purpose tokens (9) | JSON: same | `Focus`, `Selection`, `Spotlight`, etc. | §2.4 |
+| Contrast compliance report | Table: token pair → WCAG AA/AAA | Every fg/bg combination | §2.5 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `ColorToken` enum (75 values) | `Foundation/ColorToken.h` | 1:1 with designer tokens |
+| `NyanTheme::LoadPalette(json)` | Parses → `array<QColor,75>` × 2 | §9 Theme Engine |
+| `IThemeService::Color(token)` | Returns `QColor` for current mode | Runtime query |
+
+##### 1B. Spatial Tokens
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Spacing scale | JSON: `$type: "dimension"` | 10 entries (`Px2`–`Px64`) | §4.1 |
+| Radius scale | JSON: same | 5 entries (`None`–`Round`) | §4.3 |
+| Size scale | JSON: same | 5 entries (`Xs`–`Xl`) | §4.4 |
+| Elevation / shadow | JSON: `$type: "shadow"` | 6 levels | §4.5 |
+| Layer (z-index) | Table: token → z-value | 10 entries | §4.6 |
+| Density multipliers | Table: `Compact/Default/Comfortable` → factor | 3 entries | §4.2 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `SpacingToken`, `RadiusToken`, `SizeToken`, `ElevationToken`, `LayerToken` | `Foundation/*.h` | `constexpr` arrays |
+| Density scaling | All tokens × `densityScale` in `Resolve()` | §4.9 |
+
+##### 1C. Typography
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Font role table | Table: role → pt, weight, line-height, letter-spacing | 7 roles | §3.1 |
+| Platform font fallback | Table: platform → primary + monospace families | 3 platforms | §3.3 |
+| Font scale presets | Table: preset → multiplier | 3 presets + custom | §3.4 |
+| CJK / RTL overrides | Table: locale → override family | Per-locale | §3.3 ext |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `FontRole` enum, `FontSpec` struct | `Foundation/FontRole.h`, `FontSpec.h` | 7 roles |
+| `IThemeService::Font(role)` | Returns `FontSpec` → `QFont` | §3.2 |
+| Scaling: `actualPt = basePt × fontScale × densityScale` | Min 6pt | §3.4 |
+
+##### 1D. Icon Library
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Icon SVGs (~830) | SVG: `currentColor` fill, 5 size variants | 1 per icon × 5 sizes | §6.1–6.4 |
+| Naming convention | `{category}/{name}` URI hierarchy | Unique URI per icon | §6.2 |
+| FontAwesome subset | List of `icon://fa/{name}` URIs | As needed | §6.2.3 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `IconId` = string URI | `"icon://matcha/{cat}/{name}"` | Open registry |
+| `IResourceResolver::Resolve(uri)` | Returns `QIcon` / `QPixmap` | §6.2.7 |
+| `RegisterIconDirectory(prefix, path)` | Plugin registration | §6.2.8 |
+
+##### 1E. Cursor Mapping
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Widget × state → cursor | Table | Per-widget, per-state | §7.1 |
+| Custom cursor SVGs | SVG + hotspot | `cursor://` URI | §6.2.1 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `CursorToken` enum (15 values) | `Foundation/CursorToken.h` | Maps to `Qt::CursorShape` |
+| `StateStyle::cursor` field | Set in `BuildDefaultVariants()` | §4.6 |
+
+##### 1F. Style Architecture
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Per-widget `WidgetStyleSheet` | Table: field → token | 1 per `WidgetKind` (56+) | §4.5 |
+| Variant × State matrix | Table: (variant, state) → colors | Per-widget, V × 8 states | §4.6–4.7 |
+| Standard variant pattern reuse | Reference to §4.10 patterns | Per-variant | §4.10 |
+| Transition spec | `{duration, easing}` or `SpringSpec` | Per-widget | §4.14 |
+| Component overrides | Sparse patch: field → override | Per-theme/app | §4.16 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `WidgetStyleSheet`, `StateStyle`, `VariantStyle` | `Foundation/*.h` | Geometry + colors |
+| `BuildDefaultVariants()` | Per-widget `Widgets/*.cpp` | Designer matrix → C++ |
+| `IThemeService::Resolve(kind, variant, state)` | Returns `ResolvedStyle` | §4.17 cascade |
+| `ComponentOverride` | `Foundation/ComponentOverride.h` | Sparse patches |
+
+##### 1G. Motion Tokens
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Duration tokens (4) | Table: token → ms | Global | §8.1 |
+| Easing tokens (4) | Table: token → curve formula | Global | §8.2 |
+| Spring presets (4) | Table: `{stiffness, damping, mass}` | Global | §8.3 |
+| Timing tokens (15) | Table: token → ms + use case | Global | §8.7 |
+| Reduced-motion classification | Table: animation → Tier 1/2 | Per animation | §4.15 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `AnimationToken`, `EasingToken` | `Foundation/*.h` | `constexpr` arrays |
+| `SpringSpec`, `TransitionDef` | `Foundation/*.h` | Per-widget config |
+| `TimingToken` | `Foundation/TimingToken.h` | `constexpr int kTimingMs[]` |
+
+---
+
+#### I.9.2.2 Layer 2 — Component
+
+> **Norman: Behavioral** · **Garrett: Skeleton** · **Atomic: Molecules + Organisms**
+>
+> Per-widget specifications. This is the **highest-volume** layer:
+> 56+ widgets × 12-section template = ~672 specification sections.
+
+##### 2A. 12-Section Widget Template
+
+For **each** of the 56+ widgets, the designer delivers a complete spec sheet:
+
+| # | Section | Designer Deliverable | Format | Programmer Consumption |
+|:-:|---------|---------------------|--------|----------------------|
+| 1 | **Synopsis** | Purpose, category, A11y role | Text | `WidgetKind` enum, `A11yRole` |
+| 2 | **Anatomy** | Annotated SVG (all visual parts) | SVG `assets/anatomy/{w}.svg` | `paintEvent` / `layoutChildren` |
+| 3 | **Theme Properties** | `WidgetStyleSheet` overrides | Table (§4.5) | `BuildDefaultVariants()` geometry |
+| 4 | **Variant × State** | Complete (V × 8 states → tokens) | Table (§4.10) | `BuildDefaultVariants()` colors |
+| 5 | **FSM** | State diagram | Mermaid + table | Event handler transitions |
+| 6 | **Notifications** | Events emitted, triggers, payloads | Table | `Notification` enum + `Emit()` |
+| 7 | **UiNode API** | Properties, methods | Table | `{Widget}Node` public interface |
+| 8 | **Animation** | Animated props, duration, easing/spring | Table + `TransitionDef` | `Animate()` calls |
+| 9 | **Math Model** | Layout equations, hit-test, value maps | LaTeX | `paintEvent`, `hitTest()` |
+| 10 | **Keyboard** | Key → action map | Table | `keyPressEvent` |
+| 11 | **Accessibility** | Role, name, state, announce rules | Table | `QAccessibleInterface` |
+| 12 | **Usage Examples** | Do / Don't patterns | Code + screenshot | Review checklist |
+
+**Gate rule**: A widget spec is complete only when **all 12 sections** are filled.
+Missing sections block implementation.
+
+##### 2B. Signifier Audit (per widget)
+
+Based on Don Norman's affordance/signifier distinction (§7.12), for each widget verify:
+
+| Check | What It Ensures | Spec Reference |
+|-------|----------------|----------------|
+| Interactive vs. static distinguishable? | User sees clickability | §7.12.1 |
+| Action type discoverable (click/drag/type)? | Correct expectation | §7.12.1 |
+| Current state visible (enabled/disabled/loading)? | State signifier | §7.12.2 |
+| Hover provides additional info? | Progressive disclosure | §7.12.1 |
+| Cursor changes appropriately? | Motion signifier | §7.12.1 |
+| Mnemonic discoverable (Alt underline)? | Keyboard affordance | §7.9.11 |
+
+---
+
+#### I.9.2.3 Layer 3 — Behavior
+
+> **Norman: Behavioral** · **Garrett: Structure** · **Atomic: (cross-cutting)**
+>
+> Dynamic behaviors shared by multiple widgets. If the designer omits these,
+> the programmer must invent them — leading to inconsistent UX.
+
+##### 3A. Popup & Menu Positioning
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Anchor alignment table (12 positions) | Table: popup type → default anchor | Per popup type | §7.4.1 |
+| Flip / Shift / Resize strategy | Algorithm description | Global | §7.4.2 |
+| Max height formula | $\text{maxH} = \min(\text{cap},\; \text{screenEdge} - \text{top} - 8)$ | Per popup type | §7.4.3 |
+| Screen edge detection | `QScreen::availableGeometry()`, 8px margin, multi-monitor | Global | §7.4.4 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `PopupPositioner` | `Widgets/PopupPositioner.h` | Shared utility |
+| `PopupPlacement` enum (12 values) | Anchor positions | §7.4.1 |
+
+##### 3B. Cascading Menu Timing
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Submenu open delay (200ms) | Timing token | Global | §8.7 |
+| Submenu close grace (300ms) | Timing token | Global | §8.7 |
+| Hover intent triangle | Safe zone geometry | Global | §7.4 + §5.25 |
+| Keyboard: Right=open, Left=close | Key map | Per menu | §5.25 |
+| Cascade depth limit (≤ 3) | Recommendation | Global | §5.25 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `TimingToken::menuOpenDelay/menuCloseDelay` | `Foundation/TimingToken.h` | Defaults |
+| `MenuHoverTracker` | `Widgets/Internal/MenuHoverTracker.h` | Triangle logic |
+
+##### 3C. Scroll Physics & Overscroll
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Momentum formula | $v' = v \times 0.95^{\Delta t}$, stop < 0.5px/frame | Global | §7.3.1 |
+| Overscroll: Clamp/Bounce/Glow per platform | Table | 3 platforms | §7.3.2 |
+| Bounce spring: `stiffness=300, damping=20, max=30px` | Parameters | Global | §7.3.2 |
+| Snap points: `Start/Center/End`, 200ms OutCubic | Enum + anim | Per widget | §7.3.3 |
+| Virtual scroll threshold | Row count | Per data widget | §7.3.4 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `ScrollPhysics` struct | `Widgets/ScrollPhysics.h` | Friction, threshold |
+| `OverscrollBehavior` enum | `Foundation/OverscrollBehavior.h` | 3 modes |
+| `SnapAlignment` enum | `Foundation/SnapAlignment.h` | 3 values |
+
+##### 3D. Gesture-Animation Handoff
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Direct manipulation rule | 1:1 tracking, no easing during drag | Global | §8.9.1 |
+| Velocity inheritance | $v_0 = \Delta p / \Delta t$ at release | Global | §8.9.2 |
+| Per-widget gesture table | Widget × gesture → track + settle | Per gesture widget | §8.9.3 |
+| Rubber-banding formula (see §8.9.4) | Resistance curve with context-dependent `k` | Per context | §8.9.4 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `GestureTracker` | `Widgets/GestureTracker.h` | Velocity + handoff |
+| `RubberBandEffect` | `Widgets/RubberBandEffect.h` | Per-context `k` |
+
+##### 3E. Drag & Drop
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Initiation: 5px distance or 150ms hold | Thresholds | Global | §7.8.2 |
+| Ghost: opacity 0.7, scale 0.9×, elevation 3 | Visual spec | Global | §7.8.3 |
+| Drop indicator: 2px `Primary` line / bg highlight | Per target type | Per widget | §7.8.4 |
+| Cancel: `Escape` → animated return | Behavior | Global | §7.8.1 |
+| Cursor feedback: Copy/Move/NoDrop | Cursor tokens | Global | §7.8.5 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `IDragDropService` | `Foundation/IDragDropService.h` | Coordination |
+| `DragGhostWidget` | `Widgets/Internal/DragGhostWidget.h` | Rendering |
+
+##### 3F. Tooltip Behavior
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Show delay: 500ms | Timing token | Global | §8.7 |
+| Dismiss grace: 100ms | Timing token | Global | §8.7 |
+| Placement: §7.4 rules, default `Top` offset (0, -8) | Positioning | Global | §7.4.1 |
+| Rich tooltip: icon + title + body + link | Content spec | Per widget | §5.33 |
+| Truncation auto-tooltip | On elide → show full text | Per widget opt-in | §7.5.1 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `TimingToken::tooltipDelay/tooltipDismissDelay` | `Foundation/TimingToken.h` | Defaults |
+| `PopupPositioner` | Shared with all popups | §7.4 |
+| `NyanTooltip` | `Widgets/NyanTooltip.h` | Rich content |
+
+##### 3G. Text Overflow & Truncation
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Per-widget elide rules | Table: widget → direction, max lines, tooltip | 16+ widgets | §7.5.1 |
+| Multi-line clamp | `SetMaxLines(n)` + "..." | Per multi-line widget | §7.5.2 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `QFontMetrics::elidedText()` | Per-widget `paintEvent` | Qt API |
+| `WidgetNode::SetMaxLines(int)` | `UiNodes/WidgetNode.h` | Clamp API |
+
+##### 3H. Cognitive Load Limits
+
+Based on Hick's Law, Miller's Law (7±2), and Fitts' Law (§7.13):
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Max items per menu level (12) | Constraint | Global | §7.13.1 |
+| Max tabs (8), wizard steps (7), form fields/section (7) | Constraints | Per context | §7.13.1 |
+| Minimum button size (32×32px, touch 44×44px) | Fitts constraint | Global | §7.13.3 |
+| Information density limits per zone | Table: zone → max items | Global | §7.13.2 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| Compile-time / review-time constraints | Not runtime-enforced | Design review checklist |
+| `A11yAudit` rules | `a11y.cognitive.*` rule IDs | §7.13 |
+
+---
+
+#### I.9.2.4 Layer 4 — Composition
+
+> **Norman: Behavioral → Reflective** · **Garrett: Structure** · **Atomic: Templates**
+>
+> Page-level compositions: how widgets are arranged into screens,
+> how the application shell responds to window changes, and how
+> transient states (loading, empty, error) are presented.
+
+##### 4A. Page Layout Templates
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Main window composition | Wireframe + region table | 1 template | §6.2.1 |
+| Dialog presets | Table: type → size, button layout | 4 presets (Confirm/Wizard/Settings/About) | §6.2.3 |
+| Property panel template | Wireframe: sidebar + content | 1 template | §6.2.2 |
+| Grid/alignment rules | Columns, gutter, margins | Global + per-template | §6.1.1 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `ContainerNode(LayoutKind)` | `UiNodes/ContainerNode.h` | HBox/VBox/Grid |
+| `ContainerNode::layoutChildren()` | Two-pass flex algorithm | §6.1.2 |
+
+##### 4B. Dialog Positioning & Constraints
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Positioning rules | Table: type → rule (centered/offset/nested) | Per dialog type | §6.2.4 |
+| Drag constraint | Title bar drag; clamp to screen | Global | §6.2.4 |
+| Resize memory | Per dialog ID, persisted across sessions | Per dialog | §6.2.4 |
+| Minimum window size | 800×600px; refuse smaller | Application-wide | §6.3.2 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `DialogPositioner` | `Widgets/DialogPositioner.h` | Strategy per type |
+| `QWidget::setMinimumSize()` | Per window/dialog | From constants |
+| `ISettingsService` | Size persistence | Session memory |
+
+##### 4C. Responsive Collapse
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Panel hide priority | Ordered list: StatusBar→Property→DocBar→ActionBar→Sidebar→Viewport | Shell | §6.3.1 |
+| ActionBar collapse thresholds | Table: width → collapse behavior | Per toolbar | §6.3.3 |
+| Breakpoint definitions | Table: name → width range → changes | Application-wide | §6.3 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `ShellLayoutManager` | `UiNodes/Shell/ShellLayoutManager.h` | Priority hide/show |
+| `ActionBarNode::setCollapseThreshold()` | Per-toolbar config | §6.3.3 |
+| `TimingToken::debounceResize` (100ms) | Resize debounce | §8.7 |
+
+##### 4D. Loading / Empty / Error State Templates
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| State priority rule | Loading > Error > Empty > Content | Global | §6.4.1 |
+| Skeleton shimmer spec | `FillMuted` bg, gradient animation 1.5s Linear | Per data region | §6.4.2 |
+| Spinner spec | 24px, `Primary` stroke, 800ms/rev Linear | Centered in region | §6.4.3 |
+| Empty state template | Illustration + title + description + CTA button | Per data widget | §6.4.4 |
+| Error state template | Error icon + title + description + action buttons | Global | §7.15.3 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `SkeletonShimmer` widget | `Widgets/SkeletonShimmer.h` | Gradient animation |
+| `BusyIndicator` widget | `Widgets/BusyIndicator.h` | Spinner |
+| `EmptyStateWidget` | `Widgets/EmptyStateWidget.h` | Illustration + CTA |
+| `ErrorPageWidget` | `Widgets/ErrorPageWidget.h` | Standardized error page |
+| State logic | `if (loading) show skeleton; else if (error) ...` | Per data container |
+
+##### 4E. Error Severity Routing
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Severity → UI channel | Table: (severity × context) → treatment | Per combination | §7.15.2 |
+| Multi-error aggregation | Banner: "N errors. [Fix First]" → scroll to first | Form pattern | §7.15.4 |
+| Retry/fallback patterns | Per error: retry, "Save & Quit", "Report Bug" | Per context | §7.15.2 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `IErrorService` | `Foundation/IErrorService.h` | Routing |
+| `InlineAlertWidget` | `Widgets/InlineAlertWidget.h` | Form summary |
+
+---
+
+#### I.9.2.5 Layer 5 — Experience
+
+> **Norman: Reflective** · **Garrett: Strategy + Scope** · **Atomic: Pages**
+>
+> End-to-end user workflows, learning aids, safety nets, and customization.
+> These deliverables require all lower layers to be complete.
+
+##### 5A. Onboarding & Contextual Help
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| First-run tour | Step sequence (max 7, Miller's Law), spotlight cutout per step | 1 tour | §7.16.3 |
+| Info Popover content | Per-feature: icon + title + body, width 280–360px | Per feature | §7.16.2 |
+| Help delivery mechanisms | F1 → help panel; `?` button → popover; command palette | Global | §7.16.1 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `OnboardingTour` | `Widgets/OnboardingTour.h` | Spotlight + tooltip card |
+| `InfoPopover` | `Widgets/InfoPopover.h` | §7.16.2 |
+| `IHelpService` | `Foundation/IHelpService.h` | `help://` URI resolution |
+
+##### 5B. Undo / Destructive-Action Protection
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Destructive action confirm | Confirm dialog with Danger button | Per destructive action | §7.2 |
+| Explicit typing confirm | User types resource name to confirm irreversible action | High-risk actions | §7.2 |
+| Undo toast | Toast with "Undo" action (5s timeout) after destructive action | Global pattern | §7.2 |
+| Undo history naming | Named entries ("Undo: Delete 3 nodes") | Per command | §7.13.4 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `CommandStack` (undo/redo) | `Foundation/CommandStack.h` | Per-document |
+| `ConfirmDialog` | `Widgets/ConfirmDialog.h` | Danger variant |
+| Toast + undo action | `INotificationService::ShowUndoToast()` | 5s timeout |
+
+##### 5C. Keyboard Shortcut System
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Scope hierarchy | Table: priority → scope (Dialog > Widget > Workbench > Workshop > Global) | System-wide | §7.14.1 |
+| Default shortcut map | Table: command → key combo + scope | Application-wide | §7.14.2 |
+| Conflict resolution rules | Higher scope wins; same scope = error | System-wide | §7.14.3 |
+| Mnemonic allocation | Table: button label → Alt+letter | Per dialog | §7.9.11 |
+| Command Palette | `Ctrl+K`, fuzzy match, shows bound key | System-wide | §7.14.5 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `ShortcutManager` | `Foundation/ShortcutManager.h` | Scope resolution |
+| `ShortcutBinding` struct | `{sequence, scope, commandId}` | §7.14.2 |
+| `CommandPalette` widget | `Widgets/CommandPalette.h` | `Ctrl+K` overlay |
+
+##### 5D. Internationalization & Localization
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Translation string catalog | `string://` URIs, JSON per locale | All user-facing strings | §6.2.1 `string://` |
+| RTL mirror rules | Table: widget/property → mirror or keep | Per widget/property | §7.10 |
+| CJK font overrides | Table: locale → font family | Per CJK locale | §3.3 |
+| Plural rules | ICU MessageFormat patterns | Per translatable string | `string://` fragment |
+| Number/date/time formatting | Locale-specific patterns | Per locale | §7.10 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `ILocaleService` | `Foundation/ILocaleService.h` | String resolution |
+| `IResourceResolver` for `string://` | Locale-aware lookup | §6.2.1 |
+| `setLayoutDirection(Qt::RightToLeft)` | Per-window | Automatic for RTL |
+| `IsRtlFlippable(iconId)` | Icon mirror check | §6.8 |
+
+##### 5E. Brand / Theme Pack
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Seed colors for custom theme | 5 hue seeds + neutral seed | 1 set per theme | §2.6 |
+| Theme JSON files | `default-light.json`, `default-dark.json` (and custom) | Per theme | §9.2 |
+| Brand icon overrides | SVGs replacing base icons | Per overridden icon | §6.2.5 |
+| Component overrides | Sparse `ComponentOverride` patches | Per theme pack | §4.16 |
+| High-contrast theme | Separate token set meeting AAA (7:1) | 1 variant | §7.9.6 |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `NyanTheme::LoadTheme(json)` | JSON → palette + overrides | §9.2 |
+| `registerOverride(layer, uri, path)` | Icon override chain | §6.2.5 |
+| `ComponentOverride` | `Foundation/ComponentOverride.h` | §4.16 |
+
+##### 5F. Choreography & Animation Patterns
+
+| Designer Deliverable | Format | Granularity | Spec Reference |
+|---------------------|--------|-------------|----------------|
+| Stagger pattern | `baseDelay + i × interval`, max 300ms | Per list/menu entrance | §8.8.1 |
+| Cascade pattern | Parent 60% → child starts | Per tree expansion | §8.8.2 |
+| Sequence pattern | Fade out → resize → fade in | Per page transition | §8.8.3 |
+| Shared element transition | Source rect → target rect animation | Per tab/card transition | §8.8.4 |
+| Per-widget animation spec | Table: property → duration + easing/spring | In widget §Animation | §5.x |
+
+| Programmer Consumption | C++ Path | Notes |
+|-----------------------|----------|-------|
+| `IAnimationService::Stagger/Cascade/Sequence()` | Choreography API | §8.8 |
+| `IAnimationService::AnimateSharedElement()` | Source→target proxy | §8.8.4 |
+
+---
+
+**Completeness rule**: A Matcha implementation is considered "handoff-complete"
+only when **all five layers** are delivered and verified. Layer dependencies
+are strict: $L_n$ cannot begin until $L_{n-1}$ passes its gate check.
+
+### I.9.3 Artifact File Structure
+
+The designer's deliverables map to a standardized directory structure that the
+programmer's build system consumes:
+
+```
+Matcha/
+├── Resources/
+│   ├── themes/
+│   │   ├── default-light.json      ← Color palette (75 tokens, light)
+│   │   ├── default-dark.json       ← Color palette (75 tokens, dark)
+│   │   ├── tokens.json             ← Spatial + timing + spring tokens (DTCG format)
+│   │   └── typography.json         ← FontRole → FontSpec mappings
+│   ├── icons/
+│   │   ├── matcha/                  ← Built-in icon SVGs
+│   │   │   ├── action/save.svg
+│   │   │   ├── action/undo.svg
+│   │   │   ├── status/error.svg
+│   │   │   └── ...                  ← ~200 base icons
+│   │   └── fa/                      ← FontAwesome subset (if bundled)
+│   └── cursors/                     ← Custom cursor SVGs (if any)
+├── Include/Matcha/
+│   └── Foundation/
+│       ├── ColorToken.h             ← enum ColorToken { Surface, ..., 75 entries }
+│       ├── SpacingToken.h           ← enum SpacingToken { Px2, ..., Px64 }
+│       ├── RadiusToken.h            ← enum RadiusToken { None, ..., Round }
+│       ├── SizeToken.h              ← enum SizeToken { Xs, ..., Xl }
+│       ├── ElevationToken.h         ← enum ElevationToken { Flat, ..., Raised3 }
+│       ├── LayerToken.h             ← enum LayerToken { Base, ..., Maximum }
+│       ├── FontRole.h               ← enum FontRole { Body, ..., ToolTip }
+│       ├── AnimationToken.h         ← enum AnimationToken { Instant, ..., Slow }
+│       ├── EasingToken.h            ← enum EasingToken { Linear, ..., Spring }
+│       ├── CursorToken.h            ← enum CursorToken { Default, ..., Grabbing }
+│       ├── FontSpec.h               ← struct FontSpec
+│       ├── SpringSpec.h             ← struct SpringSpec
+│       ├── TransitionDef.h          ← struct TransitionDef
+│       ├── StateStyle.h             ← struct StateStyle
+│       ├── VariantStyle.h           ← struct VariantStyle
+│       ├── WidgetStyleSheet.h       ← struct WidgetStyleSheet
+│       ├── ResolvedStyle.h          ← struct ResolvedStyle
+│       └── ComponentOverride.h      ← struct ComponentOverride
+└── docs/
+    └── assets/anatomy/              ← Widget anatomy SVGs (designer-produced)
+        ├── pushbutton.svg
+        ├── checkbox.svg
+        └── ...                      ← 56+ widget anatomy diagrams
+```
+
+### I.9.4 Handoff Workflow
+
+The end-to-end workflow follows the five-layer dependency order:
+
+```mermaid
+sequenceDiagram
+    participant D as UI Designer
+    participant S as Spec Document
+    participant P as GUI Programmer
+    participant R as Runtime
+
+    Note over D,R: Layer 1 — Foundation
+    D->>S: Color palette (75 tokens × light/dark)
+    D->>S: Spatial tokens, typography scale, motion tokens
+    D->>S: Icon SVGs (~830), cursor mapping
+    D->>S: Style architecture (WidgetStyleSheet + StateStyle + VariantStyle)
+    P->>P: Encode tokens → constexpr enums + lookup tables
+    P->>P: Implement NyanTheme + IResourceResolver
+    P->>P: Gate check: all L1 tests pass ✓
+
+    Note over D,R: Layer 2 — Component
+    D->>S: For each widget: 12-section spec sheet
+    D->>S: Signifier audit per widget (§7.12)
+    P->>P: BuildDefaultVariants() + paintEvent + event handlers
+    P->>P: QAccessibleInterface per widget
+    P->>P: Gate check: all L2 tests pass ✓
+
+    Note over D,R: Layer 3 — Behavior
+    D->>S: Popup positioning, menu timing, scroll physics
+    D->>S: Gesture handoff, DnD, tooltip, text overflow
+    D->>S: Cognitive load limits (Hick/Miller/Fitts)
+    P->>P: PopupPositioner, ScrollPhysics, GestureTracker
+    P->>P: Gate check: all L3 tests pass ✓
+
+    Note over D,R: Layer 4 — Composition
+    D->>S: Page layouts, dialog presets, responsive collapse
+    D->>S: Loading/Empty/Error state templates
+    D->>S: Error severity routing
+    P->>P: ShellLayoutManager, DialogPositioner
+    P->>P: SkeletonShimmer, EmptyStateWidget, ErrorPageWidget
+    P->>P: Gate check: all L4 tests pass ✓
+
+    Note over D,R: Layer 5 — Experience
+    D->>S: Onboarding tour, undo/destructive protection
+    D->>S: Shortcut system, i18n catalog, brand/theme pack
+    D->>S: Choreography patterns (stagger/cascade/sequence)
+    P->>P: OnboardingTour, CommandStack, ShortcutManager
+    P->>P: ILocaleService, theme JSON loader
+    P->>P: Gate check: all L5 tests pass ✓
+
+    Note over D,R: Final Validation
+    D->>P: Visual QA review (pixel comparison)
+    P->>R: A11y audit (contrast, focus, keyboard)
+    P->>R: Full test suite (250+ tests)
+    D->>P: Approve or request corrections
+```
+
+### I.9.5 Validation Checklist
+
+Organized by delivery layer. Each layer's gate must pass before the next layer begins.
+
+#### L1 Foundation Gate
+
+| # | Check | Owner | Method |
+|:-:|-------|:-----:|--------|
+| 1 | All 75 color tokens have light + dark values | Designer | JSON schema validation |
+| 2 | All token pairs meet WCAG AA contrast (4.5:1 text, 3:1 UI) | Designer | Automated contrast checker |
+| 3 | Spatial/radius/size/elevation tokens defined, density-scaled | Designer | Token completeness check |
+| 4 | Typography: 7 `FontRole` entries with pt/weight/line-height | Designer | Schema validation |
+| 5 | Icon SVGs use `currentColor`, 5 sizes per icon | Designer | SVG linter |
+| 6 | Motion tokens: 4 duration + 4 easing + 4 spring + 15 timing | Designer | Token count check |
+| 7 | `WidgetStyleSheet` references only defined tokens (no raw px/color) | Both | Static analysis |
+| 8 | Density scaling produces correct px at all 3 levels | Programmer | Unit test |
+
+#### L2 Component Gate
+
+| # | Check | Owner | Method |
+|:-:|-------|:-----:|--------|
+| 9 | All 12 widget spec sections filled (no placeholder/stub) | Designer | Spec completeness audit |
+| 10 | Variant × State matrix complete (no empty cells, all 8 states) | Designer | Matrix coverage check |
+| 11 | Anatomy SVG matches implementation within ±1px | Both | Visual regression test |
+| 12 | All notifications in catalog are emitted | Programmer | Notification integration test |
+| 13 | Animation durations match spec (±10ms tolerance) | Programmer | Animation timing test |
+| 14 | Keyboard contract fully implemented | Programmer | Keyboard interaction test |
+| 15 | A11y role, name, state correctly exposed | Programmer | `QAccessible` audit |
+| 16 | Signifier audit passed (§7.12 checklist) | Designer | Per-widget review |
+
+#### L3 Behavior Gate
+
+| # | Check | Owner | Method |
+|:-:|-------|:-----:|--------|
+| 17 | Popup positioning handles all edge cases (flip/shift/resize) | Programmer | Multi-monitor test |
+| 18 | Scroll physics matches spec (momentum, overscroll, snap) | Programmer | Physics simulation test |
+| 19 | Gesture handoff: zero-jerk transition from drag to animation | Programmer | Animation continuity test |
+| 20 | Tooltip timing matches tokens (500ms show, 100ms dismiss) | Programmer | Timing test |
+| 21 | Cognitive load limits not exceeded (menu ≤ 12 items, etc.) | Designer | Design review |
+| 22 | Reduced-motion mode works correctly for all animations | Programmer | Reduced-motion test pass |
+
+#### L4 Composition Gate
+
+| # | Check | Owner | Method |
+|:-:|-------|:-----:|--------|
+| 23 | All page templates render correctly at 3 breakpoints | Both | Responsive layout test |
+| 24 | Loading → Error → Empty → Content state priority correct | Programmer | State machine test |
+| 25 | Responsive collapse follows priority order | Programmer | Window resize test |
+| 26 | Dialog positioning/memory works across sessions | Programmer | Dialog persistence test |
+| 27 | Error severity routes to correct UI channel | Programmer | Error routing test |
+
+#### L5 Experience Gate
+
+| # | Check | Owner | Method |
+|:-:|-------|:-----:|--------|
+| 28 | Onboarding tour ≤ 7 steps, spotlight works | Both | Tour walkthrough test |
+| 29 | Undo toast + confirm dialog for all destructive actions | Both | Destructive action audit |
+| 30 | Shortcut scope resolution correct (Dialog > Widget > Global) | Programmer | Shortcut priority test |
+| 31 | i18n: RTL mirror, CJK fonts, plural rules | Both | Locale switch test |
+| 32 | Theme pack: light + dark + high-contrast render correctly | Both | Theme switch visual test |
+| 33 | Choreography: stagger/cascade/sequence timing correct | Programmer | Animation sequence test |
+
+### I.9.6 Common Pitfalls and Mitigations
+
+| Layer | Pitfall | Consequence | Mitigation |
+|:-----:|---------|------------|------------|
+| L1 | Raw hex colors instead of tokens | Theme switch breaks | All colors must reference `ColorToken` names, never `#rrggbb` |
+| L1 | Spacing in absolute px without token | Density scaling breaks | All dimensions use `SpacingToken`/`SizeToken`/`RadiusToken` |
+| L1 | Font size in px instead of pt | DPI scaling breaks | Font sizes always via `FontRole`; never raw px |
+| L1 | Icon SVG hardcodes fill color | Colorization fails | All SVGs use `fill="currentColor"` |
+| L2 | Omitted Disabled/Error states | Widget looks broken | V×S matrix must fill all 8 states; gaps use Standard Neutral defaults |
+| L2 | Missing FSM or keyboard section | Inconsistent behavior | Gate rule: all 12 sections required |
+| L2 | Anatomy SVG mismatches tokens | Implementation diverges | SVG must annotate with token names, not px |
+| L3 | Popup positioning untested on multi-monitor | Popup appears off-screen | Test with ≥2 monitors, mixed DPI |
+| L3 | Scroll momentum constant differs across widgets | Inconsistent feel | Use shared `ScrollPhysics` struct, not per-widget values |
+| L3 | Missing hover-intent triangle for cascading menus | Users can't reach submenus | `MenuHoverTracker` mandatory for all cascading menus |
+| L4 | Loading/empty/error states not designed | Blank screen during load | State templates required for every data container |
+| L4 | Responsive collapse order undocumented | Random panels disappear | Explicit priority list in shell spec |
+| L5 | No reduced-motion classification | WCAG violation | Every animation tagged Tier 1 (decorative) or Tier 2 (functional) |
+| L5 | Shortcuts conflict across scopes | Key combo does wrong action | `ShortcutManager::Validate()` checks for conflicts at registration |
+| L5 | Undo missing for destructive action | Data loss | Destructive action audit: every delete/close must have undo or confirm |
+| L5 | Programmer bypasses `Resolve()` | Theme changes don't propagate | `paintEvent` must start with `Resolve()`; zero direct `QColor` |
+
+---
+---
+
+# Part II -- Theme Engine
+
+> Chapters 9-11. The runtime infrastructure that resolves Part I's token definitions
+> to concrete values. Implements IThemeService, JSON configuration, NyanTheme.
+
+## Chapter 9. IThemeService Interface
+
+### 9.1 Interface Overview & Inheritance
+
+```mermaid
+classDiagram
+    class ITokenRegistry {
+        <<interface>>
+        +SetDensity(DensityLevel) void
+        +CurrentDensity() DensityLevel
+        +SetDirection(TextDirection) void
+        +CurrentDirection() TextDirection
+        +SpacingPx(SpacingToken) int
+        +Radius(RadiusToken) int
+        +AnimationMs(AnimationToken) int
+    }
+
+    class IThemeService {
+        <<interface>>
+        +SetTheme(name) void
+        +CurrentTheme() QString
+        +CurrentMode() ThemeMode
+        +RegisterTheme(name, path, mode) void
+        +Color(ColorToken) QColor
+        +Font(FontRole) FontSpec
+        +Shadow(ElevationToken) ShadowSpec
+        +Easing(EasingToken) EasingCurveType
+        +Spring() SpringSpec
+        +ResolveIcon(IconId, IconSize, QColor) QIcon
+        +RegisterIconDirectory(prefix, dir) int
+        +ResolveStyleSheet(WidgetKind) WidgetStyleSheet
+        +Resolve(kind, variant, state) ResolvedStyle
+        +RegisterComponentOverrides(overrides) void
+        +RegisterDynamicTokens(defs) void
+    }
+
+    ITokenRegistry <|-- IThemeService : inherits
+
+    note for ITokenRegistry "Layer 0 fw (Qt-free)"
+    note for IThemeService "Layer 1 gui (Qt-dependent)\nEmits ThemeChanged signal"
+```
+
+**Thread safety**: `IThemeService` is main-thread-only. All query methods are
+`const` and safe for concurrent reads from the paint thread, but mutation
+methods (`SetTheme`, `SetDensity`, etc.) must be called from the main thread.
+
+### 9.2 Theme Lifecycle API
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `SetTheme` | `void SetTheme(const QString& name)` | Load and activate a theme by name. Emits `ThemeChanged`. |
+| `CurrentTheme` | `QString CurrentTheme() const` | Returns the name of the active theme. |
+| `CurrentMode` | `ThemeMode CurrentMode() const` | Returns `Light` or `Dark` classification of the active theme. |
+| `RegisterTheme` | `void RegisterTheme(const QString& name, const QString& jsonPath, ThemeMode mode)` | Register a custom theme. No slot limit. |
+
+**Built-in theme constants**: `kThemeLight`, `kThemeDark`, `kThemeHighContrast`.
+
+**ThemeMode enum**: `enum class ThemeMode : uint8_t { Light, Dark }`.
+
+### 9.3 Token Query API
+
+All query methods are O(1) flat-array lookups.
+
+| Method | Input | Output | Notes |
+|--------|-------|--------|-------|
+| `Color(token)` | `ColorToken` | `QColor` | Indexed by `std::to_underlying(token)` |
+| `Font(role)` | `FontRole` | `const FontSpec&` | Cached, font-scale applied |
+| `Shadow(level)` | `ElevationToken` | `ShadowSpec` | Density-scaled |
+| `Easing(token)` | `EasingToken` | `QEasingCurve::Type` | Maps to Qt enum |
+| `Spring()` | -- | `SpringSpec` | Theme-configured spring parameters |
+| `SpacingPx(token)` | `SpacingToken` | `int` | Density-scaled (inherited from ITokenRegistry) |
+| `Radius(token)` | `RadiusToken` | `int` | Density-scaled (inherited from ITokenRegistry) |
+| `AnimationMs(token)` | `AnimationToken` | `int` | Duration in milliseconds |
+
+### 9.4 Icon Resolution API
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `ResolveIcon` | `QIcon ResolveIcon(const IconId& uri, IconSize size, QColor tint) const` | Load SVG, colorize, cache. DPI-aware. |
+| `RegisterIconDirectory` | `int RegisterIconDirectory(std::string_view uriPrefix, const QString& dirPath)` | Scan dir for .svg files, register each as `{prefix}/{filename}`. Returns count. |
+| `InvalidateIconCache` | `void InvalidateIconCache()` | Clear cached icons (call after theme change). |
+
+**Icon URI format**: `icon://matcha/{name}` for built-in icons (see §6.2).
+Plugins use custom authorities: `icon://myplugin/{name}`.
+
+**Colorization**: SVG `fill` and `stroke` attributes are replaced with the `tint` color.
+This enables single-source SVGs that adapt to any theme.
+
+### 9.5 Declarative Style Resolution API
+
+```mermaid
+flowchart LR
+    Input["Resolve(kind, variant, state)"] --> WSS[WidgetStyleSheet<br/>lookup by kind]
+    WSS --> VS[VariantStyle<br/>lookup by variant]
+    VS --> SS[StateStyle<br/>lookup by state]
+    SS --> RS[ResolvedStyle<br/>concrete Qt values]
+    Theme[NyanTheme<br/>Color/Font/Shadow arrays] --> RS
+    Density[DensityLevel] --> RS
+```
+
+| Method | Input | Output | Description |
+|--------|-------|--------|-------------|
+| `Resolve` | `WidgetKind, size_t variantIdx, InteractionState` | `ResolvedStyle` | One-call complete style resolution |
+| `ResolveStyleSheet` | `WidgetKind` | `const WidgetStyleSheet&` | Per-widget geometry + variant spans |
+
+**ResolvedStyle struct** (all fields are concrete Qt values):
+
+| Field | Type | Source |
+|-------|------|--------|
+| `background` | `QColor` | `StateStyle::background` -> `Color(token)` |
+| `foreground` | `QColor` | `StateStyle::foreground` -> `Color(token)` |
+| `border` | `QColor` | `StateStyle::border` -> `Color(token)` |
+| `radiusPx` | `int` | `WidgetStyleSheet::radius` -> `Radius(token) * density` |
+| `paddingHPx` | `int` | `WidgetStyleSheet::paddingH` -> `SpacingPx(token)` |
+| `paddingVPx` | `int` | `WidgetStyleSheet::paddingV` -> `SpacingPx(token)` |
+| `gapPx` | `int` | `WidgetStyleSheet::gap` -> `SpacingPx(token)` |
+| `minHeightPx` | `int` | `WidgetStyleSheet::minHeight` -> `ToPixels(token) * density` |
+| `borderWidthPx` | `int` | `StateStyle::borderWidth` -> `SpacingPx(token)` |
+| `font` | `QFont` | `WidgetStyleSheet::font` -> `Font(role)` |
+| `shadow` | `ShadowSpec` | `WidgetStyleSheet::elevation` -> `Shadow(token)` |
+| `opacity` | `float` | `StateStyle::opacity` (1.0 normal, <1.0 disabled) |
+| `durationMs` | `int` | `WidgetStyleSheet::transition.duration` -> `AnimationMs(token)` |
+| `easingType` | `int` | `WidgetStyleSheet::transition.easing` -> `Easing(token)` |
+
+### 9.6 Component Override API
+
+```cpp
+struct ComponentOverride {
+    WidgetKind     kind;
+    RadiusToken    radius;        // Override radius for this widget class
+    SpacingToken   paddingH;      // Override horizontal padding
+    SpacingToken   paddingV;      // Override vertical padding
+    FontRole       font;          // Override font role
+    ElevationToken elevation;     // Override elevation
+};
+```
+
+**Registration**: `RegisterComponentOverrides(std::span<const ComponentOverride>)`
+
+**Priority**: ComponentOverride > BuildDefaultVariants() defaults.
+
+### 9.7 Dynamic Token API (Plugin Extension)
+
+| Definition Struct | Fields | Description |
+|------------------|--------|-------------|
+| `DynamicColorDef` | `name, lightValue, darkValue` | Theme-aware color (different values per mode) |
+| `DynamicFontDef` | `name, fontSpec` | Custom font specification |
+| `DynamicSpacingDef` | `name, basePx` | Custom spacing value (density-scaled) |
+
+| Method | Description |
+|--------|-------------|
+| `RegisterDynamicTokens(span<DynamicColorDef>)` | Register plugin colors |
+| `RegisterDynamicFonts(span<DynamicFontDef>)` | Register plugin fonts |
+| `RegisterDynamicSpacings(span<DynamicSpacingDef>)` | Register plugin spacings |
+| `DynamicColor(name) -> optional<QColor>` | Query by string name |
+| `DynamicFont(name) -> optional<FontSpec>` | Query by string name |
+| `DynamicSpacingPx(name) -> optional<int>` | Query by string name (density-scaled) |
+| `UnregisterDynamicTokens(span<string_view>)` | Remove by name |
+
+### 9.8 Font Scale API
+
+| Method | Description |
+|--------|-------------|
+| `SetFontScale(float)` | Set custom font scale factor [0.5, 3.0] |
+| `FontScale() -> float` | Get current font scale |
+| `SetFontSizePreset(FontSizePreset)` | Set from preset (Small/Medium/Large) |
+
+### 9.9 Density & Direction API
+
+| Method | Description |
+|--------|-------------|
+| `SetDensity(DensityLevel)` | Set density (rebuilds QSS, emits ThemeChanged) |
+| `CurrentDensity() -> DensityLevel` | Get active density |
+| `SetDirection(TextDirection)` | Set LTR/RTL (rebuilds QSS, emits ThemeChanged) |
+| `CurrentDirection() -> TextDirection` | Get active direction |
+
+### 9.10 Test Support API
+
+| Method | Description |
+|--------|-------------|
+| `SetAnimationOverride(int forceMs)` | Force all animations to specified duration. 0 = instant snap. -1 = restore normal. |
+
+### 9.11 ThemeChanged Signal & ThemeAware Mixin
+
+**Signal**: `void ThemeChanged(const QString& newThemeName)`
+
+Emitted by: `SetTheme()`, `SetDensity()`, `SetDirection()`, `SetFontScale()`.
+
+**ThemeAware mixin** (for widgets):
+
+```mermaid
+sequenceDiagram
+    participant T as IThemeService
+    participant W as ThemeAware Widget
+    T->>W: ThemeChanged(name)
+    W->>W: _styleSheet = ResolveStyleSheet(kind)
+    W->>W: OnThemeChanged() [virtual]
+    W->>W: update() [QPainter repaint]
+```
+
+| ThemeAware Method | Description |
+|-------------------|-------------|
+| `Theme() -> IThemeService&` | Access the global theme service |
+| `StyleSheet() -> const WidgetStyleSheet&` | Cached per-widget style sheet |
+| `OnThemeChanged()` | Virtual callback, override to trigger repaint |
+| `AnimateTransition(propId, from, to)` | Animate using TransitionDef from StyleSheet |
+| `PaintFocusRing(QPainter&, QRect, int radius)` | Draw standard focus indicator |
+
+---
+
+## Chapter 10. JSON Theme Configuration
+
+### 10.1 Theme File Structure
+
+```json
+{
+  "extends": "Light",
+  "colorSeeds": { ... },
+  "colors": { ... },
+  "fonts": { ... },
+  "spring": { ... },
+  "fontScale": 1.0
+}
+```
+
+All keys are optional. Missing keys inherit from `extends` theme or built-in defaults.
+
+### 10.2 Color Overrides
+
+The `"colors"` object maps ColorToken names to hex values:
+
+```json
+{
+  "colors": {
+    "Surface": "#FAFAFA",
+    "Primary": "#0052CC",
+    "TextPrimary": "#1A1A1A"
+  }
+}
+```
+
+Key names must exactly match the `ColorToken` enum member name (case-sensitive).
+
+### 10.3 Color Seeds
+
+The `"colorSeeds"` object triggers algorithmic palette generation:
+
+```json
+{
+  "colorSeeds": {
+    "primary": "#0052CC"
+  }
+}
+```
+
+When a seed is provided, the TonalPaletteGenerator produces 10 steps for that hue.
+Explicit `"colors"` entries for the same hue override individual generated steps.
+
+### 10.4 Font Overrides
+
+```json
+{
+  "fonts": {
+    "Heading": { "size": 14, "weight": 700 },
+    "Monospace": { "size": 10 }
+  }
+}
+```
+
+Keys match `FontRole` enum names. Fields: `size` (int pt), `weight` (int).
+
+### 10.5 Spring Configuration
+
+```json
+{
+  "spring": {
+    "mass": 1.0,
+    "stiffness": 180.0,
+    "damping": 18.0
+  }
+}
+```
+
+### 10.6 Font Scale
+
+```json
+{
+  "fontScale": 1.25
+}
+```
+
+Float value, clamped to [0.5, 3.0].
+
+### 10.7 Theme Inheritance
+
+The `"extends"` key references a registered theme by name:
+
+```json
+{
+  "extends": "Dark",
+  "colors": {
+    "Primary": "#BB86FC"
+  }
+}
+```
+
+Inheritance is recursive. The resolution chain: this theme -> extends -> extends.extends -> built-in default.
+
+### 10.8 Custom Theme Registration Flow
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant ITS as IThemeService
+    participant FS as Filesystem
+
+    App->>ITS: RegisterTheme("MyTheme", "/path/to/my.json", ThemeMode::Dark)
+    App->>ITS: SetTheme("MyTheme")
+    ITS->>FS: Read /path/to/my.json
+    ITS->>ITS: Resolve extends chain
+    ITS->>ITS: Apply colorSeeds (generate palettes)
+    ITS->>ITS: Apply colors (overrides)
+    ITS->>ITS: Apply fonts
+    ITS->>ITS: BuildGlobalStyleSheet()
+    ITS-->>App: ThemeChanged("MyTheme")
+```
+
+### 10.9 Validation
+
+**Schema**: `Resources/tokens_schema.json` (JSON Schema draft-07)
+
+**Validator**: `Scripts/validate_tokens.py` (invoked by CMake custom command)
+
+Validates:
+- All required color keys present
+- Hex color format (`#RRGGBB` or `#RRGGBBAA`)
+- No unknown top-level keys
+- Font size/weight ranges
+
+### 10.10 Dark Mode Generation Rules
+
+Dark mode is **not** a simple inversion. The palette generation algorithm requires:
+
+1. **HSV/HSB color space operations**: convert seed color to HSV
+2. **Bezier curves for lightness interpolation**: different parameters for light vs dark themes
+3. **Saturation clamping in dark mode**: cap saturation to avoid visual fatigue under sustained use
+4. **Port Ant Design's `generate()` function**: the algorithm produces 10 tonal steps from a seed
+
+**Design decisions**:
+
+| Decision | Resolution | Rationale |
+|----------|-----------|-----------|
+| `TextDisabled` vs `TextQuaternary` | Keep `TextDisabled` | Convenience token for always-disabled-looking text |
+| Info hue independence | Yes, independent from Primary | Info may need distinct hue in domain contexts |
+| Palette algorithm | Port Ant Design's `generate()` | Well-tested, industry-proven tonal generation |
+| Codegen tool | Python | Cross-platform, easy JSON I/O |
+| Merge `BgComponentStrong/Stronger` | Accept merge | Reduces token count without losing expressiveness |
+
+### 10.11 DTFM Integration
+
+The JSON palette format aligns with **W3C Design Tokens Format Module** (DTFM):
+
+- Each token has `$type` and `$value` fields
+- `$type` values: `color`, `dimension`, `fontFamily`, `fontWeight`, `duration`, `cubicBezier`
+- Theme files can reference other tokens via `{token.path}` syntax
+- Build-time codegen (Python) reads DTFM JSON and generates C++ constexpr arrays
+
+---
+
+## Chapter 11. NyanTheme Implementation
+
+### 11.1 Token Storage
+
+All token values are stored in flat `std::array` containers:
+
+| Array | Type | Size | Index |
+|-------|------|:----:|-------|
+| `_colors` | `QColor` | 75 | `ColorToken` |
+| `_fonts` | `FontSpec` | 7 | `FontRole` |
+| `_shadows` | `ShadowSpec` | 5 | `ElevationToken` |
+| `_easings` | `QEasingCurve::Type` | 4 | `EasingToken` |
+| `_styleSheets` | `WidgetStyleSheet` | 54 | `WidgetKind` |
+
+Lookup: `_colors[std::to_underlying(token)]` -- O(1), cache-friendly.
+
+### 11.2 BuildFonts() Platform Logic
+
+1. Query `QFontDatabase::systemFont(QFontDatabase::GeneralFont)` for primary family
+2. Query monospace family: try "Cascadia Mono" (Win), "SF Mono" (mac), "Noto Sans Mono" (Linux)
+3. Populate `_fonts[role]` with platform family + role-specific size/weight
+4. Apply `_fontScale` multiplier
+
+### 11.3 BuildShadows() Algorithm
+
+For each `ElevationToken` level:
+- `offsetY = level * 1` (Linear scale)
+- `blurRadius = level * 3` (3x multiplier)
+- `opacity = level * 0.04` (4% per level)
+- Apply density scale to offsetY and blurRadius
+
+### 11.4 BuildDefaultVariants()
+
+Constructs `std::vector<VariantStyle>` for each `WidgetKind`.
+Each VariantStyle has 8 `StateStyle` entries (one per `InteractionState`).
+
+Detailed per-widget specifications in Chapter 10.
+
+### 11.5 BuildGlobalStyleSheet()
+
+Generates a global QSS string from design tokens, applied via
+`QApplication::setStyleSheet()`. Covers standard Qt widgets:
+QPushButton, QLineEdit, QTextEdit, QSpinBox, QComboBox, QScrollBar,
+QTabBar, QCheckBox, QRadioButton, QGroupBox, QSlider, QProgressBar,
+QToolTip, QMenu, QMenuBar, QHeaderView.
+
+Rebuilt on: `SetTheme()`, `SetDensity()`, `SetDirection()`.
+
+### 11.6 LoadPalette() JSON Parsing Pipeline
+
+```mermaid
+flowchart LR
+    A[Read JSON file] --> B{Has 'extends'?}
+    B -->|Yes| C[LoadPalette recursively for parent]
+    B -->|No| D[Start from built-in defaults]
+    C --> D
+    D --> E{Has 'colorSeeds'?}
+    E -->|Yes| F[Generate 10-step palette per seed]
+    E -->|No| G[Skip]
+    F --> G
+    G --> H{Has 'colors'?}
+    H -->|Yes| I[Override individual tokens]
+    H -->|No| J[Skip]
+    I --> J
+    J --> K[Apply fonts, spring, fontScale]
+    K --> L[BuildDefaultVariants]
+    L --> M[BuildGlobalStyleSheet]
+```
+
+### 11.7 TonalPaletteGenerator
+
+**Class**: `TonalPaletteGenerator` (static utility)
+
+| Method | Input | Output |
+|--------|-------|--------|
+| `GenerateLight(QColor seed)` | Seed color | `std::array<QColor, 10>` light-theme ramp |
+| `GenerateDark(QColor seed)` | Seed color | `std::array<QColor, 10>` dark-theme ramp |
+
+**Algorithm**: OKLCH lightness distribution with sRGB gamut clamping.
+See Chapter 2.5 for mathematical details.
+
+### 11.8 SetTheme() Execution Order
+
+Complete sequence when `SetTheme(name)` is called:
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant NT as NyanTheme
+    participant TPG as TonalPaletteGenerator
+    participant QApp as QApplication
+
+    Caller->>NT: SetTheme("Dark")
+    NT->>NT: LoadPalette("Dark")
+    NT->>NT: Resolve extends chain
+    NT->>TPG: GenerateDark(seedColor) x5 hues
+    TPG-->>NT: 50 semantic colors
+    NT->>NT: Apply explicit color overrides
+    NT->>NT: BuildFonts()
+    NT->>NT: BuildShadows()
+    NT->>NT: BuildDefaultVariants()
+    NT->>NT: ApplyOverrides(_overrideRegistry)
+    NT->>NT: BuildGlobalStyleSheet()
+    NT->>QApp: setStyleSheet(qss)
+    NT-->>Caller: emit ThemeChanged("Dark")
+```
+
+### 11.9 NyanTheme Internal Member Layout
+
+| Member | Type | Initialized |
+|--------|------|-------------|
+| `_colors` | `std::array<QColor, 75>` | `LoadPalette()` |
+| `_fonts` | `std::array<FontSpec, 7>` | `BuildFonts()` |
+| `_shadows` | `std::array<ShadowSpec, 5>` | `BuildShadows()` |
+| `_easings` | `std::array<QEasingCurve::Type, 4>` | Constructor (static) |
+| `_styleSheets` | `std::array<WidgetStyleSheet, 54>` | `BuildDefaultVariants()` |
+| `_iconRegistry` | `unordered_map<string, QString>` | `RegisterIconDirectory()` |
+| `_dynamicColors` | `unordered_map<string, DynamicColorDef>` | `RegisterDynamicTokens()` |
+| `_dynamicFonts` | `unordered_map<string, DynamicFontDef>` | `RegisterDynamicFonts()` |
+| `_dynamicSpacings` | `unordered_map<string, DynamicSpacingDef>` | `RegisterDynamicSpacings()` |
+| `_themeRegistry` | `unordered_map<string, ThemeEntry>` | `RegisterTheme()` |
+| `_overrideRegistry` | `vector<ComponentOverride>` | `RegisterComponentOverrides()` |
+| `_currentTheme` | `QString` | `SetTheme()` |
+| `_currentMode` | `ThemeMode` | `SetTheme()` |
+| `_fontScale` | `float` | Constructor (1.0) |
+| `_density` | `DensityLevel` | Constructor (Default) |
+| `_direction` | `TextDirection` | Constructor (LTR) |
+| `_spring` | `SpringSpec` | `LoadPalette()` |
+| `_paletteDir` | `QString` | Constructor |
+
+### 11.10 BuildDefaultVariants() Coverage
+
+`BuildDefaultVariants()` must populate all 54 `WidgetKind` entries. The function
+internally dispatches to helper functions organized by widget tier:
+
+```cpp
+void NyanTheme::BuildDefaultVariants()
+{
+    BuildCoreInputVariants();       // PushButton, ToolButton, LineEdit, ...
+    BuildContainerVariants();       // ScrollArea, Panel, GroupBox, ...
+    BuildMenuVariants();            // MenuBar, Menu, MenuItem, ...
+    BuildApplicationVariants();     // DocumentBar, ProgressBar, Tooltip, ...
+    BuildDialogVariants();          // Dialog, DialogTitleBar, DialogFootBar, ...
+    BuildActionBarVariants();       // ActionTab, ActionToolbar
+    BuildShellVariants();           // MainTitleBar, StatusBar, DocumentToolBar, ...
+}
+```
+
+Each helper constructs `VariantStyle` arrays using token references, not raw
+color values. Example pattern:
+
+```cpp
+void NyanTheme::BuildCoreInputVariants()
+{
+    auto& sheet = _styleSheets[std::to_underlying(WidgetKind::PushButton)];
+    sheet.radius    = RadiusToken::Default;
+    sheet.paddingH  = SpacingToken::Px12;
+    sheet.paddingV  = SpacingToken::Px6;
+    sheet.font      = FontRole::BodyMedium;
+    sheet.elevation = ElevationToken::Low;
+    sheet.transition = { AnimationToken::Quick, EasingToken::OutCubic };
+
+    // Variant 0: Primary
+    sheet.variants[0].colors[Normal]   = { ColorToken::Primary,   ColorToken::OnAccent, ColorToken::Primary };
+    sheet.variants[0].colors[Hovered]  = { ColorToken::PrimaryHover, ColorToken::OnAccent, ColorToken::PrimaryHover };
+    sheet.variants[0].colors[Pressed]  = { ColorToken::PrimaryActive, ColorToken::OnAccent, ColorToken::PrimaryActive };
+    sheet.variants[0].colors[Disabled] = { ColorToken::Primary, ColorToken::OnAccent, ColorToken::Primary, 0.45F };
+    // ... (Focused, Selected, Error, DragOver)
+
+    // Variant 1: Secondary
+    // ... (similar pattern with neutral tokens)
+}
+```
+
+### 11.11 BuildGlobalStyleSheet() QSS Generation
+
+The generated QSS string covers ~300 lines of Qt stylesheet rules. Key patterns:
+
+| Qt Widget | QSS Properties Set |
+|-----------|-------------------|
+| `QPushButton` | `background-color`, `color`, `border`, `border-radius`, `padding`, `font` |
+| `QLineEdit` | `background-color`, `color`, `border`, `border-radius`, `padding`, `selection-*` |
+| `QComboBox` | `background-color`, `color`, `border`, `padding`, `::drop-down`, `::down-arrow` |
+| `QScrollBar` | `background`, `::handle`, `::add-line`, `::sub-line`, `width`/`height` |
+| `QTabBar::tab` | `background`, `color`, `border-bottom`, `padding`, `:selected`, `:hover` |
+| `QCheckBox::indicator` | `width`, `height`, `border`, `border-radius`, `:checked`, `:indeterminate` |
+| `QSlider::groove` | `background`, `height`/`width`, `border-radius` |
+| `QSlider::handle` | `background`, `width`, `height`, `border-radius`, `margin` |
+| `QProgressBar` | `background`, `color`, `border`, `text-align`, `::chunk` |
+| `QToolTip` | `background-color`, `color`, `border`, `padding`, `font` |
+| `QMenu` | `background-color`, `color`, `border`, `padding`, `::item`, `::separator` |
+| `QMenuBar` | `background-color`, `color`, `::item:selected`, `::item:pressed` |
+| `QHeaderView::section` | `background-color`, `color`, `border`, `padding`, `font` |
+
+All color values in the QSS are resolved from `_colors[token]` at generation time.
+No token names appear in the generated QSS â€” only resolved hex values.
+
+### 11.12 Style & Resource Reuse Iron Rules
+
+> **The existing visual identity (color palette, icon assets, ToolBench configs, menu definitions) is a product of UI/UX design work and MUST be preserved verbatim.** Refactoring changes the **code architecture**, not the **art output**.
+
+| Rule | Detail |
+|------|--------|
+| **R1: No color value changes** | ~85x2 color values in palette are canonical. No hex modification without designer sign-off. |
+| **R2: No icon replacement** | All SVG/PNG icons are design deliverables. Missing files get same-size placeholder, never delete `.qrc` entries. |
+| **R3: No style default changes** | `NyanAbstractStyle` defaults (Radius=3, Border=Line2, etc.) define the visual language. New `WidgetStyleSheet` must produce identical output. |
+| **R4: ToolBench/Menu configs preserved** | `.cfg` and `.json` resource files consumed verbatim. |
+| **R5: Theme path convention** | `:/<Theme>/<Theme>/...` pattern. `IThemeService::IconPath()` follows this. |
+| **R6: Font baseline** | ToolButton font: 11px logical. No size changes without designer approval. |
+
+### 11.13 Existing Art Asset Inventory
+
+| Asset Category | Count | Format |
+|---------------|-------|--------|
+| Basic UI icons (16px) | 44 | SVG |
+| App-level icons (20px) | 32 | SVG |
+| General operation icons (32px) | 15 | PNG |
+| Mesh operation icons (32px) | 55 | PNG |
+| Part design icons (32px) | 70 | PNG |
+| View control icons (32px) | 50 | PNG |
+| Sketch operation icons (32px) | 40 | PNG |
+| Special-purpose icons | 48 | PNG |
+| Application logos | Mixed | PNG/ICO |
+| Dark theme mirror | Same as above | Same |
+| **Total icon assets** | **~830** | SVG/PNG |
+
+> **Note**: The resource interface in this project maintains consistency with the future asset manager system, but does not provide concrete implementation. Migration will occur immediately after the asset manager system and resource compiler are merged into the mainstream.
+
+### 11.14 Theme Transition 🆕
+
+> 🆕 Post-v1 supplement.
+> Defines how the UI transitions between themes (e.g., Light → Dark) to avoid
+> jarring visual jumps. Cross-references Part I §8 Motion tokens.
+
+#### 11.14.1 Transition Strategy
+
+| Strategy | Description | When |
+|----------|-------------|------|
+| **Cross-fade** | Capture screenshot of old theme → apply new theme → fade old screenshot over new UI | Default for all theme switches |
+| **Instant** | Apply new theme immediately, no animation | When `ReducedMotion` is enabled |
+
+#### 11.14.2 Cross-Fade Implementation
+
+```
+1. Capture QWidget::grab() of the top-level window → QPixmap snapshot
+2. Apply new theme (SetTheme → BuildDefaultVariants → BuildGlobalStyleSheet → repaint)
+3. Overlay snapshot as a QLabel with Qt::WA_TransparentForMouseEvents
+4. Animate overlay opacity: 1.0 → 0.0, duration = Slow (350ms), easing = OutCubic
+5. On animation complete: delete overlay
+```
+
+**Duration**: `AnimationToken::Slow` (350ms) — theme changes are deliberate transitions,
+warranting a slower, more noticeable animation.
+
+**Mouse events**: The overlay is transparent to mouse events (`WA_TransparentForMouseEvents`),
+so the new theme's widgets are interactive immediately.
+
+#### 11.14.3 Per-Widget Color Transition (Alternative)
+
+For applications that prefer granular transitions over screenshot overlay:
+
+- Each `ThemeAware` widget animates its own color properties
+- `ThemeChanged` signal triggers `AnimateColor(oldBg, newBg, Slow, OutCubic)` for background
+- Foreground, border, and icon tint colors transition simultaneously
+- This approach uses more CPU (each widget runs its own animation) but avoids the
+  screenshot capture, which can be expensive on 4K+ displays
+
+**Recommendation**: Use cross-fade for full-screen theme switches. Use per-widget
+transition for partial theme changes (e.g., a single panel switching to high-contrast).
+
+#### 11.14.4 Icon Cache Invalidation
+
+After theme transition animation completes:
+1. `InvalidateIconCache()` — clear all cached colorized SVG icons
+2. Icons are re-colorized lazily on next `ResolveIcon()` call
+3. No visible flash because the cross-fade overlay hides the brief period
+   where icons display old theme colors
+
+---
+
+# Part III -- Component Style Architecture
+
+> Chapters 13-14. Implements Part I §4 Style's declarative resolution.
+
+## Chapter 14. WidgetKind Registry & Component Override
+
+> Complete reference for the widget registry, variant system, and component
+> override mechanism.
+
+### 14.1 WidgetKind Enum (54 entries)
+
+> **54 vs 66**: The `WidgetKind` enum has **54** entries because some widget
+> classes share a `WidgetKind` (e.g., `SpinBox` and `DoubleSpinBox` both use
+> `WidgetKind::SpinBox`). The total number of distinct widget *classes* is
+> **66** (see Chapter 30.3). The style system indexes by `WidgetKind`, so
+> shared-Kind widgets share the same `WidgetStyleSheet` and variant matrix.
+
+Complete list organized by tier:
+
+| Tier | Widgets |
+|------|---------|
+| **Tier 1: Core Input** | PushButton, ToolButton, LineEdit, SpinBox, ComboBox, CheckBox, RadioButton, Slider, Toggle, Label, Tag |
+| **Tier 2: Container & Layout** | ScrollArea, ScrollBar, Panel, GroupBox, CollapsibleSection, TabWidget, Dialog, PopConfirm, ActionBar, DataTable, ListWidget, TableWidget, StructureTree, ContextMenu, StatusBar, Splitter, PropertyGrid, ColorPicker |
+| **Tier 3: Application** | DocumentBar, Legend, ProgressBar, ColorSwatch, Paginator, SelectionInput, StackedWidget, Tooltip |
+| **Menu System** | MenuBar, Menu, MenuItem, MenuSeparator, MenuCheckItem |
+| **Notification** | Notification |
+| **Title Bar** | MainTitleBar |
+| **Dialog System** | DialogTitleBar, DialogFootBar, FileDialog |
+| **ActionBar System** | ActionTab, ActionToolbar |
+| **Phase 3b** | Cascader, Transfer, FormLayout |
+| **Phase 3c** | Message, Alert, Avatar |
+| **Shell Split** | DocumentToolBar, LogoButton |
+
+### 14.2 WidgetKind to UiNode Class Mapping
+
+Each `WidgetKind` has a corresponding `WidgetNode` subclass:
+
+| WidgetKind | UiNode Class | Qt Widget Class | Variant Enum |
+|-----------|-------------|----------------|-------------|
+| `PushButton` | `PushButtonNode` | `NyanPushButton` | `ButtonVariant{Primary,Secondary,Ghost,Danger}` |
+| `ToolButton` | `ToolButtonNode` | `NyanToolButton` | `ButtonVariant{Default,Ghost}` |
+| `LineEdit` | `LineEditNode` | `NyanLineEdit` | (single variant) |
+| `SpinBox` | `SpinBoxNode` | `NyanSpinBox` | (single variant) |
+| `DoubleSpinBox` | `DoubleSpinBoxNode` | `NyanDoubleSpinBox` | (single variant) |
+| `ComboBox` | `ComboBoxNode` | `NyanComboBox` | (single variant) |
+| `CheckBox` | `CheckBoxNode` | `NyanCheckBox` | `CheckState{Unchecked,Checked,Indeterminate}` |
+| `RadioButton` | `RadioButtonNode` | `NyanRadioButton` | `CheckState{Unchecked,Checked}` |
+| `Slider` | `SliderNode` | `NyanSlider` | (single variant) |
+| `Toggle` | `ToggleNode` | `NyanToggle` | `ToggleState{Off,On}` |
+| `Label` | `LabelNode` | `NyanLabel` | (single variant) |
+| `Tag` | `TagNode` | `NyanTag` | `TagVariant{Default,Primary,Success,Warning,Error}` |
+| `ScrollArea` | `ScrollAreaNode` | `NyanScrollArea` | (single variant) |
+| `ScrollBar` | `ScrollBarNode` | `QScrollBar` | (single variant) |
+| `Panel` | `PanelNode` | `NyanPanel` | (single variant) |
+| `GroupBox` | `GroupBoxNode` | `NyanGroupBox` | `GroupState{Expanded,Collapsed}` |
+| `CollapsibleSection` | `CollapsibleSectionNode` | `NyanCollapsibleSection` | `GroupState{Expanded,Collapsed}` |
+| `TabWidget` | `TabWidgetNode` | `NyanTabWidget` | `TabState{Active,Inactive}` |
+| `Dialog` | `DialogNode` | `NyanDialog` | (single variant) |
+| `DataTable` | `DataTableNode` | `NyanDataTable` | `RowState{Default,Striped,Selected}` |
+| `ListWidget` | `ListWidgetNode` | `NyanListWidget` | `RowState{Default,Selected}` |
+| `StructureTree` | `StructureTreeNode` | `NyanStructureTree` | `TreeNodeState{Collapsed,Expanded}` |
+| `ContextMenu` | `ContextMenuNode` | `NyanContextMenu` | (single variant) |
+| `Menu` | `MenuNode` | `NyanMenu` | (single variant) |
+| `MenuItem` | `MenuItemNode` | `NyanMenuItem` | (single variant) |
+| `ProgressBar` | `ProgressBarNode` | `NyanProgressBar` | `ProgressStyle{Determinate,Indeterminate}` |
+| `Tooltip` | `TooltipNode` | `NyanTooltip` | (single variant) |
+| `Notification` | `NotificationNode` | `NyanNotification` | `AlertLevel{Info,Success,Warning,Error}` |
+| `DocumentBar` | `DocumentBarNode` | `NyanDocumentBar` | `TabState{Active,Inactive}` |
+| `StatusBar` | `StatusBarNode` | `NyanStatusBar` | (single variant) |
+| `Splitter` | `SplitterNode` | `NyanSplitter` | (single variant) |
+| `PropertyGrid` | `PropertyGridNode` | `NyanPropertyGrid` | (single variant) |
+| `ColorPicker` | `ColorPickerNode` | `NyanColorPicker` | (single variant) |
+| `ColorSwatch` | `ColorSwatchNode` | `NyanColorSwatch` | (single variant) |
+
+### 14.3 Variant System Architecture
+
+Each `WidgetKind` has a fixed number of variants. Each variant is a complete
+`VariantStyle` (8 `StateStyle` entries). The variant index selects the active
+color set.
+
+```mermaid
+classDiagram
+    class WidgetStyleSheet {
+        +RadiusToken radius
+        +SpacingToken paddingH
+        +SpacingToken paddingV
+        +span~VariantStyle~ variants
+    }
+    class VariantStyle {
+        +array~StateStyle,8~ colors
+    }
+    class StateStyle {
+        +ColorToken background
+        +ColorToken foreground
+        +ColorToken border
+        +float opacity
+        +CursorToken cursor
+    }
+    WidgetStyleSheet "1" --> "*" VariantStyle : variants
+    VariantStyle "1" --> "8" StateStyle : InteractionState
+```
+
+**Variant count by widget**:
+
+| Variants | Widgets |
+|:--------:|---------|
+| 1 | LineEdit, SpinBox, ComboBox, Slider, Label, ScrollArea, Panel, Dialog, Menu, Tooltip, StatusBar, Splitter |
+| 2 | Toggle(Off/On), CheckBox(Unchecked/Checked), RadioButton, GroupBox, CollapsibleSection, TabWidget, DocumentBar, ProgressBar |
+| 3 | CheckBox(+Indeterminate), DataTable(Default/Striped/Selected) |
+| 4 | PushButton(Primary/Secondary/Ghost/Danger), Notification(Info/Success/Warning/Error) |
+| 5 | Tag(Default/Primary/Success/Warning/Error) |
+
+### 14.4 ComponentOverride Mechanism
+
+Widget authors or plugins can register per-widget-class token deviations:
+
+```cpp
+ComponentOverride overrides[] = {
+    { WidgetKind::PushButton, RadiusToken::Large,
+      SpacingToken::Px12, SpacingToken::Px8,
+      FontRole::BodyBold, ElevationToken::Low },
+};
+theme.RegisterComponentOverrides(overrides);
+```
+
+### 14.5 ComponentOverride Struct
+
+```cpp
+struct ComponentOverride {
+    WidgetKind     kind;
+    std::optional<RadiusToken>    radius;
+    std::optional<SpacingToken>   paddingH;
+    std::optional<SpacingToken>   paddingV;
+    std::optional<SpacingToken>   gap;
+    std::optional<SizeToken>      minHeight;
+    std::optional<FontRole>       font;
+    std::optional<ElevationToken> elevation;
+    std::optional<TransitionDef>  transition;
+};
+```
+
+Only non-nullopt fields override the default. This allows selective overrides
+without specifying every field.
+
+### 14.6 Override Priority Rules
+
+```
+ComponentOverride > BuildDefaultVariants() > WidgetStyleSheet defaults
+```
+
+Overrides are applied during `SetTheme()` / theme change. They persist across
+theme switches (registered once, applied to every theme).
+
+### 14.7 Override Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant Plugin
+    participant ITS as IThemeService
+    participant NyanTheme
+
+    Plugin->>ITS: RegisterComponentOverrides(overrides)
+    Note over ITS: Stores in _overrideRegistry
+    ITS->>NyanTheme: On next SetTheme() / ThemeChanged
+    NyanTheme->>NyanTheme: BuildDefaultVariants()
+    NyanTheme->>NyanTheme: ApplyOverrides(_overrideRegistry)
+    NyanTheme->>NyanTheme: BuildGlobalStyleSheet()
+```
+
+### 14.8 Variant Color Override (Advanced)
+
+For overriding specific variant x state color mappings:
+
+```cpp
+struct VariantColorOverride {
+    WidgetKind     kind;
+    int            variantIndex;
+    InteractionState state;
+    std::optional<ColorToken> background;
+    std::optional<ColorToken> foreground;
+    std::optional<ColorToken> border;
+    std::optional<float>      opacity;
+};
+```
+
+**Use case**: A plugin that needs PushButton(Primary) to use `Success` hue
+instead of `Primary` hue.
+
+```cpp
+VariantColorOverride override = {
+    .kind = WidgetKind::PushButton,
+    .variantIndex = 0,  // Primary
+    .state = InteractionState::Normal,
+    .background = ColorToken::Success,
+    .foreground = ColorToken::OnAccent,
+    .border = ColorToken::Success,
+};
+theme.RegisterVariantColorOverride(override);
+```
+
+---
+---
+
+
+---
+---
+
+# Part IV -- Animation Engine
+
+> Chapters 15-18. Implements Part I §8 Motion's physics and choreography.
+
+## Chapter 15. Animation Architecture
+
+### 15.1 Design Principles
+
+| Principle | Description |
+|-----------|-------------|
+| **What/How/When/Who separation** | Widget says WHAT to animate (PropertyId, from, to). Service decides HOW (duration, easing from WidgetStyleSheet). Framework decides WHEN (state change trigger). Test harness controls WHO (override to snap). |
+| **Qt-free public API** | `IAnimationService` uses `AnimationPropertyId`, `AnimatableValue`, `TransitionHandle` -- no `QPropertyAnimation`, `QVariant`, `QByteArray` in public interface. |
+| **State-space trajectory** | Animation is a trajectory in state space: `x(t): [0, T] -> ValueSpace`. Spring dynamics: ODE solution. Eased: parametric curve. |
+
+> **Qt-Free Public Animation API** -- `IAnimationService` uses `AnimatableValue`, `AnimationPropertyId`, `TransitionHandle` with no Qt types in public interface. Enables future backend replacement and simplifies C ABI wrapping. Internal conversion layer between `AnimatableValue` and `QVariant`/`QPropertyAnimation`.
+
+### 15.2 IAnimationService Interface
+
+```mermaid
+classDiagram
+    class IAnimationService {
+        <<interface>>
+        +Animate(widget; propId; from; to; duration; easing) TransitionHandle
+        +AnimateSpring(widget; propId; from; to; spec) TransitionHandle
+        +AnimateGroup(specs; mode) GroupId
+        +Cancel(handle) void
+        +CancelAll(widget) void
+        +CancelGroup(gid) void
+        +IsRunning(handle) bool
+        +IsAnimatingProperty(widget; propId) bool
+        +SetReducedMotion(enabled) void
+        +SetSpeedMultiplier(factor) void
+    }
+```
+
+| Method | Input | Output | Description |
+|--------|-------|--------|-------------|
+| `Animate` | `WidgetNode*, AnimationPropertyId, AnimatableValue from, AnimatableValue to, AnimationToken, EasingToken` | `TransitionHandle` | Start eased animation. Auto re-targets from current interpolated value if same `(target, property)` is already animating. |
+| `AnimateSpring` | `WidgetNode*, AnimationPropertyId, AnimatableValue from, AnimatableValue to, SpringSpec` | `TransitionHandle` | Start spring animation. Same re-targeting behavior as `Animate`. |
+| `AnimateGroup` | `span<GroupAnimationSpec>, GroupMode` | `GroupId` | Parallel or sequential group. Each sub-animation registered individually for interruption isolation. |
+| `Cancel` | `TransitionHandle` | `void` | Cancel running animation. Dispatches `AnimationCancelled`. |
+| `CancelAll` | `WidgetNode*` | `void` | Cancel all animations for widget (standalone + group members). |
+| `CancelGroup` | `GroupId` | `void` | Cancel entire group and all member transitions. Dispatches `AnimationCancelled` per member. |
+| `IsRunning` | `TransitionHandle` | `bool` | Check if animation is active |
+| `IsAnimatingProperty` | `WidgetNode*, AnimationPropertyId` | `bool` | Check if property is being animated (standalone or group member) |
+| `SetReducedMotion` | `bool` | `void` | Enable/disable reduced motion |
+| `SetSpeedMultiplier` | `float` | `void` | Global speed factor |
+
+### 15.3 AnimationPropertyId Enum
+
+| Property | Description | Value Type |
+|----------|-------------|-----------|
+| `Opacity` | Widget opacity (0.0-1.0) | Double |
+| `BackgroundColor` | Background fill color | Rgba |
+| `ForegroundColor` | Text/icon color | Rgba |
+| `BorderColor` | Border stroke color | Rgba |
+| `Position` | Widget position | Point2D |
+| `SlideOffset` | Translation offset for slide animations | Double |
+| `MaximumHeight` | QWidget::maximumHeight for expand/collapse | Int |
+| `MinimumHeight` | QWidget::minimumHeight | Int |
+| `ArrowRotation` | Chevron rotation angle (degrees) | Double |
+| `Scale` | Transform scale factor | Double |
+| `BorderWidth` | Border stroke width | Int |
+| `ContentHeight` | Content area height (expand/collapse) | Int |
+| `ScrollOffset` | Scroll position | Double |
+| `UserDefined` | Start of plugin-defined range (1000+) | Any |
+
+### 15.4 AnimatableValue Tagged Union
+
+```cpp
+struct AnimatableValue {
+    enum class Tag : uint8_t { Double, Int, Rgba, Point2D };
+    Tag tag;
+    union {
+        double  d;
+        int     i;
+        uint32_t rgba;    // Packed ARGB
+        struct { int x; int y; } pt;
+    };
+
+    static AnimatableValue FromDouble(double v);
+    static AnimatableValue FromInt(int v);
+    static AnimatableValue FromRgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    static AnimatableValue FromPoint(int x, int y);
+};
+```
+
+Qt-free. Internal `AnimationService` converts to `QVariant` for `QPropertyAnimation`.
+
+### 15.5 TransitionHandle
+
+```cpp
+struct TransitionHandle {
+    uint64_t id = 0;
+    explicit operator bool() const { return id != 0; }
+};
+```
+
+Opaque handle for cancellation and status queries. Zero = invalid/no animation.
+
+### 15.6 GroupMode and GroupId
+
+| Mode | Description |
+|------|-------------|
+| `Parallel` | All animations in the group start simultaneously (`QParallelAnimationGroup`) |
+| `Sequential` | Each animation starts after the previous one completes (`QSequentialAnimationGroup`) |
+
+`GroupId` is an opaque `enum class : uint64_t` returned by `AnimateGroup()`. Used by `CancelGroup()` to cancel the entire group.
+
+### 15.7 Interruption Re-targeting
+
+When `Animate()` or `AnimateSpring()` is called on a `(target, property)` pair that already has a running animation:
+
+1. The running animation's **current interpolated value** is captured via `QVariantAnimation::currentValue()`
+2. The running animation is stopped and an `AnimationCancelled` notification is dispatched
+3. The new animation starts from the **captured value** (not the caller-supplied `from`)
+
+This provides smooth visual continuity during rapid state changes (e.g., mouse hover flickering, button press/release during transition).
+
+![Animation Interrupt & Value Capture](assets/anatomy/animation_interrupt.svg)
+
+**Invariant**: If no existing animation is found on `(target, property)`, the caller-supplied `from` is used as-is.
+
+### 15.8 Group Animation Architecture
+
+Group animations provide multi-widget coordinated transitions. Key design:
+
+**Sub-animation registration**: Each `GroupAnimationSpec` produces an individual `TransitionEntry` registered in the active animation map with its own `TransitionHandle`. The entry carries an `owningGroup` field linking it back to the `GroupId`.
+
+**Interruption isolation**: Because group sub-animations are registered individually, a new `Animate()` call on the same `(target, property)` will correctly interrupt just that sub-animation while other group members continue. `CancelAll(widget)` also correctly finds and cancels group members for that widget.
+
+**Lifetime management**:
+
+| Scenario | Qt Object Lifetime | `_active` Entry |
+|----------|-------------------|-----------------|
+| Standalone animation finishes | `deleteLater()` by `OnFinished` | Erased, `AnimationCompleted` dispatched |
+| Group member finishes individually | Group owns Qt object | Erased from `_active`, `AnimationCompleted` dispatched |
+| Entire group finishes | Group `deleteLater()` by `OnGroupFinished` | All remaining members erased, `AnimationCompleted` dispatched per member |
+| `CancelGroup(gid)` called | Group `stop()` + `deleteLater()` | All members erased, `AnimationCancelled` dispatched per member |
+| External `Animate()` interrupts a group member | Only that sub-entry removed from `_active` | `AnimationCancelled` dispatched; group continues with remaining members |
+
+**Notification lifecycle** (per sub-animation within a group):
+
+```
+AnimateGroup() called
+  --> AnimationStarted(propId, subHandle)   [per spec]
+  ...
+  --> AnimationCompleted(propId, subHandle)  [on natural finish]
+  OR
+  --> AnimationCancelled(propId, subHandle)  [on Cancel/CancelAll/CancelGroup/re-target]
+```
+
+---
+
+## Chapter 16. Spring Animation Physics
+
+### 16.1 Damped Harmonic Oscillator Model
+
+The spring animation solves the second-order ODE:
+
+$$m \, x''(t) + c \, x'(t) + k \bigl(x(t) - x_{\text{target}}\bigr) = 0$$
+
+where:
+- $m$ = mass (default 1.0, dimensionless)
+- $c$ = damping coefficient (default 20.0)
+- $k$ = stiffness (default 200.0)
+- $x_{\text{target}}$ = target value
+
+**Damping ratio**:
+
+$$\zeta = \frac{c}{2\sqrt{m \, k}}$$
+
+| Regime | Condition | Behavior |
+|--------|-----------|----------|
+| Underdamped | $\zeta < 1$ | Oscillates around target, decaying |
+| Critically damped | $\zeta = 1$ | Fastest approach without overshoot |
+| Overdamped | $\zeta > 1$ | Slow exponential approach |
+
+Default `SpringSpec{1.0, 200.0, 20.0}` gives $\zeta \approx 0.707$ (underdamped, slight overshoot).
+
+### 16.2 Semi-Implicit Euler Integration
+
+$$v(t + \Delta t) = v(t) + \Delta t \left( -\frac{k}{m}\bigl(x(t) - x_{\text{target}}\bigr) - \frac{c}{m}\,v(t) \right)$$
+
+$$x(t + \Delta t) = x(t) + \Delta t \cdot v(t + \Delta t)$$
+
+Semi-implicit Euler (symplectic): uses new velocity to update position.
+Energy-conserving for oscillatory systems. Fixed timestep: $\Delta t = 1/60$ (60 FPS).
+
+### 16.3 Convergence Detection
+
+Animation terminates when:
+- $|v(t)| < \varepsilon_v$ (default $\varepsilon_v = 0.01$)
+- $|x(t) - x_{\text{target}}| < \varepsilon_x$ (default $\varepsilon_x = 0.1$)
+
+Both conditions must hold simultaneously for `kSettleFrames` consecutive frames (default 3).
+
+### 16.4 CFL Stability Condition
+
+For explicit Euler-like integrators, the CFL stability limit is:
+
+$$\Delta t < 2\sqrt{\frac{m}{k}}$$
+
+With $m=1, k=200$: $\Delta t_{\max} = 0.141\text{s}$. At 60 FPS, $\Delta t = 0.0167\text{s}$ -- safely within limits.
+
+If a custom `SpringSpec` violates CFL ($\Delta t > 2\sqrt{m/k}$), the engine:
+1. Logs a warning
+2. Falls back to `OutCubic` easing with `AnimationToken::Normal` duration
+
+### 16.5 Multi-Type Spring Interpolation
+
+| Type | Interpolation Strategy |
+|------|----------------------|
+| `Double` | Direct scalar spring |
+| `Int` | Scalar spring, rounded to int at output |
+| `Rgba` | Component-wise spring on R,G,B,A independently |
+| `Point2D` | Independent spring on x and y |
+
+---
+
+## Chapter 17. Widget Animation Integration
+
+### 17.1 ThemeAware::AnimateTransition() Helpers
+
+```cpp
+// Auto-resolve duration/easing from WidgetStyleSheet::transition
+TransitionHandle AnimateTransition(AnimationPropertyId propId,
+                                    AnimatableValue from,
+                                    AnimatableValue to);
+
+// Explicit control
+TransitionHandle AnimateTransition(AnimationPropertyId propId,
+                                    AnimatableValue from,
+                                    AnimatableValue to,
+                                    AnimationToken duration,
+                                    EasingToken easing);
+```
+
+### 17.2 State Transition Animation
+
+When `InteractionState` changes (e.g., Normal -> Hovered), the framework
+animates `BackgroundColor`, `ForegroundColor`, and `BorderColor` using the
+widget's `TransitionDef` (typically 200ms OutCubic).
+
+```mermaid
+stateDiagram-v2
+    [*] --> Normal
+    Normal --> Hovered: mouseEnter
+    Hovered --> Normal: mouseLeave
+    Hovered --> Pressed: mouseDown
+    Pressed --> Hovered: mouseUp
+    Normal --> Focused: focusIn
+    Focused --> Normal: focusOut
+    Normal --> Disabled: setEnabled(false)
+    Disabled --> Normal: setEnabled(true)
+
+    note right of Hovered
+        bg: Fill -> FillHover (200ms OutCubic)
+        fg: TextPrimary (no change)
+        border: BorderDefault -> BorderStrong
+    end note
+```
+
+### 17.3 Animation Notifications
+
+Three notification types dispatched via `WidgetNode::SendNotification()`:
+
+| Notification | Payload | When |
+|-------------|---------|------|
+| `AnimationStarted` | `{ propertyId, handle }` | Animation begins (or snaps in test mode) |
+| `AnimationCompleted` | `{ propertyId, handle }` | Animation reaches target |
+| `AnimationCancelled` | `{ propertyId, handle }` | Animation cancelled by `Cancel()` or new animation on same property |
+
+### 17.4 Animation in Test Mode
+
+When `SetAnimationOverride(0)` is active:
+- All `Animate()` calls set target value immediately (no interpolation)
+- `AnimationStarted` is dispatched (trigger-verification tests work)
+- `AnimationCompleted` is dispatched immediately after Started
+- No `QPropertyAnimation` objects are created
+- Zero visual delay -- all widget tests remain deterministic
+
+### 17.5 Per-Widget Animation Catalog (Summary Index)
+
+> This table is a convenience index. The authoritative animation specification
+> for each widget is in its Chapter 10 "Animation" section.
+
+| Widget | Animated Properties | Duration | Easing |
+|--------|-------------------|:--------:|--------|
+| PushButton | bg, fg, border colors | Normal | OutCubic |
+| Toggle | track color, thumb position | Normal | Spring |
+| GroupBox | ArrowRotation, ContentHeight | Slow | OutCubic |
+| CollapsibleSection | ArrowRotation, ContentHeight | Slow | OutCubic |
+| StackedWidget | Opacity (cross-fade) | Normal | OutCubic |
+| Notification | SlideOffset (slide-in/out) | Normal | OutCubic |
+| ComboBox | SlideOffset (dropdown) | Quick | OutCubic |
+| Menu | SlideOffset (popup) | Quick | OutCubic |
+
+---
+
+## Chapter 18. Accessibility: Reduced Motion
+
+### 18.1 WCAG 2.1 SC 2.3.3 Compliance
+
+WCAG Success Criterion 2.3.3 (AAA): Motion animation triggered by interaction
+can be disabled. Matcha provides `SetReducedMotion(true)` which instantly snaps
+all animations to their target values.
+
+### 18.2 OS Detection
+
+| Platform | API | Detection |
+|----------|-----|-----------|
+| Windows | `SystemParametersInfoW(SPI_GETCLIENTAREAANIMATION)` | Returns `FALSE` if animations disabled |
+| macOS | `NSWorkspace.accessibilityDisplayShouldReduceMotion` | Returns `YES` if reduce motion enabled |
+| Linux/GNOME | `org.gnome.desktop.interface.enable-animations` | GSettings boolean |
+
+`Application::Initialize()` queries OS preference on startup and calls
+`AnimationService::SetReducedMotion()` accordingly.
+
+### 18.3 Behavioral Contract
+
+When reduced motion is active:
+- `Animate()` snaps to target (0ms duration)
+- `AnimateSpring()` snaps to target
+- `AnimateGroup()` snaps all members
+- State transition colors snap (no interpolation)
+- `AnimationStarted` / `AnimationCompleted` are still dispatched
+- Scroll animations snap (no smooth scrolling)
+- Page transition cross-fades snap (instant switch)
+
+---
+
+# Part V -- Accessibility & i18n Infrastructure 🆕
+
+> Implementation details for Part I §7.9-7.10.
+> FocusManager, A11yAudit, focus trap, mnemonic system architecture.
+> Note: design rules are now in Part I §7. This Part covers only implementation architecture.
+
+---
+
+# Part VI -- Dynamic Injection
+
+> Chapters 22-24.
+
+## Chapter 22. Dynamic Token Extension
 
 > Complete reference for plugin-defined design tokens.
 
-### 20.1 DynamicColorDef Struct
+### 22.1 DynamicColorDef Struct
 
 ```cpp
 struct DynamicColorDef {
@@ -6932,7 +10953,7 @@ struct DynamicColorDef {
 };
 ```
 
-### 20.2 DynamicFontDef Struct
+### 22.2 DynamicFontDef Struct
 
 ```cpp
 struct DynamicFontDef {
@@ -6943,7 +10964,7 @@ struct DynamicFontDef {
 
 Dynamic fonts respect `FontScale`: actual size $= \max(\lfloor \text{spec.pointSize} \cdot \text{fontScale} + 0.5 \rfloor,\; 6)$.
 
-### 20.3 DynamicSpacingDef Struct
+### 22.3 DynamicSpacingDef Struct
 
 ```cpp
 struct DynamicSpacingDef {
@@ -6954,7 +10975,7 @@ struct DynamicSpacingDef {
 
 Dynamic spacings respect `DensityLevel`: actual px $= \lfloor \text{basePx} \times \text{densityScale} + 0.5 \rfloor$.
 
-### 20.4 Registration API
+### 22.4 Registration API
 
 ```cpp
 // Color tokens (theme-aware: different values per light/dark mode)
@@ -6984,7 +11005,7 @@ DynamicSpacingDef spacingDefs[] = {
 theme.RegisterDynamicSpacings(spacingDefs);
 ```
 
-### 20.5 Query API
+### 22.5 Query API
 
 ```cpp
 auto stressColor = theme.DynamicColor("FEA/StressHigh");       // std::optional<QColor>
@@ -6994,7 +11015,7 @@ auto gap         = theme.DynamicSpacingPx("CAD/ConstraintGap"); // std::optional
 
 Returns `std::nullopt` if the token name is not registered.
 
-### 20.6 Theme-Aware Dynamic Colors
+### 22.6 Theme-Aware Dynamic Colors
 
 `DynamicColorDef` has both `lightValue` and `darkValue`. The engine returns
 the appropriate value based on `CurrentMode()`:
@@ -7009,7 +11030,7 @@ flowchart TD
 When the theme changes (e.g., Light -> Dark), all dynamic color queries
 automatically return the appropriate mode's value. No re-registration needed.
 
-### 20.7 Naming Convention
+### 22.7 Naming Convention
 
 Dynamic token names should follow a hierarchical convention:
 
@@ -7025,7 +11046,7 @@ Dynamic token names should follow a hierarchical convention:
 | `CAD/Dimension/<Part>` | `CAD/Dimension/Font` | Dimension annotation |
 | `CFD/Flow/<Property>` | `CFD/Flow/Velocity` | CFD visualization |
 
-### 20.8 Unregistration
+### 22.8 Unregistration
 
 ```cpp
 std::string_view names[] = { "FEA/StressHigh", "FEA/StressLow" };
@@ -7036,7 +11057,7 @@ Unregistration removes the token from all lookup maps. Subsequent queries
 return `std::nullopt`. Active widgets using these tokens should handle
 the nullopt case gracefully.
 
-### 20.9 Dynamic Token Lifecycle
+### 22.9 Dynamic Token Lifecycle
 
 ```mermaid
 sequenceDiagram
@@ -7056,7 +11077,7 @@ sequenceDiagram
     ITS-->>Widget: std::nullopt
 ```
 
-### 20.10 Storage Implementation
+### 22.10 Storage Implementation
 
 Dynamic tokens are stored in `std::unordered_map`:
 
@@ -7073,11 +11094,11 @@ but acceptable for plugin use cases where query frequency is low.
 
 ---
 
-## Chapter 21. Custom Theme Registration
+## Chapter 23. Custom Theme Registration
 
 > Complete reference for theme registration and inheritance.
 
-### 21.1 Registration Flow
+### 23.1 Registration Flow
 
 ```cpp
 // 1. Register the theme (does not activate)
@@ -7089,7 +11110,7 @@ theme.RegisterTheme("CorporateBlue",
 theme.SetTheme("CorporateBlue");
 ```
 
-### 21.2 ThemeEntry Storage
+### 23.2 ThemeEntry Storage
 
 ```cpp
 struct ThemeEntry {
@@ -7100,7 +11121,7 @@ struct ThemeEntry {
 
 All registered themes are stored in `std::unordered_map<std::string, ThemeEntry>`.
 
-### 21.3 Theme Inheritance
+### 23.3 Theme Inheritance
 
 ```json
 {
@@ -7128,12 +11149,12 @@ Only overridden values are specified. Everything else inherits from the parent t
 **Circular inheritance detection**: If `extends` chain forms a cycle,
 `LoadPalette()` logs an error and falls back to built-in defaults.
 
-### 21.4 Multiple Registration
+### 23.4 Multiple Registration
 
 No slot limit. Themes stored in `unordered_map<string, ThemeEntry>`.
 Re-registering with the same name overwrites the previous entry.
 
-### 21.5 Built-in Theme Constants
+### 23.5 Built-in Theme Constants
 
 | Constant | Name | Mode | Description |
 |----------|------|------|-------------|
@@ -7144,7 +11165,7 @@ Re-registering with the same name overwrites the previous entry.
 These are pre-registered at `NyanTheme` construction. They can be overridden
 by calling `RegisterTheme()` with the same name (not recommended).
 
-### 21.6 Theme Discovery Pattern
+### 23.6 Theme Discovery Pattern
 
 For plugin-contributed themes:
 
@@ -7163,7 +11184,7 @@ void PluginInit(IThemeService& theme) {
 }
 ```
 
-### 21.7 Theme Change Signal
+### 23.7 Theme Change Signal
 
 When `SetTheme()` is called:
 
@@ -7180,12 +11201,12 @@ new token values. No manual intervention needed.
 
 ---
 
-## Chapter 22. C ABI (NyanCApi)
+## Chapter 24. C ABI (NyanCApi)
 
 > Complete reference for the C-language plugin interface to the design system.
 > All functions use `extern "C"` linkage and are exported from the Matcha shared library.
 
-### 22.1 Theme Control API
+### 24.1 Theme Control API
 
 | C Function | Signature | Return |
 |------------|-----------|--------|
@@ -7197,7 +11218,7 @@ new token values. No manual intervention needed.
 | `NyanTheme_SetDensity` | `int NyanTheme_SetDensity(NyanApp* app, int densityLevel)` | `NYAN_OK` |
 | `NyanTheme_SetDirection` | `int NyanTheme_SetDirection(NyanApp* app, int direction)` | `NYAN_OK` |
 
-### 22.2 Dynamic Token API (C ABI)
+### 24.2 Dynamic Token API (C ABI)
 
 | C Function | Signature | Return |
 |------------|-----------|--------|
@@ -7205,13 +11226,13 @@ new token values. No manual intervention needed.
 | `NyanTheme_QueryDynamicColor` | `int NyanTheme_QueryDynamicColor(NyanApp*, const char* name, uint32_t* outRgba)` | `NYAN_OK` or `NYAN_ERR_NOT_FOUND` |
 | `NyanTheme_UnregisterDynamicColor` | `int NyanTheme_UnregisterDynamicColor(NyanApp*, const char* name)` | `NYAN_OK` |
 
-### 22.3 Icon Registration API (C ABI)
+### 24.3 Icon Registration API (C ABI)
 
 | C Function | Signature | Return |
 |------------|-----------|--------|
 | `NyanTheme_RegisterIconDirectory` | `int NyanTheme_RegisterIconDirectory(NyanApp*, const char* uriPrefix, const char* dirPath)` | Count of icons registered, or negative error |
 
-### 22.4 Error Codes
+### 24.4 Error Codes
 
 | Code | Name | Description |
 |:----:|------|-------------|
@@ -7225,7 +11246,7 @@ new token values. No manual intervention needed.
 | 7 | `NYAN_ERR_ALREADY_EXISTS` | Resource already registered |
 | 8 | `NYAN_ERR_BUFFER_TOO_SMALL` | Output buffer too small |
 
-### 22.5 C ABI Usage Example
+### 24.5 C ABI Usage Example
 
 ```c
 #include <NyanCApi.h>
@@ -7247,7 +11268,7 @@ void setup_custom_theme(NyanApp* app) {
 
     // Register plugin icons
     NyanTheme_RegisterIconDirectory(app,
-        "asset://fea-plugin/icons/", "/plugins/fea/icons");
+        "icon://fea-plugin/", "/plugins/fea/icons");
 
     // Set accessibility preferences
     NyanTheme_SetFontScale(app, 1.25f);
@@ -7255,13 +11276,13 @@ void setup_custom_theme(NyanApp* app) {
 }
 ```
 
-### 22.6 Thread Safety
+### 24.6 Thread Safety
 
 All C ABI functions must be called from the **GUI thread** (Qt main thread).
 Calling from other threads is undefined behavior. The C ABI does not provide
 mutex-protected wrappers â€” thread marshalling is the caller's responsibility.
 
-### 22.7 Memory Ownership
+### 24.7 Memory Ownership
 
 - `const char*` string arguments are **not retained** â€” callers may free after call returns.
 - `char* outBuf` is caller-owned â€” caller allocates, C ABI writes.
@@ -7270,15 +11291,19 @@ mutex-protected wrappers â€” thread marshalling is the caller's responsibil
 ---
 ---
 
-# Part VIII -- Testing & Validation
 
-> Chapters 23-25.
+---
+---
 
-## Chapter 23. Test Infrastructure
+# Part VII -- Testing & Validation
+
+> Chapters 25-27.
+
+## Chapter 25. Test Infrastructure
 
 > Complete reference for design system testing facilities.
 
-### 23.1 SetAnimationOverride(0)
+### 25.1 SetAnimationOverride(0)
 
 The primary test support mechanism. When active:
 - All animations snap to target value (0ms duration)
@@ -7296,7 +11321,7 @@ auto& anim = app.AnimationService();
 anim.SetSpeedMultiplier(0.0f);  // Equivalent to SetAnimationOverride(0)
 ```
 
-### 23.2 A11yAudit Integration
+### 25.2 A11yAudit Integration
 
 ```cpp
 TEST_CASE("PushButton accessibility") {
@@ -7322,7 +11347,7 @@ TEST_CASE("Shell accessibility audit") {
 }
 ```
 
-### 23.3 WidgetTestFixture
+### 25.3 WidgetTestFixture
 
 Standard test setup:
 1. Initialize `QApplication` (if not already)
@@ -7341,7 +11366,7 @@ Standard test setup:
 | `SimulateKeyPress(widget, key)` | Send key press event |
 | `SimulateHover(widget, pos)` | Send mouse enter + move events |
 
-### 23.4 NotificationSpy Test Pattern
+### 25.4 NotificationSpy Test Pattern
 
 For verifying notification emission:
 
@@ -7385,7 +11410,7 @@ TEST_CASE("Slider emits IntValueChanged") {
 }
 ```
 
-### 23.5 Theme Testing Patterns
+### 25.5 Theme Testing Patterns
 
 **Testing with multiple themes**:
 
@@ -7425,7 +11450,7 @@ TEST_CASE("Widget height scales with density") {
 }
 ```
 
-### 23.6 Visual Regression Testing (Strategy)
+### 25.6 Visual Regression Testing (Strategy)
 
 Matcha does not ship a visual regression framework, but supports it via:
 
@@ -7443,11 +11468,11 @@ Recommended external tool: Qt Test `QVERIFY(QTest::qWaitForWindowExposed(widget)
 
 ---
 
-## Chapter 24. JSON Validation Pipeline
+## Chapter 26. JSON Validation Pipeline
 
 > Complete reference for theme file validation.
 
-### 24.1 tokens_schema.json
+### 26.1 tokens_schema.json
 
 JSON Schema (draft-07) defining the structure of theme JSON files.
 
@@ -7523,7 +11548,7 @@ JSON Schema (draft-07) defining the structure of theme JSON files.
 }
 ```
 
-### 24.2 validate_tokens.py
+### 26.2 validate_tokens.py
 
 Python script invoked as CMake custom command during build.
 
@@ -7559,7 +11584,7 @@ add_custom_command(
 )
 ```
 
-### 24.3 CI Integration
+### 26.3 CI Integration
 
 Validation runs on every PR. Build fails if any theme file is invalid.
 
@@ -7575,7 +11600,7 @@ flowchart LR
     F --> G[Integration Tests]
 ```
 
-### 24.4 Adding a New Theme File
+### 26.4 Adding a New Theme File
 
 When creating a new theme JSON file:
 
@@ -7587,11 +11612,11 @@ When creating a new theme JSON file:
 
 ---
 
-## Chapter 25. Design Token Consistency Checks
+## Chapter 27. Design Token Consistency Checks
 
 > Compile-time and runtime verification of design token integrity.
 
-### 25.1 static_assert Guards
+### 27.1 static_assert Guards
 
 Compile-time verification that enum counts match storage array sizes:
 
@@ -7608,7 +11633,7 @@ static_assert(std::to_underlying(AnimationToken::Count_)  == kAnimationTokenCoun
 static_assert(std::to_underlying(InteractionState::Count_) == kInteractionStateCount);
 ```
 
-### 25.2 Enum-to-NameTable Synchronization
+### 27.2 Enum-to-NameTable Synchronization
 
 Name lookup tables (for JSON parsing) must match enum order.
 Verified by unit tests that iterate all enum values and check name resolution.
@@ -7624,7 +11649,7 @@ TEST_CASE("ColorToken name table is complete") {
 }
 ```
 
-### 25.3 WidgetStyleSheet Coverage Test
+### 27.3 WidgetStyleSheet Coverage Test
 
 Verifies that every `WidgetKind` has a non-empty `WidgetStyleSheet` with
 at least one `VariantStyle`:
@@ -7641,7 +11666,7 @@ TEST_CASE("All WidgetKinds have style sheets") {
 }
 ```
 
-### 25.4 Token Roundtrip Test
+### 27.4 Token Roundtrip Test
 
 Verifies that all color tokens survive a theme serialize-deserialize cycle:
 
@@ -7657,7 +11682,7 @@ TEST_CASE("Color tokens roundtrip through JSON") {
 }
 ```
 
-### 25.5 Cross-Theme Contrast Verification
+### 27.5 Cross-Theme Contrast Verification
 
 Automated test that checks WCAG AA contrast compliance for all
 text-on-background token combinations in both Light and Dark themes:
@@ -7688,7 +11713,7 @@ TEST_CASE("WCAG AA contrast compliance") {
 }
 ```
 
-### 25.6 Test Coverage Target
+### 27.6 Test Coverage Target
 
 | Category | Target | Description |
 |----------|:------:|-------------|
@@ -7702,7 +11727,12 @@ TEST_CASE("WCAG AA contrast compliance") {
 
 ---
 
-# Part IX. UI Architecture
+
+---
+---
+
+# Part VIII -- UI Architecture
+
 
 > This part specifies the UiNode tree, multi-window protocol, viewport management,
 > renderer abstraction, shutdown sequence, ActionBar dock behavior, and style reuse policy.
@@ -7735,9 +11765,9 @@ Without these chapters, the design system specification would be incomplete --
 it would define **what** visual properties exist but not **how** they reach
 the pixels on screen.
 
-## Chapter 26. UiNode Tree Architecture
+## Chapter 28. UiNode Tree Architecture
 
-### 26.1 Application / Shell / WindowNode Split
+### 28.1 Application / Shell / WindowNode Split
 
 The framework separates three concerns:
 
@@ -7747,7 +11777,7 @@ The framework separates three concerns:
 | **`Shell`** | UiNode root. **Zero Qt members.** `MainWindow()`, `GetActionBar()`, `GetDocumentManager()`, `FreezeUpdates()`. | None |
 | **`WindowNode`** | UiNode per top-level window. Pimpl hides `QMainWindow`. `WindowKind`: Main/Floating/Detached. | Pimpl hides Qt |
 
-### 26.2 UiNode Base Class
+### 28.2 UiNode Base Class
 
 `UiNode` provides: `Id()`, `Type()`, `Name()`, `Parent()`, `Children()`, `AddChild()`, `RemoveChild()`, `FindById()`, `FindByName()`, tree traversal (`Descendants()`, `DescendantsOfType()`).
 
@@ -7755,7 +11785,7 @@ The framework separates three concerns:
 
 **Dual API pattern**: (1) **Imperative** -- convenience factories like `AddTab(id, label)` that create child + widget + tree insertion in one call; (2) **Declarative** -- construct node externally, then `parent->AddNode(move(node))`.
 
-### 26.3 Container Node Inventory
+### 28.3 Container Node Inventory
 
 | UiNode | Widget | Key API |
 |--------|--------|---------|
@@ -7771,7 +11801,7 @@ The framework separates three concerns:
 | `ContainerNode` | Layout compose | `SetSpacing()`, `SetMargins()`, LayoutKind: V/H/Grid/Form/Stack |
 | `WidgetWrapper` | User QWidget | General-purpose wrapper |
 
-### 26.4 WidgetNode Typed Subclasses (Scheme D)
+### 28.4 WidgetNode Typed Subclasses (Scheme D)
 
 ~15 typed subclasses provide direct UiNode-level access for high-frequency atomic widgets:
 
@@ -7799,7 +11829,7 @@ The framework separates three concerns:
 
 Common base API: `SetEnabled()`, `SetVisible()`, `SetToolTip()`, `SetIcon()`.
 
-### 26.5 Notification Architecture
+### 28.5 Notification Architecture
 
 > **Upward-Only Notification Propagation** -- Notifications propagate upward only (child -> parent -> ancestor), never downward or sideways. Simplifies reasoning about notification flow. Prevents circular dispatch. Matches established CAD framework patterns (CATIA V5 Command/Notification architecture). Consumers must be ancestors of the sender. Use `NotificationBridge` pattern for non-parent consumers.
 
@@ -7807,17 +11837,17 @@ Common base API: `SetEnabled()`, `SetVisible()`, `SetToolTip()`, `SetIcon()`.
 
 > **Queued Notification with Generation Stamp** -- Queued (async) notifications carry a `SourceGeneration` stamp, auto-set from the sender's `Generation()` counter. Async notifications may arrive after the sender's state has changed again, making the notification semantically stale. Subscribers should compare `notif.SourceGeneration()` with `sender.Generation()` to detect staleness.
 
-### 26.6 Cascade Menu Behavior
+### 28.6 Cascade Menu Behavior
 
 A cascade menu is a popup menu whose items may themselves open child menus, forming a tree of arbitrary depth. This section defines the observable interaction contract for `NyanMenu` / `MenuNode` cascade menus. The contract follows the standard desktop cascade convention shared by Windows Explorer, macOS Finder, CATIA V5, and Qt Creator; deviations are noted explicitly.
 
-#### 26.6.1 Structural Rules
+#### 28.6.1 Structural Rules
 
 A menu contains an ordered sequence of **items**, **separators**, and **submenu triggers**. Each submenu trigger is visually distinguished by a right-facing chevron. Activating a submenu trigger opens a child menu; the child is itself a full menu and may contain further submenu triggers, yielding an N-level cascade. There is no hard depth limit, though usability guidance recommends at most 3 levels.
 
 At any given moment, each menu has **at most one open child submenu**. Opening a new child implicitly closes the previous one.
 
-#### 26.6.2 Opening & Positioning
+#### 28.6.2 Opening & Positioning
 
 | Trigger | Behavior |
 |---------|----------|
@@ -7830,7 +11860,7 @@ At any given moment, each menu has **at most one open child submenu**. Opening a
 
 **Submenu positioning**: A child menu appears aligned to the top-right corner of its trigger item. If this would place the child off-screen, the child flips to the left side of the trigger.
 
-#### 26.6.3 Hover & Submenu Interaction
+#### 28.6.3 Hover & Submenu Interaction
 
 | # | Scenario | Expected Behavior |
 |---|----------|-------------------|
@@ -7840,7 +11870,7 @@ At any given moment, each menu has **at most one open child submenu**. Opening a
 | H4 | Hover a different submenu trigger while a child is open | The old child closes immediately; a new 200 ms delay begins for the new trigger. |
 | H5 | Move the cursor diagonally from the trigger toward the open child menu (safe triangle zone) | The child stays open, even if the cursor momentarily crosses other items. The safe zone is the triangle formed by the cursor origin, the child's top-left corner, and the child's bottom-left corner. |
 
-#### 26.6.4 Dismissal Rules
+#### 28.6.4 Dismissal Rules
 
 | # | Trigger | Effect on menu chain |
 |---|---------|---------------------|
@@ -7851,7 +11881,7 @@ At any given moment, each menu has **at most one open child submenu**. Opening a
 
 **Cascade-close invariant**: When a menu at level N is dismissed by an outside click (D3) or by item activation (D1), every menu at level > N is also dismissed. Escape (D2) is the only operation that closes a single level.
 
-#### 26.6.5 Keyboard Navigation
+#### 28.6.5 Keyboard Navigation
 
 | Key | Context | Behavior |
 |-----|---------|----------|
@@ -7864,7 +11894,7 @@ At any given moment, each menu has **at most one open child submenu**. Opening a
 | Left | Inside a root menu | Switch to the previous menu in the MenuBar (if present). |
 | Escape | Any menu | Close the innermost open menu (same as D2). |
 
-#### 26.6.6 Multi-Level Cascade (3+ Levels)
+#### 28.6.6 Multi-Level Cascade (3+ Levels)
 
 All rules above apply recursively. Specific behaviors for deep cascades:
 
@@ -7875,13 +11905,13 @@ All rules above apply recursively. Specific behaviors for deep cascades:
 | Leaf item click at level 3 | Item fires; levels 3, 2, and root all close. |
 | Mouse moves from level 3 back to level 1 (skipping level 2) | Level 3 closes. Level 2 closes. Level 1 processes the hover normally (may open a different submenu or highlight a normal item). |
 
-#### 26.6.7 UiNode-Layer Event Routing
+#### 28.6.7 UiNode-Layer Event Routing
 
 When the cursor exits a child menu's geometry, the widget emits a directional signal. The `MenuNode` UiNode layer handles this by walking up the `MenuNode` parent chain: each ancestor checks whether the cursor is within its own menu's geometry. The first ancestor that contains the cursor position processes the hover (potentially closing intermediate submenus). If no ancestor contains the position, the event is a candidate for outside-click dismissal.
 
 This routing is necessary because Qt's popup grab delivers mouse events only to the topmost popup. Without UiNode-layer forwarding, a parent menu would not learn that the cursor has re-entered its area while a child popup holds the grab.
 
-#### 26.6.8 Notification
+#### 28.6.8 Notification
 
 | Notification | Sender | Payload | Trigger |
 |-------------|--------|---------|---------|
@@ -7889,11 +11919,11 @@ This routing is necessary because Qt's popup grab delivers mouse events only to 
 
 The `Activated` notification propagates upward through the UiNode tree, allowing ancestors (e.g., `MenuBarNode`, `Shell`) to react to menu item activation without coupling to the specific item.
 
-### 26.7 Plugin System
+### 28.7 Plugin System
 
 Plugins extend the application by receiving the `Shell` root UiNode in `Start()`, giving them full access to the UiNode tree and `IDocumentManager`. No global state access is permitted.
 
-#### 26.7.1 IExpansionPlugin Interface
+#### 28.7.1 IExpansionPlugin Interface
 
 ```cpp
 class IExpansionPlugin {
@@ -7905,14 +11935,14 @@ public:
 };
 ```
 
-#### 26.7.2 PluginHost
+#### 28.7.2 PluginHost
 
 - `LoadPlugin(path) -> Expected<string_view>`: loads DLL, calls factory function
 - `LoadPluginsFromDirectory(dir) -> Expected<vector<string_view>>`: filesystem scan using `std::ranges` + `std::filesystem`
 - `StopPlugin(id)`, `StopAll()`: lifecycle management
 - No `dlclose`/`FreeLibrary` -- DLL stays loaded
 
-#### 26.7.3 Plugin C Entry Point
+#### 28.7.3 Plugin C Entry Point
 
 ```cpp
 extern "C" MATCHA_EXPORT IExpansionPlugin* CreateExpansionPlugin();
@@ -7920,15 +11950,15 @@ extern "C" MATCHA_EXPORT IExpansionPlugin* CreateExpansionPlugin();
 
 Single factory function per DLL.
 
-### 26.8 Application Shutdown Sequence
+### 28.8 Application Shutdown Sequence
 
-#### 26.8.1 Core Invariant
+#### 28.8.1 Core Invariant
 
 > **INV-SHUTDOWN**: At any point during shutdown, if a UiNode's destructor body is executing, every QWidget that this UiNode created via `CreateWidget()` / `BuildWindow()` **is guaranteed to still be alive**.
 
 Enforced by: (1) `CommandNode::DestroyChildren()` called before deleting Qt widget; (2) `QPointer` guard in `WindowNode::~WindowNode`.
 
-#### 26.8.2 Five-Phase Shutdown Model
+#### 28.8.2 Five-Phase Shutdown Model
 
 | Phase | Name | Postcondition | Layer |
 |-------|------|---------------|-------|
@@ -7938,7 +11968,7 @@ Enforced by: (1) `CommandNode::DestroyChildren()` called before deleting Qt widg
 | **S3** | Framework teardown | `Application::Shutdown()`: Shell destroyed (UiNode + Qt widgets gone). | Framework |
 | **S4** | Platform cleanup | OS handles released, deferred Qt deletions processed. | App/OS |
 
-#### 26.8.3 Canonical Shutdown Code
+#### 28.8.3 Canonical Shutdown Code
 
 ```cpp
 // S0: exit main loop (ShouldClose() == true)
@@ -7962,11 +11992,69 @@ ReleaseSingleInstanceLock();
 QApplication::processEvents();
 ```
 
+### 28.9 Generic Drag & Drop Protocol 🆕
+
+> 🆕 Post-v1 supplement. Implements Part I §7.8 Drag & Drop Design at the UiNode architecture level.
+
+#### 28.9.1 DnD Notification Flow
+
+```
+DragStartRequested (source WidgetNode)
+  → bubbles up to nearest ContainerNode with DnD capability
+  → ContainerNode creates DragSession { mimeType, payload, sourceId }
+  → DragSession is registered with ShellNode (global DnD coordinator)
+
+DragOverNotification (target WidgetNode)
+  → target checks canAccept(mimeType) → responds with DropEffect (Copy/Move/None)
+  → ShellNode updates cursor feedback
+
+DropNotification (target WidgetNode)
+  → target processes payload
+  → ShellNode ends DragSession
+  → source receives DropCompleted { effect } notification
+```
+
+#### 28.9.2 DragSession State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Pending : DragStartRequested
+    Pending --> Active : Mouse exceeds threshold (5px / 150ms)
+    Pending --> Idle : MouseUp (cancelled)
+    Active --> OverTarget : DragOverNotification (canAccept=true)
+    OverTarget --> Active : DragLeaveNotification
+    OverTarget --> Completing : DropNotification
+    Active --> Cancelled : Escape / MouseUp outside
+    Completing --> Idle : DropCompleted
+    Cancelled --> Idle : Cleanup
+```
+
+#### 28.9.3 UiNode Capabilities for DnD
+
+| Capability | Description | Set By |
+|-----------|-------------|--------|
+| `Draggable(mimeTypes)` | Node can be dragged; advertises MIME types it produces | Widget author |
+| `DropTarget(acceptedMimeTypes)` | Node accepts drops; lists MIME types it consumes | Widget author |
+| `DragProxy` | Node provides a custom drag preview widget | Optional |
+| `ReorderContainer` | ContainerNode supports child reorder via DnD | ContainerNode config |
+
+#### 28.9.4 Reorder Protocol (Within Same Container)
+
+For list/tree/tab reorder within the same ContainerNode:
+
+1. Source child emits `DragStartRequested` with `application/x-matcha-reorder`
+2. ContainerNode enters reorder mode: tracks insertion index based on mouse Y/X
+3. Visual: 2px `Primary` insertion indicator at the target index
+4. On drop: ContainerNode calls `MoveChild(fromIndex, toIndex)`
+5. Animation: displaced children shift smoothly (`200ms, OutCubic`)
+6. `ChildOrderChanged` notification emitted after reorder
+
 ---
 
-## Chapter 27. Multi-Window & Floating Tab Protocol
+## Chapter 29. Multi-Window & Floating Tab Protocol
 
-### 27.1 WindowNode Inner Component Table
+### 29.1 WindowNode Inner Component Table
 
 | Component | Main Window | Floating Window | Notes |
 |-----------|:-----------:|:---------------:|-------|
@@ -7979,7 +12067,7 @@ QApplication::processEvents();
 | **StatusBar** | Full | Simplified | Floating: coordinates + progress only |
 | **Dialog floating** | Yes | Yes | Snap-to-peer alignment |
 
-### 27.2 Document-DocumentPage One-to-Many Model
+### 29.2 Document-DocumentPage One-to-Many Model
 
 A single `Document` can have **multiple** `DocumentPage` views in different windows:
 
@@ -7999,7 +12087,7 @@ auto GetPageWindow(PageId page) -> WindowNode*;
 auto ActiveWindow() -> WindowNode*;
 ```
 
-### 27.3 Tab Drag-Out / Drag-Back Protocol
+### 29.3 Tab Drag-Out / Drag-Back Protocol
 
 **Drag-out** (any window -> new FloatingWindow):
 
@@ -8019,7 +12107,7 @@ auto ActiveWindow() -> WindowNode*;
 - Closing floating window: for each page -- last Page of Document triggers close with save prompt; non-last Page just destroys Page
 - Closing main window: all floating windows close first, then application shutdown
 
-### 27.4 Tab Drag & Drop Specification
+### 29.4 Tab Drag & Drop Specification
 
 Three drag scenarios:
 
@@ -8035,7 +12123,7 @@ Three drag scenarios:
 
 **New UiNode notifications**: `TabReordered`, `TabDroppedIn`, `TabPageDraggedOut`.
 
-### 27.5 Z-Order Strategy (Qt Window Flags)
+### 29.5 Z-Order Strategy (Qt Window Flags)
 
 | Spec Level | Content | Qt Implementation |
 |:----------:|---------|-------------------|
@@ -8049,11 +12137,132 @@ Three drag scenarios:
 
 **Critical rule**: `setParent(mainWindow)` on FloatingWindowNode ensures correct stacking.
 
+### 29.6 Window Management 🆕
+
+> 🆕 Post-v1 supplement. Window lifecycle, state persistence, and multi-monitor behavior.
+
+#### 29.6.1 Window State Persistence
+
+On application exit, serialize per-window state:
+
+```json
+{
+  "windows": [
+    {
+      "id": "main",
+      "geometry": { "x": 100, "y": 50, "w": 1920, "h": 1080 },
+      "maximized": true,
+      "screen": "\\\\?\\DISPLAY1",
+      "actionBarDock": "bottom",
+      "propertyPanelVisible": true,
+      "propertyPanelWidth": 280,
+      "viewportSplit": { "direction": "H", "ratio": 0.5 }
+    },
+    {
+      "id": "float_1",
+      "geometry": { "x": 200, "y": 100, "w": 800, "h": 600 },
+      "maximized": false,
+      "tabs": ["doc_3", "doc_4"]
+    }
+  ]
+}
+```
+
+On startup: restore each window to its saved geometry. If a saved screen is no longer available, move the window to the primary screen's center.
+
+#### 29.6.2 Multi-Monitor Behavior
+
+| Scenario | Behavior |
+|----------|----------|
+| Window on disconnected monitor | Move to primary screen, centered, maintain size |
+| Window partially off-screen | Clamp to nearest screen's available geometry |
+| DPI change (monitor switch) | Trigger `QScreen::logicalDotsPerInchChanged` → full repaint + layout recalc |
+| Scale factor differs | Per-window DPI awareness; icons/fonts re-rasterize to target DPI |
+
+#### 29.6.2.1 Per-Monitor DPI Scaling Strategy 🆕
+
+> 🆕 Post-v1 supplement.
+
+**DPI awareness mode**: `Qt::HighDpiScaleFactorRoundingPolicy::PassThrough` — no rounding, exact fractional scaling.
+
+**Scale factor detection**:
+```
+On startup:
+  For each QScreen:
+    devicePixelRatio = screen->devicePixelRatio()  // e.g., 1.0, 1.25, 1.5, 2.0
+    Store in per-screen DPI registry
+
+On QScreen::logicalDotsPerInchChanged:
+  Recalculate devicePixelRatio for affected screen
+  Trigger layout invalidation for all windows on that screen
+```
+
+**Fractional scaling rendering strategy**:
+
+| Scale Factor | Strategy | Notes |
+|:------------:|----------|-------|
+| 1.0x (96 DPI) | Direct pixel rendering | Baseline, no scaling artifacts |
+| 1.25x (120 DPI) | Snap widget bounds to physical pixels | `round(logicalPx * 1.25)` to avoid sub-pixel blur |
+| 1.5x (144 DPI) | Snap + anti-aliased icon rasterization | SVG icons re-rasterized at 1.5x |
+| 2.0x (192 DPI) | Integer scaling, crisp rendering | @2x icon assets preferred if available |
+| Other fractional | Snap to nearest physical pixel boundary | `floor(logicalPx * dpr + 0.5) / dpr` |
+
+**Icon resource selection algorithm**:
+```
+Given: requested IconSize (e.g., Md = 20px logical), screen DPR
+1. physicalSize = IconSize * DPR  (e.g., 20 * 1.5 = 30px)
+2. If SVG source available → rasterize at physicalSize (preferred)
+3. If bitmap only → select nearest larger pre-rasterized size, scale down
+4. Never scale up (causes blur)
+```
+
+**Runtime DPI change handling**:
+1. `QScreen::logicalDotsPerInchChanged` signal fires
+2. All `NyanTheme` font metrics are recalculated (`QFontMetricsF` with new DPI)
+3. All widget `WidgetStyleSheet` geometry tokens are recomputed (padding, minHeight, iconSize)
+4. `InvalidateIconCache()` clears all rasterized icon bitmaps
+5. Full layout pass: `QWidget::updateGeometry()` + `QWidget::update()` on all top-level windows
+6. Animation system paused during relayout to prevent visual glitches
+
+**Font rendering at fractional DPI**:
+- Use `QFont::setHintingPreference(QFont::PreferNoHinting)` at DPR > 1.0
+- At DPR = 1.0, use `QFont::PreferDefaultHinting` for pixel-grid alignment
+- Subpixel rendering (ClearType on Windows, LCD on Linux) enabled by default
+
+#### 29.6.3 Window Snap Zones
+
+When dragging a window near screen edges:
+
+| Zone | Trigger | Action |
+|------|:-------:|--------|
+| Top edge | Title bar touches top | Maximize |
+| Left half | Title bar touches left edge | Snap to left 50% |
+| Right half | Title bar touches right edge | Snap to right 50% |
+| Corner | Title bar touches corner | Snap to quadrant (25%) |
+| Away from edge | Drag away from snapped state | Restore previous size |
+
+Visual feedback: 4px `Primary` glow on the target snap zone, `150ms OutCubic` fade-in.
+
+#### 29.6.4 Window Close Protocol
+
+```mermaid
+flowchart TD
+    A[User clicks X or Alt+F4] --> B{Any unsaved documents?}
+    B -->|No| C[Close window immediately]
+    B -->|Yes| D[Show 'Save changes?' dialog]
+    D -->|Save| E[Save all → close]
+    D -->|Don't Save| C
+    D -->|Cancel| F[Abort close]
+    C --> G{Is this the last window?}
+    G -->|No| H[Close window, return floating tabs to main]
+    G -->|Yes| I[Save window state → exit application]
+```
+
 ---
 
-## Chapter 28. Viewport System
+## Chapter 30. Viewport System
 
-### 28.1 Data Model
+### 30.1 Data Model
 
 ```
 TreeNode = std::variant<SplitNode, LeafNode>
@@ -8073,7 +12282,7 @@ LeafNode {
 
 The binary split tree is a **pure layout topology** structure, not part of the UiNode child list. `Viewport` nodes remain as flat UiNode children of `ViewportGroup`.
 
-### 28.2 State Machine
+### 30.2 State Machine
 
 ```mermaid
 stateDiagram-v2
@@ -8098,7 +12307,7 @@ stateDiagram-v2
 
 **Resizing**: User dragging splitter divider. Live ratio update clamped to `[0.1, 0.9]`.
 
-### 28.3 Keyboard Shortcuts
+### 30.3 Keyboard Shortcuts
 
 | Shortcut | Action | Guard |
 |----------|--------|-------|
@@ -8107,7 +12316,7 @@ stateDiagram-v2
 | `Ctrl+W` | Close active viewport | Count > 1, not maximized |
 | `Ctrl+Shift+Enter` | Toggle maximize / restore | Active exists |
 
-### 28.4 Viewport Behavior Notifications
+### 30.4 Viewport Behavior Notifications
 
 | # | Notification | Payload | Trigger |
 |---|-------------|---------|---------|
@@ -8124,7 +12333,7 @@ stateDiagram-v2
 
 **Firing order**: Notifications fire after tree mutation but before widget rebuild (exception: `LayoutRebuilt` fires after rebuild). All callbacks on GUI thread.
 
-### 28.5 Viewport Widget Classes
+### 30.5 Viewport Widget Classes
 
 | Widget | Responsibility |
 |--------|----------------|
@@ -8134,7 +12343,7 @@ stateDiagram-v2
 
 MIME type for viewport drag: `application/x-matcha-viewport`.
 
-### 28.6 IViewportRenderer Interface
+### 30.6 IViewportRenderer Interface
 
 ```cpp
 class IViewportRenderer {
@@ -8154,11 +12363,11 @@ public:
 
 All callbacks invoked on **Qt main thread**. Renderer must not block > 16ms.
 
-### 28.7 IViewportHost
+### 30.7 IViewportHost
 
 Abstract interface for dirty-flag management: `RequestFrame(ViewportId)` (thread-safe). Implemented by `Viewport` internally. Renderer calls `RequestFrame()` whenever scene changes.
 
-### 28.8 Push vs. Pull Model
+### 30.8 Push vs. Pull Model
 
 | Aspect | Pull (Framework-Driven) | Push (Renderer-Driven) |
 |--------|------------------------|------------------------|
@@ -8168,13 +12377,13 @@ Abstract interface for dirty-flag management: `RequestFrame(ViewportId)` (thread
 | **Latency** | 1 Tick cycle | Near-zero |
 | **Best for** | CAD editing, static scenes (default) | Simulation, real-time viz |
 
-### 28.9 Wayland Strategy
+### 30.9 Wayland Strategy
 
 - **Windows/macOS/X11 (default)**: `QWindow::createWindowContainer` -- external engine receives raw native handle (HWND/NSView/XID) and creates its own swapchain
 - **Wayland**: Native handles unavailable. `ViewportWidget` becomes `QRhiWidget` subclass allocating render-target texture. Engine renders via `VK_KHR_external_memory` / `GL_EXT_memory_object` for zero-copy interop
 - **Override**: env var `MATCHA_VIEWPORT_BACKEND=native` or `rhi`
 
-### 28.10 Timing Hazards & Mitigations
+### 30.10 Timing Hazards & Mitigations
 
 | Hazard | Mitigation |
 |--------|-----------|
@@ -8188,13 +12397,13 @@ Abstract interface for dirty-flag management: `RequestFrame(ViewportId)` (thread
 
 ---
 
-## Chapter 29. ActionBar Drag & Dock Behavior
+## Chapter 31. ActionBar Drag & Dock Behavior
 
-### 29.1 Dock States
+### 31.1 Dock States
 
 The ActionBar can be: (1) **Docked** to an edge (Bottom/Top/Left/Right); (2) **Undocked (floating)** in `ActionBarFloatingFrame`; (3) **Collapsed (docked)** with trapezoid handle; (4) **Collapsed (undocked)** with mini-button.
 
-### 29.2 Drag State Machine
+### 31.2 Drag State Machine
 
 ```
 Idle -> DragPending (MousePress in empty area)
@@ -8205,7 +12414,7 @@ Idle -> DragPending (MousePress in empty area)
 
 **Key**: When `BeginDrag()` hides ActionBar, Qt stops delivering mouse events. Fix: `container->grabMouse()` ensures events flow during drag.
 
-### 29.3 Drop Scenarios
+### 31.3 Drop Scenarios
 
 | Drop Location | Action |
 |--------------|--------|
@@ -8215,7 +12424,7 @@ Idle -> DragPending (MousePress in empty area)
 | Container right edge | Dock to right (vertical) |
 | Center / outside | Undock into `ActionBarFloatingFrame` |
 
-### 29.4 Collapse Behavior
+### 31.4 Collapse Behavior
 
 | State | Action | Visual |
 |-------|--------|--------|
@@ -8227,11 +12436,15 @@ Idle -> DragPending (MousePress in empty area)
 ---
 ---
 
-# Part X. Implementation Roadmap
 
-## Chapter 30. Implementation Roadmap Summary
+---
+---
 
-### 30.1 Guiding Principles
+# Part IX -- Implementation Roadmap
+
+## Chapter 32. Implementation Roadmap Summary
+
+### 32.1 Guiding Principles
 
 - **Bottom-up**: lower layers complete and tested before upper layers
 - **Test-first**: tests written alongside implementation, dual framework (doctest + Qt Test)
@@ -8239,7 +12452,7 @@ Idle -> DragPending (MousePress in empty area)
 - **C++23 idioms**: `std::expected`, `std::ranges`, `deducing this`, `std::flat_map`, `if consteval`
 - **No C++ modules or coroutines**
 
-### 30.2 Phase Timeline
+### 32.2 Phase Timeline
 
 | Phase | Weeks | Cumulative | Tests (cumul.) | Key Milestone |
 |-------|-------|------------|----------------|---------------|
@@ -8258,7 +12471,7 @@ Idle -> DragPending (MousePress in empty area)
 
 **Total: 35 weeks** (~9 months). Test target: 470+ (120 unit + 120 widget + 60 integration + gap-fill).
 
-### 30.3 Widget Library Tiers
+### 32.3 Widget Library Tiers
 
 | Tier | Count | Phase | Dependency |
 |------|-------|-------|------------|
@@ -8268,7 +12481,7 @@ Idle -> DragPending (MousePress in empty area)
 | **Tier 3** (application shell) | 22 widgets (#45-68, minus #48-49 removed) | Phase 3c | Tier 0 + 1 + 2 |
 | **Total** | **66 widgets** + 8 token types | Phases 2-3 | Bottom-up, no cycles |
 
-### 30.4 Testing Strategy
+### 32.4 Testing Strategy
 
 **Dual Test Framework**:
 - **doctest**: Foundation/service logic (no Qt dependency)
@@ -8281,111 +12494,182 @@ Idle -> DragPending (MousePress in empty area)
 ---
 ---
 
+
+---
+---
+
 # Appendices
 
 ## Appendix A. Design System Glossary
 
 Canonical definitions for all design system terms used in this specification,
-organized by architectural layer for systematic cross-referencing between the
-Design System (this document) and UI Architecture primitives.
+organized into 9 domains. Each table includes the English term, Chinese
+translation (中文), and a concise definition with cross-references to the
+relevant specification section.
 
-### A.1 Foundation Layer
+> For the quick-start subset (~25 terms), see **§1.6 Terminology Glossary**.
+> For CAD application architecture terms, see **Appendix E**.
 
-| Term | Definition |
-|------|-----------|
-| **AliveToken** | A `weak_ptr<void>` created from a `shared_ptr` sentinel, used to detect object destruction in async notification dispatch. |
-| **CommandNode** | Base class in the UiNode tree providing parent-child hierarchy, notification dispatch, and subscription management. |
-| **EventNode** | Base class providing publish-subscribe event system with bidirectional lifetime tracking. |
-| **Notification** | Base class for all typed messages dispatched upward through the CommandNode tree. |
-| **NotificationQueue** | Async dispatch queue for deferred notifications, flushed on next event loop iteration. |
-| **ScopedSubscription** | RAII guard that automatically unsubscribes from an event when destroyed. |
-| **SourceGeneration** | uint64_t stamp on queued notifications, compared against `CommandNode::Generation()` for stale detection. |
-| **WidgetNode** | Base class for all UiNode-layer widget representations. Holds accessible name, icon, focusability. |
+### A.1 Foundation Layer (基础层)
 
-### A.2 Token Layer
+| Term | 中文 | Definition |
+|------|------|-----------|
+| **AliveToken** | 存活令牌 | A `weak_ptr<void>` created from a `shared_ptr` sentinel, used to detect object destruction in async notification dispatch. |
+| **CommandNode** | 命令节点 | Base class in the UiNode tree providing parent-child hierarchy, notification dispatch, and subscription management. |
+| **EventNode** | 事件节点 | Base class providing publish-subscribe event system with bidirectional lifetime tracking. |
+| **Notification** | 通知 | Base class for all typed messages dispatched upward through the CommandNode tree. |
+| **NotificationQueue** | 通知队列 | Async dispatch queue for deferred notifications, flushed on next event loop iteration. |
+| **ScopedSubscription** | 作用域订阅 | RAII guard that automatically unsubscribes from an event when destroyed. |
+| **SourceGeneration** | 源代数 | uint64_t stamp on queued notifications, compared against `CommandNode::Generation()` for stale detection. |
+| **UiNode** | UI 节点 | Pure C++ node in the logical tree — not a QWidget. Decouples domain model from Qt rendering. |
+| **WidgetNode** | 组件节点 | Base class for all UiNode-layer widget representations. Holds accessible name, icon, focusability. |
 
-| Term | Definition |
-|------|-----------|
-| **AnimationToken** | Enum of duration presets: `Instant`(0ms), `Quick`(160ms), `Normal`(200ms), `Slow`(350ms). |
-| **ColorToken** | Enum of 75 semantic color slots: 16 Neutral, 50 Semantic Hue (5 hues x 10 steps), 9 Special purpose. |
-| **CursorToken** | Enum of 15 mouse cursor shapes (Default, Pointer, Text, Wait, Move, etc.) mapped to `Qt::CursorShape`. |
-| **DensityLevel** | Enum: `Compact`(0.875x), `Default`(1.0x), `Comfortable`(1.125x). Scales spacing, size, radius, and shadow tokens. |
-| **DesignToken** | An abstract, named value (color, spacing, font, duration, etc.) that bridges design intent and implementation. |
-| **EasingToken** | Enum of easing curve presets: `Linear`, `OutCubic`, `InOutCubic`, `Spring`. |
-| **ElevationToken** | Enum of shadow depth levels: `Flat`, `Low`, `Medium`, `High`, `Window`. |
-| **FontRole** | Enum of 7 typographic roles: `Body`, `BodyMedium`, `BodyBold`, `Caption`, `Heading`, `Monospace`, `ToolTip`. |
-| **FontScale** | Global multiplier (0.5-3.0) applied to all font point sizes. Formula: $\max(\lfloor \text{basePt} \cdot s + 0.5 \rfloor,\; 6)$. |
-| **FontSizePreset** | Convenience enum: `Small`(0.875x), `Medium`(1.0x), `Large`(1.25x). Maps to `FontScale` value. |
-| **FontSpec** | Struct: `{ QString family; int pointSize; int weight; }` describing a resolved font. |
-| **IconId** | `std::string` typedef for asset URI icon identifiers (e.g., `"asset://matcha/icons/save"`). |
-| **IconSize** | Enum of icon pixel sizes: `Xs`(12), `Sm`(16), `Md`(20), `Lg`(24), `Xl`(32). |
-| **InteractionState** | Enum of 8 widget interaction states: `Normal`, `Hovered`, `Pressed`, `Disabled`, `Focused`, `Selected`, `Error`, `DragOver`. |
-| **LayerToken** | Enum of z-order stacking contexts: `Base`(0), `Elevated`(100), `Dropdown`(200), `Sticky`(300), `Popover`(400), `Modal`(500), `Notification`(600), `Toast`(700). |
-| **OKLCH** | Perceptual color space (Lightness, Chroma, Hue) used for tonal palette generation. Superior to HSL for perceptual uniformity. |
-| **RadiusToken** | Enum of corner radius presets: `None`(0), `Small`(2), `Default`(3), `Medium`(4), `Large`(8), `Round`(255). |
-| **ShadowSpec** | Struct: `{ int offsetY; int blurRadius; float opacity; QColor color; }` for box shadow rendering. |
-| **SizeToken** | Enum of component height presets: `Xs`(20), `Sm`(24), `Md`(32), `Lg`(40), `Xl`(48) px. |
-| **SpacingToken** | Enum of 16 spacing values from `None`(0) through `Px64`(64) in a roughly geometric progression. |
-| **TextDirection** | Enum: `LTR`, `RTL`. Affects padding direction, icon position, chevron direction, menu cascade side. |
-| **TransitionDef** | Struct: `{ AnimationToken duration; EasingToken easing; }` specifying default state-change animation. |
+### A.2 Token Layer (令牌层)
 
-### A.3 Component Layer
+| Term | 中文 | Definition |
+|------|------|-----------|
+| **AnimationToken** | 动画时长令牌 | Enum of duration presets: `Instant`(0ms), `Quick`(160ms), `Normal`(200ms), `Slow`(350ms). §8.1 |
+| **ColorToken** | 颜色令牌 | Enum of 75 semantic color slots: 16 Neutral, 50 Semantic Hue (5 hues × 10 steps), 9 Special purpose. §2 |
+| **CursorToken** | 光标令牌 | Enum of 15 mouse cursor shapes (Default, Pointer, Text, Wait, Move, etc.) mapped to `Qt::CursorShape`. §6.5 |
+| **DensityLevel** | 密度等级 | Enum: `Compact`(0.875×), `Default`(1.0×), `Comfortable`(1.125×). Scales spacing, size, radius, and shadow tokens. §1.4 |
+| **DesignToken** | 设计令牌 | An abstract, named value (color, spacing, font, duration, etc.) that bridges design intent and implementation. §1.3 |
+| **EasingToken** | 缓动令牌 | Enum of easing curve presets: `Linear`, `OutCubic`, `InOutCubic`, `Spring`. §8.2 |
+| **ElevationToken** | 高度令牌 | Enum of shadow depth levels: `Flat`, `Low`, `Medium`, `High`, `Window`. §2.6 |
+| **FontRole** | 字体角色 | Enum of 7 typographic roles: `Body`, `BodyMedium`, `BodyBold`, `Caption`, `Heading`, `Monospace`, `ToolTip`. §3.1 |
+| **FontScale** | 字体缩放 | Global multiplier (0.5–3.0) applied to all font point sizes. Formula: $\max(\lfloor \text{basePt} \cdot s + 0.5 \rfloor,\; 6)$. §3.3 |
+| **FontSizePreset** | 字号预设 | Convenience enum: `Small`(0.875×), `Medium`(1.0×), `Large`(1.25×). Maps to `FontScale` value. §3.3 |
+| **FontSpec** | 字体规格 | Struct: `{ QString family; int pointSize; int weight; }` describing a resolved font. §3.1 |
+| **IconId** | 图标标识 | `std::string` typedef for icon URI identifiers (e.g., `"icon://matcha/save"`). See §6.2 for multi-scheme URI architecture. |
+| **IconSize** | 图标尺寸 | Enum of icon pixel sizes: `Xs`(12), `Sm`(16), `Md`(20), `Lg`(24), `Xl`(32). §6.3 |
+| **InteractionState** | 交互状态 | Enum of 8 widget interaction states: `Normal`, `Hovered`, `Pressed`, `Disabled`, `Focused`, `Selected`, `Error`, `DragOver`. §4.2 |
+| **LayerToken** | 层级令牌 | Enum of z-order stacking contexts: `Base`(0) through `Toast`(700). §4.4 |
+| **OKLCH** | OKLCH 色彩空间 | Perceptual color space (Lightness, Chroma, Hue) used for tonal palette generation. Superior to HSL for perceptual uniformity. §2.1 |
+| **RadiusToken** | 圆角令牌 | Enum of corner radius presets: `None`(0), `Small`(2), `Default`(3), `Medium`(4), `Large`(8), `Round`(255). §2.5 |
+| **ShadowSpec** | 阴影规格 | Struct: `{ int offsetY; int blurRadius; float opacity; QColor color; }` for box shadow rendering. §2.6 |
+| **SizeToken** | 尺寸令牌 | Enum of component height presets: `Xs`(20), `Sm`(24), `Md`(32), `Lg`(40), `Xl`(48) px. §2.5 |
+| **SpacingToken** | 间距令牌 | Enum of 16 spacing values from `None`(0) through `Px64`(64) in a roughly geometric progression. §2.4 |
+| **TextDirection** | 文本方向 | Enum: `LTR`, `RTL`. Affects padding direction, icon position, chevron direction, menu cascade side. §7.10 |
+| **TransitionDef** | 过渡定义 | Struct: `{ AnimationToken duration; EasingToken easing; }` specifying default state-change animation. §8.1 |
 
-| Term | Definition |
-|------|-----------|
-| **A11yRole** | Enum of 28 semantic accessibility roles mapped to `QAccessible::Role`. |
-| **BuildDefaultVariants()** | NyanTheme method that constructs the complete `VariantStyle` array for every `WidgetKind`, defining the default color matrix. |
-| **BuildGlobalStyleSheet()** | NyanTheme method that generates a QSS string from design tokens, applied globally via `QApplication::setStyleSheet()`. |
-| **ComponentOverride** | A struct allowing plugins to override default `WidgetStyleSheet` fields for a specific `WidgetKind`. |
-| **ResolvedStyle** | Output struct from `IThemeService::Resolve()` containing all computed visual properties for painting. |
-| **StateStyle** | Struct defining visual tokens (background, foreground, border, opacity, cursor) for one `InteractionState`. |
-| **VariantColorOverride** | Struct for overriding specific variant x state color mappings in a widget's style matrix. |
-| **VariantStyle** | Struct containing `array<StateStyle, 8>` -- one `StateStyle` per `InteractionState` for a given variant. |
-| **WidgetKind** | Enum of 54+ widget type identifiers, used as index into the style sheet registry. |
-| **WidgetStyleSheet** | Struct combining geometry tokens (radius, padding, gap, minHeight), typography (font role), visual (elevation, layer), transition, and variant color maps. |
+### A.3 Component Layer (组件层)
 
-### A.4 Animation Layer
+| Term | 中文 | Definition |
+|------|------|-----------|
+| **A11yRole** | 无障碍角色 | Enum of 28 semantic accessibility roles mapped to `QAccessible::Role`. §7.9 |
+| **BuildDefaultVariants()** | 构建默认变体 | NyanTheme method that constructs the complete `VariantStyle` array for every `WidgetKind`, defining the default color matrix. Ch.11 |
+| **BuildGlobalStyleSheet()** | 构建全局样式表 | NyanTheme method that generates a QSS string from design tokens, applied globally via `QApplication::setStyleSheet()`. Ch.11 |
+| **ComponentOverride** | 组件覆盖 | A struct allowing plugins to override default `WidgetStyleSheet` fields for a specific `WidgetKind`. Ch.14 |
+| **ResolvedStyle** | 解析样式 | Output struct from `IThemeService::Resolve()` containing all computed visual properties for painting. Ch.9 |
+| **StateStyle** | 状态样式 | Struct defining visual tokens (background, foreground, border, opacity, cursor) for one `InteractionState`. §4.2 |
+| **Variant** | 变体 | A visual sub-type of a widget (e.g., PushButton has Primary, Secondary, Ghost, Danger variants). §4.1 |
+| **VariantColorOverride** | 变体颜色覆盖 | Struct for overriding specific variant × state color mappings in a widget's style matrix. Ch.14 |
+| **VariantStyle** | 变体样式 | Struct containing `array<StateStyle, 8>` — one `StateStyle` per `InteractionState` for a given variant. §4.2 |
+| **WidgetKind** | 组件类型 | Enum of 54+ widget type identifiers, used as index into the style sheet registry. Ch.14 |
+| **WidgetStyleSheet** | 组件样式表 | Struct combining geometry tokens (radius, padding, gap, minHeight), typography (font role), visual (elevation, layer), transition, and variant color maps. Ch.14 |
 
-| Term | Definition |
-|------|-----------|
-| **AnimatableValue** | Tagged union (`Double`, `Int`, `Rgba`, `Point2D`) representing a value that can be interpolated by the animation engine. |
-| **AnimationPropertyId** | Enum identifying which visual property of a widget is being animated (e.g., `Opacity`, `BackgroundColor`, `SlideOffset`). |
-| **CFL condition** | Courant-Friedrichs-Lewy stability condition for the spring integrator: $\Delta t < 2\sqrt{m/k}$. |
-| **GroupMode** | Enum for animation groups: `Parallel` (all start together) or `Sequential` (chained). |
-| **ReducedMotion** | Accessibility mode where all animations snap to target value (0ms duration). Honors OS preference. |
-| **SpringSpec** | Struct: `{ float mass; float stiffness; float damping; }` for spring animation dynamics. |
-| **TransitionHandle** | Opaque `uint64_t` handle for animation cancellation and status queries. Zero = invalid. |
+### A.4 Animation Layer (动画层)
 
-### A.5 Service Layer
+| Term | 中文 | Definition |
+|------|------|-----------|
+| **AnimatableValue** | 可动画值 | Tagged union (`Double`, `Int`, `Rgba`, `Point2D`) representing a value that can be interpolated by the animation engine. Ch.15 |
+| **AnimationPropertyId** | 动画属性标识 | Enum identifying which visual property of a widget is being animated (e.g., `Opacity`, `BackgroundColor`, `SlideOffset`). Ch.15 |
+| **CFL condition** | CFL 稳定性条件 | Courant-Friedrichs-Lewy stability condition for the spring integrator: $\Delta t < 2\sqrt{m/k}$. Ch.16 |
+| **Choreography** | 编排动画 | Coordinated multi-widget animation patterns: stagger, cascade, sequence, synchronized group. §8.6 |
+| **GroupMode** | 分组模式 | Enum for animation groups: `Parallel` (all start together) or `Sequential` (chained). Ch.15 |
+| **Interruption Re-targeting** | 中断重定向 | When a new animation starts on an already-animating property, the current interpolated value is captured and used as the new start value. §15.7 |
+| **ReducedMotion** | 减弱动效 | Accessibility mode where all animations snap to target value (0 ms duration). Honors OS preference. Ch.18 |
+| **SpringSpec** | 弹簧规格 | Struct: `{ float mass; float stiffness; float damping; }` for spring animation dynamics. Ch.16 |
+| **TransitionHandle** | 过渡句柄 | Opaque `uint64_t` handle for animation cancellation and status queries. Zero = invalid. Ch.15 |
 
-| Term | Definition |
-|------|-----------|
-| **ContrastChecker** | Static utility computing WCAG 2.1 luminance contrast ratio between two colors. |
-| **DynamicColorDef** | Registration struct for plugin-defined color tokens with light/dark mode values. |
-| **IAnimationService** | Abstract interface for all animation operations: eased, spring, group (parallel/sequential), cancel, cancel-group, re-targeting interruption, reduced motion, speed multiplier. |
-| **IThemeService** | Abstract interface for all theme operations: token queries, style resolution, icon resolution, dynamic tokens, etc. |
-| **NyanTheme** | Concrete implementation of `IThemeService`. Manages token storage, palette generation, style building. |
-| **ThemeAware** | Mixin class providing theme-aware painting helpers (`AnimateTransition`, `PaintFocusRing`, `Theme()`). |
-| **ThemeChanged** | Signal emitted by `IThemeService` when the active theme changes. Receivers call `update()` to repaint. |
-| **ThemeEntry** | Struct: `{ QString jsonPath; ThemeMode mode; }` stored in the theme registry. |
-| **ThemeId** | `using ThemeId = QString`. String-based theme identifier (e.g., `"Light"`, `"Dark"`, `"CorporateBlue"`). |
-| **ThemeMode** | Enum: `Light`, `Dark`. System-level classification for theme variants. |
-| **TonalPaletteGenerator** | Static utility that generates 10-step color ramps from a seed color using OKLCH lightness distribution. |
+### A.5 Service Layer (服务层)
 
-### A.6 UI Architecture Layer
+| Term | 中文 | Definition |
+|------|------|-----------|
+| **ContrastChecker** | 对比度检查器 | Static utility computing WCAG 2.1 luminance contrast ratio between two colors. §2.8 |
+| **DynamicColorDef** | 动态颜色定义 | Registration struct for plugin-defined color tokens with light/dark mode values. Ch.22 |
+| **IAnimationService** | 动画服务接口 | Abstract interface for all animation operations: eased, spring, group, cancel, re-targeting, reduced motion, speed multiplier. Ch.15 |
+| **IThemeService** | 主题服务接口 | Abstract interface for all theme operations: token queries, style resolution, icon resolution, dynamic tokens, etc. Ch.9 |
+| **NyanTheme** | NyanTheme 实现 | Concrete implementation of `IThemeService`. Manages token storage, palette generation, style building. Ch.11 |
+| **ThemeAware** | 主题感知混入 | Mixin class providing theme-aware painting helpers (`AnimateTransition`, `PaintFocusRing`, `Theme()`). Ch.17 |
+| **ThemeChanged** | 主题变更信号 | Signal emitted by `IThemeService` when the active theme changes. Receivers call `update()` to repaint. Ch.9 |
+| **ThemeEntry** | 主题条目 | Struct: `{ QString jsonPath; ThemeMode mode; }` stored in the theme registry. Ch.10 |
+| **ThemeId** | 主题标识 | `using ThemeId = QString`. String-based theme identifier (e.g., `"Light"`, `"Dark"`, `"CorporateBlue"`). Ch.9 |
+| **ThemeMode** | 主题模式 | Enum: `Light`, `Dark`. System-level classification for theme variants. Ch.9 |
+| **TonalPaletteGenerator** | 色调面板生成器 | Static utility that generates 10-step color ramps from a seed color using OKLCH lightness distribution. §2.1 |
 
-| Term | Definition |
-|------|-----------|
-| **Application** | Non-UiNode. Owns `QApplication` lifecycle. Manages multi-window creation/destruction and event processing. |
-| **Shell** | UiNode root. Zero Qt members. Holds `MainWindow()`, `GetActionBar()`, `GetDocumentManager()`. |
-| **WindowNode** | UiNode representing a top-level OS window. Contains TitleBar, WorkspaceFrame, StatusBar children. |
-| **ContainerNode** | Non-visual UiNode that groups children. `Wrap()` factory for non-owning widget adoption. |
-| **CommandNode** | Base class for UiNodes that send/receive notifications. Provides `SendNotification()`, `Subscribe()`, generation counter. |
-| **EventNode** | Lower base providing bidirectional subscription tracking and cross-boundary cleanup on subtree detach. |
-| **ScopedSubscription** | RAII guard that auto-unsubscribes on destruction. Holds subscriber `AliveToken` for lifetime safety. |
-| **NotificationQueue** | Deferred notification dispatch queue. Entries carry optional `guardToken` for external lifetime binding. |
-| **DocumentView** | Pure C++ object (not QWidget) managing a document tab's content via `DocumentArea` WidgetNode. |
-| **ViewportGroup** | Binary split tree for viewport layout. TreeNode/SplitNode/LeafNode with keyboard-driven resize. |
+### A.6 UI Architecture Layer (UI 架构层)
+
+| Term | 中文 | Definition |
+|------|------|-----------|
+| **Application** | 应用程序 | Non-UiNode. Owns `QApplication` lifecycle. Manages multi-window creation/destruction and event processing. Ch.28 |
+| **Shell** | 应用外壳 | UiNode root. Zero Qt members. Holds `MainWindow()`, `GetActionBar()`, `GetDocumentManager()`. Ch.28 |
+| **WindowNode** | 窗口节点 | UiNode representing a top-level OS window. Contains TitleBar, WorkspaceFrame, StatusBar children. Ch.28 |
+| **ContainerNode** | 容器节点 | Non-visual UiNode that groups children. `Wrap()` factory for non-owning widget adoption. Ch.28 |
+| **CommandNode** | 命令节点 | Base class for UiNodes that send/receive notifications. Provides `SendNotification()`, `Subscribe()`, generation counter. Ch.28 |
+| **EventNode** | 事件节点 | Lower base providing bidirectional subscription tracking and cross-boundary cleanup on subtree detach. Ch.28 |
+| **ScopedSubscription** | 作用域订阅 | RAII guard that auto-unsubscribes on destruction. Holds subscriber `AliveToken` for lifetime safety. Ch.28 |
+| **NotificationQueue** | 通知队列 | Deferred notification dispatch queue. Entries carry optional `guardToken` for external lifetime binding. Ch.28 |
+| **DocumentView** | 文档视图 | Pure C++ object (not QWidget) managing a document tab's content via `DocumentArea` WidgetNode. Ch.29 |
+| **ViewportGroup** | 视口组 | Binary split tree for viewport layout. TreeNode/SplitNode/LeafNode with keyboard-driven resize. Ch.30 |
+
+### A.7 Design Theory (设计理论)
+
+Theoretical foundations referenced throughout the specification. These are not
+Matcha-specific code constructs but established design science concepts that
+inform every design decision in the system.
+
+| Term | 中文 | Definition | Spec Reference |
+|------|------|-----------|----------------|
+| **Affordance** | 功能可供性 | An action possibility that an object offers to a user (Don Norman, *The Design of Everyday Things*). In Matcha: what a widget *can do*. | §7.12 |
+| **Signifier** | 示能符号 | A perceivable indicator of an affordance — what tells the user *how* to interact. Distinct from the affordance itself. | §7.12 |
+| **Cognitive Load** | 认知负荷 | The total mental effort required to operate the interface. Matcha constrains cognitive load via Hick/Miller/Fitts thresholds. | §7.13 |
+| **Hick's Law** | 希克定律 | Decision time $T = a + b \cdot \log_2(n+1)$: fewer choices per decision point → faster decisions. | §7.13.1 |
+| **Miller's Law** | 米勒定律 | Working memory limit of 7±2 items. Constrains menu items, tab counts, form fields per section. | §7.13.1 |
+| **Fitts' Law** | 费茨定律 | Movement time $T = a + b \cdot \log_2(1 + D/W)$: larger targets closer to cursor → faster acquisition. Governs minimum click target size (32×32 px). | §7.13.2 |
+| **Norman's Three Levels** | 诺曼三层次模型 | Visceral (本能) → Behavioral (行为) → Reflective (反思): three levels of cognitive processing that map to the Five-Layer Delivery Model. | §I.9.1 |
+| **Garrett's UX Planes** | 加勒特体验要素 | Strategy → Scope → Structure → Skeleton → Surface: Jesse James Garrett's five planes of user experience. | §I.9.1 |
+| **Atomic Design** | 原子设计 | Brad Frost's methodology: Atoms → Molecules → Organisms → Templates → Pages. Maps to Matcha's five delivery layers. | §I.9.1 |
+| **Anti-Corruption Layer (ACL)** | 防腐层 | DDD boundary pattern protecting a new system from legacy model contamination. Matcha's translation layer case study. | §0.2 |
+| **Paradigm Translation** | 范式翻译 | The process of mapping one UI paradigm's concepts to another's (e.g., imperative Qt → declarative spec). Distinct from simple adaptation. | §0.1 |
+
+### A.8 Interaction Behavior (交互行为)
+
+Cross-component interaction patterns and dynamic behaviors specified in Part I
+that are shared by multiple widgets.
+
+| Term | 中文 | Definition | Spec Reference |
+|------|------|-----------|----------------|
+| **Popup Positioning** | 弹出定位 | Algorithm for placing floating elements (menus, tooltips, popovers) relative to an anchor, with collision avoidance and viewport clamping. | §7.4 |
+| **Menu Cascading** | 菜单级联 | Timing and positioning rules for nested sub-menus: 200 ms open delay, directional bias, intent-based triangle detection. | §7.5 |
+| **Scroll Physics** | 滚动物理 | Momentum-based scrolling with rubber-banding at boundaries: deceleration rate, overscroll spring, and snap-to-item behavior. | §7.6 |
+| **Rubber-Banding** | 橡皮筋回弹 | Elastic overscroll effect at content boundaries. Spring physics: stiffness ~300, damping ratio ~0.8. | §7.6 |
+| **Gesture Handoff** | 手势交接 | Protocol for transferring control between gesture recognizers (e.g., scroll → drag threshold crossing). | §7.7 |
+| **Drag & Drop (DnD)** | 拖放 | Cross-widget and cross-window drag-and-drop protocol with preview generation, drop zone highlighting, and cancel/revert semantics. | §7.8 |
+| **Tooltip Behavior** | 提示框行为 | Dual-delay tooltip system: brief summary (500 ms) → rich tooltip (1500 ms). Mouse proximity cancellation. | §7.4.4 |
+| **Text Overflow** | 文本溢出 | Rules for handling text that exceeds its container: ellipsis modes (end, middle, fade), tooltip-on-truncation, max-lines clamp. | §7.14 |
+| **Focus Ring** | 焦点环 | 2px outline in `ColorToken::Primary` drawn around the focused element. Visibility controlled by keyboard-only detection. | §7.9.2 |
+| **Focus Trap** | 焦点陷阱 | A focus scope that prevents Tab from leaving a container (e.g., modal dialog, onboarding tooltip card). | §7.9.6 |
+| **Keyboard Navigation** | 键盘导航 | Tab order, arrow-key traversal within composite widgets, and roving tabindex pattern for radio groups and toolbars. | §7.9 |
+| **Mnemonic / Access Key** | 助记键 | Keyboard shortcut activated by Alt+underlined letter (e.g., `Alt+F` for File). Platform-specific activation rules. | §7.9.11 |
+| **Live Region** | 实时区域 | ARIA-style region that announces dynamic content changes to screen readers (e.g., validation messages, toast notifications). | §7.9.8 |
+| **Destructive Action Protection** | 破坏性操作保护 | Confirmation pattern for irreversible actions: require explicit confirmation, disable default-focused "Delete" button, countdown timer for batch operations. | §7.15 |
+| **Onboarding Tour** | 入门引导 | Guided walkthrough highlighting UI regions with spotlight overlay and sequential tooltip cards. Max 7 steps (Miller's Law). | §7.16 |
+
+### A.9 Accessibility & Internationalization (无障碍与国际化)
+
+| Term | 中文 | Definition | Spec Reference |
+|------|------|-----------|----------------|
+| **WCAG** | 网页内容无障碍指南 | Web Content Accessibility Guidelines. Matcha enforces WCAG 2.1 AA contrast (≥ 4.5:1 normal text, ≥ 3:1 large text) as a hard constraint. | §2.8, §7.9 |
+| **ARIA Role** | ARIA 角色 | Semantic role from WAI-ARIA mapped to `QAccessible::Role`. Each Matcha widget declares its ARIA role for screen readers. | §7.9.1 |
+| **Screen Reader** | 屏幕阅读器 | Assistive technology that reads UI content aloud (NVDA, JAWS, VoiceOver). Matcha provides `QAccessibleInterface` per widget. | §7.9 |
+| **Reduced Motion** | 减弱动效 | Accessibility mode where all animations snap to target value (0 ms). Honors `prefers-reduced-motion` OS setting. | Ch.18 |
+| **High Contrast Mode** | 高对比度模式 | OS-level mode that overrides UI colors for maximum contrast. Matcha detects via `QPalette` and respects forced colors. | §2.8 |
+| **RTL / LTR** | 右到左/左到右 | Text direction enum (`TextDirection`). Affects padding, icon position, chevron direction, menu cascade side, scroll direction. | §7.10 |
+| **Locale** | 区域设置 | Language + region code (e.g., `zh-CN`, `en-US`) that drives string lookup, date/number formatting, and plural rules. | §7.10 |
+| **i18n / L10n** | 国际化/本地化 | Internationalization: making the UI language-neutral. Localization: providing language-specific assets. Matcha uses `IResourceResolver` URI scheme `string://`. | §7.10, §6.2 |
+| **Bidirectional Text (BiDi)** | 双向文本 | Mixed LTR/RTL text rendering (e.g., Arabic with embedded English). Qt handles via `QTextLayout`; Matcha ensures correct logical order in all widgets. | §7.10 |
+| **Contrast Ratio** | 对比度比值 | Luminance ratio between foreground and background colors, computed per WCAG 2.1 formula. Range [1:1, 21:1]. | §2.8 |
+| **Relative Luminance** | 相对亮度 | WCAG-defined measure of light intensity: $L = 0.2126R + 0.7152G + 0.0722B$ (linearized sRGB). | §2.8 |
 
 ---
 
@@ -8425,6 +12709,80 @@ enum class SnapshotError : uint8_t {
 **Format**: Version-prefixed binary (4-byte header + tagged sections). Forward-compatible: unknown tags skipped.
 
 **Scope exclusion**: Widget-level micro-state (scroll position, text cursor) NOT captured. Only service-level logical state. Typically < 1 KB.
+
+### B.4 Command Pattern for Undo/Redo 🆕
+
+> 🆕 Post-v1 supplement. Full command-stack architecture for application-level undo/redo.
+
+#### B.4.1 ICommand Interface
+
+```cpp
+class ICommand {
+public:
+    virtual ~ICommand() = default;
+    virtual auto Execute() -> std::expected<void, CommandError> = 0;
+    virtual auto Undo() -> std::expected<void, CommandError> = 0;
+    virtual auto Redo() -> std::expected<void, CommandError> = 0;
+    [[nodiscard]] virtual auto GetDisplayName() const -> QString = 0;
+    [[nodiscard]] virtual auto GetId() const -> CommandId = 0;
+    [[nodiscard]] virtual auto CanMergeWith(const ICommand& next) const -> bool { return false; }
+    virtual auto MergeWith(unique_ptr<ICommand> next) -> void {}
+};
+```
+
+#### B.4.2 Command Stack
+
+![Command Stack](assets/anatomy/command_stack.svg)
+
+| Operation | Action |
+|-----------|--------|
+| `Execute(cmd)` | `cmd.Execute()` → push to undoStack → clear redoStack |
+| `Undo()` | Pop undoStack → `cmd.Undo()` → push to redoStack |
+| `Redo()` | Pop redoStack → `cmd.Redo()` → push to undoStack |
+| `Clear()` | Clear both stacks (on document close or reset) |
+
+**Merge**: If `undoStack.top().CanMergeWith(newCmd)`, merge instead of pushing. Used for consecutive typing keystrokes (merge into single "Type text" command).
+
+#### B.4.3 MacroCommand (Compound Undo)
+
+```cpp
+class MacroCommand : public ICommand {
+    vector<unique_ptr<ICommand>> _children;
+public:
+    auto Execute() -> expected<void, CommandError> override {
+        for (auto& cmd : _children) TRY(cmd->Execute());
+        return {};
+    }
+    auto Undo() -> expected<void, CommandError> override {
+        for (auto it = _children.rbegin(); it != _children.rend(); ++it)
+            TRY((*it)->Undo());
+        return {};
+    }
+};
+```
+
+**Use case**: "Move 5 selected nodes" = MacroCommand containing 5 MoveNodeCommands. Undo undoes all 5 moves atomically.
+
+#### B.4.4 UI Integration
+
+| UI Element | Undo/Redo Behavior |
+|-----------|-------------------|
+| **Menu** | Edit → Undo: "Undo: {cmd.GetDisplayName()}" / Edit → Redo: "Redo: {cmd.GetDisplayName()}" |
+| **Shortcut** | `Ctrl+Z` = Undo, `Ctrl+Y` / `Ctrl+Shift+Z` = Redo |
+| **Toast** | After destructive action: Toast with "Undo" action button (5s, §7.7) |
+| **StatusBar** | Left section shows last action name after Execute |
+| **Disabled state** | Undo item disabled when undoStack empty; Redo disabled when redoStack empty |
+
+#### B.4.5 Document Dirty State
+
+```
+isDirty = (undoStack.top() != savedCommandIndex)
+```
+
+- On `Save()`: record `savedCommandIndex = undoStack.size()`
+- On `Undo()` past saved point: document becomes dirty again
+- Window title shows `*` prefix when dirty (e.g., `*MyDocument - NyanCad`)
+- Close attempt on dirty document triggers save dialog (§29.6.4)
 
 ---
 

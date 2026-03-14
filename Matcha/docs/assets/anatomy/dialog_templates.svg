@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 480" font-family="Segoe UI, system-ui, sans-serif" font-size="13">
+  <defs>
+    <style>
+      .border { fill: none; stroke: #5b6abf; stroke-width: 1.5; rx: 6; }
+      .fill-bg { fill: #fffffc; }
+      .header-bg { fill: #2d2640; }
+      .header-text { fill: #fffffc; font-size: 11px; }
+      .label { fill: #2d2640; font-size: 11px; }
+      .desc { fill: #8b5fbf; font-size: 10px; font-style: italic; }
+      .divider { stroke: #d8cfe8; stroke-width: 1; }
+      .btn-primary { fill: #5b6abf; }
+      .btn-secondary { fill: #d8cfe8; }
+      .btn-text-light { fill: #fffffc; font-size: 10px; }
+      .btn-text-dark { fill: #2d2640; font-size: 10px; }
+      .field-bg { fill: #eaf8ff; }
+    </style>
+  </defs>
+
+  <!-- ===== Confirm Dialog ===== -->
+  <text class="label" x="10" y="14" font-weight="700">Confirm Dialog (400px)</text>
+  <rect class="fill-bg" x="10" y="20" width="180" height="140" rx="6"/>
+  <rect class="border" x="10" y="20" width="180" height="140"/>
+  <rect class="header-bg" x="10" y="20" width="180" height="24" rx="6"/>
+  <rect class="header-bg" x="10" y="34" width="180" height="10"/>
+  <text class="header-text" x="18" y="36" font-size="10">[Icon] Title</text>
+  <rect x="168" y="24" width="14" height="14" rx="2" fill="#ffadad" opacity="0.3"/>
+  <text class="header-text" x="172" y="34" font-size="9">×</text>
+  <line class="divider" x1="10" y1="46" x2="190" y2="46"/>
+  <text class="label" x="22" y="68" font-size="10">Message text (Body font,</text>
+  <text class="label" x="22" y="82" font-size="10">TextPrimary, max 3 lines)</text>
+  <text class="desc" x="22" y="98">Padding: Px16</text>
+  <line class="divider" x1="10" y1="118" x2="190" y2="118"/>
+  <rect class="btn-secondary" x="108" y="126" width="32" height="18" rx="4"/>
+  <text class="btn-text-dark" x="112" y="138" font-size="9">Cancel</text>
+  <rect class="btn-primary" x="146" y="126" width="36" height="18" rx="4"/>
+  <text class="btn-text-light" x="148" y="138" font-size="9">Confirm</text>
+  <text class="desc" x="108" y="154">DialogFootBar, right-aligned</text>
+
+  <!-- ===== Input Dialog ===== -->
+  <text class="label" x="210" y="14" font-weight="700">Input Dialog (360px)</text>
+  <rect class="fill-bg" x="210" y="20" width="170" height="140" rx="6"/>
+  <rect class="border" x="210" y="20" width="170" height="140"/>
+  <rect class="header-bg" x="210" y="20" width="170" height="24" rx="6"/>
+  <rect class="header-bg" x="210" y="34" width="170" height="10"/>
+  <text class="header-text" x="218" y="36" font-size="10">Title</text>
+  <rect x="358" y="24" width="14" height="14" rx="2" fill="#ffadad" opacity="0.3"/>
+  <text class="header-text" x="362" y="34" font-size="9">×</text>
+  <line class="divider" x1="210" y1="46" x2="380" y2="46"/>
+  <text class="label" x="222" y="64" font-size="10">Label</text>
+  <rect class="field-bg" x="222" y="70" width="140" height="18" rx="3"/>
+  <text class="label" x="228" y="83" font-size="9">[LineEdit, full width]</text>
+  <line class="divider" x1="210" y1="118" x2="380" y2="118"/>
+  <rect class="btn-secondary" x="306" y="126" width="32" height="18" rx="4"/>
+  <text class="btn-text-dark" x="310" y="138" font-size="9">Cancel</text>
+  <rect class="btn-primary" x="344" y="126" width="28" height="18" rx="4"/>
+  <text class="btn-text-light" x="350" y="138" font-size="9">OK</text>
+
+  <!-- ===== Wizard Dialog ===== -->
+  <text class="label" x="10" y="184" font-weight="700">Wizard Dialog (600px)</text>
+  <rect class="fill-bg" x="10" y="190" width="260" height="170" rx="6"/>
+  <rect class="border" x="10" y="190" width="260" height="170"/>
+  <rect class="header-bg" x="10" y="190" width="260" height="24" rx="6"/>
+  <rect class="header-bg" x="10" y="204" width="260" height="10"/>
+  <text class="header-text" x="18" y="206">Wizard Title</text>
+  <rect x="248" y="194" width="14" height="14" rx="2" fill="#ffadad" opacity="0.3"/>
+  <text class="header-text" x="252" y="204" font-size="9">×</text>
+  <line class="divider" x1="10" y1="216" x2="270" y2="216"/>
+  <!-- Step indicators -->
+  <text class="desc" x="18" y="230">Step indicators:</text>
+  <circle cx="100" cy="226" r="5" fill="#5b6abf"/>
+  <circle cx="116" cy="226" r="5" fill="none" stroke="#d8cfe8" stroke-width="1.5"/>
+  <circle cx="132" cy="226" r="5" fill="none" stroke="#d8cfe8" stroke-width="1.5"/>
+  <circle cx="148" cy="226" r="5" fill="none" stroke="#d8cfe8" stroke-width="1.5"/>
+  <text class="desc" x="160" y="230">Px16 gap</text>
+  <line class="divider" x1="10" y1="236" x2="270" y2="236"/>
+  <rect x="22" y="244" width="236" height="68" rx="3" fill="#eaf8ff" opacity="0.3" stroke="#5b6abf" stroke-width="0.8" stroke-dasharray="3"/>
+  <text class="label" x="100" y="282" text-anchor="middle" font-size="10">[Step content area] StackedWidget</text>
+  <line class="divider" x1="10" y1="318" x2="270" y2="318"/>
+  <rect x="22" y="326" width="28" height="18" rx="4" fill="none" stroke="#d8cfe8" stroke-width="1"/>
+  <text class="btn-text-dark" x="28" y="338" font-size="9">Back</text>
+  <rect class="btn-primary" x="200" y="326" width="28" height="18" rx="4"/>
+  <text class="btn-text-light" x="204" y="338" font-size="9">Next</text>
+  <text class="desc" x="232" y="338">/ Finish</text>
+
+  <!-- ===== Settings Dialog ===== -->
+  <text class="label" x="290" y="184" font-weight="700">Settings Dialog (720×500)</text>
+  <rect class="fill-bg" x="290" y="190" width="280" height="170" rx="6"/>
+  <rect class="border" x="290" y="190" width="280" height="170"/>
+  <rect class="header-bg" x="290" y="190" width="280" height="24" rx="6"/>
+  <rect class="header-bg" x="290" y="204" width="280" height="10"/>
+  <text class="header-text" x="298" y="206">Settings</text>
+  <rect x="548" y="194" width="14" height="14" rx="2" fill="#ffadad" opacity="0.3"/>
+  <text class="header-text" x="552" y="204" font-size="9">×</text>
+  <line class="divider" x1="290" y1="216" x2="570" y2="216"/>
+  <!-- Category sidebar -->
+  <rect x="296" y="220" width="80" height="96" rx="3" fill="#d8cfe8" opacity="0.2"/>
+  <rect x="296" y="220" width="80" height="96" rx="3" fill="none" stroke="#5b6abf" stroke-width="0.8"/>
+  <text class="label" x="304" y="240" font-size="9">Category</text>
+  <text class="label" x="304" y="254" font-size="9">list</text>
+  <text class="desc" x="304" y="268">(180px)</text>
+  <line class="divider" x1="378" y1="216" x2="378" y2="318"/>
+  <!-- Content area -->
+  <text class="label" x="386" y="240" font-size="10">[Settings content area]</text>
+  <text class="desc" x="386" y="258">FormLayout with sections</text>
+  <line class="divider" x1="290" y1="318" x2="570" y2="318"/>
+  <rect class="btn-secondary" x="436" y="328" width="32" height="18" rx="4"/>
+  <text class="btn-text-dark" x="440" y="340" font-size="9">Cancel</text>
+  <rect class="btn-secondary" x="474" y="328" width="32" height="18" rx="4"/>
+  <text class="btn-text-dark" x="478" y="340" font-size="9">Apply</text>
+  <rect class="btn-primary" x="512" y="328" width="28" height="18" rx="4"/>
+  <text class="btn-text-light" x="518" y="340" font-size="9">OK</text>
+
+  <!-- ===== About Dialog ===== -->
+  <text class="label" x="590" y="184" font-weight="700">About Dialog (320px)</text>
+  <rect class="fill-bg" x="590" y="190" width="160" height="170" rx="6"/>
+  <rect class="border" x="590" y="190" width="160" height="170"/>
+  <rect x="728" y="194" width="14" height="14" rx="2" fill="#ffadad" opacity="0.3"/>
+  <text x="732" y="204" font-size="9" fill="#2d2640">×</text>
+  <!-- App icon -->
+  <rect x="646" y="216" width="36" height="36" rx="6" fill="#5b6abf" opacity="0.2" stroke="#5b6abf" stroke-width="1"/>
+  <text class="label" x="664" y="238" text-anchor="middle" font-size="14">🎨</text>
+  <text class="label" x="670" y="268" text-anchor="middle" font-weight="700">App Name</text>
+  <text class="desc" x="670" y="282" text-anchor="middle">Version X.Y.Z (Caption)</text>
+  <text class="desc" x="670" y="296" text-anchor="middle">Copyright (Caption, Muted)</text>
+  <rect class="btn-primary" x="650" y="326" width="40" height="18" rx="4"/>
+  <text class="btn-text-light" x="662" y="338" font-size="9">OK</text>
+
+  <!-- Legend -->
+  <text class="desc" x="10" y="390">Five standard dialog types: Confirm (400px) · Input (360px) · Wizard (600px) · Settings (720×500) · About (320px)</text>
+  <text class="desc" x="10" y="405">Common: DialogTitleBar + content area + DialogFootBar (right-aligned buttons). Modal centered in parent window.</text>
+</svg>

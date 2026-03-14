@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 170" width="400" height="170">
+  <!-- Outer frame -->
+  <rect x="4" y="4" width="370" height="132" rx="4" fill="none" stroke="#3b2d5e" stroke-width="1.2" stroke-dasharray="4,2"/>
+  <text x="10" y="14" font-family="sans-serif" font-size="7" fill="#3b2d5e" font-style="italic">PropertyGrid</text>
+  <!-- Group Header -->
+  <rect x="10" y="18" width="358" height="18" rx="2" fill="#fff0d6" opacity="0.4"/>
+  <text x="18" y="30" font-family="sans-serif" font-size="9" fill="#5b6abf">▼</text>
+  <text x="30" y="31" font-family="sans-serif" font-size="9" fill="#2d2640" font-weight="bold">Transform</text>
+  <text x="310" y="31" font-family="sans-serif" font-size="7" fill="#8b5fbf">Group Header</text>
+  <!-- Row 1 (Surface) -->
+  <rect x="10" y="38" width="358" height="18" rx="1" fill="#fffffc"/>
+  <text x="18" y="50" font-family="sans-serif" font-size="8" fill="#2d2640">Position X</text>
+  <rect x="200" y="40" width="100" height="14" rx="2" fill="#eaf8ff" opacity="0.3" stroke="#d8cfe8" stroke-width="0.5"/>
+  <text x="230" y="50" font-family="sans-serif" font-size="8" fill="#2d2640">0.000 ▲▼</text>
+  <text x="310" y="50" font-family="sans-serif" font-size="7" fill="#8b5fbf">(SpinBox)</text>
+  <!-- Row 2 (SurfaceContainer - alternating) -->
+  <rect x="10" y="56" width="358" height="18" rx="1" fill="#d8cfe8" opacity="0.12"/>
+  <text x="18" y="68" font-family="sans-serif" font-size="8" fill="#2d2640">Position Y</text>
+  <rect x="200" y="58" width="100" height="14" rx="2" fill="#eaf8ff" opacity="0.3" stroke="#d8cfe8" stroke-width="0.5"/>
+  <text x="230" y="68" font-family="sans-serif" font-size="8" fill="#2d2640">0.000 ▲▼</text>
+  <text x="370" y="68" font-family="sans-serif" font-size="7" fill="#8b5fbf">← alternating</text>
+  <!-- Row 3 -->
+  <rect x="10" y="74" width="358" height="18" rx="1" fill="#fffffc"/>
+  <text x="18" y="86" font-family="sans-serif" font-size="8" fill="#2d2640">Visible</text>
+  <rect x="200" y="76" width="14" height="14" rx="2" fill="#5b6abf" opacity="0.3" stroke="#5b6abf" stroke-width="0.6"/>
+  <text x="207" y="87" font-family="sans-serif" font-size="9" fill="#fffffc" text-anchor="middle">✓</text>
+  <text x="310" y="86" font-family="sans-serif" font-size="7" fill="#8b5fbf">(CheckBox)</text>
+  <!-- Row 4 (alternating) -->
+  <rect x="10" y="92" width="358" height="18" rx="1" fill="#d8cfe8" opacity="0.12"/>
+  <text x="18" y="104" font-family="sans-serif" font-size="8" fill="#2d2640">Material</text>
+  <rect x="200" y="94" width="100" height="14" rx="2" fill="#eaf8ff" opacity="0.3" stroke="#d8cfe8" stroke-width="0.5"/>
+  <text x="230" y="104" font-family="sans-serif" font-size="8" fill="#2d2640">Aluminum ▾</text>
+  <text x="310" y="104" font-family="sans-serif" font-size="7" fill="#8b5fbf">(ComboBox)</text>
+  <!-- Row 5 -->
+  <rect x="10" y="110" width="358" height="18" rx="1" fill="#fffffc"/>
+  <text x="18" y="122" font-family="sans-serif" font-size="8" fill="#2d2640">Color</text>
+  <rect x="200" y="112" width="14" height="14" rx="2" fill="#e8a840" stroke="#3b2d5e" stroke-width="0.5"/>
+  <text x="310" y="122" font-family="sans-serif" font-size="7" fill="#8b5fbf">(ColorSwatch)</text>
+  <!-- Legend -->
+  <rect x="10" y="150" width="10" height="10" rx="1" fill="#fff0d6" opacity="0.5"/>
+  <text x="24" y="159" font-family="sans-serif" font-size="7" fill="#2d2640">Group header</text>
+  <rect x="100" y="150" width="10" height="10" rx="1" fill="#fffffc" stroke="#d8cfe8" stroke-width="0.4"/>
+  <text x="114" y="159" font-family="sans-serif" font-size="7" fill="#2d2640">Normal row</text>
+  <rect x="190" y="150" width="10" height="10" rx="1" fill="#d8cfe8" opacity="0.15"/>
+  <text x="204" y="159" font-family="sans-serif" font-size="7" fill="#2d2640">Alternating row</text>
+  <rect x="300" y="150" width="10" height="10" rx="2" fill="#eaf8ff" opacity="0.3" stroke="#d8cfe8" stroke-width="0.4"/>
+  <text x="314" y="159" font-family="sans-serif" font-size="7" fill="#2d2640">Editor widget</text>
+</svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 60" width="420" height="60">
+  <!-- Outer frame -->
+  <rect x="4" y="4" width="390" height="28" rx="3" fill="none" stroke="#3b2d5e" stroke-width="1.2" stroke-dasharray="4,2"/>
+  <text x="10" y="14" font-family="sans-serif" font-size="7" fill="#3b2d5e" font-style="italic">Paginator</text>
+  <!-- Prev button -->
+  <rect x="10" y="16" width="22" height="14" rx="2" fill="#d8cfe8" opacity="0.3" stroke="#d8cfe8" stroke-width="0.5"/>
+  <text x="21" y="26" font-family="sans-serif" font-size="9" fill="#2d2640" text-anchor="middle">←</text>
+  <!-- Page 1 (active) -->
+  <rect x="36" y="16" width="22" height="14" rx="2" fill="#5b6abf" opacity="0.8"/>
+  <text x="47" y="26" font-family="sans-serif" font-size="8" fill="#fffffc" text-anchor="middle">1</text>
+  <!-- Page 2 -->
+  <rect x="62" y="16" width="22" height="14" rx="2" fill="#fffffc" stroke="#d8cfe8" stroke-width="0.5"/>
+  <text x="73" y="26" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">2</text>
+  <!-- Page 3 -->
+  <rect x="88" y="16" width="22" height="14" rx="2" fill="#fffffc" stroke="#d8cfe8" stroke-width="0.5"/>
+  <text x="99" y="26" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">3</text>
+  <!-- Ellipsis -->
+  <text x="120" y="26" font-family="sans-serif" font-size="9" fill="#8b5fbf">...</text>
+  <!-- Page 10 -->
+  <rect x="138" y="16" width="22" height="14" rx="2" fill="#fffffc" stroke="#d8cfe8" stroke-width="0.5"/>
+  <text x="149" y="26" font-family="sans-serif" font-size="8" fill="#2d2640" text-anchor="middle">10</text>
+  <!-- Next button -->
+  <rect x="164" y="16" width="22" height="14" rx="2" fill="#d8cfe8" opacity="0.3" stroke="#d8cfe8" stroke-width="0.5"/>
+  <text x="175" y="26" font-family="sans-serif" font-size="9" fill="#2d2640" text-anchor="middle">→</text>
+  <!-- Reset button -->
+  <rect x="196" y="16" width="42" height="14" rx="2" fill="#fdffb6" opacity="0.3" stroke="#d8cfe8" stroke-width="0.5"/>
+  <text x="217" y="26" font-family="sans-serif" font-size="7" fill="#2d2640" text-anchor="middle">Reset</text>
+  <!-- Annotation -->
+  <line x1="47" y1="30" x2="47" y2="34" stroke="#5b6abf" stroke-width="0.5"/>
+  <text x="47" y="40" font-family="sans-serif" font-size="7" fill="#5b6abf" text-anchor="middle">active (Primary bg)</text>
+  <!-- Legend -->
+  <rect x="10" y="48" width="10" height="8" rx="1" fill="#5b6abf" opacity="0.8"/>
+  <text x="24" y="55" font-family="sans-serif" font-size="7" fill="#2d2640">Active page</text>
+  <rect x="100" y="48" width="10" height="8" rx="1" fill="#fffffc" stroke="#d8cfe8" stroke-width="0.4"/>
+  <text x="114" y="55" font-family="sans-serif" font-size="7" fill="#2d2640">Inactive page</text>
+  <rect x="200" y="48" width="10" height="8" rx="1" fill="#d8cfe8" opacity="0.3"/>
+  <text x="214" y="55" font-family="sans-serif" font-size="7" fill="#2d2640">Nav button</text>
+  <rect x="290" y="48" width="10" height="8" rx="1" fill="#fdffb6" opacity="0.3"/>
+  <text x="304" y="55" font-family="sans-serif" font-size="7" fill="#2d2640">Reset</text>
+</svg>
