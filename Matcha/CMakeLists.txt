@@ -372,6 +372,45 @@ add_library(Matcha SHARED
     Include/Matcha/Foundation/BreakpointObserver.h
     Source/UiNodes/Core/CompositionTemplate.cpp
     Include/Matcha/Foundation/CompositionTemplate.h
+    Source/UiNodes/Core/InteractionTimingRegistry.cpp
+    Include/Matcha/Foundation/InteractionTimingRegistry.h
+    Source/UiNodes/Core/ErrorBoundary.cpp
+    Include/Matcha/Foundation/ErrorBoundary.h
+    Source/UiNodes/Core/FormValidator.cpp
+    Include/Matcha/Foundation/FormValidator.h
+    Source/UiNodes/Core/ScrollPhysics.cpp
+    Include/Matcha/Foundation/ScrollPhysics.h
+    Source/UiNodes/Core/ShortcutManager.cpp
+    Include/Matcha/Foundation/ShortcutManager.h
+    Source/UiNodes/Core/NotificationStackManager.cpp
+    Include/Matcha/Foundation/NotificationStackManager.h
+    Source/UiNodes/Core/ContextMenuComposer.cpp
+    Include/Matcha/Foundation/ContextMenuComposer.h
+    Source/UiNodes/Core/ContextualHelpService.cpp
+    Include/Matcha/Foundation/ContextualHelpService.h
+    Source/UiNodes/Core/DragDropVisual.cpp
+    Include/Matcha/Foundation/DragDropVisual.h
+    Source/UiNodes/Core/ChoreographyEngine.cpp
+    Include/Matcha/Foundation/ChoreographyEngine.h
+    Source/UiNodes/Core/SharedElementTransition.cpp
+    Include/Matcha/Foundation/SharedElementTransition.h
+    Source/UiNodes/Core/GestureMotionTracker.cpp
+    Include/Matcha/Foundation/GestureMotionTracker.h
+    Source/UiNodes/Core/AnimationBlendLayer.cpp
+    Include/Matcha/Foundation/AnimationBlendLayer.h
+    Source/UiNodes/Core/DtcgTokenModel.cpp
+    Include/Matcha/Foundation/DtcgTokenModel.h
+    Source/UiNodes/Core/VariantNameRegistry.cpp
+    Include/Matcha/Foundation/VariantNameRegistry.h
+    Include/Matcha/Foundation/WidgetFsm.h
+    Source/UiNodes/Core/KeyboardContract.cpp
+    Include/Matcha/Foundation/KeyboardContract.h
+    Source/UiNodes/Core/DestructiveActionPolicy.cpp
+    Include/Matcha/Foundation/DestructiveActionPolicy.h
+    Source/UiNodes/Core/EdgeCaseGuard.cpp
+    Include/Matcha/Foundation/EdgeCaseGuard.h
+    Source/UiNodes/Core/FeedbackPolicy.cpp
+    Include/Matcha/Foundation/FeedbackPolicy.h
     Include/Matcha/Foundation/FixedString.h
     Source/UiNodes/Document/DocumentArea.cpp
     Include/Matcha/UiNodes/Document/DocumentArea.h
@@ -518,6 +557,24 @@ add_executable(MatchaUnitTests
     Tests/Unit/Foundation/ContentStateModelTest.cpp
     Tests/Unit/Foundation/BreakpointObserverTest.cpp
     Tests/Unit/Foundation/CompositionTemplateTest.cpp
+    Tests/Unit/Foundation/InteractionTimingRegistryTest.cpp
+    Tests/Unit/Foundation/ErrorBoundaryTest.cpp
+    Tests/Unit/Foundation/FormValidatorTest.cpp
+    Tests/Unit/Foundation/ScrollPhysicsTest.cpp
+    Tests/Unit/Foundation/ShortcutManagerTest.cpp
+    Tests/Unit/Foundation/NotificationStackManagerTest.cpp
+    Tests/Unit/Foundation/ContextMenuComposerTest.cpp
+    Tests/Unit/Foundation/ContextualHelpServiceTest.cpp
+    Tests/Unit/Foundation/DragDropVisualTest.cpp
+    Tests/Unit/Foundation/ChoreographyEngineTest.cpp
+    Tests/Unit/Foundation/SharedElementTransitionTest.cpp
+    Tests/Unit/Foundation/GestureMotionTrackerTest.cpp
+    Tests/Unit/Foundation/AnimationBlendLayerTest.cpp
+    Tests/Unit/Foundation/DtcgTokenModelTest.cpp
+    Tests/Unit/Foundation/VariantNameRegistryTest.cpp
+    Tests/Unit/Foundation/WidgetFsmTest.cpp
+    Tests/Unit/Foundation/KeyboardContractTest.cpp
+    Tests/Unit/Foundation/PhaseFTest.cpp
     Tests/Unit/Core/CommandNodeTest.cpp
     Tests/Unit/Core/DesignTokenTest.cpp
     Tests/Unit/Core/TokenEnumsTest.cpp
