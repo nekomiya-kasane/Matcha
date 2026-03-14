@@ -1,0 +1,401 @@
+<style>
+/* =======================================================================
+ * Selection Model — §7.1 Interactive Demo
+ *
+ * Showcases the 4 selection modes with modifier key semantics:
+ *   - Single: click replaces
+ *   - Multi: Ctrl+Click toggles, Shift+Click range
+ *   - Range: Shift+Click extends from anchor
+ *   - None: disabled
+ * ======================================================================= */
+
+.sel-demo { max-width: 680px; margin: 0 auto; }
+.sel-demo h2 {
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  color: var(--color-text-primary);
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.sel-demo h3 {
+  font-size: 11pt;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 24px 0 8px;
+}
+
+/* -- Mode selector ------------------------------------------------------ */
+.mode-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+.mode-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-body-size);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-btn:hover { background: var(--color-fill-hover); }
+.mode-btn.active {
+  background: var(--color-primary);
+  color: var(--color-on-accent);
+  border-color: var(--color-primary);
+}
+
+/* -- Item list ---------------------------------------------------------- */
+.item-list {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-large);
+  overflow: hidden;
+  user-select: none;
+}
+.item-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  gap: 10px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  font-size: var(--font-body-size);
+  color: var(--color-text-primary);
+  transition: background 0.1s;
+  position: relative;
+}
+.item-row:last-child { border-bottom: none; }
+.item-row:hover { background: var(--color-fill-hover); }
+.item-row.selected {
+  background: var(--color-primary-bg);
+  color: var(--color-primary-text);
+}
+.item-row.focused {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  z-index: 1;
+}
+.item-row.anchor::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-primary);
+  border-radius: 0 2px 2px 0;
+}
+.item-row__idx {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  min-width: 20px;
+  text-align: right;
+}
+.item-row__icon {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-small);
+  flex-shrink: 0;
+}
+.item-row__name { flex: 1; }
+
+/* -- Status panel ------------------------------------------------------- */
+.status-panel {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-default);
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+.status-panel .label {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+/* -- Legend -------------------------------------------------------------- */
+.legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: var(--font-caption-size);
+  color: var(--color-text-secondary);
+}
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* -- Keyboard help ------------------------------------------------------ */
+.kbd-help {
+  margin-top: 16px;
+  font-size: var(--font-caption-size);
+  color: var(--color-text-secondary);
+}
+.kbd-help table { width: 100%; border-collapse: collapse; }
+.kbd-help th {
+  text-align: left;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+}
+.kbd-help td { padding: 4px 8px; border-bottom: 1px solid var(--color-border-subtle); }
+.kbd-help kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 3px;
+  background: var(--color-surface-container);
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+}
+</style>
+
+<div class="sel-demo">
+  <h2>Selection Model — §7.1</h2>
+
+  <h3>Mode</h3>
+  <div class="mode-bar" id="modeBar">
+    <button class="mode-btn active" data-mode="single">Single</button>
+    <button class="mode-btn" data-mode="multi">Multi</button>
+    <button class="mode-btn" data-mode="range">Range</button>
+    <button class="mode-btn" data-mode="none">None (disabled)</button>
+  </div>
+
+  <h3>Items</h3>
+  <div class="item-list" id="itemList" tabindex="0"></div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--color-primary-bg);border:1px solid var(--color-primary-border)"></div>
+      Selected
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="outline:2px solid var(--color-primary);outline-offset:-1px;background:transparent"></div>
+      Focus
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="border-left:3px solid var(--color-primary);background:transparent"></div>
+      Anchor
+    </div>
+  </div>
+
+  <div class="status-panel" id="statusPanel">
+    <span class="label">mode:</span> single &nbsp;
+    <span class="label">selected:</span> [] &nbsp;
+    <span class="label">anchor:</span> -1 &nbsp;
+    <span class="label">focus:</span> -1
+  </div>
+
+  <div class="kbd-help">
+    <h3>Keyboard & Mouse</h3>
+    <table>
+      <tr><th>Gesture</th><th>Effect</th></tr>
+      <tr><td><kbd>Click</kbd></td><td>Clear + select clicked</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>Click</kbd></td><td>Toggle item (Multi/Range)</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>Click</kbd></td><td>Range select [anchor, clicked]</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Select all (Multi/Range)</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Clear selection</td></tr>
+      <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Move focus + select</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>↑</kbd>/<kbd>↓</kbd></td><td>Extend range</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// SelectionModel JS implementation (mirrors C++ fw::SelectionModel)
+// =====================================================================
+class SelectionModel {
+  constructor(mode = 'single') {
+    this.mode = mode;
+    this.items = [];
+    this.selected = new Set();
+    this.anchor = -1;
+    this.focus = -1;
+    this._onChange = null;
+  }
+
+  setItems(items) {
+    this.items = items;
+    this.selected.clear();
+    this.anchor = -1;
+    this.focus = -1;
+    this._notify();
+  }
+
+  setMode(mode) {
+    this.mode = mode;
+    if (mode === 'none') {
+      this.selected.clear();
+      this.anchor = -1;
+      this.focus = -1;
+    } else if (mode === 'single' && this.selected.size > 1) {
+      const keep = this.focus >= 0 ? this.focus : [...this.selected].pop();
+      this.selected.clear();
+      this.selected.add(keep);
+      this.anchor = keep;
+      this.focus = keep;
+    }
+    this._notify();
+  }
+
+  click(index, ctrl = false, shift = false) {
+    if (this.mode === 'none') return;
+    if (index < 0 || index >= this.items.length) return;
+
+    if (this.mode === 'single') {
+      this.selected.clear();
+      this.selected.add(index);
+      this.anchor = index;
+      this.focus = index;
+    } else {
+      if (shift && this.anchor >= 0) {
+        this._setRange(this.anchor, index);
+        this.focus = index;
+      } else if (ctrl) {
+        if (this.selected.has(index)) this.selected.delete(index);
+        else this.selected.add(index);
+        this.anchor = index;
+        this.focus = index;
+      } else {
+        this.selected.clear();
+        this.selected.add(index);
+        this.anchor = index;
+        this.focus = index;
+      }
+    }
+    this._notify();
+  }
+
+  selectAll() {
+    if (this.mode === 'none' || this.mode === 'single') return;
+    for (let i = 0; i < this.items.length; i++) this.selected.add(i);
+    this.anchor = 0;
+    this.focus = this.items.length - 1;
+    this._notify();
+  }
+
+  clear() {
+    this.selected.clear();
+    this.anchor = -1;
+    this.focus = -1;
+    this._notify();
+  }
+
+  moveFocus(delta, extend = false) {
+    if (this.mode === 'none') return;
+    let nf = Math.max(0, Math.min(this.focus + delta, this.items.length - 1));
+    if (nf === this.focus) return;
+    if (extend && this.mode !== 'single' && this.anchor >= 0) {
+      this._setRange(this.anchor, nf);
+      this.focus = nf;
+    } else {
+      this.selected.clear();
+      this.selected.add(nf);
+      this.anchor = nf;
+      this.focus = nf;
+    }
+    this._notify();
+  }
+
+  _setRange(from, to) {
+    this.selected.clear();
+    const lo = Math.min(from, to), hi = Math.max(from, to);
+    for (let i = lo; i <= hi; i++) this.selected.add(i);
+  }
+
+  _notify() { if (this._onChange) this._onChange(this); }
+  onChange(cb) { this._onChange = cb; }
+  sortedSelection() { return [...this.selected].sort((a, b) => a - b); }
+}
+
+// =====================================================================
+// Demo data
+// =====================================================================
+const ITEMS = [
+  { name: 'Assembly_v3.catpart', color: '#5b6abf' },
+  { name: 'Bracket_Left.step', color: '#7dd87d' },
+  { name: 'Housing_Main.iges', color: '#e8a840' },
+  { name: 'Shaft_Drive.catpart', color: '#8b5fbf' },
+  { name: 'Bearing_Inner.step', color: '#b8e4f9' },
+  { name: 'Gear_Helical.catpart', color: '#ffadad' },
+  { name: 'Plate_Base.step', color: '#bdb2ff' },
+  { name: 'Cover_Top.iges', color: '#caffbf' },
+  { name: 'Bolt_M8x30.step', color: '#ffc6ff' },
+  { name: 'Nut_M8.catpart', color: '#fdffb6' },
+  { name: 'Washer_Flat.step', color: '#9bf6ff' },
+  { name: 'Spring_Coil.catpart', color: '#dcc8f0' },
+];
+
+// =====================================================================
+// Initialize
+// =====================================================================
+const model = new SelectionModel('single');
+model.setItems(ITEMS);
+
+const listEl = document.getElementById('itemList');
+const statusEl = document.getElementById('statusPanel');
+
+function render() {
+  listEl.innerHTML = '';
+  ITEMS.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    if (model.selected.has(i)) row.classList.add('selected');
+    if (model.focus === i) row.classList.add('focused');
+    if (model.anchor === i) row.classList.add('anchor');
+
+    row.innerHTML = `
+      <span class="item-row__idx">${i}</span>
+      <div class="item-row__icon" style="background:${item.color}"></div>
+      <span class="item-row__name">${item.name}</span>
+    `;
+    row.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      model.click(i, e.ctrlKey || e.metaKey, e.shiftKey);
+      listEl.focus();
+    });
+    listEl.appendChild(row);
+  });
+
+  const sel = model.sortedSelection();
+  statusEl.innerHTML = `
+    <span class="label">mode:</span> ${model.mode} &nbsp;
+    <span class="label">selected:</span> [${sel.join(', ')}] &nbsp;
+    <span class="label">count:</span> ${sel.length} &nbsp;
+    <span class="label">anchor:</span> ${model.anchor} &nbsp;
+    <span class="label">focus:</span> ${model.focus}
+  `;
+}
+
+model.onChange(() => render());
+
+// Mode buttons
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    model.setMode(btn.dataset.mode);
+  });
+});
+
+// Keyboard
+listEl.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); model.moveFocus(1, e.shiftKey); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); model.moveFocus(-1, e.shiftKey); }
+  else if (e.key === 'Escape') { model.clear(); }
+  else if ((e.ctrlKey || e.metaKey) && e.key === 'a') { e.preventDefault(); model.selectAll(); }
+});
+
+render();
+</script>

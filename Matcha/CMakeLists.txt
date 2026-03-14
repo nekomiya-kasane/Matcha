@@ -360,6 +360,18 @@ add_library(Matcha SHARED
     Include/Matcha/UiNodes/Document/Viewport.h
     Source/UiNodes/Core/UiNodeQuery.cpp
     Include/Matcha/UiNodes/Core/UiNodeQuery.h
+    Source/UiNodes/Core/SelectionModel.cpp
+    Include/Matcha/UiNodes/Core/SelectionModel.h
+    Source/UiNodes/Core/PopupPositioner.cpp
+    Include/Matcha/UiNodes/Core/PopupPositioner.h
+    Source/UiNodes/Core/LayoutEngine.cpp
+    Include/Matcha/Foundation/LayoutEngine.h
+    Source/UiNodes/Core/ContentStateModel.cpp
+    Include/Matcha/Foundation/ContentStateModel.h
+    Source/UiNodes/Core/BreakpointObserver.cpp
+    Include/Matcha/Foundation/BreakpointObserver.h
+    Source/UiNodes/Core/CompositionTemplate.cpp
+    Include/Matcha/Foundation/CompositionTemplate.h
     Include/Matcha/Foundation/FixedString.h
     Source/UiNodes/Document/DocumentArea.cpp
     Include/Matcha/UiNodes/Document/DocumentArea.h
@@ -501,9 +513,16 @@ add_executable(MatchaUnitTests
     Tests/Unit/Foundation/StrongIdTest.cpp
     Tests/Unit/Foundation/ErrorCodeTest.cpp
     Tests/Unit/Foundation/ObserverPtrTest.cpp
+    Tests/Unit/Foundation/StateMachineTest.cpp
+    Tests/Unit/Foundation/LayoutEngineTest.cpp
+    Tests/Unit/Foundation/ContentStateModelTest.cpp
+    Tests/Unit/Foundation/BreakpointObserverTest.cpp
+    Tests/Unit/Foundation/CompositionTemplateTest.cpp
     Tests/Unit/Core/CommandNodeTest.cpp
     Tests/Unit/Core/DesignTokenTest.cpp
     Tests/Unit/Core/TokenEnumsTest.cpp
+    Tests/Unit/Core/SelectionModelTest.cpp
+    Tests/Unit/Core/PopupPositionerTest.cpp
     Tests/Unit/Core/PhaseBTest.cpp
     Tests/Unit/Core/PhaseCTest.cpp
     Tests/Unit/Core/PhaseDTest.cpp

@@ -1,0 +1,596 @@
+<style>
+/* =======================================================================
+ * Interaction Timing Tokens — §8.7 Interactive Demo
+ *
+ * Showcases all 15 timing tokens with live interactive demonstrations:
+ *   - Token table with values and descriptions
+ *   - Hover delay visualization
+ *   - Tooltip delay demo
+ *   - Debounce search demo
+ *   - Double-click detection demo
+ *   - Toast auto-dismiss demo
+ *   - Menu open/close delay demo
+ * ======================================================================= */
+
+.timing-demo { max-width: 720px; margin: 0 auto; }
+.timing-demo h2 {
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  color: var(--color-text-primary);
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.timing-demo h3 {
+  font-size: 11pt;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 24px 0 8px;
+}
+
+/* -- Token Table -------------------------------------------------------- */
+.token-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-body-size);
+  margin-bottom: 24px;
+}
+.token-table th {
+  text-align: left;
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: var(--font-caption-size);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid var(--color-border-default);
+}
+.token-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+}
+.token-table td:nth-child(1) {
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  color: var(--color-primary-text);
+  white-space: nowrap;
+}
+.token-table td:nth-child(2) {
+  font-family: var(--font-family-mono);
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+  min-width: 70px;
+}
+.token-table tr:hover { background: var(--color-fill-hover); }
+
+/* -- Demo cards --------------------------------------------------------- */
+.demo-card {
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-large);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.demo-card__title {
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+
+/* -- Hover delay demo --------------------------------------------------- */
+.hover-zone {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.hover-target {
+  width: 80px;
+  height: 48px;
+  border-radius: var(--radius-default);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-family: var(--font-family-mono);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: none;
+  position: relative;
+}
+.hover-target.active {
+  background: var(--color-primary);
+  color: var(--color-on-accent);
+  border-color: var(--color-primary);
+}
+.hover-target .bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--color-primary);
+  border-radius: 0 0 var(--radius-default) var(--radius-default);
+  width: 0;
+}
+.hover-target.filling .bar {
+  width: 100%;
+}
+
+/* -- Tooltip demo ------------------------------------------------------- */
+.tooltip-area {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.tooltip-trigger {
+  padding: 8px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  cursor: help;
+  font-size: var(--font-body-size);
+  color: var(--color-text-primary);
+  position: relative;
+}
+.tooltip-popup {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  padding: 6px 10px;
+  border-radius: var(--radius-default);
+  font-size: var(--font-caption-size);
+  box-shadow: var(--shadow-medium);
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+.tooltip-popup.visible { display: block; }
+.tooltip-status {
+  font-size: var(--font-caption-size);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-mono);
+}
+
+/* -- Debounce search demo ----------------------------------------------- */
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-body-size);
+  font-family: var(--font-family);
+  outline: none;
+  transition: border-color var(--duration-quick) var(--easing-out-cubic);
+}
+.search-input:focus { border-color: var(--color-primary); }
+.search-log {
+  margin-top: 8px;
+  font-size: var(--font-caption-size);
+  font-family: var(--font-family-mono);
+  color: var(--color-text-secondary);
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+/* -- Double-click demo -------------------------------------------------- */
+.click-zone {
+  width: 100%;
+  height: 64px;
+  border-radius: var(--radius-default);
+  border: 2px dashed var(--color-border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-body-size);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--duration-quick) var(--easing-out-cubic),
+              border-color var(--duration-quick) var(--easing-out-cubic);
+}
+.click-zone.single { background: var(--color-primary-bg); border-color: var(--color-primary-border); }
+.click-zone.double { background: var(--color-success-bg); border-color: var(--color-success-border); }
+
+/* -- Toast demo --------------------------------------------------------- */
+.toast-area {
+  position: relative;
+  min-height: 80px;
+}
+.toast-trigger {
+  padding: 6px 14px;
+  background: var(--color-primary);
+  color: var(--color-on-accent);
+  border: none;
+  border-radius: var(--radius-default);
+  font-size: var(--font-body-size);
+  cursor: pointer;
+}
+.toast-trigger:hover { background: var(--color-primary-hover); }
+.toast {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  padding: 10px 16px;
+  box-shadow: var(--shadow-high);
+  font-size: var(--font-body-size);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: toast-in 200ms var(--easing-out-cubic) both;
+}
+.toast.exiting {
+  animation: toast-out 150ms var(--easing-out-cubic) both;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(16px); }
+}
+.toast__timer {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* -- Menu delay demo ---------------------------------------------------- */
+.menu-demo {
+  display: flex;
+  gap: 0;
+  position: relative;
+}
+.menu-item {
+  padding: 8px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  font-size: var(--font-body-size);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+.menu-item:first-child { border-radius: var(--radius-default) 0 0 var(--radius-default); }
+.menu-item:last-child  { border-radius: 0 var(--radius-default) var(--radius-default) 0; border-left: none; }
+.menu-item:hover { background: var(--color-fill-hover); }
+.submenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  box-shadow: var(--shadow-high);
+  min-width: 140px;
+  padding: 4px 0;
+  z-index: 10;
+}
+.submenu.visible { display: block; }
+.submenu-item {
+  padding: 6px 12px;
+  font-size: var(--font-body-size);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+.submenu-item:hover { background: var(--color-fill-hover); }
+.menu-status {
+  margin-top: 8px;
+  font-size: var(--font-caption-size);
+  font-family: var(--font-family-mono);
+  color: var(--color-text-secondary);
+}
+</style>
+
+<div class="timing-demo">
+  <h2>Interaction Timing Tokens — §8.7</h2>
+
+  <table class="token-table">
+    <thead>
+      <tr><th>Token</th><th>Value</th><th>Use Case</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>hoverDelay</td><td>200ms</td><td>Delay before hover state activates</td></tr>
+      <tr><td>tooltipDelay</td><td>500ms</td><td>Delay before tooltip appears</td></tr>
+      <tr><td>tooltipDismissDelay</td><td>100ms</td><td>Grace period leaving tooltip trigger</td></tr>
+      <tr><td>longPressThreshold</td><td>500ms</td><td>Long-press recognition (touch/pen)</td></tr>
+      <tr><td>doubleClickWindow</td><td>400ms</td><td>Max interval for double-click</td></tr>
+      <tr><td>debounceSearch</td><td>300ms</td><td>Search-as-you-type debounce</td></tr>
+      <tr><td>debounceResize</td><td>100ms</td><td>Window resize layout debounce</td></tr>
+      <tr><td>autoSaveInterval</td><td>30000ms</td><td>Auto-save interval</td></tr>
+      <tr><td>idleTimeout</td><td>60000ms</td><td>UI idle mode threshold</td></tr>
+      <tr><td>repeatKeyInitial</td><td>500ms</td><td>Delay before key repeat starts</td></tr>
+      <tr><td>repeatKeyInterval</td><td>33ms</td><td>Interval between key repeats</td></tr>
+      <tr><td>dragInitDelay</td><td>150ms</td><td>Hold before drag initiates</td></tr>
+      <tr><td>toastDismissTimeout</td><td>5000ms</td><td>Auto-dismiss for Toast</td></tr>
+      <tr><td>menuOpenDelay</td><td>200ms</td><td>Submenu open on hover</td></tr>
+      <tr><td>menuCloseDelay</td><td>300ms</td><td>Grace before submenu closes</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Hover Delay Demo -->
+  <h3>Live Demo: Hover Delay (200ms)</h3>
+  <div class="demo-card">
+    <div class="demo-card__title">Hover over each box — highlight activates after 200ms delay</div>
+    <div class="hover-zone" id="hoverZone">
+      <div class="hover-target" data-delay="200">200ms<div class="bar"></div></div>
+      <div class="hover-target" data-delay="0">0ms<div class="bar"></div></div>
+      <div class="hover-target" data-delay="500">500ms<div class="bar"></div></div>
+      <div class="hover-target" data-delay="100">100ms<div class="bar"></div></div>
+    </div>
+  </div>
+
+  <!-- Tooltip Delay Demo -->
+  <h3>Live Demo: Tooltip Delay (500ms)</h3>
+  <div class="demo-card">
+    <div class="demo-card__title">Hover to see tooltip — appears after 500ms, dismisses 100ms after leaving</div>
+    <div class="tooltip-area">
+      <div class="tooltip-trigger" id="tooltipTrigger">
+        Hover me for tooltip
+        <div class="tooltip-popup" id="tooltipPopup">Save your file (Ctrl+S)</div>
+      </div>
+      <span class="tooltip-status" id="tooltipStatus">idle</span>
+    </div>
+  </div>
+
+  <!-- Debounce Search Demo -->
+  <h3>Live Demo: Debounce Search (300ms)</h3>
+  <div class="demo-card">
+    <div class="demo-card__title">Type to search — query fires 300ms after last keystroke</div>
+    <input class="search-input" id="searchInput" type="text" placeholder="Type to search...">
+    <div class="search-log" id="searchLog"></div>
+  </div>
+
+  <!-- Double-Click Demo -->
+  <h3>Live Demo: Double-Click Window (400ms)</h3>
+  <div class="demo-card">
+    <div class="demo-card__title">Click once = blue, double-click within 400ms = green</div>
+    <div class="click-zone" id="clickZone">Click or double-click here</div>
+  </div>
+
+  <!-- Toast Auto-Dismiss Demo -->
+  <h3>Live Demo: Toast Dismiss Timeout (5000ms)</h3>
+  <div class="demo-card">
+    <div class="demo-card__title">Click to spawn a toast — auto-dismisses after 5s with countdown</div>
+    <div class="toast-area" id="toastArea">
+      <button class="toast-trigger" id="toastBtn">Show Toast</button>
+    </div>
+  </div>
+
+  <!-- Menu Open/Close Delay Demo -->
+  <h3>Live Demo: Menu Open (200ms) / Close (300ms) Delay</h3>
+  <div class="demo-card">
+    <div class="demo-card__title">Hover "File" — submenu opens after 200ms, closes 300ms after mouse leaves</div>
+    <div class="menu-demo">
+      <div class="menu-item" id="menuFile">
+        File ▾
+        <div class="submenu" id="fileSubmenu">
+          <div class="submenu-item">New</div>
+          <div class="submenu-item">Open...</div>
+          <div class="submenu-item">Save</div>
+          <div class="submenu-item">Export</div>
+        </div>
+      </div>
+      <div class="menu-item">Edit</div>
+    </div>
+    <div class="menu-status" id="menuStatus">idle</div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// Timing token constants (matches C++ kDefaultTimingMs)
+// =====================================================================
+const TIMING = {
+  hoverDelay: 200,
+  tooltipDelay: 500,
+  tooltipDismissDelay: 100,
+  doubleClickWindow: 400,
+  debounceSearch: 300,
+  toastDismissTimeout: 5000,
+  menuOpenDelay: 200,
+  menuCloseDelay: 300,
+};
+
+// =====================================================================
+// Hover Delay Demo
+// =====================================================================
+document.querySelectorAll('.hover-target').forEach(el => {
+  let timer = null;
+  const delay = parseInt(el.dataset.delay);
+  const bar = el.querySelector('.bar');
+  el.addEventListener('mouseenter', () => {
+    bar.style.transition = `width ${delay}ms linear`;
+    el.classList.add('filling');
+    bar.style.width = '100%';
+    timer = setTimeout(() => el.classList.add('active'), delay);
+  });
+  el.addEventListener('mouseleave', () => {
+    clearTimeout(timer);
+    el.classList.remove('active', 'filling');
+    bar.style.transition = 'none';
+    bar.style.width = '0';
+  });
+});
+
+// =====================================================================
+// Tooltip Delay Demo
+// =====================================================================
+{
+  const trigger = document.getElementById('tooltipTrigger');
+  const popup = document.getElementById('tooltipPopup');
+  const status = document.getElementById('tooltipStatus');
+  let showTimer = null, hideTimer = null;
+
+  trigger.addEventListener('mouseenter', () => {
+    clearTimeout(hideTimer);
+    status.textContent = `waiting ${TIMING.tooltipDelay}ms...`;
+    showTimer = setTimeout(() => {
+      popup.classList.add('visible');
+      status.textContent = 'visible';
+    }, TIMING.tooltipDelay);
+  });
+
+  trigger.addEventListener('mouseleave', () => {
+    clearTimeout(showTimer);
+    if (popup.classList.contains('visible')) {
+      status.textContent = `grace ${TIMING.tooltipDismissDelay}ms...`;
+      hideTimer = setTimeout(() => {
+        popup.classList.remove('visible');
+        status.textContent = 'idle';
+      }, TIMING.tooltipDismissDelay);
+    } else {
+      status.textContent = 'cancelled';
+      setTimeout(() => { status.textContent = 'idle'; }, 500);
+    }
+  });
+}
+
+// =====================================================================
+// Debounce Search Demo
+// =====================================================================
+{
+  const input = document.getElementById('searchInput');
+  const log = document.getElementById('searchLog');
+  let timer = null;
+  let queryCount = 0;
+
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      queryCount++;
+      const line = document.createElement('div');
+      line.textContent = `[${new Date().toLocaleTimeString()}] #${queryCount} query: "${input.value}"`;
+      log.prepend(line);
+      if (log.children.length > 8) log.lastChild.remove();
+    }, TIMING.debounceSearch);
+  });
+}
+
+// =====================================================================
+// Double-Click Demo
+// =====================================================================
+{
+  const zone = document.getElementById('clickZone');
+  let clickTimer = null;
+  let clickCount = 0;
+
+  zone.addEventListener('click', () => {
+    clickCount++;
+    if (clickCount === 1) {
+      zone.className = 'click-zone single';
+      zone.textContent = 'Single click detected — waiting...';
+      clickTimer = setTimeout(() => {
+        zone.textContent = 'Single click confirmed';
+        clickCount = 0;
+      }, TIMING.doubleClickWindow);
+    } else if (clickCount === 2) {
+      clearTimeout(clickTimer);
+      zone.className = 'click-zone double';
+      zone.textContent = 'Double-click detected!';
+      clickCount = 0;
+      setTimeout(() => {
+        zone.className = 'click-zone';
+        zone.textContent = 'Click or double-click here';
+      }, 1500);
+    }
+  });
+}
+
+// =====================================================================
+// Toast Auto-Dismiss Demo
+// =====================================================================
+{
+  const area = document.getElementById('toastArea');
+  const btn = document.getElementById('toastBtn');
+  let toastEl = null;
+  let countdown = null;
+
+  btn.addEventListener('click', () => {
+    if (toastEl) { toastEl.remove(); clearInterval(countdown); }
+
+    toastEl = document.createElement('div');
+    toastEl.className = 'toast';
+    toastEl.innerHTML = '<span>File saved successfully.</span><span class="toast__timer"></span>';
+    area.appendChild(toastEl);
+
+    const timerEl = toastEl.querySelector('.toast__timer');
+    let remaining = TIMING.toastDismissTimeout;
+    timerEl.textContent = (remaining / 1000).toFixed(1) + 's';
+
+    countdown = setInterval(() => {
+      remaining -= 100;
+      timerEl.textContent = Math.max(0, remaining / 1000).toFixed(1) + 's';
+      if (remaining <= 0) {
+        clearInterval(countdown);
+        toastEl.classList.add('exiting');
+        setTimeout(() => { if (toastEl) toastEl.remove(); toastEl = null; }, 150);
+      }
+    }, 100);
+  });
+}
+
+// =====================================================================
+// Menu Open/Close Delay Demo
+// =====================================================================
+{
+  const menuFile = document.getElementById('menuFile');
+  const submenu = document.getElementById('fileSubmenu');
+  const status = document.getElementById('menuStatus');
+  let openTimer = null, closeTimer = null;
+
+  menuFile.addEventListener('mouseenter', () => {
+    clearTimeout(closeTimer);
+    status.textContent = `opening in ${TIMING.menuOpenDelay}ms...`;
+    openTimer = setTimeout(() => {
+      submenu.classList.add('visible');
+      status.textContent = 'open';
+    }, TIMING.menuOpenDelay);
+  });
+
+  menuFile.addEventListener('mouseleave', () => {
+    clearTimeout(openTimer);
+    if (submenu.classList.contains('visible')) {
+      status.textContent = `closing in ${TIMING.menuCloseDelay}ms...`;
+      closeTimer = setTimeout(() => {
+        submenu.classList.remove('visible');
+        status.textContent = 'closed';
+      }, TIMING.menuCloseDelay);
+    } else {
+      status.textContent = 'cancelled';
+    }
+  });
+
+  // Keep submenu open when hovering over it
+  submenu.addEventListener('mouseenter', () => {
+    clearTimeout(closeTimer);
+    status.textContent = 'open (in submenu)';
+  });
+  submenu.addEventListener('mouseleave', () => {
+    status.textContent = `closing in ${TIMING.menuCloseDelay}ms...`;
+    closeTimer = setTimeout(() => {
+      submenu.classList.remove('visible');
+      status.textContent = 'closed';
+    }, TIMING.menuCloseDelay);
+  });
+}
+</script>

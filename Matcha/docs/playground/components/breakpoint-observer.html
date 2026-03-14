@@ -1,0 +1,210 @@
+<style>
+.bp-demo { max-width: 720px; margin: 0 auto; }
+.bp-demo h2 {
+  font-size: var(--font-heading-size); font-weight: var(--font-heading-weight);
+  color: var(--color-text-primary); margin: 0 0 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--color-border-subtle);
+}
+.bp-demo h3 {
+  font-size: 11pt; font-weight: 600;
+  color: var(--color-text-primary); margin: 16px 0 6px;
+}
+
+.bp-slider-row {
+  display: flex; gap: 12px; align-items: center; margin: 12px 0;
+  font-size: var(--font-body-size); color: var(--color-text-primary);
+}
+.bp-slider-row label { font-weight: 600; min-width: 120px; text-align: right; }
+.bp-slider-row input[type=range] { flex: 1; max-width: 400px; }
+.bp-slider-row .bp-val {
+  font-family: var(--font-family-mono); font-size: 12px;
+  min-width: 50px;
+}
+
+.bp-shell {
+  border: 2px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  background: var(--color-surface-default);
+  overflow: hidden; margin: 12px 0;
+  position: relative;
+}
+.bp-shell-inner {
+  display: flex; flex-direction: column; min-height: 260px;
+}
+
+.bp-titlebar {
+  height: 28px; background: #2d2640; display: flex; align-items: center;
+  padding: 0 10px; font-size: 11px; color: #fffffc; font-weight: 700;
+}
+.bp-menubar {
+  height: 26px; background: #3b2d5e; display: flex; align-items: center;
+  padding: 0 8px; gap: 12px; font-size: 11px; color: #d8cfe8;
+  transition: all 0.3s ease;
+}
+.bp-menubar .bp-overflow { color: #e8a840; font-weight: 700; }
+.bp-actionbar {
+  height: 30px; background: var(--color-surface-container);
+  display: flex; align-items: center; padding: 0 8px; gap: 6px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  transition: all 0.3s ease;
+}
+.bp-action-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 3px;
+  background: #5b6abf; color: #fffffc; font-size: 10px; font-weight: 600;
+}
+.bp-action-btn .bp-label { transition: all 0.2s ease; }
+.bp-action-btn.icon-only .bp-label { display: none; }
+
+.bp-body { display: flex; flex: 1; }
+.bp-viewport {
+  flex: 1; background: var(--color-surface-default);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--color-text-secondary);
+  min-height: 120px;
+}
+.bp-property-panel {
+  width: 200px; background: var(--color-surface-container);
+  border-left: 1px solid var(--color-border-subtle);
+  padding: 8px; font-size: 11px; color: var(--color-text-primary);
+  transition: all 0.3s ease;
+}
+.bp-property-panel.collapsed { width: 0; padding: 0; overflow: hidden; border: none; }
+
+.bp-statusbar {
+  height: 22px; background: #3b2d5e; display: flex; align-items: center;
+  padding: 0 8px; font-size: 10px; color: #d8cfe8;
+  transition: all 0.3s ease;
+}
+.bp-statusbar .bp-center { flex: 1; text-align: center; transition: all 0.2s ease; }
+
+.bp-rule-table {
+  width: 100%; border-collapse: collapse; font-size: 11px; margin: 12px 0;
+}
+.bp-rule-table th, .bp-rule-table td {
+  padding: 4px 8px; border: 1px solid var(--color-border-subtle);
+  text-align: left;
+}
+.bp-rule-table th {
+  background: var(--color-surface-container);
+  font-weight: 700; color: var(--color-text-primary);
+}
+.bp-rule-table .active { background: #ffadad; }
+.bp-rule-table .ok { background: #eaffd8; }
+
+.bp-status {
+  margin-top: 10px; padding: 10px 12px;
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-default);
+  font-family: var(--font-family-mono); font-size: 11px;
+  color: var(--color-text-secondary); line-height: 1.5;
+}
+</style>
+
+<div class="bp-demo">
+  <h2>Breakpoint Observer — §6.3</h2>
+
+  <div class="bp-slider-row">
+    <label>Window width:</label>
+    <input type="range" id="bpWidth" min="400" max="1400" value="1200">
+    <span class="bp-val" id="bpWidthVal">1200px</span>
+  </div>
+
+  <div class="bp-shell" id="bpShell">
+    <div class="bp-shell-inner">
+      <div class="bp-titlebar">NyanCAD — Responsive Demo</div>
+      <div class="bp-menubar" id="bpMenubar">
+        <span>File</span><span>Edit</span><span>View</span>
+        <span>Mesh</span><span>Analysis</span>
+        <span class="bp-overflow" id="bpMenuOverflow" style="display:none">⋯</span>
+      </div>
+      <div class="bp-actionbar" id="bpActionbar">
+        <div class="bp-action-btn" id="ab1"><span>&#9654;</span><span class="bp-label">Run</span></div>
+        <div class="bp-action-btn" id="ab2"><span>&#128190;</span><span class="bp-label">Save</span></div>
+        <div class="bp-action-btn" id="ab3"><span>&#8634;</span><span class="bp-label">Undo</span></div>
+      </div>
+      <div class="bp-body">
+        <div class="bp-viewport">Viewport</div>
+        <div class="bp-property-panel" id="bpPropPanel">
+          <div style="font-weight:700;margin-bottom:6px">Properties</div>
+          <div>Width: 100</div>
+          <div>Height: 200</div>
+          <div>Material: Steel</div>
+        </div>
+      </div>
+      <div class="bp-statusbar" id="bpStatusbar">
+        <span>Ready</span>
+        <span class="bp-center" id="bpStatusCenter">X: 0  Y: 0  Z: 0</span>
+        <span>Ln 1</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Collapse Rule Table (§6.3.1)</h3>
+  <table class="bp-rule-table" id="bpRuleTable">
+    <tr><th>Priority</th><th>Element</th><th>Threshold</th><th>Action</th><th>Status</th></tr>
+  </table>
+
+  <div class="bp-status" id="bpStatus"></div>
+</div>
+
+<script>
+const RULES = [
+  { priority: 1, elementId: 'propertyPanel', threshold: 1000, action: 'AutoHide' },
+  { priority: 2, elementId: 'actionBarLabels', threshold: 600, action: 'IconOnly' },
+  { priority: 3, elementId: 'statusBarCenter', threshold: 800, action: 'HideSection' },
+  { priority: 4, elementId: 'menuBarOverflow', threshold: 500, action: 'OverflowMenu' },
+];
+
+function evaluate(width) {
+  return RULES.map(r => ({
+    ...r,
+    collapsed: width < r.threshold,
+  }));
+}
+
+function update() {
+  const width = parseInt(document.getElementById('bpWidth').value);
+  document.getElementById('bpWidthVal').textContent = width + 'px';
+  document.getElementById('bpShell').style.maxWidth = width + 'px';
+
+  const states = evaluate(width);
+
+  // Property Panel
+  const pp = document.getElementById('bpPropPanel');
+  pp.classList.toggle('collapsed', states[0].collapsed);
+
+  // ActionBar labels
+  document.querySelectorAll('.bp-action-btn').forEach(btn => {
+    btn.classList.toggle('icon-only', states[1].collapsed);
+  });
+
+  // StatusBar center
+  const sc = document.getElementById('bpStatusCenter');
+  sc.style.opacity = states[2].collapsed ? '0' : '1';
+  sc.style.width = states[2].collapsed ? '0' : 'auto';
+  sc.style.overflow = 'hidden';
+
+  // MenuBar overflow
+  const mo = document.getElementById('bpMenuOverflow');
+  mo.style.display = states[3].collapsed ? 'inline' : 'none';
+
+  // Rule table
+  const tbody = document.getElementById('bpRuleTable');
+  tbody.innerHTML = '<tr><th>Priority</th><th>Element</th><th>Threshold</th><th>Action</th><th>Status</th></tr>';
+  states.forEach(s => {
+    const cls = s.collapsed ? 'active' : 'ok';
+    tbody.innerHTML += `<tr class="${cls}"><td>${s.priority}</td><td>${s.elementId}</td><td>${s.threshold}px</td><td>${s.action}</td><td>${s.collapsed ? 'COLLAPSED' : 'visible'}</td></tr>`;
+  });
+
+  // Status text
+  const collapsed = states.filter(s => s.collapsed).map(s => s.elementId);
+  document.getElementById('bpStatus').textContent =
+    `width = ${width}px\n` +
+    `collapsed: ${collapsed.length > 0 ? collapsed.join(', ') : '(none)'}`;
+}
+
+document.getElementById('bpWidth').addEventListener('input', update);
+update();
+</script>

@@ -1,0 +1,257 @@
+<style>
+.cs-demo { max-width: 640px; margin: 0 auto; }
+.cs-demo h2 {
+  font-size: var(--font-heading-size); font-weight: var(--font-heading-weight);
+  color: var(--color-text-primary); margin: 0 0 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--color-border-subtle);
+}
+.cs-demo h3 {
+  font-size: 11pt; font-weight: 600;
+  color: var(--color-text-primary); margin: 16px 0 6px;
+}
+
+.cs-flags {
+  display: flex; gap: 16px; margin: 12px 0; flex-wrap: wrap;
+}
+.cs-flag {
+  display: flex; align-items: center; gap: 6px;
+  font-size: var(--font-body-size); color: var(--color-text-primary);
+}
+.cs-flag input { width: 18px; height: 18px; }
+.cs-flag label { font-weight: 600; cursor: pointer; }
+
+.cs-region {
+  border: 2px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  background: var(--color-surface-default);
+  min-height: 200px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 12px 0;
+  position: relative; overflow: hidden;
+}
+
+/* Loading state */
+.cs-loading { text-align: center; }
+.cs-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--color-border-subtle);
+  border-top-color: #5b6abf;
+  border-radius: 50%;
+  animation: cs-spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes cs-spin { to { transform: rotate(360deg); } }
+.cs-loading-text {
+  font-size: 12px; color: var(--color-text-secondary);
+}
+
+/* Skeleton */
+.cs-skeleton {
+  width: 100%; padding: 16px;
+}
+.cs-skel-row {
+  height: 14px; margin-bottom: 10px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--color-surface-container) 25%, var(--color-border-subtle) 50%, var(--color-surface-container) 75%);
+  background-size: 200% 100%;
+  animation: cs-shimmer 1.5s linear infinite;
+}
+@keyframes cs-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* Empty state */
+.cs-empty { text-align: center; padding: 24px; }
+.cs-empty-icon {
+  width: 64px; height: 64px; margin: 0 auto 12px;
+  background: var(--color-surface-container);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: var(--color-text-secondary);
+}
+.cs-empty-title {
+  font-size: 14px; font-weight: 700;
+  color: var(--color-text-primary); margin-bottom: 6px;
+}
+.cs-empty-desc {
+  font-size: 12px; color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+.cs-empty-cta {
+  padding: 6px 16px; border-radius: 4px;
+  background: #5b6abf; color: #fffffc;
+  border: none; font-size: 12px; font-weight: 600;
+  cursor: pointer;
+}
+
+/* Error state */
+.cs-error { text-align: center; padding: 24px; }
+.cs-error-icon {
+  width: 48px; height: 48px; margin: 0 auto 12px;
+  background: #ffadad; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: #d32f2f;
+}
+.cs-error-msg {
+  font-size: 14px; font-weight: 600;
+  color: var(--color-text-primary); margin-bottom: 4px;
+}
+.cs-error-detail {
+  font-size: 11px; color: var(--color-text-secondary);
+  font-family: var(--font-family-mono); margin-bottom: 12px;
+}
+.cs-error-retry {
+  padding: 6px 16px; border-radius: 4px;
+  background: #e8a840; color: #2d2640;
+  border: none; font-size: 12px; font-weight: 600;
+  cursor: pointer;
+}
+
+/* Content state */
+.cs-content { text-align: center; padding: 24px; }
+.cs-content-text {
+  font-size: 14px; color: var(--color-text-primary);
+}
+
+.cs-status {
+  margin-top: 10px; padding: 10px 12px;
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-default);
+  font-family: var(--font-family-mono); font-size: 11px;
+  color: var(--color-text-secondary); line-height: 1.5;
+}
+
+.cs-priority {
+  margin: 12px 0; font-size: 12px;
+  color: var(--color-text-secondary);
+}
+.cs-priority table {
+  width: 100%; border-collapse: collapse;
+  font-size: 11px;
+}
+.cs-priority th, .cs-priority td {
+  padding: 4px 8px; border: 1px solid var(--color-border-subtle);
+  text-align: left;
+}
+.cs-priority th {
+  background: var(--color-surface-container);
+  font-weight: 700; color: var(--color-text-primary);
+}
+.cs-priority .active { background: #eaffd8; font-weight: 700; }
+</style>
+
+<div class="cs-demo">
+  <h2>Content State Model — §6.4</h2>
+
+  <h3>Toggle Flags</h3>
+  <div class="cs-flags">
+    <div class="cs-flag">
+      <input type="checkbox" id="flagLoading">
+      <label for="flagLoading">loading</label>
+    </div>
+    <div class="cs-flag">
+      <input type="checkbox" id="flagError">
+      <label for="flagError">error</label>
+    </div>
+    <div class="cs-flag">
+      <input type="checkbox" id="flagEmpty">
+      <label for="flagEmpty">empty</label>
+    </div>
+  </div>
+
+  <div class="cs-priority" id="priorityTable"></div>
+
+  <h3>Resolved Display</h3>
+  <div class="cs-region" id="csRegion"></div>
+
+  <div class="cs-status" id="csStatus"></div>
+</div>
+
+<script>
+function resolve(loading, error, empty) {
+  if (loading) return 'Loading';
+  if (error) return 'Error';
+  if (empty) return 'Empty';
+  return 'Content';
+}
+
+function renderRegion(state) {
+  const el = document.getElementById('csRegion');
+  switch (state) {
+    case 'Loading':
+      el.innerHTML = `
+        <div class="cs-loading">
+          <div class="cs-spinner"></div>
+          <div class="cs-loading-text">Loading data...</div>
+          <div class="cs-skeleton">
+            <div class="cs-skel-row" style="width:75%"></div>
+            <div class="cs-skel-row" style="width:90%"></div>
+            <div class="cs-skel-row" style="width:60%"></div>
+          </div>
+        </div>`;
+      break;
+    case 'Error':
+      el.innerHTML = `
+        <div class="cs-error">
+          <div class="cs-error-icon">!</div>
+          <div class="cs-error-msg">Failed to load mesh data.</div>
+          <div class="cs-error-detail">GET /api/mesh 504 Gateway Timeout</div>
+          <button class="cs-error-retry" onclick="document.getElementById('flagError').checked=false;update()">Retry</button>
+        </div>`;
+      break;
+    case 'Empty':
+      el.innerHTML = `
+        <div class="cs-empty">
+          <div class="cs-empty-icon">\u2205</div>
+          <div class="cs-empty-title">No items</div>
+          <div class="cs-empty-desc">Click + to add your first item</div>
+          <button class="cs-empty-cta">Add Item</button>
+        </div>`;
+      break;
+    default:
+      el.innerHTML = `
+        <div class="cs-content">
+          <div class="cs-content-text">\u2714 Normal widget content displayed here</div>
+        </div>`;
+  }
+}
+
+function renderPriority(loading, error, empty) {
+  const state = resolve(loading, error, empty);
+  const rows = [
+    ['Loading', '1 (highest)', loading ? 'Yes' : 'No'],
+    ['Error', '2', error ? 'Yes' : 'No'],
+    ['Empty', '3', empty ? 'Yes' : 'No'],
+    ['Content', '4 (lowest)', '—'],
+  ];
+  let html = '<table><tr><th>State</th><th>Priority</th><th>Flag</th></tr>';
+  rows.forEach(r => {
+    const active = r[0] === state ? ' class="active"' : '';
+    html += `<tr${active}><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`;
+  });
+  html += '</table>';
+  document.getElementById('priorityTable').innerHTML = html;
+}
+
+function update() {
+  const loading = document.getElementById('flagLoading').checked;
+  const error = document.getElementById('flagError').checked;
+  const empty = document.getElementById('flagEmpty').checked;
+  const state = resolve(loading, error, empty);
+
+  renderRegion(state);
+  renderPriority(loading, error, empty);
+
+  document.getElementById('csStatus').textContent =
+    `flags: loading=${loading}, error=${error}, empty=${empty}\n` +
+    `resolved: ContentState::${state}\n` +
+    `rule: ${loading ? 'loading → show Loading' :
+             error ? '!loading && error → show Error' :
+             empty ? '!loading && !error && empty → show Empty' :
+             'all false → show Content'}`;
+}
+
+['flagLoading','flagError','flagEmpty'].forEach(id => {
+  document.getElementById(id).addEventListener('change', update);
+});
+update();
+</script>

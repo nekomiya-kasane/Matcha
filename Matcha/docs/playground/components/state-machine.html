@@ -1,0 +1,245 @@
+<style>
+/* =======================================================================
+ * StateMachine — Interactive FSM Demo
+ *
+ * Visualizes a PushButton interaction FSM with live state transitions.
+ * ======================================================================= */
+
+.fsm-demo { max-width: 680px; margin: 0 auto; }
+.fsm-demo h2 {
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  color: var(--color-text-primary);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.fsm-demo h3 {
+  font-size: 11pt; font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 16px 0 6px;
+}
+
+/* -- State diagram ------------------------------------------------------ */
+.fsm-diagram {
+  position: relative;
+  width: 100%; height: 280px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+.fsm-node {
+  position: absolute;
+  padding: 10px 20px;
+  border: 2px solid var(--color-border-default);
+  border-radius: var(--radius-large);
+  background: var(--color-surface-container);
+  font-size: 13px; font-weight: 600;
+  color: var(--color-text-primary);
+  transition: all 0.2s;
+  text-align: center;
+}
+.fsm-node.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+  color: var(--color-primary-text);
+  box-shadow: 0 0 12px rgba(91,106,191,0.3);
+}
+.fsm-node.disabled-state {
+  opacity: 0.5;
+}
+
+/* -- Event buttons ------------------------------------------------------ */
+.event-bar {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin: 12px 0;
+}
+.event-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-body-size);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.event-btn:hover { background: var(--color-fill-hover); }
+.event-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.event-btn.available {
+  border-color: var(--color-primary);
+  color: var(--color-primary-text);
+  font-weight: 600;
+}
+
+/* -- Transition log ----------------------------------------------------- */
+.fsm-log {
+  height: 160px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-default);
+  background: var(--color-surface-container);
+  padding: 8px 12px;
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+.fsm-log .entry { margin-bottom: 2px; }
+.fsm-log .from { color: #e8a840; }
+.fsm-log .event { color: #5b6abf; font-weight: 600; }
+.fsm-log .to { color: #7dd87d; }
+.fsm-log .blocked { color: #ffadad; }
+
+/* -- Guard toggle ------------------------------------------------------- */
+.guard-row {
+  display: flex; align-items: center; gap: 8px;
+  margin: 8px 0;
+  font-size: var(--font-body-size);
+  color: var(--color-text-primary);
+}
+</style>
+
+<div class="fsm-demo">
+  <h2>StateMachine&lt;S, E&gt; — FSM Demo</h2>
+
+  <h3>PushButton Interaction FSM</h3>
+  <div class="fsm-diagram" id="fsmDiagram">
+    <div class="fsm-node active" id="node-Idle"     style="left:40px;  top:110px">Idle</div>
+    <div class="fsm-node"        id="node-Hovered"  style="left:200px; top:30px">Hovered</div>
+    <div class="fsm-node"        id="node-Pressed"  style="left:400px; top:110px">Pressed</div>
+    <div class="fsm-node disabled-state" id="node-Disabled" style="left:200px; top:200px">Disabled</div>
+  </div>
+
+  <h3>Events</h3>
+  <div class="event-bar" id="eventBar"></div>
+
+  <div class="guard-row">
+    <label><input type="checkbox" id="guardToggle"> Block "Enter" event (guard demo)</label>
+  </div>
+
+  <h3>Transition Log</h3>
+  <div class="fsm-log" id="fsmLog"></div>
+</div>
+
+<script>
+// =====================================================================
+// StateMachine JS (mirrors C++ fw::StateMachine<S,E>)
+// =====================================================================
+class StateMachine {
+  constructor(initial, transitions) {
+    this.state = initial;
+    this.transitions = transitions;
+    this._onTransition = null;
+    this._guard = null;
+  }
+  process(event) {
+    for (const t of this.transitions) {
+      if (t.from === this.state && t.event === event) {
+        if (this._guard && !this._guard(t.from, event, t.to)) return false;
+        const prev = this.state;
+        this.state = t.to;
+        if (this._onTransition) this._onTransition(prev, event, t.to);
+        return true;
+      }
+    }
+    return false;
+  }
+  canProcess(event) {
+    return this.transitions.some(t => t.from === this.state && t.event === event);
+  }
+  onTransition(cb) { this._onTransition = cb; }
+  setGuard(cb) { this._guard = cb; }
+  reset(s) { this.state = s; }
+}
+
+// =====================================================================
+// FSM definition — PushButton
+// =====================================================================
+const STATES = ['Idle', 'Hovered', 'Pressed', 'Disabled'];
+const EVENTS = ['Enter', 'Leave', 'Press', 'Release', 'Disable', 'Enable'];
+
+const transitions = [
+  { from: 'Idle',     event: 'Enter',   to: 'Hovered' },
+  { from: 'Hovered',  event: 'Leave',   to: 'Idle' },
+  { from: 'Hovered',  event: 'Press',   to: 'Pressed' },
+  { from: 'Pressed',  event: 'Release', to: 'Hovered' },
+  { from: 'Pressed',  event: 'Leave',   to: 'Idle' },
+  { from: 'Idle',     event: 'Disable', to: 'Disabled' },
+  { from: 'Hovered',  event: 'Disable', to: 'Disabled' },
+  { from: 'Disabled', event: 'Enable',  to: 'Idle' },
+];
+
+const fsm = new StateMachine('Idle', transitions);
+
+// =====================================================================
+// UI
+// =====================================================================
+const eventBar = document.getElementById('eventBar');
+const logEl = document.getElementById('fsmLog');
+const guardToggle = document.getElementById('guardToggle');
+
+function updateNodes() {
+  STATES.forEach(s => {
+    const el = document.getElementById('node-' + s);
+    el.classList.toggle('active', fsm.state === s);
+  });
+}
+
+function updateButtons() {
+  eventBar.querySelectorAll('.event-btn').forEach(btn => {
+    const canDo = fsm.canProcess(btn.dataset.event);
+    btn.disabled = !canDo;
+    btn.classList.toggle('available', canDo);
+  });
+}
+
+function addLog(from, event, to, blocked) {
+  const entry = document.createElement('div');
+  entry.className = 'entry';
+  if (blocked) {
+    entry.innerHTML = `<span class="blocked">BLOCKED</span> ${from} + ${event}`;
+  } else {
+    entry.innerHTML = `<span class="from">${from}</span> + <span class="event">${event}</span> &rarr; <span class="to">${to}</span>`;
+  }
+  logEl.prepend(entry);
+}
+
+// Build event buttons
+EVENTS.forEach(ev => {
+  const btn = document.createElement('button');
+  btn.className = 'event-btn';
+  btn.textContent = ev;
+  btn.dataset.event = ev;
+  btn.addEventListener('click', () => {
+    const prev = fsm.state;
+    const ok = fsm.process(ev);
+    if (ok) {
+      addLog(prev, ev, fsm.state, false);
+    } else if (fsm.canProcess(ev)) {
+      addLog(prev, ev, '', true);
+    }
+    updateNodes();
+    updateButtons();
+  });
+  eventBar.appendChild(btn);
+});
+
+// Guard toggle
+guardToggle.addEventListener('change', () => {
+  if (guardToggle.checked) {
+    fsm.setGuard((from, ev, to) => ev !== 'Enter');
+  } else {
+    fsm.setGuard(null);
+  }
+  updateButtons();
+});
+
+fsm.onTransition(() => {});
+updateNodes();
+updateButtons();
+</script>

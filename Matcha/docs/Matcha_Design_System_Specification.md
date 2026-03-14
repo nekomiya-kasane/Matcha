@@ -163,29 +163,29 @@ Each part addresses a specific failure mode observed in systems that lack a desi
 > Matcha design system. It defines all visual, typographic, spatial, stylistic, interactive, and
 > motion specifications needed to implement the UI from scratch.
 >
-> **7-pillar structure**: I.1 Foundations & Principles · I.2 Tokens · I.3 Typography ·
-> I.4 Style · I.5 Widgets · I.6 Layout · I.7 Interaction · I.8 Motion
+> **8-chapter structure**: Ch.1 Design Philosophy & Principles · Ch.2 Design Tokens ·
+> Ch.3 Typography · Ch.4 Style Architecture · Ch.5 Widget Specifications ·
+> Ch.6 Layout & Composition · Ch.7 Interaction & Accessibility · Ch.8 Motion & Timing ·
+> Appendix I Designer-Developer Handoff Contract
 >
 > Later Parts (II–VIII) provide architecture and implementation details that realize
 > Part I's design intent. Part I cross-references those Parts where appropriate.
 
-## I.1 Foundations & Principles
+## Chapter 1. Design Philosophy & Principles
 
-### Chapter 1. Overview & Design Philosophy
-
-#### 1.1 Document Scope & Audience
+### 1.1 Document Scope & Audience
 
 - What this document covers (complete design system spec)
 - Who should read it (widget authors, plugin devs, theme designers, QA)
 - What it does NOT cover (application-level UX patterns, domain logic)
 
-#### 1.2 Core Design Principles
+### 1.2 Core Design Principles
 
 Matcha is governed by six architectural principles that apply across all Parts
 of this specification. Each principle is introduced here and expanded in the
 relevant chapter.
 
-##### 1.2.1 Separation of Concerns: What / How / When / Who
+#### 1.2.1 Separation of Concerns: What / How / When / Who
 
 Every visual property passes through four separable concerns:
 
@@ -200,7 +200,7 @@ This separation ensures that adding a new widget (What) does not require
 modifying the theme engine (How), that animation behavior (When) is independent
 of visual values, and that plugin customization (Who) has a bounded blast radius.
 
-##### 1.2.2 Design-Code Isomorphism
+#### 1.2.2 Design-Code Isomorphism
 
 The design system and the C++ implementation must be **structurally isomorphic**:
 every element in the design spec has a 1:1 counterpart in code, and vice versa.
@@ -216,7 +216,7 @@ This eliminates the "design drift" problem where implementation gradually
 diverges from the design spec. See Chapter 9 for the four-dimension model
 and quantified motivation.
 
-##### 1.2.3 Qt-Free Public Surface
+#### 1.2.3 Qt-Free Public Surface
 
 All public interfaces in Layer 0 (`fw` namespace) are Qt-free. Layer 1 (`gui`)
 uses Qt types only in implementation, never in abstract interfaces consumed
@@ -234,7 +234,7 @@ functions, enabling Python/Rust/C# bindings. Future backend replacement
 (e.g., Qt -> custom renderer) only affects `NyanTheme`/`NyanAnimation`
 implementations, not the public API surface.
 
-##### 1.2.4 Upward-Only Information Flow
+#### 1.2.4 Upward-Only Information Flow
 
 Notifications propagate **upward only** (child -> parent -> ancestor), never
 downward or sideways. This constraint, borrowed from CATIA V5's
@@ -249,7 +249,7 @@ CommandNode inserted as a child of both the producer's subtree and the
 consumer's subtree) provides a structured workaround. See Chapter 26.5 for
 the 3-layer subscription safety model.
 
-##### 1.2.5 Test-Driven Specification: Tests as Behavioral Contracts
+#### 1.2.5 Test-Driven Specification: Tests as Behavioral Contracts
 
 In Matcha's development methodology, **tests are written before or alongside
 implementation, not after**. Tests serve a dual role:
@@ -361,7 +361,7 @@ that breaks keyboard navigation will be caught immediately.
 > See Chapter 23 for test infrastructure details (`WidgetTestFixture`,
 > `NotificationSpy`, `A11yAudit`).
 
-#### 1.3 Design Language Principles
+### 1.3 Design Language Principles
 
 Matcha's visual design language is built on five principles:
 
@@ -373,7 +373,7 @@ Matcha's visual design language is built on five principles:
    different user contexts (power user vs touch screen)
 5. **Theme-extensible** -- Unlimited custom themes via JSON; plugins extend tokens at runtime
 
-#### 1.4 Three-Layer Token Architecture
+### 1.4 Three-Layer Token Architecture
 
 ```mermaid
 graph TD
@@ -414,7 +414,7 @@ graph TD
     CO --> WS
 ```
 
-##### 1.4.1 Token Architecture Depth (Industry Comparison)
+#### 1.4.1 Token Architecture Depth (Industry Comparison)
 
 Matcha achieves 7 levels of token depth. Most web design systems stop at 4-5.
 
@@ -430,7 +430,7 @@ Matcha achieves 7 levels of token depth. Most web design systems stop at 4-5.
 
 **Design rule.** All visual properties are expressed as semantic design tokens, not raw values. This enables theme switching, density scaling, and accessibility overrides without widget code changes. Every widget must use `IThemeService::Resolve()` instead of hard-coded colors/sizes.
 
-#### 1.5 Architecture Layer Diagram
+### 1.5 Architecture Layer Diagram
 
 ```mermaid
 graph LR
@@ -459,13 +459,13 @@ graph LR
     TA --> W
 ```
 
-#### 1.6 Terminology Glossary
+### 1.6 Terminology Glossary
 
 > Quick-start glossary of the ~25 most important terms. For the complete
 > reference (~120 entries with C++ types and spec cross-references), see
 > **Appendix A. Design System Glossary**.
 
-##### 1.6.1 Core Architecture
+#### 1.6.1 Core Architecture
 
 | Term | 中文 | Definition |
 |------|------|-----------|
@@ -480,7 +480,7 @@ graph LR
 | **ComponentOverride** | 组件覆盖 | Per-widget-class token deviations registered by widget authors or plugins |
 | **DynamicToken** | 动态令牌 | A plugin-registered token (color, font, or spacing) that extends the core vocabulary at runtime |
 
-##### 1.6.2 UiNode Tree & Architecture
+#### 1.6.2 UiNode Tree & Architecture
 
 | Term | 中文 | Definition |
 |------|------|-----------|
@@ -489,7 +489,7 @@ graph LR
 | **Shell** | 应用外壳 | UiNode root of the application. Holds references to MainWindow, ActionBar, DocumentManager |
 | **Notification** | 通知 | Typed message propagated upward through the UiNode tree; the sole communication channel from widget to business logic |
 
-##### 1.6.3 Design Theory & Cognitive Science
+#### 1.6.3 Design Theory & Cognitive Science
 
 | Term | 中文 | Definition |
 |------|------|-----------|
@@ -500,7 +500,7 @@ graph LR
 | **Miller's Law** | 米勒定律 | Working memory limit of 7±2 items. Constrains menu items, tab counts, form fields per section |
 | **Fitts' Law** | 费茨定律 | Movement time $T = a + b \cdot \log_2(1 + D/W)$: larger targets closer to cursor → faster acquisition |
 
-##### 1.6.4 Accessibility & Internationalization
+#### 1.6.4 Accessibility & Internationalization
 
 | Term | 中文 | Definition |
 |------|------|-----------|
@@ -510,13 +510,13 @@ graph LR
 | **Mnemonic** | 助记键 | Keyboard shortcut activated by Alt+underlined letter (e.g., `Alt+F` for File). §7.9.11 |
 | **RTL / LTR** | 右到左/左到右 | Text direction enum affecting padding, icon position, chevron direction, menu cascade side (§7.10) |
 
-#### 1.7 Content & Writing Guidelines 🆕
+### 1.7 Content & Writing Guidelines 🆕
 
 > 🆕 Post-v1 supplement.
 > UI copy style guide ensuring consistent voice, terminology, and messaging across
 > all Matcha widgets. Based on NN/g writing for interfaces guidelines.
 
-##### 1.7.1 Voice & Tone
+#### 1.7.1 Voice & Tone
 
 | Attribute | Guideline |
 |-----------|-----------|
@@ -526,7 +526,7 @@ graph LR
 | **Sentence case** | Use sentence case for all UI text except proper nouns. "Save as template" not "Save As Template". |
 | **Punctuation** | No period on single-sentence labels, tooltips, or button text. Use periods in multi-sentence descriptions. |
 
-##### 1.7.2 Button Label Rules
+#### 1.7.2 Button Label Rules
 
 | Pattern | Example | Anti-pattern |
 |---------|---------|-------------|
@@ -538,7 +538,7 @@ graph LR
 **Exception**: Standard dialog buttons "OK" and "Cancel" are acceptable when the dialog title
 already describes the action (e.g., title = "Save changes?", buttons = "Save" / "Don't save" / "Cancel").
 
-##### 1.7.3 Error Message Template
+#### 1.7.3 Error Message Template
 
 ```
 [What happened]. [Why it happened (if known)]. [What to do next].
@@ -552,7 +552,7 @@ already describes the action (e.g., title = "Save changes?", buttons = "Save" / 
 
 **Full example**: "Could not save file. The disk is full. Free up space and try again."
 
-##### 1.7.4 Placeholder Text
+#### 1.7.4 Placeholder Text
 
 | Widget | Placeholder purpose | Example |
 |--------|-------------------|---------|
@@ -565,14 +565,14 @@ Rules:
 - Do not repeat the label text in the placeholder
 - Placeholder disappears on focus (not on first keystroke)
 
-##### 1.7.5 Tooltip Text
+#### 1.7.5 Tooltip Text
 
 - Maximum 2 sentences (≤ 80 characters preferred)
 - First sentence: what the control does
 - Second sentence (optional): keyboard shortcut or additional context
 - Example: "Undo the last action. Ctrl+Z"
 
-##### 1.7.6 Terminology Consistency
+#### 1.7.6 Terminology Consistency
 
 Maintain a project-level glossary. Within a single application:
 - Use one term per concept (e.g., always "node" or always "element", never both)
@@ -582,11 +582,11 @@ Maintain a project-level glossary. Within a single application:
 ---
 
 
-## I.2 Tokens
+## Chapter 2. Design Tokens
 
 > Visual primitive definitions: color, spatial, icon design language, cursor.
 
-### Chapter 2. Color System
+### 2a. Color System
 
 #### 2.1 Color Token Vocabulary Overview
 
@@ -787,9 +787,9 @@ $$R_{\text{lin}} = \begin{cases} \dfrac{R/255}{12.92} & \text{if } R/255 \le 0.0
 
 ---
 
-### Chapter 4. Spatial System
+### 2b. Spatial System
 
-#### 4.1 Spacing Tokens
+#### 2b.1 Spacing Tokens
 
 | Token | Base px | Typical Use |
 |-------|:-------:|------------|
@@ -815,7 +815,7 @@ sub-multiples (1, 2, 3) for fine-grained adjustments.
 
 **Actual pixel output**: $\lfloor \text{basePx} \times \text{densityScale} + 0.5 \rfloor$.
 
-#### 4.2 Density System
+#### 2b.2 Density System
 
 ```mermaid
 graph LR
@@ -832,7 +832,7 @@ graph LR
 
 **API**: `SetDensity(DensityLevel)` -> rebuilds QSS + emits `ThemeChanged`.
 
-#### 4.3 Radius Tokens
+#### 2b.3 Radius Tokens
 
 | Token | Base px | Use Case |
 |-------|:-------:|----------|
@@ -845,7 +845,7 @@ graph LR
 
 Density-scaled in `Resolve()`: $\text{radiusPx} = \text{Radius}(\text{token}) \times \text{densityScale}$.
 
-#### 4.4 Size Tokens
+#### 2b.4 Size Tokens
 
 | Token | Base px | Component Mapping |
 |-------|:-------:|------------------|
@@ -857,7 +857,7 @@ Density-scaled in `Resolve()`: $\text{radiusPx} = \text{Radius}(\text{token}) \t
 
 Density-scaled: $\text{actualPx} = \text{kBaseSizePx}[\text{token}] \times \text{densityScale}$.
 
-#### 4.5 Elevation & Shadow System
+#### 2b.5 Elevation & Shadow System
 
 | Level | offsetY | blurRadius | opacity | Use Case |
 |-------|:-------:|:---------:|:-------:|----------|
@@ -871,7 +871,7 @@ Density-scaled: $\text{actualPx} = \text{kBaseSizePx}[\text{token}] \times \text
 
 Shadow `offsetY` and `blurRadius` are density-scaled in `Resolve()`.
 
-#### 4.6 Layer (Z-index) Tokens
+#### 2b.6 Layer (Z-index) Tokens
 
 | Token | Z-index | Use Case |
 |-------|:-------:|----------|
@@ -885,11 +885,11 @@ Shadow `offsetY` and `blurRadius` are density-scaled in `Resolve()`.
 | `Overlay` | 700 | Full-screen overlays |
 | `Maximum` | 9999 | Debug overlays |
 
-#### 4.7 Density Scaling Effect Tables
+#### 2b.7 Density Scaling Effect Tables
 
 Shows actual pixel values for key tokens at each density level.
 
-##### 4.7.1 Spacing Token Scaling
+##### 2b.7.1 Spacing Token Scaling
 
 | Token | Base | Compact (0.875x) | Default (1.0x) | Comfortable (1.125x) |
 |-------|:----:|:-----------------:|:--------------:|:--------------------:|
@@ -904,7 +904,7 @@ Shows actual pixel values for key tokens at each density level.
 | `Px48` | 48 | 42 | 48 | 54 |
 | `Px64` | 64 | 56 | 64 | 72 |
 
-##### 4.7.2 Size Token Scaling
+##### 2b.7.2 Size Token Scaling
 
 | Token | Base | Compact | Default | Comfortable |
 |-------|:----:|:-------:|:-------:|:-----------:|
@@ -914,7 +914,7 @@ Shows actual pixel values for key tokens at each density level.
 | `Lg` | 40 | 35 | 40 | 45 |
 | `Xl` | 48 | 42 | 48 | 54 |
 
-##### 4.7.3 Radius Token Scaling
+##### 2b.7.3 Radius Token Scaling
 
 | Token | Base | Compact | Default | Comfortable |
 |-------|:----:|:-------:|:-------:|:-----------:|
@@ -925,7 +925,7 @@ Shows actual pixel values for key tokens at each density level.
 | `Large` | 8 | 7 | 8 | 9 |
 | `Round` | 255 | 255 | 255 | 255 |
 
-##### 4.7.4 Shadow Scaling (ElevationToken)
+##### 2b.7.4 Shadow Scaling (ElevationToken)
 
 | Level | Base offsetY | Compact | Default | Comfortable |
 |-------|:-----------:|:-------:|:-------:|:-----------:|
@@ -945,7 +945,7 @@ Shows actual pixel values for key tokens at each density level.
 
 ---
 
-### Chapter 6. Icon Design Language
+### 2c. Icon Design Language
 
 > Complete reference for icon identification, design language, URI hierarchy,
 > color inheritance, resolution pipeline, and plugin extensibility.
@@ -1664,7 +1664,7 @@ after plugin shutdown, and returning null icons would cause visual artifacts.
 
 ---
 
-### Chapter 7. Cursor Design
+### 2d. Cursor Design
 
 #### 7.1 CursorToken Enum
 
@@ -1703,11 +1703,9 @@ when the widget's interaction state changes.
 ---
 
 
-## I.3 Typography
+## Chapter 3. Typography System
 
-### Chapter 3. Typography System
-
-#### 3.1 FontRole Enum
+### 3.1 FontRole Enum
 
 | Role | Default Size | Default Weight | Line Height | Letter Spacing | Use Case |
 |------|:----------:|:-----------:|:----------:|:-------------:|----------|
@@ -1719,7 +1717,7 @@ when the widget's interaction state changes.
 | `Monospace` | 9pt | Normal (400) | 1.4x | 0px | Code display, LineEdit numeric |
 | `ToolTip` | 8pt | Normal (400) | 1.4x | 0px | Tooltip overlays |
 
-#### 3.2 FontSpec Struct
+### 3.2 FontSpec Struct
 
 `FontSpec` is the resolved, platform-independent description of a font
 used by the theme system. Every `FontRole` in §3.1 maps to exactly one
@@ -1761,7 +1759,7 @@ struct FontSpec {
 | `lineHeightMultiplier` | 1.0–2.5, default 1.4 | 1.4× is the WCAG-recommended minimum for body text readability. |
 | `letterSpacing` | -1.0–5.0 px, default 0.0 | Positive values for `Caption` / `Overline` roles improve legibility at small sizes. |
 
-#### 3.3 Platform Font Selection
+### 3.3 Platform Font Selection
 
 | Platform | Primary Family | Monospace Family | Selection Method |
 |----------|---------------|-----------------|-----------------|
@@ -1769,7 +1767,7 @@ struct FontSpec {
 | macOS | SF Pro | SF Mono / Menlo | `QFontDatabase::systemFont(GeneralFont)` |
 | Linux | Noto Sans | Noto Sans Mono / DejaVu Sans Mono | `QFontDatabase::systemFont(GeneralFont)` |
 
-#### 3.4 Font Scale System
+### 3.4 Font Scale System
 
 **Global font scale** multiplies all FontRole base sizes:
 
@@ -1783,7 +1781,7 @@ struct FontSpec {
 
 **Effective size**: $\text{actualPt} = \text{basePt} \times \text{fontScaleFactor} \times \text{densityScale}$
 
-#### 3.5 JSON Font Override
+### 3.5 JSON Font Override
 
 Per-FontRole customization via the `"fonts"` JSON object:
 
@@ -1799,7 +1797,7 @@ Per-FontRole customization via the `"fonts"` JSON object:
 **Fields**: `size` (int, point size) and `weight` (int, QFont weight).
 Unspecified fields retain platform defaults.
 
-#### 3.6 Dynamic Font Registration (Plugin)
+### 3.6 Dynamic Font Registration (Plugin)
 
 Plugins register domain-specific fonts:
 
@@ -1815,11 +1813,11 @@ auto font = theme.DynamicFont("CAD/PropertyGrid"); // -> std::optional<FontSpec>
 
 The global `_fontScale` is applied to dynamic font queries.
 
-#### 3.7 Complete FontRole Resolution Table
+### 3.7 Complete FontRole Resolution Table
 
 Actual font parameters after platform detection and default scale (1.0x).
 
-##### 3.7.1 Windows (Segoe UI)
+#### 3.7.1 Windows (Segoe UI)
 
 | Role | Family | Size (pt) | Weight | Italic | Line Height |
 |------|--------|:---------:|:------:|:------:|:-----------:|
@@ -1831,7 +1829,7 @@ Actual font parameters after platform detection and default scale (1.0x).
 | `Monospace` | Cascadia Code | 9 | 400 | No | 1.4x |
 | `ToolTip` | Segoe UI | 8 | 400 | No | 1.4x |
 
-##### 3.7.2 macOS (SF Pro Text)
+#### 3.7.2 macOS (SF Pro Text)
 
 | Role | Family | Size (pt) | Weight | Italic | Line Height |
 |------|--------|:---------:|:------:|:------:|:-----------:|
@@ -1843,7 +1841,7 @@ Actual font parameters after platform detection and default scale (1.0x).
 | `Monospace` | SF Mono | 9 | 400 | No | 1.4x |
 | `ToolTip` | SF Pro Text | 8 | 400 | No | 1.4x |
 
-##### 3.7.3 Linux (Noto Sans)
+#### 3.7.3 Linux (Noto Sans)
 
 | Role | Family | Size (pt) | Weight | Italic | Line Height |
 |------|--------|:---------:|:------:|:------:|:-----------:|
@@ -1855,7 +1853,7 @@ Actual font parameters after platform detection and default scale (1.0x).
 | `Monospace` | Noto Sans Mono | 9 | 400 | No | 1.4x |
 | `ToolTip` | Noto Sans | 8 | 400 | No | 1.4x |
 
-##### 3.7.4 Font Scale Effect
+#### 3.7.4 Font Scale Effect
 
 With font scale $s$, actual point size $= \max(\lfloor \text{basePt} \cdot s + 0.5 \rfloor,\; 6)$.
 
@@ -1871,14 +1869,12 @@ With font scale $s$, actual point size $= \max(\lfloor \text{basePt} \cdot s + 0
 ---
 
 
-## I.4 Style
+## Chapter 4. Style Architecture
 
 > Token → Widget bridge: declarative style architecture, variant patterns, state matrices.
 > Implementation details (Resolve(), BuildDefaultVariants): see Part III.
 
-### Chapter 4. Declarative Style Architecture
-
-#### 4.1 Motivation: Why Declarative Styling is Necessary
+### 4.1 Motivation: Why Declarative Styling is Necessary
 
 The declarative style system was introduced to address a specific, measurable
 set of engineering deficiencies in traditional Qt widget painting:
@@ -1903,7 +1899,7 @@ introducing exactly that missing function: `IThemeService::Resolve()`.
 
 > For implementation stages and migration examples, see sections 9.10-9.12.
 
-#### 4.2 Design-Code Isomorphism
+### 4.2 Design-Code Isomorphism
 
 The target is `UI = f(state)` where:
 
@@ -1916,7 +1912,7 @@ structural isomorphism with the design component tree.
 
 **Design rule.** Widget painting uses `ResolvedStyle = Theme().Resolve(kind, variant, state)` — a pure function from (WidgetKind, variant index, InteractionState) to visual properties. This eliminates scattered `if/else` color logic in paint methods. All 54 widget kinds need complete variant x state matrices in `BuildDefaultVariants()`.
 
-#### 4.3 Four Dimensions of Design Information Exchange
+### 4.3 Four Dimensions of Design Information Exchange
 
 | Dimension | Content | Matcha Mechanism |
 |-----------|---------|-----------------|
@@ -1925,7 +1921,7 @@ structural isomorphism with the design component tree.
 | **Component FSM** | State enum, state-to-visual mapping | `InteractionState` + `StateStyle` + `VariantStyle` |
 | **Dynamic Behavior** | Animation duration, easing, spring | `TransitionDef` + `AnimationToken` + `EasingToken` + `SpringSpec` |
 
-#### 4.4 Token Taxonomy 🆕
+### 4.4 Token Taxonomy 🆕
 
 > 🆕 Post-v1 supplement.
 > Aligns Matcha's token architecture with the W3C Design Tokens Community Group
@@ -1971,7 +1967,7 @@ system-token alias; `ComponentOverride{.kind=Dialog, .radius=Large}` is a
 component-token override. This ensures a single palette change at Layer 1
 propagates consistently through Layers 2 and 3.
 
-##### 4.4.1 Token Serialization (DTCG Alignment)
+#### 4.4.1 Token Serialization (DTCG Alignment)
 
 Matcha's theme JSON files use a structure compatible with the W3C DTCG 2025.10
 format. The `$type` and `$value` properties map to Matcha token types:
@@ -2013,7 +2009,7 @@ The translation between DTCG JSON and C++ enums is handled by the theme loader
 `RegisterDynamicColor()` are stored as Layer 2 system tokens that override
 palette-provided values.
 
-#### 4.5 WidgetStyleSheet Struct
+### 4.5 WidgetStyleSheet Struct
 
 ```cpp
 struct WidgetStyleSheet {
@@ -2054,7 +2050,7 @@ struct WidgetStyleSheet {
 | `transition` | `TransitionDef` | `{Normal, OutCubic}` | Animation config for state changes |
 | `variants` | `span<VariantStyle>` | -- | Non-owning view into variant color maps |
 
-#### 4.6 StateStyle Struct
+### 4.6 StateStyle Struct
 
 ```cpp
 struct StateStyle {
@@ -2076,7 +2072,7 @@ struct StateStyle {
 | `borderWidth` | `SpacingToken` | Border stroke width (focused = 2px) |
 | `cursor` | `CursorToken` | Mouse cursor shape |
 
-#### 4.7 VariantStyle Struct
+### 4.7 VariantStyle Struct
 
 ```cpp
 struct VariantStyle {
@@ -2087,7 +2083,7 @@ struct VariantStyle {
 8 states per variant: Normal, Hovered, Pressed, Disabled, Focused,
 Selected, Error, DragOver.
 
-##### 4.7.1 InteractionState Extended Discussion 🆕
+#### 4.7.1 InteractionState Extended Discussion 🆕
 
 > 🆕 Post-v1 supplement.
 
@@ -2107,7 +2103,7 @@ ensure the variant × state matrix remains tractable ($V \times 8$ cells per
 widget, where $V$ is typically 1–4). Extended states are encoded as either
 additional variants or boolean flags, never as new `InteractionState` enum values.
 
-##### 4.7.2 Variant Naming Convention 🆕
+#### 4.7.2 Variant Naming Convention 🆕
 
 > 🆕 Post-v1 supplement.
 
@@ -2126,7 +2122,7 @@ documented per widget in Chapter 10. The naming convention:
 each widget's §10.x specification. Widget code uses named constants
 (`kVariantPrimary = 1`, `kVariantGhost = 2`) rather than raw indices.
 
-#### 4.8 ResolvedStyle Output
+### 4.8 ResolvedStyle Output
 
 `ResolvedStyle` is the **fully concrete** output of `IThemeService::Resolve()`.
 All tokens are resolved to Qt types; widgets consume this directly in `paintEvent`
@@ -2167,7 +2163,7 @@ void MyWidget::paintEvent(QPaintEvent*) {
 }
 ```
 
-#### 4.9 Density Scaling in Resolve()
+### 4.9 Density Scaling in Resolve()
 
 The following fields are density-scaled inside `Resolve()`:
 
@@ -2182,12 +2178,12 @@ The following fields are density-scaled inside `Resolve()`:
 | `shadow.offsetY` | $\text{base} \times \text{densityScale}$ |
 | `shadow.blurRadius` | $\text{base} \times \text{densityScale}$ |
 
-#### 4.10 Standard Variant Patterns
+### 4.10 Standard Variant Patterns
 
 Default `StateStyle` entries for the most commonly used variant patterns.
 Widgets reference these patterns in Chapter 10.
 
-##### 4.10.1 Standard Neutral Pattern (Secondary Button, Panel controls)
+#### 4.10.1 Standard Neutral Pattern (Secondary Button, Panel controls)
 
 Used by: PushButton(Secondary), ToolButton(Default), ComboBox, SpinBox, LineEdit.
 
@@ -2202,7 +2198,7 @@ Used by: PushButton(Secondary), ToolButton(Default), ComboBox, SpinBox, LineEdit
 | Error | `ErrorBg` | `Error` | `ErrorBorder` | 1.0 | `Pointer` |
 | DragOver | `PrimaryBg` | `TextPrimary` | `Primary` | 1.0 | `Move` |
 
-##### 4.10.2 Standard Primary Pattern (Brand CTA)
+#### 4.10.2 Standard Primary Pattern (Brand CTA)
 
 Used by: PushButton(Primary).
 
@@ -2214,7 +2210,7 @@ Used by: PushButton(Primary).
 | Disabled | `Primary` | `OnAccent` | `Primary` | 0.45 | `Forbidden` |
 | Focused | `Primary` | `OnAccent` | `Focus` | 1.0 | `Pointer` |
 
-##### 4.10.3 Ghost Pattern (Minimal visual weight)
+#### 4.10.3 Ghost Pattern (Minimal visual weight)
 
 Used by: PushButton(Ghost), ToolButton(Ghost).
 
@@ -2226,7 +2222,7 @@ Used by: PushButton(Ghost), ToolButton(Ghost).
 | Disabled | `Surface` | `TextDisabled` | `Surface` | 0.45 | `Forbidden` |
 | Focused | `Surface` | `TextPrimary` | `Focus` | 1.0 | `Pointer` |
 
-##### 4.10.4 Danger Pattern (Destructive action)
+#### 4.10.4 Danger Pattern (Destructive action)
 
 Used by: PushButton(Danger).
 
@@ -2238,7 +2234,7 @@ Used by: PushButton(Danger).
 | Disabled | `Error` | `OnAccent` | `Error` | 0.45 | `Forbidden` |
 | Focused | `Error` | `OnAccent` | `Focus` | 1.0 | `Pointer` |
 
-##### 4.10.5 Check Indicator Pattern
+#### 4.10.5 Check Indicator Pattern
 
 Used by: CheckBox (checked/unchecked variants), RadioButton.
 
@@ -2258,7 +2254,7 @@ Used by: CheckBox (checked/unchecked variants), RadioButton.
 | Hovered | `PrimaryHover` | `PrimaryHover` | `OnAccent` |
 | Pressed | `PrimaryActive` | `PrimaryActive` | `OnAccent` |
 
-##### 4.10.6 Toggle Track Pattern
+#### 4.10.6 Toggle Track Pattern
 
 Used by: ToggleSwitch.
 
@@ -2276,7 +2272,7 @@ Used by: ToggleSwitch.
 | Normal | `Primary` | `OnAccent` |
 | Hovered | `PrimaryHover` | `OnAccent` |
 
-##### 4.10.7 Tab Pattern (Active/Inactive)
+#### 4.10.7 Tab Pattern (Active/Inactive)
 
 Used by: TabWidget, DocumentBar, ActionTab.
 
@@ -2286,7 +2282,7 @@ Used by: TabWidget, DocumentBar, ActionTab.
 | Inactive | Hovered | `FillHover` | `TextPrimary` | none |
 | Active | Normal | `SurfaceElevated` | `Primary` | `Primary` (2px bottom) |
 
-##### 4.10.8 Data Row Pattern (Default/Selected/Striped)
+#### 4.10.8 Data Row Pattern (Default/Selected/Striped)
 
 Used by: DataTable, ListWidget, TreeWidget.
 
@@ -2297,7 +2293,7 @@ Used by: DataTable, ListWidget, TreeWidget.
 | Hovered | `FillHover` | `TextPrimary` | `BorderSubtle` |
 | Selected | `PrimaryBg` | `TextPrimary` | `Primary` |
 
-#### 4.11 Implementation Stages
+### 4.11 Implementation Stages
 
 | Stage | Description | Deliverable |
 |-------|-------------|-------------|
@@ -2312,7 +2308,7 @@ Used by: DataTable, ListWidget, TreeWidget.
 | 9 | Migrate Tier 2+3 widgets | Complete migration |
 | 10 | Remove legacy paint code | Replace all remaining direct `Color(token)` calls in `paintEvent` with `Resolve()`-based painting |
 
-#### 4.12 Four-Dimension Coverage Matrix
+### 4.12 Four-Dimension Coverage Matrix
 
 | Dimension | Before RFC | After RFC |
 |-----------|-----------|-----------|
@@ -2321,14 +2317,14 @@ Used by: DataTable, ListWidget, TreeWidget.
 | Component FSM | StateColors only | StateStyle (opacity, borderWidth, cursor) |
 | Dynamic Behavior | AnimationToken only | TransitionDef (duration + easing combined) |
 
-#### 4.13 Visual Grouping Rules 🆕
+### 4.13 Visual Grouping Rules 🆕
 
 > 🆕 Post-v1 supplement.
 > Design rules for visual grouping based on Gestalt principles (proximity, similarity,
 > common region, continuity). Defines when to use spacing vs borders vs background
 > to communicate hierarchical structure.
 
-##### 4.13.1 Grouping Mechanism Decision Tree
+#### 4.13.1 Grouping Mechanism Decision Tree
 
 ```
 Are items semantically related?
@@ -2343,7 +2339,7 @@ Are items semantically related?
     └── Strong separation → Line separator or Panel boundary
 ```
 
-##### 4.13.2 Spacing Hierarchy
+#### 4.13.2 Spacing Hierarchy
 
 | Level | Spacing Token | Use Case | Gestalt Principle |
 |-------|:------------:|----------|:-----------------:|
@@ -2355,7 +2351,7 @@ Are items semantically related?
 **Rule**: The spacing ratio between adjacent hierarchy levels should be ≥ 2×.
 This ensures the Gestalt proximity principle creates unambiguous visual grouping.
 
-##### 4.13.3 Border vs Spacing vs Background
+#### 4.13.3 Border vs Spacing vs Background
 
 | Mechanism | When to Use | Token |
 |-----------|-------------|-------|
@@ -2366,7 +2362,7 @@ This ensures the Gestalt proximity principle creates unambiguous visual grouping
 | **Border + background** | High-emphasis container (e.g., Dialog, elevated Card) | `SurfaceElevated` + `BorderDefault` + `ElevationToken` |
 | **Line separator** | Items within a flat list need visual separation without container nesting | `Line` widget, `Separator` color |
 
-##### 4.13.4 Nesting Depth Limit
+#### 4.13.4 Nesting Depth Limit
 
 Maximum visual nesting depth: **3 levels** (container → sub-container → element group).
 
@@ -2380,7 +2376,7 @@ Maximum visual nesting depth: **3 levels** (container → sub-container → elem
 Beyond depth 3, use spacing and borders only — do not introduce additional background
 color layers, as they reduce contrast and readability.
 
-#### 4.14 SpringSpec Struct 🆕
+### 4.14 SpringSpec Struct 🆕
 
 > 🆕 Post-v1 supplement.
 > Defines physics-based spring animation parameters, complementing the existing
@@ -2426,7 +2422,7 @@ When `spring` is set, the animation engine solves the damped harmonic oscillator
 ODE and ignores `duration`/`easing`. The animation terminates when displacement
 drops below 0.5px (perceptual convergence threshold).
 
-#### 4.15 Reduced Motion Strategy 🆕
+### 4.15 Reduced Motion Strategy 🆕
 
 > 🆕 Post-v1 supplement.
 > Addresses WCAG 2.2 SC 2.3.3 (Animation from Interactions) and
@@ -2470,7 +2466,7 @@ the returned `ResolvedStyle`:
 Widgets do not need any special code — the reduced-motion behavior is fully
 encapsulated in the `Resolve()` path.
 
-#### 4.16 Component Override Mechanism 🆕
+### 4.16 Component Override Mechanism 🆕
 
 > 🆕 Post-v1 supplement.
 > Allows applications, plugins, and theme packs to override per-widget style
@@ -2529,7 +2525,7 @@ a patch — if `has_value()`, it replaces the corresponding base field; otherwis
 the base value is kept. Multiple overrides at the same priority level are
 applied in registration order (last wins).
 
-#### 4.17 Style Cascade Resolution 🆕
+### 4.17 Style Cascade Resolution 🆕
 
 > 🆕 Post-v1 supplement.
 > Defines the complete resolution algorithm that `IThemeService::Resolve()`
@@ -2578,13 +2574,11 @@ per widget (~4), yielding ≤ 1792 cache slots × ~128 bytes ≈ **224 KB** wors
 ---
 
 
-## I.5 Widgets
+## Chapter 5. Widget Specifications
 
 > 46 components with full visual and behavioral specifications.
 > Each widget follows a 12-section template (Synopsis · Anatomy 🆕 · Theme ·
 > Variant×State · FSM 🆕 · Notifications · API · Animation · Math · Keyboard 🆕 · A11y · Usage 🆕).
-
-### Chapter 5. Per-Widget Component Specification
 
 > This chapter is the core deliverable of the design system. Each widget
 > is specified with a uniform 8-section template:
@@ -6360,7 +6354,7 @@ Transition: concurrent opacity animation on outgoing and incoming pages.
 ---
 
 
-## I.6 Layout 🆕
+## Chapter 6. Layout & Composition 🆕
 
 > 🆕 Post-v1 supplement.
 > Layout algorithms, composition templates, responsive rules, and loading/empty/error state templates.
@@ -6641,7 +6635,7 @@ For single-item or action-triggered loading:
 ---
 
 
-## I.7 Interaction
+## Chapter 7. Interaction & Accessibility
 
 > 🆕 Cross-component interaction patterns, accessibility design rules, and i18n design.
 
@@ -8716,14 +8710,12 @@ triggers operation B (e.g., load different file). Two completion callbacks race.
 
 ---
 
-## I.8 Motion
+## Chapter 8. Motion & Timing
 
 > Time-based design language: duration tokens, easing curves, spring dynamics,
 > interaction timing, choreography, gesture-driven motion.
 
-### Chapter 5. Motion & Timing System
-
-#### 8.1 Animation Duration Tokens
+### 8.1 Animation Duration Tokens
 
 | Token | Duration | Perception Threshold | Use Case |
 |-------|:--------:|---------------------|----------|
@@ -8732,23 +8724,23 @@ triggers operation B (e.g., load different file). Two completion callbacks race.
 | `Normal` | 200ms | Attention window (~200ms) | Standard state transitions |
 | `Slow` | 350ms | Deliberate transition | Page transitions, expand/collapse |
 
-#### 8.2 Easing Curve Tokens
+### 8.2 Easing Curve Tokens
 
 | Token | Curve | Use Case |
 |-------|-------|----------|
 | `Linear` | Linear interpolation | Progress bars, deterministic animations |
 | `OutCubic` | Decelerate (cubic) | Default for most transitions (exit fast) |
 | `InOutCubic` | Accelerate then decelerate | Page transitions, modal entry |
-| `Spring` | Spring dynamics (see 5.3) | Natural, physics-based motion |
+| `Spring` | Spring dynamics (see 8.3) | Natural, physics-based motion |
 
 **Mathematical definitions**:
 
 - **Linear**: $f(t) = t$
 - **OutCubic**: $f(t) = 1 - (1 - t)^3$. Properties: $f(0)=0$, $f(1)=1$, $f'(0)=3$, $f'(1)=0$ (zero terminal velocity). Perceived as "fast start, slow finish" -- ideal for elements entering the viewport.
 - **InOutCubic**: $f(t) = 4t^3$ for $t < 0.5$; $f(t) = 1 - (-2t + 2)^3 / 2$ for $t \ge 0.5$. Properties: $f(0)=0$, $f(1)=1$, $f'(0)=0$, $f'(1)=0$ (zero velocity at both ends). Perceived as "ease in, ease out" -- ideal for page transitions.
-- **Spring**: Not a parametric curve. Solved via semi-implicit Euler integration (see 5.3).
+- **Spring**: Not a parametric curve. Solved via semi-implicit Euler integration (see 8.3).
 
-#### 8.3 Spring Dynamics
+### 8.3 Spring Dynamics
 
 **Model**: Damped harmonic oscillator
 
@@ -8776,7 +8768,7 @@ where $m$ = mass, $c$ = damping, $k$ = stiffness.
 **API**: `IThemeService::Spring()` returns the global default `SpringSpec`.
 `IAnimationService::AnimateSpring()` accepts per-call override.
 
-#### 8.4 TransitionDef
+### 8.4 TransitionDef
 
 Per-widget animation configuration stored in `WidgetStyleSheet::transition`:
 
@@ -8787,13 +8779,13 @@ struct TransitionDef {
 };
 ```
 
-#### 8.5 Reduced Motion (WCAG 2.1 SC 2.3.3)
+### 8.5 Reduced Motion (WCAG 2.1 SC 2.3.3)
 
 `SetReducedMotion(true)` -> all `Animate()` calls snap to target value immediately.
 `AnimationStarted` and `AnimationCompleted` notifications are still dispatched
 (so trigger-verification tests work).
 
-#### 8.6 Speed Multiplier
+### 8.6 Speed Multiplier
 
 `SetSpeedMultiplier(float)`: 1.0 = normal, 0.5 = half speed, 2.0 = double.
 Affects all animation durations globally.
@@ -8990,7 +8982,7 @@ On release: spring-back to bound with `stiffness=300, damping=20`.
 
 ---
 
-## I.9 Designer-Developer Handoff Contract 🆕
+## Appendix I. Designer-Developer Handoff Contract 🆕
 
 > 🆕 Post-v1 supplement.
 > This section is the **single-page summary** of the entire Part I design language.
@@ -8999,7 +8991,7 @@ On release: spring-back to bound with `stiffness=300, damping=20`.
 > exactly how each artifact maps to C++ code. Together, the two roles can implement
 > Matcha from scratch with all correct details.
 
-### I.9.1 Five-Layer Delivery Model
+### AI.1 Five-Layer Delivery Model
 
 Matcha's deliverables are organized into five abstraction layers, inspired by
 Jesse James Garrett's UX planes, Don Norman's three levels of processing
@@ -9063,12 +9055,12 @@ graph TB
 | L4 Composition | Behavioral → Reflective | Structure | ~20 templates | Medium (per-page) |
 | L5 Experience | Reflective | Strategy + Scope | ~25 specifications | Low-medium (per-workflow) |
 
-### I.9.2 Complete Artifact Catalog
+### AI.2 Complete Artifact Catalog
 
 Deliverables are organized by abstraction layer, not by document chapter.
 Each sub-section lists what the designer delivers and how the programmer consumes it.
 
-#### I.9.2.1 Layer 1 — Foundation
+#### AI.2.1 Layer 1 — Foundation
 
 > **Norman: Visceral** · **Garrett: Surface** · **Atomic: Atoms**
 >
@@ -9094,12 +9086,12 @@ Each sub-section lists what the designer delivers and how the programmer consume
 
 | Designer Deliverable | Format | Granularity | Spec Reference |
 |---------------------|--------|-------------|----------------|
-| Spacing scale | JSON: `$type: "dimension"` | 10 entries (`Px2`–`Px64`) | §4.1 |
-| Radius scale | JSON: same | 5 entries (`None`–`Round`) | §4.3 |
-| Size scale | JSON: same | 5 entries (`Xs`–`Xl`) | §4.4 |
-| Elevation / shadow | JSON: `$type: "shadow"` | 6 levels | §4.5 |
-| Layer (z-index) | Table: token → z-value | 10 entries | §4.6 |
-| Density multipliers | Table: `Compact/Default/Comfortable` → factor | 3 entries | §4.2 |
+| Spacing scale | JSON: `$type: "dimension"` | 10 entries (`Px2`–`Px64`) | §2b.1 |
+| Radius scale | JSON: same | 5 entries (`None`–`Round`) | §2b.3 |
+| Size scale | JSON: same | 5 entries (`Xs`–`Xl`) | §2b.4 |
+| Elevation / shadow | JSON: `$type: "shadow"` | 6 levels | §2b.5 |
+| Layer (z-index) | Table: token → z-value | 10 entries | §2b.6 |
+| Density multipliers | Table: `Compact/Default/Comfortable` → factor | 3 entries | §2b.2 |
 
 | Programmer Consumption | C++ Path | Notes |
 |-----------------------|----------|-------|
@@ -9182,7 +9174,7 @@ Each sub-section lists what the designer delivers and how the programmer consume
 
 ---
 
-#### I.9.2.2 Layer 2 — Component
+#### AI.2.2 Layer 2 — Component
 
 > **Norman: Behavioral** · **Garrett: Skeleton** · **Atomic: Molecules + Organisms**
 >
@@ -9226,7 +9218,7 @@ Based on Don Norman's affordance/signifier distinction (§7.12), for each widget
 
 ---
 
-#### I.9.2.3 Layer 3 — Behavior
+#### AI.2.3 Layer 3 — Behavior
 
 > **Norman: Behavioral** · **Garrett: Structure** · **Atomic: (cross-cutting)**
 >
@@ -9353,7 +9345,7 @@ Based on Hick's Law, Miller's Law (7±2), and Fitts' Law (§7.13):
 
 ---
 
-#### I.9.2.4 Layer 4 — Composition
+#### AI.2.4 Layer 4 — Composition
 
 > **Norman: Behavioral → Reflective** · **Garrett: Structure** · **Atomic: Templates**
 >
@@ -9437,7 +9429,7 @@ Based on Hick's Law, Miller's Law (7±2), and Fitts' Law (§7.13):
 
 ---
 
-#### I.9.2.5 Layer 5 — Experience
+#### AI.2.5 Layer 5 — Experience
 
 > **Norman: Reflective** · **Garrett: Strategy + Scope** · **Atomic: Pages**
 >
@@ -9543,7 +9535,7 @@ Based on Hick's Law, Miller's Law (7±2), and Fitts' Law (§7.13):
 only when **all five layers** are delivered and verified. Layer dependencies
 are strict: $L_n$ cannot begin until $L_{n-1}$ passes its gate check.
 
-### I.9.3 Artifact File Structure
+### AI.3 Artifact File Structure
 
 The designer's deliverables map to a standardized directory structure that the
 programmer's build system consumes:
@@ -9591,7 +9583,7 @@ Matcha/
         └── ...                      ← 56+ widget anatomy diagrams
 ```
 
-### I.9.4 Handoff Workflow
+### AI.4 Handoff Workflow
 
 The end-to-end workflow follows the five-layer dependency order:
 
@@ -9648,7 +9640,7 @@ sequenceDiagram
     D->>P: Approve or request corrections
 ```
 
-### I.9.5 Validation Checklist
+### AI.5 Validation Checklist
 
 Organized by delivery layer. Each layer's gate must pass before the next layer begins.
 
@@ -9710,7 +9702,7 @@ Organized by delivery layer. Each layer's gate must pass before the next layer b
 | 32 | Theme pack: light + dark + high-contrast render correctly | Both | Theme switch visual test |
 | 33 | Choreography: stagger/cascade/sequence timing correct | Programmer | Animation sequence test |
 
-### I.9.6 Common Pitfalls and Mitigations
+### AI.6 Common Pitfalls and Mitigations
 
 | Layer | Pitfall | Consequence | Mitigation |
 |:-----:|---------|------------|------------|
@@ -12541,8 +12533,8 @@ relevant specification section.
 | **FontSpec** | 字体规格 | Struct: `{ QString family; int pointSize; int weight; }` describing a resolved font. §3.1 |
 | **IconId** | 图标标识 | `std::string` typedef for icon URI identifiers (e.g., `"icon://matcha/save"`). See §6.2 for multi-scheme URI architecture. |
 | **IconSize** | 图标尺寸 | Enum of icon pixel sizes: `Xs`(12), `Sm`(16), `Md`(20), `Lg`(24), `Xl`(32). §6.3 |
-| **InteractionState** | 交互状态 | Enum of 8 widget interaction states: `Normal`, `Hovered`, `Pressed`, `Disabled`, `Focused`, `Selected`, `Error`, `DragOver`. §4.2 |
-| **LayerToken** | 层级令牌 | Enum of z-order stacking contexts: `Base`(0) through `Toast`(700). §4.4 |
+| **InteractionState** | 交互状态 | Enum of 8 widget interaction states: `Normal`, `Hovered`, `Pressed`, `Disabled`, `Focused`, `Selected`, `Error`, `DragOver`. §4.7 |
+| **LayerToken** | 层级令牌 | Enum of z-order stacking contexts: `Base`(0) through `Toast`(700). §2b.6 |
 | **OKLCH** | OKLCH 色彩空间 | Perceptual color space (Lightness, Chroma, Hue) used for tonal palette generation. Superior to HSL for perceptual uniformity. §2.1 |
 | **RadiusToken** | 圆角令牌 | Enum of corner radius presets: `None`(0), `Small`(2), `Default`(3), `Medium`(4), `Large`(8), `Round`(255). §2.5 |
 | **ShadowSpec** | 阴影规格 | Struct: `{ int offsetY; int blurRadius; float opacity; QColor color; }` for box shadow rendering. §2.6 |
@@ -12560,10 +12552,10 @@ relevant specification section.
 | **BuildGlobalStyleSheet()** | 构建全局样式表 | NyanTheme method that generates a QSS string from design tokens, applied globally via `QApplication::setStyleSheet()`. Ch.11 |
 | **ComponentOverride** | 组件覆盖 | A struct allowing plugins to override default `WidgetStyleSheet` fields for a specific `WidgetKind`. Ch.14 |
 | **ResolvedStyle** | 解析样式 | Output struct from `IThemeService::Resolve()` containing all computed visual properties for painting. Ch.9 |
-| **StateStyle** | 状态样式 | Struct defining visual tokens (background, foreground, border, opacity, cursor) for one `InteractionState`. §4.2 |
-| **Variant** | 变体 | A visual sub-type of a widget (e.g., PushButton has Primary, Secondary, Ghost, Danger variants). §4.1 |
+| **StateStyle** | 状态样式 | Struct defining visual tokens (background, foreground, border, opacity, cursor) for one `InteractionState`. §4.6 |
+| **Variant** | 变体 | A visual sub-type of a widget (e.g., PushButton has Primary, Secondary, Ghost, Danger variants). §4.7 |
 | **VariantColorOverride** | 变体颜色覆盖 | Struct for overriding specific variant × state color mappings in a widget's style matrix. Ch.14 |
-| **VariantStyle** | 变体样式 | Struct containing `array<StateStyle, 8>` — one `StateStyle` per `InteractionState` for a given variant. §4.2 |
+| **VariantStyle** | 变体样式 | Struct containing `array<StateStyle, 8>` — one `StateStyle` per `InteractionState` for a given variant. §4.7 |
 | **WidgetKind** | 组件类型 | Enum of 54+ widget type identifiers, used as index into the style sheet registry. Ch.14 |
 | **WidgetStyleSheet** | 组件样式表 | Struct combining geometry tokens (radius, padding, gap, minHeight), typography (font role), visual (elevation, layer), transition, and variant color maps. Ch.14 |
 
@@ -12626,9 +12618,9 @@ inform every design decision in the system.
 | **Hick's Law** | 希克定律 | Decision time $T = a + b \cdot \log_2(n+1)$: fewer choices per decision point → faster decisions. | §7.13.1 |
 | **Miller's Law** | 米勒定律 | Working memory limit of 7±2 items. Constrains menu items, tab counts, form fields per section. | §7.13.1 |
 | **Fitts' Law** | 费茨定律 | Movement time $T = a + b \cdot \log_2(1 + D/W)$: larger targets closer to cursor → faster acquisition. Governs minimum click target size (32×32 px). | §7.13.2 |
-| **Norman's Three Levels** | 诺曼三层次模型 | Visceral (本能) → Behavioral (行为) → Reflective (反思): three levels of cognitive processing that map to the Five-Layer Delivery Model. | §I.9.1 |
-| **Garrett's UX Planes** | 加勒特体验要素 | Strategy → Scope → Structure → Skeleton → Surface: Jesse James Garrett's five planes of user experience. | §I.9.1 |
-| **Atomic Design** | 原子设计 | Brad Frost's methodology: Atoms → Molecules → Organisms → Templates → Pages. Maps to Matcha's five delivery layers. | §I.9.1 |
+| **Norman's Three Levels** | 诺曼三层次模型 | Visceral (本能) → Behavioral (行为) → Reflective (反思): three levels of cognitive processing that map to the Five-Layer Delivery Model. | §AI.1 |
+| **Garrett's UX Planes** | 加勒特体验要素 | Strategy → Scope → Structure → Skeleton → Surface: Jesse James Garrett's five planes of user experience. | §AI.1 |
+| **Atomic Design** | 原子设计 | Brad Frost's methodology: Atoms → Molecules → Organisms → Templates → Pages. Maps to Matcha's five delivery layers. | §AI.1 |
 | **Anti-Corruption Layer (ACL)** | 防腐层 | DDD boundary pattern protecting a new system from legacy model contamination. Matcha's translation layer case study. | §0.2 |
 | **Paradigm Translation** | 范式翻译 | The process of mapping one UI paradigm's concepts to another's (e.g., imperative Qt → declarative spec). Distinct from simple adaptation. | §0.1 |
 

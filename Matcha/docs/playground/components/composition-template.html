@@ -1,0 +1,235 @@
+<style>
+.ct-demo { max-width: 720px; margin: 0 auto; }
+.ct-demo h2 {
+  font-size: var(--font-heading-size); font-weight: var(--font-heading-weight);
+  color: var(--color-text-primary); margin: 0 0 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--color-border-subtle);
+}
+.ct-demo h3 {
+  font-size: 11pt; font-weight: 600;
+  color: var(--color-text-primary); margin: 16px 0 6px;
+}
+
+.ct-select-row {
+  display: flex; gap: 12px; align-items: center; margin: 12px 0;
+  font-size: var(--font-body-size); color: var(--color-text-primary);
+}
+.ct-select-row label { font-weight: 600; }
+.ct-select-row select {
+  padding: 4px 8px; border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-small); background: var(--color-surface-default);
+  color: var(--color-text-primary); font-size: 12px;
+}
+
+.ct-preview {
+  border: 2px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  background: var(--color-surface-default);
+  min-height: 240px; margin: 12px 0;
+  position: relative; overflow: hidden;
+}
+
+.ct-slot {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fffffc;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.3s ease;
+}
+
+.ct-slot-table {
+  width: 100%; border-collapse: collapse; font-size: 11px; margin: 12px 0;
+}
+.ct-slot-table th, .ct-slot-table td {
+  padding: 4px 8px; border: 1px solid var(--color-border-subtle);
+  text-align: left;
+}
+.ct-slot-table th {
+  background: var(--color-surface-container);
+  font-weight: 700; color: var(--color-text-primary);
+}
+
+.ct-status {
+  margin-top: 10px; padding: 10px 12px;
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-default);
+  font-family: var(--font-family-mono); font-size: 11px;
+  color: var(--color-text-secondary); line-height: 1.5;
+  white-space: pre-wrap;
+}
+</style>
+
+<div class="ct-demo">
+  <h2>Composition Templates — §6.2</h2>
+
+  <div class="ct-select-row">
+    <label>Template:</label>
+    <select id="ctKind">
+      <option value="MasterDetail">MasterDetail</option>
+      <option value="HeaderDetailFooter">HeaderDetailFooter</option>
+      <option value="ShellLayout" selected>ShellLayout</option>
+      <option value="DialogConfirm">DialogConfirm</option>
+      <option value="DialogInput">DialogInput</option>
+      <option value="DialogWizard">DialogWizard</option>
+      <option value="DialogSettings">DialogSettings</option>
+    </select>
+  </div>
+
+  <h3>Visual Preview</h3>
+  <div class="ct-preview" id="ctPreview"></div>
+
+  <h3>Slot Descriptors</h3>
+  <table class="ct-slot-table" id="ctSlotTable">
+    <tr><th>Name</th><th>W</th><th>H</th><th>Min W</th><th>Max W</th><th>Flex</th><th>Scroll</th><th>Collapse</th><th>Edge</th></tr>
+  </table>
+
+  <div class="ct-status" id="ctStatus"></div>
+</div>
+
+<script>
+const COLORS = ['#2d2640','#3b2d5e','#5b6abf','#8b5fbf','#e8a840','#7dd87d'];
+const EDGES = ['Top','Bottom','Left','Right'];
+
+const TEMPLATES = {
+  MasterDetail: {
+    kind: 'MasterDetail', name: 'MasterDetail',
+    defaultWidth: 0, defaultHeight: 0, minWidth: 400, minHeight: 300,
+    slots: [
+      { name:'master', defaultWidth:240, defaultHeight:0, minWidth:150, maxWidth:400, flex:0, scrollable:true, collapsible:true, resizable:true, edge:'Left' },
+      { name:'detail', defaultWidth:0, defaultHeight:0, minWidth:200, maxWidth:0, flex:1, scrollable:true, collapsible:false, resizable:false, edge:'Right' },
+    ]
+  },
+  HeaderDetailFooter: {
+    kind: 'HeaderDetailFooter', name: 'HeaderDetailFooter',
+    defaultWidth: 0, defaultHeight: 0, minWidth: 300, minHeight: 200,
+    slots: [
+      { name:'header', defaultWidth:0, defaultHeight:48, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Top' },
+      { name:'detail', defaultWidth:0, defaultHeight:0, minWidth:0, maxWidth:0, flex:1, scrollable:true, collapsible:false, resizable:false, edge:'Top' },
+      { name:'footer', defaultWidth:0, defaultHeight:40, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Bottom' },
+    ]
+  },
+  ShellLayout: {
+    kind: 'ShellLayout', name: 'ShellLayout',
+    defaultWidth: 1280, defaultHeight: 800, minWidth: 800, minHeight: 600,
+    slots: [
+      { name:'titleBar', defaultWidth:0, defaultHeight:64, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Top' },
+      { name:'actionBar', defaultWidth:0, defaultHeight:36, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:true, resizable:false, edge:'Bottom' },
+      { name:'viewport', defaultWidth:0, defaultHeight:0, minWidth:300, maxWidth:0, flex:1, scrollable:false, collapsible:false, resizable:false, edge:'Left' },
+      { name:'propertyPanel', defaultWidth:280, defaultHeight:0, minWidth:200, maxWidth:400, flex:0, scrollable:true, collapsible:true, resizable:true, edge:'Right' },
+      { name:'statusBar', defaultWidth:0, defaultHeight:24, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Bottom' },
+    ]
+  },
+  DialogConfirm: {
+    kind: 'DialogConfirm', name: 'DialogConfirm',
+    defaultWidth: 400, defaultHeight: 200, minWidth: 300, minHeight: 150,
+    slots: [
+      { name:'icon', defaultWidth:48, defaultHeight:48, minWidth:48, maxWidth:48, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Left' },
+      { name:'message', defaultWidth:0, defaultHeight:0, minWidth:0, maxWidth:0, flex:1, scrollable:false, collapsible:false, resizable:false, edge:'Top' },
+      { name:'buttons', defaultWidth:0, defaultHeight:40, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Bottom' },
+    ]
+  },
+  DialogInput: {
+    kind: 'DialogInput', name: 'DialogInput',
+    defaultWidth: 360, defaultHeight: 160, minWidth: 280, minHeight: 120,
+    slots: [
+      { name:'label', defaultWidth:0, defaultHeight:24, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Top' },
+      { name:'input', defaultWidth:0, defaultHeight:32, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Top' },
+      { name:'buttons', defaultWidth:0, defaultHeight:40, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Bottom' },
+    ]
+  },
+  DialogWizard: {
+    kind: 'DialogWizard', name: 'DialogWizard',
+    defaultWidth: 600, defaultHeight: 400, minWidth: 500, minHeight: 400,
+    slots: [
+      { name:'stepIndicator', defaultWidth:0, defaultHeight:32, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Top' },
+      { name:'content', defaultWidth:0, defaultHeight:0, minWidth:0, maxWidth:0, flex:1, scrollable:true, collapsible:false, resizable:false, edge:'Top' },
+      { name:'buttons', defaultWidth:0, defaultHeight:40, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Bottom' },
+    ]
+  },
+  DialogSettings: {
+    kind: 'DialogSettings', name: 'DialogSettings',
+    defaultWidth: 720, defaultHeight: 500, minWidth: 600, minHeight: 400,
+    slots: [
+      { name:'categoryList', defaultWidth:180, defaultHeight:0, minWidth:140, maxWidth:240, flex:0, scrollable:true, collapsible:false, resizable:true, edge:'Left' },
+      { name:'content', defaultWidth:0, defaultHeight:0, minWidth:300, maxWidth:0, flex:1, scrollable:true, collapsible:false, resizable:false, edge:'Right' },
+      { name:'buttons', defaultWidth:0, defaultHeight:40, minWidth:0, maxWidth:0, flex:0, scrollable:false, collapsible:false, resizable:false, edge:'Bottom' },
+    ]
+  },
+};
+
+function renderPreview(tmpl) {
+  const preview = document.getElementById('ctPreview');
+  const W = preview.clientWidth || 700;
+  const H = 240;
+
+  const topSlots = tmpl.slots.filter(s => s.edge === 'Top' && s.flex === 0);
+  const botSlots = tmpl.slots.filter(s => s.edge === 'Bottom' && s.flex === 0);
+  const leftSlots = tmpl.slots.filter(s => s.edge === 'Left' && s.flex === 0);
+  const rightSlots = tmpl.slots.filter(s => s.edge === 'Right' && s.flex === 0);
+  const flexSlots = tmpl.slots.filter(s => s.flex > 0);
+
+  let html = '';
+  let y = 0;
+  const scale = H / Math.max(tmpl.defaultHeight || 400, 200);
+
+  topSlots.forEach((s,i) => {
+    const h = Math.max((s.defaultHeight || 30) * scale, 20);
+    html += `<div class="ct-slot" style="position:absolute;left:0;top:${y}px;width:100%;height:${h}px;background:${COLORS[tmpl.slots.indexOf(s) % COLORS.length]}">${s.name}</div>`;
+    y += h;
+  });
+
+  let botH = 0;
+  botSlots.forEach(s => { botH += Math.max((s.defaultHeight || 24) * scale, 18); });
+
+  const midH = H - y - botH;
+  const leftW = leftSlots.reduce((s,sl) => s + Math.max((sl.defaultWidth || 0) * (W / (tmpl.defaultWidth || 700)), 40), 0);
+  const rightW = rightSlots.reduce((s,sl) => s + Math.max((sl.defaultWidth || 0) * (W / (tmpl.defaultWidth || 700)), 40), 0);
+
+  leftSlots.forEach((s,i) => {
+    const w = Math.max((s.defaultWidth || 100) * (W / (tmpl.defaultWidth || 700)), 40);
+    html += `<div class="ct-slot" style="position:absolute;left:0;top:${y}px;width:${w}px;height:${midH}px;background:${COLORS[tmpl.slots.indexOf(s) % COLORS.length]}">${s.name}</div>`;
+  });
+
+  rightSlots.forEach((s,i) => {
+    const w = Math.max((s.defaultWidth || 100) * (W / (tmpl.defaultWidth || 700)), 40);
+    html += `<div class="ct-slot" style="position:absolute;right:0;top:${y}px;width:${w}px;height:${midH}px;background:${COLORS[tmpl.slots.indexOf(s) % COLORS.length]}">${s.name}</div>`;
+  });
+
+  flexSlots.forEach(s => {
+    html += `<div class="ct-slot" style="position:absolute;left:${leftW}px;top:${y}px;width:${W - leftW - rightW}px;height:${midH}px;background:${COLORS[tmpl.slots.indexOf(s) % COLORS.length]}">${s.name}</div>`;
+  });
+
+  let botY = H - botH;
+  botSlots.forEach((s,i) => {
+    const h = Math.max((s.defaultHeight || 24) * scale, 18);
+    html += `<div class="ct-slot" style="position:absolute;left:0;top:${botY}px;width:100%;height:${h}px;background:${COLORS[tmpl.slots.indexOf(s) % COLORS.length]}">${s.name}</div>`;
+    botY += h;
+  });
+
+  preview.style.height = H + 'px';
+  preview.innerHTML = html;
+}
+
+function renderTable(tmpl) {
+  const table = document.getElementById('ctSlotTable');
+  let html = '<tr><th>Name</th><th>W</th><th>H</th><th>Min W</th><th>Max W</th><th>Flex</th><th>Scroll</th><th>Collapse</th><th>Edge</th></tr>';
+  tmpl.slots.forEach(s => {
+    html += `<tr><td><b>${s.name}</b></td><td>${s.defaultWidth||'—'}</td><td>${s.defaultHeight||'—'}</td><td>${s.minWidth||'—'}</td><td>${s.maxWidth||'—'}</td><td>${s.flex}</td><td>${s.scrollable?'Yes':'—'}</td><td>${s.collapsible?'Yes':'—'}</td><td>${s.edge}</td></tr>`;
+  });
+  table.innerHTML = html;
+}
+
+function update() {
+  const kind = document.getElementById('ctKind').value;
+  const tmpl = TEMPLATES[kind];
+  renderPreview(tmpl);
+  renderTable(tmpl);
+  document.getElementById('ctStatus').textContent =
+    `TemplateKind::${tmpl.kind}\n` +
+    `default: ${tmpl.defaultWidth}x${tmpl.defaultHeight}  min: ${tmpl.minWidth}x${tmpl.minHeight}\n` +
+    `slots: ${tmpl.slots.length}  (${tmpl.slots.map(s=>s.name).join(', ')})`;
+}
+
+document.getElementById('ctKind').addEventListener('change', update);
+update();
+</script>

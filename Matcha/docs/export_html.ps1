@@ -160,6 +160,15 @@ body {
 #content {
   margin-left: 280px; max-width: 900px; padding: 40px 48px 80px;
 }
+a.spec-ref {
+  color: var(--accent-periwinkle, #5b6abf); text-decoration: none;
+  border-bottom: 1px dotted var(--accent-periwinkle, #5b6abf);
+  transition: color 0.15s, border-color 0.15s;
+}
+a.spec-ref:hover {
+  color: var(--accent-mauve, #8b5fbf);
+  border-bottom-style: solid;
+}
 h1, h2, h3, h4, h5, h6 {
   color: var(--heading); margin-top: 1.6em; margin-bottom: 0.6em; line-height: 1.3;
 }
@@ -354,6 +363,69 @@ document.querySelectorAll('#content h1, #content h2, #content h3, #content h4, #
       .replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
   }
 });
+
+// ---- Auto-link §x.x / Ch.x / Chapter x references to heading anchors ----
+(function linkSpecReferences() {
+  // Build heading-number -> id lookup from all headings
+  var headingMap = {};  // e.g. "2b.1" -> "2b1-spacing-tokens", "8.7" -> "87-interaction-timing-tokens-"
+  document.querySelectorAll('#content h1, #content h2, #content h3, #content h4, #content h5').forEach(function(h) {
+    var txt = h.textContent.trim();
+    // Match: "AI.1 ...", "2b.1 ...", "Chapter 10. ...", "3.4 ..." etc.
+    var m = txt.match(/^(?:Chapter\s+)?(\d+[a-z]?(?:\.\d+)*)/i) || txt.match(/^(AI(?:\.\d+)*)/);
+    if (m) headingMap[m[1]] = h.id;
+  });
+
+  // Pattern groups: (1)§AI.x (2)AI range-end | (3)§num.num (4)num range-end | (5)Ch.num | (6)Chapter num
+  var refRe = /(?:§(AI(?:\.\d+)*)(?:\s*[–\-]\s*(AI(?:\.\d+)*))?|§(\d+[a-z]?(?:\.\d+)*)(?:\s*[–\-]\s*(\d+[a-z]?(?:\.\d+)*))?|Ch\.(\d+)|Chapter\s+(\d+))/g;
+
+  function sectionToId(sec) {
+    if (headingMap[sec]) return headingMap[sec];
+    // Try progressively shorter prefixes: "7.14.3" -> "7.14" -> "7"
+    var parts = sec.split('.');
+    while (parts.length > 1) {
+      parts.pop();
+      var prefix = parts.join('.');
+      if (headingMap[prefix]) return headingMap[prefix];
+    }
+    return null;
+  }
+
+  function chapterToId(num) {
+    // Look for "chapter-NUM-..." pattern in heading IDs
+    var prefix = 'chapter-' + num + '-';
+    var ids = Object.values(headingMap);
+    for (var i = 0; i < ids.length; i++) {
+      if (ids[i].indexOf(prefix) === 0) return ids[i];
+    }
+    // Also check direct number match (Part I chapters: "1", "2", etc.)
+    return headingMap[num] || null;
+  }
+
+  // Process text-bearing elements inside #content
+  document.querySelectorAll('#content td, #content p, #content li, #content blockquote').forEach(function(el) {
+    if (el.closest('h1, h2, h3, h4, h5, a')) return;
+    var html = el.innerHTML;
+    var changed = false;
+    var newHtml = html.replace(refRe, function(match, ai, aiEnd, sec, secEnd, chDot, chWord) {
+      var targetId = null;
+      if (ai) {
+        targetId = sectionToId(ai);
+      } else if (sec) {
+        targetId = sectionToId(sec);
+      } else if (chDot) {
+        targetId = chapterToId(chDot);
+      } else if (chWord) {
+        targetId = chapterToId(chWord);
+      }
+      if (targetId) {
+        changed = true;
+        return '<a href="#' + targetId + '" class="spec-ref">' + match + '</a>';
+      }
+      return match;
+    });
+    if (changed) el.innerHTML = newHtml;
+  });
+})();
 
 // ---- Widget spec 12-section headings to exclude from TOC ----
 var widgetSpecHeadings = new Set([

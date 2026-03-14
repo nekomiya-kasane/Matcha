@@ -123,6 +123,35 @@ TEST_CASE("CursorToken has expected values") {
     CHECK(std::to_underlying(CursorToken::Count_) > 10);
 }
 
+// ============================================================================
+// TimingTokenId (§8.7)
+// ============================================================================
+
+TEST_CASE("TimingTokenId count and defaults") {
+    CHECK(kTimingTokenCount == 15);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::HoverDelay)] == 200);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::TooltipDelay)] == 500);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::TooltipDismissDelay)] == 100);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::LongPressThreshold)] == 500);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::DoubleClickWindow)] == 400);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::DebounceSearch)] == 300);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::DebounceResize)] == 100);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::AutoSaveInterval)] == 30000);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::IdleTimeout)] == 60000);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::RepeatKeyInitial)] == 500);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::RepeatKeyInterval)] == 33);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::DragInitDelay)] == 150);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::ToastDismissTimeout)] == 5000);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::MenuOpenDelay)] == 200);
+    CHECK(kDefaultTimingMs[std::to_underlying(TimingTokenId::MenuCloseDelay)] == 300);
+}
+
+TEST_CASE("TimingTokenId enum values are sequential") {
+    CHECK(std::to_underlying(TimingTokenId::HoverDelay) == 0);
+    CHECK(std::to_underlying(TimingTokenId::MenuCloseDelay) == 14);
+    CHECK(std::to_underlying(TimingTokenId::Count_) == 15);
+}
+
 TEST_CASE("LayerToken z-index ordering") {
     CHECK(std::to_underlying(LayerToken::Base) < std::to_underlying(LayerToken::Elevated));
     CHECK(std::to_underlying(LayerToken::Elevated) < std::to_underlying(LayerToken::Dropdown));

@@ -3,6 +3,18 @@
  * @brief NyanTheme concrete implementation of IThemeService.
  */
 
+// Windows headers MUST come before Qt to avoid macro pollution.
+// We need SystemParametersInfoW / GetDoubleClickTime for §8.7 platform timing queries.
+#ifdef _WIN32
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN
+#  endif
+#  ifndef NOMINMAX
+#    define NOMINMAX
+#  endif
+#  include <windows.h>
+#endif
+
 #include <Matcha/Widgets/Core/ContrastChecker.h>
 #include <Matcha/Widgets/Core/NyanTheme.h>
 #include <Matcha/Widgets/Core/TonalPaletteGenerator.h>
@@ -19,6 +31,7 @@
 #include <QJsonObject>
 #include <QOperatingSystemVersion>
 
+#include <algorithm>
 #include <cmath>
 #include <optional>
 #include <utility>
@@ -86,6 +99,7 @@ NyanTheme::NyanTheme(QString palettePath, QObject* parent)
     : IThemeService(parent)
     , _palettePath(std::move(palettePath))
 {
+    QueryPlatformTimings();
 }
 
 // ============================================================================
@@ -859,6 +873,76 @@ auto NyanTheme::AnimationMs(fw::AnimationToken speed) const -> int
     return fw::kDefaultAnimationMs[idx];
 }
 
+// ============================================================================
+// Interaction Timing Tokens (§8.7)
+// ============================================================================
+
+auto NyanTheme::TimingMs(fw::TimingTokenId id) const -> int
+{
+    const auto idx = std::to_underlying(id);
+    if (idx >= fw::kTimingTokenCount) { return 0; }
+    // Override takes precedence if >= 0
+    if (_timingOverrides[idx] >= 0) { return _timingOverrides[idx]; }
+    return _timingMs[idx];
+}
+
+void NyanTheme::SetTimingOverride(fw::TimingTokenId id, int ms)
+{
+    const auto idx = std::to_underlying(id);
+    if (idx >= fw::kTimingTokenCount) { return; }
+    _timingOverrides[idx] = ms; // -1 restores default
+}
+
+void NyanTheme::QueryPlatformTimings()
+{
+    // Start with compiled defaults
+    _timingMs = fw::kDefaultTimingMs;
+
+#ifdef _WIN32
+    // Windows: query OS for platform-specific timing values
+    // §8.7.2 Platform Overrides
+
+    // DoubleClickWindow: GetDoubleClickTime()
+    {
+        const UINT dcTime = ::GetDoubleClickTime();
+        if (dcTime > 0) {
+            _timingMs[std::to_underlying(fw::TimingTokenId::DoubleClickWindow)]
+                = static_cast<int>(dcTime);
+        }
+    }
+
+    // HoverDelay: SPI_GETMOUSEHOVERTIME
+    {
+        UINT hoverTime = 0;
+        if (::SystemParametersInfoW(SPI_GETMOUSEHOVERTIME, 0, &hoverTime, 0) && hoverTime > 0) {
+            _timingMs[std::to_underlying(fw::TimingTokenId::HoverDelay)]
+                = static_cast<int>(hoverTime);
+        }
+    }
+
+    // RepeatKeyInitial: SPI_GETKEYBOARDDELAY (0-3 → 250ms-1000ms, step 250ms)
+    {
+        DWORD kbDelay = 0;
+        if (::SystemParametersInfoW(SPI_GETKEYBOARDDELAY, 0, &kbDelay, 0)) {
+            _timingMs[std::to_underlying(fw::TimingTokenId::RepeatKeyInitial)]
+                = static_cast<int>((kbDelay + 1) * 250);
+        }
+    }
+
+    // RepeatKeyInterval: SPI_GETKEYBOARDSPEED (0-31 → ~400ms-33ms)
+    {
+        DWORD kbSpeed = 0;
+        if (::SystemParametersInfoW(SPI_GETKEYBOARDSPEED, 0, &kbSpeed, 0)) {
+            // 0 = ~2.5 chars/s (400ms), 31 = ~30 chars/s (33ms)
+            // Linear interpolation: interval = 400 - (kbSpeed * (400-33)/31)
+            const int intervalMs = 400 - static_cast<int>(kbSpeed) * 367 / 31;
+            _timingMs[std::to_underlying(fw::TimingTokenId::RepeatKeyInterval)]
+                = std::max(intervalMs, 15);
+        }
+    }
+#endif // _WIN32
+}
+
 auto NyanTheme::ResolveStyleSheet(WidgetKind kind) const -> const WidgetStyleSheet&
 {
     const auto idx = std::to_underlying(kind);
@@ -924,6 +1008,20 @@ auto NyanTheme::Resolve(WidgetKind kind,
         .durationMs    = AnimationMs(sheet.transition.duration),
         .easingType    = easingType,
     };
+}
+
+// ============================================================================
+// Resolve with Instance Override (cascade Layer 3)
+// ============================================================================
+
+auto NyanTheme::Resolve(WidgetKind kind,
+                        std::size_t variantIndex,
+                        InteractionState state,
+                        const InstanceStyleOverride& instanceOverride) const -> ResolvedStyle
+{
+    auto style = Resolve(kind, variantIndex, state);
+    instanceOverride.ApplyTo(style);
+    return style;
 }
 
 // ============================================================================

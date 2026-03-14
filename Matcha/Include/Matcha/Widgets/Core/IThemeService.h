@@ -314,6 +314,27 @@ public:
                                        std::size_t variantIndex,
                                        InteractionState state) const -> ResolvedStyle = 0;
 
+    /**
+     * @brief Resolve with per-instance style override (cascade Layer 3).
+     *
+     * Same as `Resolve(kind, variantIndex, state)` but applies a sparse
+     * instance-level patch on top. This is the highest priority layer in the
+     * style cascade, used when a specific widget instance needs to deviate
+     * from its class-level style.
+     *
+     * @param kind          Widget type.
+     * @param variantIndex  Index into variants.
+     * @param state         Current interaction state.
+     * @param instanceOverride  Non-null pointer to instance override.
+     * @return Resolved style with instance patches applied.
+     *
+     * @see InstanceStyleOverride, §4.17
+     */
+    [[nodiscard]] virtual auto Resolve(WidgetKind kind,
+                                       std::size_t variantIndex,
+                                       InteractionState state,
+                                       const InstanceStyleOverride& instanceOverride) const -> ResolvedStyle = 0;
+
     // ========================================================================
     // Component Token Overrides
     // ========================================================================

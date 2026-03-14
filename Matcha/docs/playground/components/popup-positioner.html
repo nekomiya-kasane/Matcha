@@ -1,0 +1,352 @@
+<style>
+/* =======================================================================
+ * Popup Positioner — §7.4 Interactive Demo
+ *
+ * Drag the anchor around the viewport. The popup auto-positions using
+ * flip/shift/resize strategies. Switch between 12 placements.
+ * ======================================================================= */
+
+.pp-demo { max-width: 720px; margin: 0 auto; }
+.pp-demo h2 {
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  color: var(--color-text-primary);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.pp-demo h3 {
+  font-size: 11pt; font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 16px 0 6px;
+}
+
+/* -- Placement selector ------------------------------------------------- */
+.placement-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  margin-bottom: 12px;
+}
+.placement-btn {
+  padding: 4px 6px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 11px;
+  font-family: var(--font-family-mono);
+  cursor: pointer;
+  transition: all 0.12s;
+  text-align: center;
+}
+.placement-btn:hover { background: var(--color-fill-hover); }
+.placement-btn.active {
+  background: var(--color-primary);
+  color: var(--color-on-accent);
+  border-color: var(--color-primary);
+}
+
+/* -- Strategy checkboxes ------------------------------------------------ */
+.strategy-row {
+  display: flex; gap: 16px; margin-bottom: 12px;
+  font-size: var(--font-body-size);
+  color: var(--color-text-primary);
+}
+.strategy-row label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
+/* -- Viewport canvas ---------------------------------------------------- */
+.vp-canvas {
+  position: relative;
+  width: 100%; height: 400px;
+  border: 2px solid var(--color-border-default);
+  border-radius: var(--radius-large);
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 39px, var(--color-border-subtle) 39px, var(--color-border-subtle) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, var(--color-border-subtle) 39px, var(--color-border-subtle) 40px);
+  overflow: hidden;
+  user-select: none;
+}
+
+/* -- Anchor ------------------------------------------------------------- */
+.anchor-box {
+  position: absolute;
+  width: 100px; height: 28px;
+  background: var(--color-primary);
+  color: var(--color-on-accent);
+  border-radius: var(--radius-default);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  cursor: grab;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.anchor-box:active { cursor: grabbing; }
+
+/* -- Popup -------------------------------------------------------------- */
+.popup-box {
+  position: absolute;
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  z-index: 1;
+  transition: left 0.15s, top 0.15s, width 0.15s, height 0.15s;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+}
+.popup-box.flipped { border-color: #e8a840; }
+.popup-box.shifted { border-color: #5b6abf; }
+.popup-box.resized { border-color: #ffadad; }
+
+/* -- Margin indicator --------------------------------------------------- */
+.margin-overlay {
+  position: absolute; inset: 0;
+  border: 8px dashed rgba(91, 106, 191, 0.15);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* -- Status panel ------------------------------------------------------- */
+.pp-status {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-default);
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+.pp-status .label { color: var(--color-text-primary); font-weight: 600; }
+.pp-status .tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+.pp-status .tag-flip   { background: #fff0d6; color: #e8a840; }
+.pp-status .tag-shift  { background: #eaf8ff; color: #5b6abf; }
+.pp-status .tag-resize { background: #ffadad; color: #a04040; }
+</style>
+
+<div class="pp-demo">
+  <h2>Popup Positioner — §7.4</h2>
+
+  <h3>Placement (12 positions)</h3>
+  <div class="placement-grid" id="placementGrid"></div>
+
+  <h3>Overflow Strategy</h3>
+  <div class="strategy-row">
+    <label><input type="checkbox" id="chkFlip" checked> Flip</label>
+    <label><input type="checkbox" id="chkShift" checked> Shift</label>
+    <label><input type="checkbox" id="chkResize" checked> Resize</label>
+  </div>
+
+  <h3>Viewport (drag the anchor)</h3>
+  <div class="vp-canvas" id="vpCanvas">
+    <div class="margin-overlay"></div>
+    <div class="anchor-box" id="anchorBox">Anchor</div>
+    <div class="popup-box" id="popupBox">Popup 200&times;150</div>
+  </div>
+
+  <div class="pp-status" id="ppStatus"></div>
+</div>
+
+<script>
+// =====================================================================
+// PopupPositioner JS (mirrors C++ implementation)
+// =====================================================================
+const PLACEMENTS = [
+  'TopStart','TopCenter','TopEnd',
+  'BottomStart','BottomCenter','BottomEnd',
+  'LeftStart','LeftCenter','LeftEnd',
+  'RightStart','RightCenter','RightEnd',
+];
+
+const FLIP_MAP = {
+  TopStart:'BottomStart', TopCenter:'BottomCenter', TopEnd:'BottomEnd',
+  BottomStart:'TopStart', BottomCenter:'TopCenter', BottomEnd:'TopEnd',
+  LeftStart:'RightStart', LeftCenter:'RightCenter', LeftEnd:'RightEnd',
+  RightStart:'LeftStart', RightCenter:'LeftCenter', RightEnd:'LeftEnd',
+};
+
+function primaryAxis(p) {
+  return p.startsWith('Top') || p.startsWith('Bottom') ? 'v' : 'h';
+}
+
+function rawPos(anchor, popup, placement, offset) {
+  let px = 0, py = 0;
+  const cx = anchor.x + anchor.w / 2, cy = anchor.y + anchor.h / 2;
+  switch (placement) {
+    case 'TopStart':      px = anchor.x; py = anchor.y - popup.h; break;
+    case 'TopCenter':     px = cx - popup.w/2; py = anchor.y - popup.h; break;
+    case 'TopEnd':        px = anchor.x + anchor.w - popup.w; py = anchor.y - popup.h; break;
+    case 'BottomStart':   px = anchor.x; py = anchor.y + anchor.h; break;
+    case 'BottomCenter':  px = cx - popup.w/2; py = anchor.y + anchor.h; break;
+    case 'BottomEnd':     px = anchor.x + anchor.w - popup.w; py = anchor.y + anchor.h; break;
+    case 'LeftStart':     px = anchor.x - popup.w; py = anchor.y; break;
+    case 'LeftCenter':    px = anchor.x - popup.w; py = cy - popup.h/2; break;
+    case 'LeftEnd':       px = anchor.x - popup.w; py = anchor.y + anchor.h - popup.h; break;
+    case 'RightStart':    px = anchor.x + anchor.w; py = anchor.y; break;
+    case 'RightCenter':   px = anchor.x + anchor.w; py = cy - popup.h/2; break;
+    case 'RightEnd':      px = anchor.x + anchor.w; py = anchor.y + anchor.h - popup.h; break;
+  }
+  return { x: px + offset.x, y: py + offset.y };
+}
+
+function compute(req) {
+  const r = { placement: req.placement, size: {...req.popupSize}, flipped: false, shifted: false, resized: false };
+  const axis = primaryAxis(req.placement);
+  let pos = rawPos(req.anchor, r.size, r.placement, req.offset);
+  const m = req.margin;
+  const vp = req.viewport;
+
+  // FLIP
+  if (req.flip) {
+    const overP = axis === 'v'
+      ? (pos.y < vp.y+m || pos.y+r.size.h > vp.y+vp.h-m)
+      : (pos.x < vp.x+m || pos.x+r.size.w > vp.x+vp.w-m);
+    if (overP) {
+      const fp = FLIP_MAP[r.placement];
+      const fpos = rawPos(req.anchor, r.size, fp, {x:-req.offset.x, y:-req.offset.y});
+      const fOverP = axis === 'v'
+        ? (fpos.y < vp.y+m || fpos.y+r.size.h > vp.y+vp.h-m)
+        : (fpos.x < vp.x+m || fpos.x+r.size.w > vp.x+vp.w-m);
+      if (!fOverP) { pos = fpos; r.placement = fp; r.flipped = true; }
+    }
+  }
+
+  // SHIFT
+  if (req.shift) {
+    if (axis === 'v') {
+      const lo = vp.x+m, hi = vp.x+vp.w-m-r.size.w;
+      if (pos.x < lo || pos.x > hi) { pos.x = Math.max(lo, Math.min(pos.x, hi)); r.shifted = true; }
+    } else {
+      const lo = vp.y+m, hi = vp.y+vp.h-m-r.size.h;
+      if (pos.y < lo || pos.y > hi) { pos.y = Math.max(lo, Math.min(pos.y, hi)); r.shifted = true; }
+    }
+  }
+
+  // RESIZE
+  if (req.resize) {
+    const over = pos.x<vp.x+m || pos.y<vp.y+m || pos.x+r.size.w>vp.x+vp.w-m || pos.y+r.size.h>vp.y+vp.h-m;
+    if (over) {
+      let mw = vp.x+vp.w-m-pos.x, mh = vp.y+vp.h-m-pos.y;
+      if (r.size.w > mw && mw > 0) { r.size.w = mw; r.resized = true; }
+      if (r.size.h > mh && mh > 0) { r.size.h = mh; r.resized = true; }
+      if (pos.x < vp.x+m) { r.size.w -= (vp.x+m-pos.x); pos.x = vp.x+m; r.resized = true; }
+      if (pos.y < vp.y+m) { r.size.h -= (vp.y+m-pos.y); pos.y = vp.y+m; r.resized = true; }
+      r.size.w = Math.max(r.size.w, 0);
+      r.size.h = Math.max(r.size.h, 0);
+    }
+  }
+
+  r.position = pos;
+  return r;
+}
+
+// =====================================================================
+// UI
+// =====================================================================
+const canvas = document.getElementById('vpCanvas');
+const anchorEl = document.getElementById('anchorBox');
+const popupEl = document.getElementById('popupBox');
+const statusEl = document.getElementById('ppStatus');
+const grid = document.getElementById('placementGrid');
+
+let currentPlacement = 'BottomStart';
+let anchorX = 200, anchorY = 160;
+const popupW = 200, popupH = 150;
+
+// Build placement buttons
+PLACEMENTS.forEach(p => {
+  const btn = document.createElement('button');
+  btn.className = 'placement-btn' + (p === currentPlacement ? ' active' : '');
+  btn.textContent = p;
+  btn.addEventListener('click', () => {
+    grid.querySelectorAll('.placement-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPlacement = p;
+    update();
+  });
+  grid.appendChild(btn);
+});
+
+function update() {
+  const vpRect = canvas.getBoundingClientRect();
+  const vpW = canvas.clientWidth, vpH = canvas.clientHeight;
+
+  anchorEl.style.left = anchorX + 'px';
+  anchorEl.style.top = anchorY + 'px';
+
+  const req = {
+    anchor: { x: anchorX, y: anchorY, w: 100, h: 28 },
+    popupSize: { w: popupW, h: popupH },
+    placement: currentPlacement,
+    offset: { x: 0, y: 0 },
+    viewport: { x: 0, y: 0, w: vpW, h: vpH },
+    margin: 8,
+    flip: document.getElementById('chkFlip').checked,
+    shift: document.getElementById('chkShift').checked,
+    resize: document.getElementById('chkResize').checked,
+  };
+
+  const r = compute(req);
+
+  popupEl.style.left = r.position.x + 'px';
+  popupEl.style.top = r.position.y + 'px';
+  popupEl.style.width = r.size.w + 'px';
+  popupEl.style.height = r.size.h + 'px';
+
+  popupEl.className = 'popup-box';
+  if (r.flipped) popupEl.classList.add('flipped');
+  if (r.shifted) popupEl.classList.add('shifted');
+  if (r.resized) popupEl.classList.add('resized');
+
+  popupEl.textContent = `${r.size.w}\u00d7${r.size.h}`;
+
+  let tags = '';
+  if (r.flipped) tags += '<span class="tag tag-flip">FLIP</span>';
+  if (r.shifted) tags += '<span class="tag tag-shift">SHIFT</span>';
+  if (r.resized) tags += '<span class="tag tag-resize">RESIZE</span>';
+
+  statusEl.innerHTML = `
+    <span class="label">placement:</span> ${r.placement} ${tags}<br>
+    <span class="label">position:</span> (${r.position.x}, ${r.position.y})
+    <span class="label">size:</span> ${r.size.w}\u00d7${r.size.h}
+    <span class="label">anchor:</span> (${anchorX}, ${anchorY})
+    <span class="label">viewport:</span> ${vpW}\u00d7${vpH}
+  `;
+}
+
+// Drag anchor
+let dragging = false, dragOx = 0, dragOy = 0;
+anchorEl.addEventListener('mousedown', e => {
+  dragging = true;
+  dragOx = e.offsetX; dragOy = e.offsetY;
+  e.preventDefault();
+});
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const cr = canvas.getBoundingClientRect();
+  anchorX = Math.max(0, Math.min(e.clientX - cr.left - dragOx, canvas.clientWidth - 100));
+  anchorY = Math.max(0, Math.min(e.clientY - cr.top - dragOy, canvas.clientHeight - 28));
+  update();
+});
+document.addEventListener('mouseup', () => { dragging = false; });
+
+// Strategy checkboxes
+['chkFlip','chkShift','chkResize'].forEach(id =>
+  document.getElementById(id).addEventListener('change', update));
+
+// Resize observer
+new ResizeObserver(() => update()).observe(canvas);
+
+update();
+</script>

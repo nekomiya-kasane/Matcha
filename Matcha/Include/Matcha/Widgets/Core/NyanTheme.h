@@ -71,6 +71,8 @@ public:
     [[nodiscard]] auto SpacingPx(fw::SpacingToken token) const -> int override;
     [[nodiscard]] auto Radius(fw::RadiusToken token) const -> int override;
     [[nodiscard]] auto AnimationMs(fw::AnimationToken speed) const -> int override;
+    [[nodiscard]] auto TimingMs(fw::TimingTokenId id) const -> int override;
+    void SetTimingOverride(fw::TimingTokenId id, int ms) override;
 
     // -- IThemeService interface implementation --
 
@@ -99,6 +101,11 @@ public:
     [[nodiscard]] auto Resolve(WidgetKind kind,
                                std::size_t variantIndex,
                                InteractionState state) const -> ResolvedStyle override;
+
+    [[nodiscard]] auto Resolve(WidgetKind kind,
+                               std::size_t variantIndex,
+                               InteractionState state,
+                               const InstanceStyleOverride& instanceOverride) const -> ResolvedStyle override;
 
     void RegisterComponentOverrides(std::span<const ComponentOverride> overrides) override;
 
@@ -142,6 +149,9 @@ private:
     /// @brief Build and apply a global QSS stylesheet from Design Tokens.
     void BuildGlobalStyleSheet();
 
+    /// @brief Query OS platform for interaction timing values (Windows SPI).
+    void QueryPlatformTimings();
+
     /// @brief Build default variant color map for a widget kind.
     void BuildDefaultVariants(WidgetKind kind);
 
@@ -153,6 +163,18 @@ private:
     fw::TextDirection _direction    = fw::TextDirection::LTR;
     float             _fontScale    = 1.0F; ///< Global font scale factor
     int               _animOverride = -1; ///< -1 = use real values
+
+    /// @brief Interaction timing token storage (§8.7). Initialized from
+    /// kDefaultTimingMs, then patched with OS platform queries.
+    std::array<int, fw::kTimingTokenCount> _timingMs = fw::kDefaultTimingMs;
+
+    /// @brief Per-token overrides. -1 = no override (use _timingMs value).
+    std::array<int, fw::kTimingTokenCount> _timingOverrides = []() consteval {
+        std::array<int, fw::kTimingTokenCount> a {};
+        for (auto& v : a) { v = -1; }
+        return a;
+    }();
+
     fw::SpringSpec    _springSpec {};     ///< Global default spring params (JSON-configurable)
 
     std::array<QColor, kColorTokenCount>          _colors {};

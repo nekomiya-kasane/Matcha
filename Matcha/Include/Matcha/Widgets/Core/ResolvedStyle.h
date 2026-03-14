@@ -18,6 +18,8 @@
 #include <QColor>
 #include <QFont>
 
+#include <optional>
+
 namespace matcha::gui {
 
 /**
@@ -67,6 +69,65 @@ struct ResolvedStyle {
     // -- Resolved transition --
     int durationMs    = 0;  ///< Animation duration in milliseconds
     int easingType    = 0;  ///< QEasingCurve::Type for state transitions
+};
+
+/**
+ * @brief Per-instance style override (cascade Layer 3 — highest priority).
+ *
+ * Allows a single widget instance to patch any field of a `ResolvedStyle`
+ * after the base cascade resolution. Each `std::optional` field acts as a
+ * sparse patch: if `has_value()`, it replaces the corresponding resolved
+ * value; otherwise the base value is kept.
+ *
+ * Usage:
+ * @code
+ * InstanceStyleOverride ov;
+ * ov.background = QColor("#FF0000");
+ * ov.radiusPx   = 12;
+ * auto style = Theme().Resolve(WidgetKind::PushButton, 0,
+ *                               InteractionState::Normal, &ov);
+ * @endcode
+ *
+ * @see §4.17 Style Cascade Resolution
+ */
+struct InstanceStyleOverride {
+    // -- Color overrides --
+    std::optional<QColor> background;
+    std::optional<QColor> foreground;
+    std::optional<QColor> border;
+
+    // -- Geometry overrides (concrete px, already density-scaled by caller) --
+    std::optional<int>    radiusPx;
+    std::optional<int>    paddingHPx;
+    std::optional<int>    paddingVPx;
+    std::optional<int>    gapPx;
+    std::optional<int>    minHeightPx;
+    std::optional<int>    borderWidthPx;
+
+    // -- Visual overrides --
+    std::optional<float>  opacity;
+
+    // -- Transition overrides --
+    std::optional<int>    durationMs;
+
+    /**
+     * @brief Apply this override to a resolved style (in-place patch).
+     * @param style The style to patch.
+     */
+    void ApplyTo(ResolvedStyle& style) const
+    {
+        if (background)    { style.background    = *background; }
+        if (foreground)    { style.foreground     = *foreground; }
+        if (border)        { style.border         = *border; }
+        if (radiusPx)      { style.radiusPx       = *radiusPx; }
+        if (paddingHPx)    { style.paddingHPx     = *paddingHPx; }
+        if (paddingVPx)    { style.paddingVPx     = *paddingVPx; }
+        if (gapPx)         { style.gapPx          = *gapPx; }
+        if (minHeightPx)   { style.minHeightPx    = *minHeightPx; }
+        if (borderWidthPx) { style.borderWidthPx  = *borderWidthPx; }
+        if (opacity)       { style.opacity         = *opacity; }
+        if (durationMs)    { style.durationMs      = *durationMs; }
+    }
 };
 
 } // namespace matcha::gui

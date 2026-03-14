@@ -551,6 +551,67 @@ enum class LayerToken : uint16_t {
 };
 
 // ============================================================================
+// Interaction Timing Tokens (§8.7)
+// ============================================================================
+
+/**
+ * @brief Named interaction timing tokens for non-animation intervals.
+ *
+ * These govern when interactions trigger, debounce, or timeout — distinct
+ * from AnimationToken which controls visual motion duration.
+ *
+ * Default values are provided in kDefaultTimingMs[]. On Windows, some
+ * tokens are overridden by OS queries (SystemParametersInfo) at startup.
+ *
+ * @see Matcha_Design_System_Specification.md §8.7
+ */
+enum class TimingTokenId : uint8_t {
+    HoverDelay           = 0,   ///< 200ms — delay before hover state activates
+    TooltipDelay         = 1,   ///< 500ms — delay before tooltip appears
+    TooltipDismissDelay  = 2,   ///< 100ms — grace period leaving tooltip trigger
+    LongPressThreshold   = 3,   ///< 500ms — long-press recognition (touch/pen)
+    DoubleClickWindow    = 4,   ///< 400ms — max interval for double-click
+    DebounceSearch       = 5,   ///< 300ms — search-as-you-type debounce
+    DebounceResize       = 6,   ///< 100ms — window resize layout debounce
+    AutoSaveInterval     = 7,   ///< 30000ms — auto-save interval
+    IdleTimeout          = 8,   ///< 60000ms — UI idle mode threshold
+    RepeatKeyInitial     = 9,   ///< 500ms — delay before key repeat starts
+    RepeatKeyInterval    = 10,  ///< 33ms  — interval between key repeats (~30/s)
+    DragInitDelay        = 11,  ///< 150ms — hold before drag initiates
+    ToastDismissTimeout  = 12,  ///< 5000ms — auto-dismiss for Toast
+    MenuOpenDelay        = 13,  ///< 200ms — submenu open on hover
+    MenuCloseDelay       = 14,  ///< 300ms — grace before submenu closes
+
+    Count_ = 15
+};
+
+inline constexpr auto kTimingTokenCount = static_cast<std::size_t>(TimingTokenId::Count_);
+
+/**
+ * @brief Default timing values in milliseconds, indexed by TimingTokenId.
+ *
+ * Platform-specific overrides (Windows SystemParametersInfo, etc.) replace
+ * selected entries at ITokenRegistry initialization time.
+ */
+inline constexpr std::array<int, kTimingTokenCount> kDefaultTimingMs = {
+    200,    // HoverDelay
+    500,    // TooltipDelay
+    100,    // TooltipDismissDelay
+    500,    // LongPressThreshold
+    400,    // DoubleClickWindow
+    300,    // DebounceSearch
+    100,    // DebounceResize
+    30000,  // AutoSaveInterval
+    60000,  // IdleTimeout
+    500,    // RepeatKeyInitial
+    33,     // RepeatKeyInterval
+    150,    // DragInitDelay
+    5000,   // ToastDismissTimeout
+    200,    // MenuOpenDelay
+    300,    // MenuCloseDelay
+};
+
+// ============================================================================
 // Transition Definition (RFC-07)
 // ============================================================================
 

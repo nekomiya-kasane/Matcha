@@ -1,0 +1,231 @@
+<style>
+.le-demo { max-width: 720px; margin: 0 auto; }
+.le-demo h2 {
+  font-size: var(--font-heading-size); font-weight: var(--font-heading-weight);
+  color: var(--color-text-primary); margin: 0 0 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--color-border-subtle);
+}
+.le-demo h3 {
+  font-size: 11pt; font-weight: 600;
+  color: var(--color-text-primary); margin: 16px 0 6px;
+}
+
+.le-container {
+  position: relative;
+  border: 2px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  background: var(--color-surface-container);
+  height: 120px; margin: 12px 0;
+}
+.le-child {
+  position: absolute;
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fffffc;
+  transition: all 0.25s ease;
+}
+
+.ctrl-row {
+  display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+  margin: 8px 0; font-size: var(--font-body-size); color: var(--color-text-primary);
+}
+.ctrl-row label { font-weight: 600; min-width: 110px; text-align: right; }
+.ctrl-row select, .ctrl-row input {
+  padding: 4px 8px; border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-small); background: var(--color-surface-default);
+  color: var(--color-text-primary); font-size: 12px;
+}
+
+.le-status {
+  margin-top: 10px; padding: 10px 12px;
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-default);
+  font-family: var(--font-family-mono); font-size: 11px;
+  color: var(--color-text-secondary); line-height: 1.5;
+  white-space: pre-wrap;
+}
+</style>
+
+<div class="le-demo">
+  <h2>LayoutEngine — §6.1</h2>
+
+  <h3>Flex Layout (HBox / VBox)</h3>
+  <div class="ctrl-row">
+    <label>mainAlign:</label>
+    <select id="mainAlign">
+      <option value="Start">Start</option>
+      <option value="Center">Center</option>
+      <option value="End">End</option>
+      <option value="SpaceBetween">SpaceBetween</option>
+      <option value="SpaceAround">SpaceAround</option>
+      <option value="SpaceEvenly">SpaceEvenly</option>
+    </select>
+    <label>crossAlign:</label>
+    <select id="crossAlign">
+      <option value="Stretch" selected>Stretch</option>
+      <option value="Start">Start</option>
+      <option value="Center">Center</option>
+      <option value="End">End</option>
+    </select>
+  </div>
+  <div class="ctrl-row">
+    <label>gap (px):</label>
+    <input type="range" id="gap" min="0" max="24" value="8" style="width:120px">
+    <span id="gapVal" style="font-family:var(--font-family-mono);font-size:11px">8</span>
+    <label>padding:</label>
+    <input type="range" id="pad" min="0" max="30" value="8" style="width:120px">
+    <span id="padVal" style="font-family:var(--font-family-mono);font-size:11px">8</span>
+  </div>
+  <div class="ctrl-row">
+    <label>children:</label>
+    <select id="childConfig">
+      <option value="fixed3">3 Fixed (80,60,100)</option>
+      <option value="flex2" selected>Fixed 100 + Flex 1</option>
+      <option value="flex22">Flex 1 + Flex 2</option>
+      <option value="flex3">Flex 1 + Flex 1 + Flex 1</option>
+      <option value="mixed">Fixed 80 + Flex 1(min40) + Flex 2</option>
+    </select>
+  </div>
+
+  <div class="le-container" id="flexBox"></div>
+  <div class="le-status" id="flexStatus"></div>
+</div>
+
+<script>
+const COLORS = ['#5b6abf','#8b5fbf','#e8a840','#7dd87d','#3b2d5e'];
+
+const CONFIGS = {
+  fixed3:  [{pref:80,flex:0},{pref:60,flex:0},{pref:100,flex:0}],
+  flex2:   [{pref:100,flex:0},{pref:0,flex:1}],
+  flex22:  [{pref:0,flex:1},{pref:0,flex:2}],
+  flex3:   [{pref:0,flex:1},{pref:0,flex:1},{pref:0,flex:1}],
+  mixed:   [{pref:80,flex:0},{pref:0,flex:1,min:40},{pref:0,flex:2}],
+};
+
+function computeFlex(params, children) {
+  const n = children.length;
+  if (n === 0) return [];
+
+  const totalGap = (n > 1) ? (n - 1) * params.gap : 0;
+  const available = params.containerMain - params.padStart - params.padEnd - totalGap;
+  const crossAvail = params.containerCross - params.crossPadStart - params.crossPadEnd;
+
+  const result = children.map(() => ({mainOff:0,mainExt:0,crossOff:0,crossExt:0}));
+
+  let fixedTotal = 0, flexTotal = 0;
+  children.forEach((c,i) => {
+    if ((c.flex||0) <= 0) {
+      result[i].mainExt = Math.min(c.pref||0, available);
+      fixedTotal += result[i].mainExt;
+    } else { flexTotal += c.flex; }
+  });
+
+  let remaining = Math.max(0, available - fixedTotal);
+  if (flexTotal > 0) {
+    children.forEach((c,i) => {
+      if ((c.flex||0) > 0) {
+        let alloc = Math.floor(remaining * c.flex / flexTotal);
+        if (c.min) alloc = Math.max(alloc, c.min);
+        if (c.max) alloc = Math.min(alloc, c.max);
+        result[i].mainExt = alloc;
+      }
+    });
+  }
+
+  let totalAlloc = result.reduce((s,r) => s + r.mainExt, 0);
+  let leftover = Math.max(0, available - totalAlloc);
+
+  let cursor = params.padStart;
+  let extraGap = 0;
+  const align = params.mainAlign;
+  if (align === 'Center')       cursor += Math.floor(leftover/2);
+  else if (align === 'End')     cursor += leftover;
+  else if (align === 'SpaceAround')  cursor += Math.floor(leftover/(2*n));
+  else if (align === 'SpaceEvenly')  cursor += Math.floor(leftover/(n+1));
+
+  if (n > 1) {
+    if (align === 'SpaceBetween')     extraGap = Math.floor(leftover/(n-1));
+    else if (align === 'SpaceAround') extraGap = Math.floor(leftover/n);
+    else if (align === 'SpaceEvenly') extraGap = Math.floor(leftover/(n+1));
+  }
+
+  result.forEach((r,i) => {
+    r.mainOff = cursor;
+    cursor += r.mainExt;
+    if (i < n-1) cursor += params.gap + extraGap;
+  });
+
+  result.forEach((r,i) => {
+    const c = children[i];
+    const cpref = c.crossPref || crossAvail;
+    if (params.crossAlign === 'Stretch') {
+      r.crossExt = crossAvail; r.crossOff = params.crossPadStart;
+    } else if (params.crossAlign === 'Start') {
+      r.crossExt = Math.min(cpref, crossAvail); r.crossOff = params.crossPadStart;
+    } else if (params.crossAlign === 'Center') {
+      r.crossExt = Math.min(cpref, crossAvail);
+      r.crossOff = params.crossPadStart + Math.floor((crossAvail - r.crossExt)/2);
+    } else {
+      r.crossExt = Math.min(cpref, crossAvail);
+      r.crossOff = params.crossPadStart + crossAvail - r.crossExt;
+    }
+  });
+
+  return result;
+}
+
+function update() {
+  const box = document.getElementById('flexBox');
+  const status = document.getElementById('flexStatus');
+  const gap = parseInt(document.getElementById('gap').value);
+  const pad = parseInt(document.getElementById('pad').value);
+  document.getElementById('gapVal').textContent = gap;
+  document.getElementById('padVal').textContent = pad;
+
+  const mainAlign = document.getElementById('mainAlign').value;
+  const crossAlign = document.getElementById('crossAlign').value;
+  const config = CONFIGS[document.getElementById('childConfig').value];
+
+  const rect = box.getBoundingClientRect();
+  const W = Math.round(rect.width);
+  const H = 120;
+
+  const params = {
+    containerMain: W, containerCross: H,
+    gap, padStart: pad, padEnd: pad,
+    crossPadStart: pad, crossPadEnd: pad,
+    mainAlign, crossAlign,
+  };
+
+  const result = computeFlex(params, config);
+
+  box.innerHTML = '';
+  result.forEach((r,i) => {
+    const el = document.createElement('div');
+    el.className = 'le-child';
+    el.style.left = r.mainOff + 'px';
+    el.style.top = r.crossOff + 'px';
+    el.style.width = r.mainExt + 'px';
+    el.style.height = r.crossExt + 'px';
+    el.style.background = COLORS[i % COLORS.length];
+    const c = config[i];
+    el.textContent = c.flex > 0 ? `flex:${c.flex}` : `${c.pref}px`;
+    box.appendChild(el);
+  });
+
+  const lines = result.map((r,i) =>
+    `  [${i}] offset=${r.mainOff}  extent=${r.mainExt}  cross=${r.crossOff},${r.crossExt}`
+  );
+  status.textContent =
+    `FlexLayoutParams { main=${W}, cross=${H}, gap=${gap}, pad=${pad} }\n` +
+    `mainAlign=${mainAlign}  crossAlign=${crossAlign}\n` +
+    lines.join('\n');
+}
+
+['mainAlign','crossAlign','gap','pad','childConfig'].forEach(id => {
+  document.getElementById(id).addEventListener('input', update);
+});
+update();
+window.addEventListener('resize', update);
+</script>

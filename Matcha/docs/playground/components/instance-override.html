@@ -1,0 +1,256 @@
+<style>
+/* =======================================================================
+ * Instance Style Override — §4.17 Cascade Layer 3 Demo
+ *
+ * Shows how per-instance overrides patch a base resolved style.
+ * ======================================================================= */
+
+.iso-demo { max-width: 680px; margin: 0 auto; }
+.iso-demo h2 {
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  color: var(--color-text-primary);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.iso-demo h3 {
+  font-size: 11pt; font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 16px 0 6px;
+}
+
+/* -- Cascade diagram ---------------------------------------------------- */
+.cascade-layers {
+  display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.cascade-layer {
+  flex: 1; min-width: 120px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-default);
+  background: var(--color-surface-container);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+.cascade-layer .layer-title {
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+.cascade-layer.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+
+/* -- Button preview ----------------------------------------------------- */
+.preview-row {
+  display: flex; gap: 24px; align-items: center;
+  margin: 16px 0;
+}
+.preview-btn {
+  padding: 8px 24px;
+  border-radius: 4px;
+  border: 2px solid;
+  font-size: 14px; font-weight: 600;
+  cursor: default;
+  transition: all 0.2s;
+  text-align: center;
+  min-width: 140px;
+}
+.preview-label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* -- Override controls -------------------------------------------------- */
+.override-grid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 6px 12px;
+  align-items: center;
+  margin: 12px 0;
+  font-size: var(--font-body-size);
+  color: var(--color-text-primary);
+}
+.override-grid label {
+  font-weight: 600;
+  text-align: right;
+}
+.override-grid input[type="color"] {
+  width: 40px; height: 28px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+.override-grid input[type="range"] {
+  width: 100%;
+}
+.override-grid .val {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-left: 6px;
+}
+
+/* -- Status ------------------------------------------------------------- */
+.iso-status {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-default);
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+</style>
+
+<div class="iso-demo">
+  <h2>Instance Style Override — §4.17</h2>
+
+  <h3>Cascade Layers</h3>
+  <div class="cascade-layers">
+    <div class="cascade-layer">
+      <div class="layer-title">Layer 0</div>
+      Base WidgetStyleSheet
+    </div>
+    <div class="cascade-layer">
+      <div class="layer-title">Layer 1</div>
+      Per-WidgetKind
+    </div>
+    <div class="cascade-layer">
+      <div class="layer-title">Layer 2</div>
+      ComponentOverride
+    </div>
+    <div class="cascade-layer active">
+      <div class="layer-title">Layer 3</div>
+      InstanceStyleOverride
+    </div>
+  </div>
+
+  <h3>Preview: PushButton</h3>
+  <div class="preview-row">
+    <div>
+      <div class="preview-btn" id="baseBtn">Base Style</div>
+      <div class="preview-label">Without override</div>
+    </div>
+    <div style="font-size:24px; color:var(--color-text-secondary)">&rarr;</div>
+    <div>
+      <div class="preview-btn" id="overrideBtn">With Override</div>
+      <div class="preview-label">Instance override applied</div>
+    </div>
+  </div>
+
+  <h3>Instance Override Controls</h3>
+  <div class="override-grid">
+    <label>background:</label>
+    <div><input type="color" id="ovBg" value="#5b6abf"> <span class="val" id="ovBgVal">#5b6abf</span></div>
+
+    <label>foreground:</label>
+    <div><input type="color" id="ovFg" value="#fffffc"> <span class="val" id="ovFgVal">#fffffc</span></div>
+
+    <label>border:</label>
+    <div><input type="color" id="ovBorder" value="#3b2d5e"> <span class="val" id="ovBorderVal">#3b2d5e</span></div>
+
+    <label>radiusPx:</label>
+    <div><input type="range" id="ovRadius" min="0" max="24" value="4"> <span class="val" id="ovRadiusVal">4</span></div>
+
+    <label>paddingHPx:</label>
+    <div><input type="range" id="ovPadH" min="0" max="32" value="8"> <span class="val" id="ovPadHVal">8</span></div>
+
+    <label>opacity:</label>
+    <div><input type="range" id="ovOpacity" min="0" max="100" value="100"> <span class="val" id="ovOpacityVal">1.00</span></div>
+
+    <label>borderWidthPx:</label>
+    <div><input type="range" id="ovBorderW" min="0" max="4" value="2"> <span class="val" id="ovBorderWVal">2</span></div>
+  </div>
+
+  <div class="iso-status" id="isoStatus"></div>
+</div>
+
+<script>
+// Base style (simulates Resolve() output for PushButton/Primary/Normal)
+const BASE = {
+  background: '#6366f1', foreground: '#ffffff', border: '#4f46e5',
+  radiusPx: 4, paddingHPx: 16, paddingVPx: 8,
+  borderWidthPx: 1, opacity: 1.0,
+};
+
+const ids = {
+  bg: 'ovBg', fg: 'ovFg', border: 'ovBorder',
+  radius: 'ovRadius', padH: 'ovPadH',
+  opacity: 'ovOpacity', borderW: 'ovBorderW',
+};
+
+function applyStyle(el, style) {
+  el.style.background = style.background;
+  el.style.color = style.foreground;
+  el.style.borderColor = style.border;
+  el.style.borderWidth = style.borderWidthPx + 'px';
+  el.style.borderRadius = style.radiusPx + 'px';
+  el.style.padding = style.paddingVPx + 'px ' + style.paddingHPx + 'px';
+  el.style.opacity = style.opacity;
+}
+
+function getOverride() {
+  return {
+    background: document.getElementById(ids.bg).value,
+    foreground: document.getElementById(ids.fg).value,
+    border: document.getElementById(ids.border).value,
+    radiusPx: parseInt(document.getElementById(ids.radius).value),
+    paddingHPx: parseInt(document.getElementById(ids.padH).value),
+    paddingVPx: BASE.paddingVPx,
+    borderWidthPx: parseInt(document.getElementById(ids.borderW).value),
+    opacity: parseInt(document.getElementById(ids.opacity).value) / 100,
+  };
+}
+
+function update() {
+  const baseBtn = document.getElementById('baseBtn');
+  const overrideBtn = document.getElementById('overrideBtn');
+  const statusEl = document.getElementById('isoStatus');
+
+  applyStyle(baseBtn, BASE);
+
+  const ov = getOverride();
+  applyStyle(overrideBtn, ov);
+
+  // Update value labels
+  document.getElementById('ovBgVal').textContent = ov.background;
+  document.getElementById('ovFgVal').textContent = ov.foreground;
+  document.getElementById('ovBorderVal').textContent = ov.border;
+  document.getElementById('ovRadiusVal').textContent = ov.radiusPx;
+  document.getElementById('ovPadHVal').textContent = ov.paddingHPx;
+  document.getElementById('ovOpacityVal').textContent = ov.opacity.toFixed(2);
+  document.getElementById('ovBorderWVal').textContent = ov.borderWidthPx;
+
+  // Show C++ code
+  const lines = [];
+  if (ov.background !== BASE.background) lines.push(`  ov.background = QColor("${ov.background}");`);
+  if (ov.foreground !== BASE.foreground) lines.push(`  ov.foreground = QColor("${ov.foreground}");`);
+  if (ov.border !== BASE.border)         lines.push(`  ov.border     = QColor("${ov.border}");`);
+  if (ov.radiusPx !== BASE.radiusPx)     lines.push(`  ov.radiusPx   = ${ov.radiusPx};`);
+  if (ov.paddingHPx !== BASE.paddingHPx) lines.push(`  ov.paddingHPx = ${ov.paddingHPx};`);
+  if (ov.opacity !== BASE.opacity)       lines.push(`  ov.opacity    = ${ov.opacity.toFixed(2)}F;`);
+  if (ov.borderWidthPx !== BASE.borderWidthPx) lines.push(`  ov.borderWidthPx = ${ov.borderWidthPx};`);
+
+  const code = lines.length > 0
+    ? `InstanceStyleOverride ov;\n${lines.join('\n')}\nauto style = Theme().Resolve(\n    WidgetKind::PushButton, 0,\n    InteractionState::Normal, ov);`
+    : '// No overrides — same as base Resolve()';
+
+  statusEl.textContent = code;
+}
+
+// Bind events
+Object.values(ids).forEach(id => {
+  document.getElementById(id).addEventListener('input', update);
+});
+
+update();
+</script>

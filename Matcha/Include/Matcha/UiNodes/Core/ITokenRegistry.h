@@ -105,6 +105,32 @@ public:
      */
     [[nodiscard]] virtual auto AnimationMs(AnimationToken speed) const -> int = 0;
 
+    // ========================================================================
+    // Interaction Timing Queries (§8.7)
+    // ========================================================================
+
+    /**
+     * @brief Query an interaction timing value in milliseconds.
+     *
+     * Returns the platform-adjusted value for the given timing token.
+     * On Windows, tokens like DoubleClickWindow and HoverDelay are
+     * queried from the OS at initialization time.
+     *
+     * @param id Timing token identifier.
+     * @return Duration in milliseconds.
+     */
+    [[nodiscard]] virtual auto TimingMs(TimingTokenId id) const -> int = 0;
+
+    /**
+     * @brief Override a timing token value at runtime.
+     *
+     * Useful for testing (set all delays to 0) or user preferences.
+     *
+     * @param id    Timing token to override.
+     * @param ms    New value in milliseconds. Pass -1 to restore default.
+     */
+    virtual void SetTimingOverride(TimingTokenId id, int ms) = 0;
+
 protected:
     ITokenRegistry() = default;
 };
