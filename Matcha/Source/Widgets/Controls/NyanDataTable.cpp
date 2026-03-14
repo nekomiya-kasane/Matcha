@@ -6,7 +6,7 @@
 #include <Matcha/Widgets/Controls/NyanDataTable.h>
 #include <Matcha/Widgets/Shell/NyanScrollBar.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QKeyEvent>
 #include <QLineEdit>
@@ -29,7 +29,7 @@ NyanDataTable::NyanDataTable(QWidget* parent)
 {
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 
     _vScrollBar = new NyanScrollBar(Qt::Vertical, this);
     _hScrollBar = new NyanScrollBar(Qt::Horizontal, this);

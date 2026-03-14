@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanTransfer.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QHBoxLayout>
 #include <QListWidget>
@@ -20,7 +20,7 @@ NyanTransfer::NyanTransfer(QWidget* parent)
     , ThemeAware(WidgetKind::Transfer)
 {
     SetupUi();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanTransfer::~NyanTransfer() = default;

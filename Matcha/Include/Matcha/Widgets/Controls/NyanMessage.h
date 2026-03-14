@@ -24,7 +24,7 @@ class QPushButton;
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /** @brief Message bar type. */
 enum class MessageType : uint8_t {
@@ -98,7 +98,7 @@ private:
     QPushButton* _actionBtn = nullptr;
     QPushButton* _closeBtn = nullptr;
     std::function<void()> _actionCallback;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

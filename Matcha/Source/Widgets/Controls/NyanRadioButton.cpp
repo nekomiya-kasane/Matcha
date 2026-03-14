@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanRadioButton.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QPaintEvent>
 #include <QPainter>
@@ -17,7 +17,7 @@ NyanRadioButton::NyanRadioButton(QWidget* parent)
     , ThemeAware(WidgetKind::RadioButton)
 {
     setFixedHeight(kFixedHeight);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanRadioButton::NyanRadioButton(const QString& text, QWidget* parent)
@@ -25,7 +25,7 @@ NyanRadioButton::NyanRadioButton(const QString& text, QWidget* parent)
     , ThemeAware(WidgetKind::RadioButton)
 {
     setFixedHeight(kFixedHeight);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanRadioButton::~NyanRadioButton() = default;

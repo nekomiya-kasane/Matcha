@@ -39,7 +39,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 class NyanScrollBar;
 
 /// @brief Sort comparator: returns true if a < b.
@@ -385,7 +385,7 @@ private:
     int _focusRow = -1;
     int _focusCol = -1;
 
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

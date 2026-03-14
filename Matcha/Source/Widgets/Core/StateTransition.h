@@ -5,7 +5,7 @@
  * @brief Framework-level auto-animator for InteractionState changes (S3.2).
  *
  * Each ThemeAware widget embeds a StateTransition instance. When the widget's
- * InteractionFSM fires InteractionStateChanged, StateTransition interpolates
+ * WidgetFsmController fires InteractionStateChanged, StateTransition interpolates
  * the widget's dynamic color properties (background, foreground, border)
  * from old to new state colors using IAnimationService.
  *

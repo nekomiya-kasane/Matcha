@@ -26,7 +26,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware double spin box with engineering precision.
@@ -84,7 +84,7 @@ private:
     static constexpr int kArrowSize   = 4;  ///< Arrow triangle half-size
 
     int _precision = 6;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

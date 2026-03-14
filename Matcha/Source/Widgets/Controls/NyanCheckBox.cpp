@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanCheckBox.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QPaintEvent>
 #include <QPainter>
@@ -18,7 +18,7 @@ NyanCheckBox::NyanCheckBox(QWidget* parent)
     , ThemeAware(WidgetKind::CheckBox)
 {
     setFixedHeight(kFixedHeight);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanCheckBox::NyanCheckBox(const QString& text, QWidget* parent)
@@ -26,7 +26,7 @@ NyanCheckBox::NyanCheckBox(const QString& text, QWidget* parent)
     , ThemeAware(WidgetKind::CheckBox)
 {
     setFixedHeight(kFixedHeight);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanCheckBox::~NyanCheckBox() = default;

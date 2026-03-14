@@ -30,7 +30,7 @@ class QTimer;
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 class NyanLabel;
 
@@ -157,7 +157,7 @@ private:
 
     QTimer*  _tier1Timer = nullptr;
     QTimer*  _tier2Timer = nullptr;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

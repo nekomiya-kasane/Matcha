@@ -26,7 +26,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware table widget with checkable vertical headers.
@@ -86,7 +86,7 @@ private:
     void SetupCheckableHeaders();
 
     bool _checkableHeaders = false;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

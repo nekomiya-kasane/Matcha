@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanCollapsibleSection.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <Matcha/UiNodes/Core/WidgetNode.h>
 #include <Matcha/Widgets/Core/IAnimationService.h>
@@ -32,7 +32,7 @@ NyanCollapsibleSection::NyanCollapsibleSection(QWidget* parent)
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, kTitleHeight, 0, 0);
     layout->setSpacing(0);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanCollapsibleSection::~NyanCollapsibleSection() = default;

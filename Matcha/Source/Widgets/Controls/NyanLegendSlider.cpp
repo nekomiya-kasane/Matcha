@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanLegendSlider.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QLinearGradient>
 #include <QMouseEvent>
@@ -26,7 +26,7 @@ NyanLegendSlider::NyanLegendSlider(QWidget* parent)
 {
     setFixedHeight(kTotalHeight);
     setMouseTracking(true);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanLegendSlider::~NyanLegendSlider() = default;

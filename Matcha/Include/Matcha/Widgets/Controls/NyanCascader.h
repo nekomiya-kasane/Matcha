@@ -24,7 +24,7 @@ class QListWidget;
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Data model node for NyanCascader.
@@ -85,7 +85,7 @@ private:
 
     QHBoxLayout* _columnsLayout = nullptr;
     std::vector<QListWidget*> _columns;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

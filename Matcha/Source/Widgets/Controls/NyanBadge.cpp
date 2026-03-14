@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanBadge.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QFontMetrics>
 #include <QMouseEvent>
@@ -24,7 +24,7 @@ NyanBadge::NyanBadge(QWidget* parent)
 {
     setFixedHeight(kFixedHeight);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanBadge::~NyanBadge() = default;

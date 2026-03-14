@@ -29,7 +29,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware linear progress bar.
@@ -81,7 +81,7 @@ private:
     static constexpr int kDefaultWidth  = 200;
 
     bool _textVisible = false;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

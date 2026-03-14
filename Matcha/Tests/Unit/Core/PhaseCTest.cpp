@@ -9,7 +9,7 @@
 
 #include <Matcha/UiNodes/Core/FocusChain.h>
 #include <Matcha/UiNodes/Core/FocusManager.h>
-#include <Matcha/UiNodes/Core/InteractionFSM.h>
+#include <Matcha/Foundation/WidgetFsm.h>
 #include <Matcha/UiNodes/Core/TokenEnums.h>
 #include <Matcha/UiNodes/Core/TooltipSpec.h>
 #include <Matcha/UiNodes/Core/UiNodeNotification.h>

@@ -23,7 +23,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware radio button with custom-painted circular indicator.
@@ -75,7 +75,7 @@ private:
     static constexpr int kIndicatorInset = 2;  ///< Inset from indicator rect edge
     static constexpr int kTextGap       = 4;   ///< Gap between indicator and text
     static constexpr int kInnerDotInset = 4;   ///< Inset for inner selected dot
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

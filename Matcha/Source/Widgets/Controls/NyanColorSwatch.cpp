@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanColorSwatch.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QMouseEvent>
 #include <QPaintEvent>
@@ -25,7 +25,7 @@ NyanColorSwatch::NyanColorSwatch(QWidget* parent)
     setFixedSize(kSwatchSize, kSwatchSize);
     setCursor(Qt::PointingHandCursor);
     setAttribute(Qt::WA_Hover);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanColorSwatch::~NyanColorSwatch() = default;

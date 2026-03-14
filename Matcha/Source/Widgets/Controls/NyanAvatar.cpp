@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanAvatar.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QMouseEvent>
 #include <QPainter>
@@ -19,7 +19,7 @@ NyanAvatar::NyanAvatar(QWidget* parent)
 {
     setFixedSize(static_cast<int>(_size), static_cast<int>(_size));
     setCursor(Qt::PointingHandCursor);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanAvatar::~NyanAvatar() = default;

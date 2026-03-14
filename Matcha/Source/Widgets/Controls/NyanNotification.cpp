@@ -1,6 +1,6 @@
 #include <Matcha/Widgets/Controls/NyanNotification.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -27,7 +27,7 @@ NyanNotification::NyanNotification(QWidget* parent)
     _dismissTimer = new QTimer(this);
     _dismissTimer->setSingleShot(true);
     connect(_dismissTimer, &QTimer::timeout, this, &NyanNotification::OnDismissTimeout);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanNotification::~NyanNotification() = default;

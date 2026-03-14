@@ -55,7 +55,10 @@ add_library(Matcha SHARED
     Source/Widgets/Core/StateTransition.cpp
     Source/Widgets/Core/ContrastChecker.cpp
     Source/Widgets/Core/A11yAudit.cpp
-    Source/Widgets/Core/InteractionEventFilter.cpp
+    Source/Widgets/Core/SimpleWidgetEventFilter.cpp
+    Source/Widgets/Core/PushButtonEventFilter.cpp
+    Source/Widgets/Core/LineEditEventFilter.cpp
+    Source/Widgets/Core/ComboBoxEventFilter.cpp
     Source/Widgets/Core/TooltipEventFilter.cpp
     Source/Widgets/Core/WhatsThisEventFilter.cpp
     Source/Widgets/Core/FlowLayout.cpp
@@ -403,6 +406,7 @@ add_library(Matcha SHARED
     Source/UiNodes/Core/VariantNameRegistry.cpp
     Include/Matcha/Foundation/VariantNameRegistry.h
     Include/Matcha/Foundation/WidgetFsm.h
+    Include/Matcha/Foundation/WidgetFsmBridge.h
     Source/UiNodes/Core/KeyboardContract.cpp
     Include/Matcha/Foundation/KeyboardContract.h
     Source/UiNodes/Core/DestructiveActionPolicy.cpp
@@ -575,6 +579,7 @@ add_executable(MatchaUnitTests
     Tests/Unit/Foundation/WidgetFsmTest.cpp
     Tests/Unit/Foundation/KeyboardContractTest.cpp
     Tests/Unit/Foundation/PhaseFTest.cpp
+    Tests/Unit/Foundation/CrossPhaseIntegrationTest.cpp
     Tests/Unit/Core/CommandNodeTest.cpp
     Tests/Unit/Core/DesignTokenTest.cpp
     Tests/Unit/Core/TokenEnumsTest.cpp

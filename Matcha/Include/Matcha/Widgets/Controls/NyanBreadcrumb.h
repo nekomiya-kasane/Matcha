@@ -30,7 +30,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware breadcrumb path navigation.
@@ -105,7 +105,7 @@ private:
     QString                    _separator = QStringLiteral(" > ");
     std::vector<SegmentLayout> _layout;
     int                        _hoveredIndex = -1;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

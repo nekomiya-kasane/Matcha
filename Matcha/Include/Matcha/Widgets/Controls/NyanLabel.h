@@ -34,7 +34,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Map LabelRole to FontRole for theme font resolution.
@@ -123,7 +123,7 @@ private:
     Qt::TextElideMode  _elideMode = Qt::ElideRight;
     QWidget*           _buddy = nullptr;
     uint64_t           _mnemonicId = 0;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

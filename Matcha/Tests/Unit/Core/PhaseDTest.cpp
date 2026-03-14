@@ -350,10 +350,13 @@ TEST_CASE("No mnemonic.duplicate when different mnemonic chars") {
 } // TEST_SUITE A11yAudit
 
 // ===========================================================================
-// D7 — InteractionFSM Migration Verification
+// D7 — Unified WidgetFsm Migration Verification
 // ===========================================================================
 
-#include "../../../Source/Widgets/Core/InteractionEventFilter.h"
+#include "../../../Source/Widgets/Core/SimpleWidgetEventFilter.h"
+#include "../../../Source/Widgets/Core/PushButtonEventFilter.h"
+#include "../../../Source/Widgets/Core/LineEditEventFilter.h"
+#include "../../../Source/Widgets/Core/ComboBoxEventFilter.h"
 
 #include <Matcha/Widgets/Core/NyanTheme.h>
 
@@ -399,66 +402,82 @@ TEST_CASE("No mnemonic.duplicate when different mnemonic chars") {
 #include <Matcha/Widgets/Controls/NyanPaginator.h>
 #include <Matcha/Widgets/Controls/NyanRichTooltip.h>
 
-TEST_SUITE("D7_InteractionFSM_Migration") {
+TEST_SUITE("D7_WidgetFsm_Unified") {
 
-/// Helper: check that a widget has exactly one InteractionEventFilter child.
+/// Helper: check that a widget has a SimpleWidgetEventFilter child with Normal initial state.
 template <typename W>
-void CheckHasFilter(const char* name)
+void CheckHasSimpleFilter(const char* name)
 {
     matcha::test::QtAppGuard::Ensure();
     static NyanTheme theme(QStringLiteral(MATCHA_TEST_PALETTE_DIR));
     static bool inited = false;
     if (!inited) { theme.SetTheme(kThemeLight); SetThemeService(&theme); inited = true; }
     W widget;
-    auto* filter = widget.template findChild<InteractionEventFilter*>();
+    auto* filter = widget.template findChild<SimpleWidgetEventFilter*>();
     INFO("Widget: ", name);
     REQUIRE(filter != nullptr);
-    CHECK(filter->Fsm().CurrentState() == matcha::fw::InteractionState::Normal);
+    CHECK(filter->Controller().GetInteractionState() == matcha::fw::InteractionState::Normal);
 }
 
-TEST_CASE("PushButton has InteractionEventFilter")       { CheckHasFilter<NyanPushButton>("PushButton"); }
-TEST_CASE("CheckBox has InteractionEventFilter")         { CheckHasFilter<NyanCheckBox>("CheckBox"); }
-TEST_CASE("RadioButton has InteractionEventFilter")      { CheckHasFilter<NyanRadioButton>("RadioButton"); }
-TEST_CASE("ComboBox has InteractionEventFilter")         { CheckHasFilter<NyanComboBox>("ComboBox"); }
-TEST_CASE("ToggleSwitch has InteractionEventFilter")     { CheckHasFilter<NyanToggleSwitch>("ToggleSwitch"); }
-TEST_CASE("LineEdit has InteractionEventFilter")         { CheckHasFilter<NyanLineEdit>("LineEdit"); }
-TEST_CASE("SpinBox has InteractionEventFilter")          { CheckHasFilter<NyanSpinBox>("SpinBox"); }
-TEST_CASE("DoubleSpinBox has InteractionEventFilter")    { CheckHasFilter<NyanDoubleSpinBox>("DoubleSpinBox"); }
-TEST_CASE("Slider has InteractionEventFilter")           { CheckHasFilter<NyanSlider>("Slider"); }
-TEST_CASE("ToolButton has InteractionEventFilter")       { CheckHasFilter<NyanToolButton>("ToolButton"); }
-TEST_CASE("SearchBox has InteractionEventFilter")        { CheckHasFilter<NyanSearchBox>("SearchBox"); }
-TEST_CASE("SelectionInput has InteractionEventFilter")   { CheckHasFilter<NyanSelectionInput>("SelectionInput"); }
-TEST_CASE("RangeSlider has InteractionEventFilter")      { CheckHasFilter<NyanRangeSlider>("RangeSlider"); }
-TEST_CASE("ColorPicker has InteractionEventFilter")      { CheckHasFilter<NyanColorPicker>("ColorPicker"); }
-TEST_CASE("DateTimePicker has InteractionEventFilter")   { CheckHasFilter<NyanDateTimePicker>("DateTimePicker"); }
-TEST_CASE("Cascader has InteractionEventFilter")         { CheckHasFilter<NyanCascader>("Cascader"); }
-TEST_CASE("Transfer has InteractionEventFilter")         { CheckHasFilter<NyanTransfer>("Transfer"); }
-TEST_CASE("ColorSwatch has InteractionEventFilter")      { CheckHasFilter<NyanColorSwatch>("ColorSwatch"); }
-TEST_CASE("GroupBox has InteractionEventFilter")         { CheckHasFilter<NyanGroupBox>("GroupBox"); }
-TEST_CASE("CollapsibleSection has InteractionEventFilter") { CheckHasFilter<NyanCollapsibleSection>("CollapsibleSection"); }
-TEST_CASE("DataTable has InteractionEventFilter")        { CheckHasFilter<NyanDataTable>("DataTable"); }
-TEST_CASE("ListWidget has InteractionEventFilter")       { CheckHasFilter<NyanListWidget>("ListWidget"); }
-TEST_CASE("TableWidget has InteractionEventFilter")      { CheckHasFilter<NyanTableWidget>("TableWidget"); }
-TEST_CASE("StructureTree has InteractionEventFilter")    { CheckHasFilter<NyanStructureTree>("StructureTree"); }
-TEST_CASE("PropertyGrid has InteractionEventFilter")     { CheckHasFilter<NyanPropertyGrid>("PropertyGrid"); }
-TEST_CASE("FormLayout has InteractionEventFilter")       { CheckHasFilter<NyanFormLayout>("FormLayout"); }
-TEST_CASE("Label has InteractionEventFilter")            { CheckHasFilter<NyanLabel>("Label"); }
-TEST_CASE("Tag has InteractionEventFilter")              { CheckHasFilter<NyanTag>("Tag"); }
-TEST_CASE("Badge has InteractionEventFilter")            { CheckHasFilter<NyanBadge>("Badge"); }
-TEST_CASE("Alert has InteractionEventFilter")            { CheckHasFilter<NyanAlert>("Alert"); }
-TEST_CASE("Message has InteractionEventFilter")          { CheckHasFilter<NyanMessage>("Message"); }
-TEST_CASE("Notification has InteractionEventFilter")     { CheckHasFilter<NyanNotification>("Notification"); }
-TEST_CASE("ProgressBar has InteractionEventFilter")      { CheckHasFilter<NyanProgressBar>("ProgressBar"); }
-TEST_CASE("ProgressRing has InteractionEventFilter")     { CheckHasFilter<NyanProgressRing>("ProgressRing"); }
-TEST_CASE("Avatar has InteractionEventFilter")           { CheckHasFilter<NyanAvatar>("Avatar"); }
-TEST_CASE("Breadcrumb has InteractionEventFilter")       { CheckHasFilter<NyanBreadcrumb>("Breadcrumb"); }
-TEST_CASE("Legend has InteractionEventFilter")           { CheckHasFilter<NyanLegend>("Legend"); }
-TEST_CASE("LegendSlider has InteractionEventFilter")     { CheckHasFilter<NyanLegendSlider>("LegendSlider"); }
-TEST_CASE("Line has InteractionEventFilter")             { CheckHasFilter<NyanLine>("Line"); }
-TEST_CASE("Paginator has InteractionEventFilter")        { CheckHasFilter<NyanPaginator>("Paginator"); }
-TEST_CASE("RichTooltip has InteractionEventFilter")      { CheckHasFilter<NyanRichTooltip>("RichTooltip"); }
+/// Helper: check specialized filter for PushButton/LineEdit/ComboBox.
+template <typename W, typename F>
+void CheckHasSpecializedFilter(const char* name)
+{
+    matcha::test::QtAppGuard::Ensure();
+    static NyanTheme theme(QStringLiteral(MATCHA_TEST_PALETTE_DIR));
+    static bool inited = false;
+    if (!inited) { theme.SetTheme(kThemeLight); SetThemeService(&theme); inited = true; }
+    W widget;
+    auto* filter = widget.template findChild<F*>();
+    INFO("Widget: ", name);
+    REQUIRE(filter != nullptr);
+    CHECK(filter->Controller().GetInteractionState() == matcha::fw::InteractionState::Normal);
+}
 
-} // TEST_SUITE D7_InteractionFSM_Migration
+TEST_CASE("PushButton has PushButtonEventFilter")  { CheckHasSpecializedFilter<NyanPushButton, PushButtonEventFilter>("PushButton"); }
+TEST_CASE("LineEdit has LineEditEventFilter")       { CheckHasSpecializedFilter<NyanLineEdit, LineEditEventFilter>("LineEdit"); }
+TEST_CASE("ComboBox has ComboBoxEventFilter")       { CheckHasSpecializedFilter<NyanComboBox, ComboBoxEventFilter>("ComboBox"); }
+
+TEST_CASE("CheckBox has SimpleWidgetEventFilter")         { CheckHasSimpleFilter<NyanCheckBox>("CheckBox"); }
+TEST_CASE("RadioButton has SimpleWidgetEventFilter")      { CheckHasSimpleFilter<NyanRadioButton>("RadioButton"); }
+TEST_CASE("ToggleSwitch has SimpleWidgetEventFilter")     { CheckHasSimpleFilter<NyanToggleSwitch>("ToggleSwitch"); }
+TEST_CASE("SpinBox has SimpleWidgetEventFilter")          { CheckHasSimpleFilter<NyanSpinBox>("SpinBox"); }
+TEST_CASE("DoubleSpinBox has SimpleWidgetEventFilter")    { CheckHasSimpleFilter<NyanDoubleSpinBox>("DoubleSpinBox"); }
+TEST_CASE("Slider has SimpleWidgetEventFilter")           { CheckHasSimpleFilter<NyanSlider>("Slider"); }
+TEST_CASE("ToolButton has SimpleWidgetEventFilter")       { CheckHasSimpleFilter<NyanToolButton>("ToolButton"); }
+TEST_CASE("SearchBox has SimpleWidgetEventFilter")        { CheckHasSimpleFilter<NyanSearchBox>("SearchBox"); }
+TEST_CASE("SelectionInput has SimpleWidgetEventFilter")   { CheckHasSimpleFilter<NyanSelectionInput>("SelectionInput"); }
+TEST_CASE("RangeSlider has SimpleWidgetEventFilter")      { CheckHasSimpleFilter<NyanRangeSlider>("RangeSlider"); }
+TEST_CASE("ColorPicker has SimpleWidgetEventFilter")      { CheckHasSimpleFilter<NyanColorPicker>("ColorPicker"); }
+TEST_CASE("DateTimePicker has SimpleWidgetEventFilter")   { CheckHasSimpleFilter<NyanDateTimePicker>("DateTimePicker"); }
+TEST_CASE("Cascader has SimpleWidgetEventFilter")         { CheckHasSimpleFilter<NyanCascader>("Cascader"); }
+TEST_CASE("Transfer has SimpleWidgetEventFilter")         { CheckHasSimpleFilter<NyanTransfer>("Transfer"); }
+TEST_CASE("ColorSwatch has SimpleWidgetEventFilter")      { CheckHasSimpleFilter<NyanColorSwatch>("ColorSwatch"); }
+TEST_CASE("GroupBox has SimpleWidgetEventFilter")         { CheckHasSimpleFilter<NyanGroupBox>("GroupBox"); }
+TEST_CASE("CollapsibleSection has SimpleWidgetEventFilter") { CheckHasSimpleFilter<NyanCollapsibleSection>("CollapsibleSection"); }
+TEST_CASE("DataTable has SimpleWidgetEventFilter")        { CheckHasSimpleFilter<NyanDataTable>("DataTable"); }
+TEST_CASE("ListWidget has SimpleWidgetEventFilter")       { CheckHasSimpleFilter<NyanListWidget>("ListWidget"); }
+TEST_CASE("TableWidget has SimpleWidgetEventFilter")      { CheckHasSimpleFilter<NyanTableWidget>("TableWidget"); }
+TEST_CASE("StructureTree has SimpleWidgetEventFilter")    { CheckHasSimpleFilter<NyanStructureTree>("StructureTree"); }
+TEST_CASE("PropertyGrid has SimpleWidgetEventFilter")     { CheckHasSimpleFilter<NyanPropertyGrid>("PropertyGrid"); }
+TEST_CASE("FormLayout has SimpleWidgetEventFilter")       { CheckHasSimpleFilter<NyanFormLayout>("FormLayout"); }
+TEST_CASE("Label has SimpleWidgetEventFilter")            { CheckHasSimpleFilter<NyanLabel>("Label"); }
+TEST_CASE("Tag has SimpleWidgetEventFilter")              { CheckHasSimpleFilter<NyanTag>("Tag"); }
+TEST_CASE("Badge has SimpleWidgetEventFilter")            { CheckHasSimpleFilter<NyanBadge>("Badge"); }
+TEST_CASE("Alert has SimpleWidgetEventFilter")            { CheckHasSimpleFilter<NyanAlert>("Alert"); }
+TEST_CASE("Message has SimpleWidgetEventFilter")          { CheckHasSimpleFilter<NyanMessage>("Message"); }
+TEST_CASE("Notification has SimpleWidgetEventFilter")     { CheckHasSimpleFilter<NyanNotification>("Notification"); }
+TEST_CASE("ProgressBar has SimpleWidgetEventFilter")      { CheckHasSimpleFilter<NyanProgressBar>("ProgressBar"); }
+TEST_CASE("ProgressRing has SimpleWidgetEventFilter")     { CheckHasSimpleFilter<NyanProgressRing>("ProgressRing"); }
+TEST_CASE("Avatar has SimpleWidgetEventFilter")           { CheckHasSimpleFilter<NyanAvatar>("Avatar"); }
+TEST_CASE("Breadcrumb has SimpleWidgetEventFilter")       { CheckHasSimpleFilter<NyanBreadcrumb>("Breadcrumb"); }
+TEST_CASE("Legend has SimpleWidgetEventFilter")           { CheckHasSimpleFilter<NyanLegend>("Legend"); }
+TEST_CASE("LegendSlider has SimpleWidgetEventFilter")     { CheckHasSimpleFilter<NyanLegendSlider>("LegendSlider"); }
+TEST_CASE("Line has SimpleWidgetEventFilter")             { CheckHasSimpleFilter<NyanLine>("Line"); }
+TEST_CASE("Paginator has SimpleWidgetEventFilter")        { CheckHasSimpleFilter<NyanPaginator>("Paginator"); }
+TEST_CASE("RichTooltip has SimpleWidgetEventFilter")      { CheckHasSimpleFilter<NyanRichTooltip>("RichTooltip"); }
+
+} // TEST_SUITE D7_WidgetFsm_Unified
 
 #ifdef __clang__
 #pragma clang diagnostic pop

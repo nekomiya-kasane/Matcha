@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanLineEdit.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/LineEditEventFilter.h"
 
 #include <QDoubleValidator>
 #include <QFontMetrics>
@@ -24,7 +24,7 @@ NyanLineEdit::NyanLineEdit(QWidget* parent)
     , ThemeAware(WidgetKind::LineEdit)
 {
     setFixedHeight(kFixedHeight);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _leFilter = new LineEditEventFilter(this, nullptr);
 }
 
 NyanLineEdit::~NyanLineEdit() = default;
@@ -160,10 +160,7 @@ void NyanLineEdit::paintEvent(QPaintEvent* event)
     QPainter p(this);
     p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 
-    const auto istate = !isEnabled() ? InteractionState::Disabled
-                      : hasFocus()   ? InteractionState::Focused
-                      : underMouse() ? InteractionState::Hovered
-                                     : InteractionState::Normal;
+    const auto istate = _leFilter->Controller().GetInteractionState();
 
     const auto style = Theme().Resolve(WidgetKind::LineEdit, 0, istate);
 

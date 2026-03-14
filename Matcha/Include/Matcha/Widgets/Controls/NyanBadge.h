@@ -29,7 +29,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Semantic variant for badge background color.
@@ -126,7 +126,7 @@ private:
     BadgeVariant _variant    = BadgeVariant::Neutral;
     QColor       _customColor;
     bool         _closable   = false;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

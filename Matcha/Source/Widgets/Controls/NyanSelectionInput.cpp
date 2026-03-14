@@ -1,6 +1,6 @@
 #include <Matcha/Widgets/Controls/NyanSelectionInput.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -17,7 +17,7 @@ NyanSelectionInput::NyanSelectionInput(QWidget* parent)
     setFixedHeight(kHeight);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     setCursor(Qt::PointingHandCursor);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 
     InitLayout();
     UpdateVisualState();

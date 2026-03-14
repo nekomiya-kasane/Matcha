@@ -23,7 +23,7 @@ class QPushButton;
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /** @brief Alert dialog type. */
 enum class AlertType : uint8_t {
@@ -94,7 +94,7 @@ private:
     QPushButton* _cancelBtn = nullptr;
     QPushButton* _yesBtn = nullptr;
     QPushButton* _noBtn = nullptr;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

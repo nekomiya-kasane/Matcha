@@ -33,7 +33,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class PushButtonEventFilter;
 
 /**
  * @brief Height preset for push buttons.
@@ -123,7 +123,7 @@ private:
 
     ButtonVariant _variant = ButtonVariant::Secondary;
     ButtonSize    _size    = ButtonSize::Medium;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    PushButtonEventFilter* _pbFilter = nullptr;
 };
 
 } // namespace matcha::gui

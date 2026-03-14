@@ -5,7 +5,7 @@
 
 #include "doctest.h"
 
-#include <Matcha/UiNodes/Core/InteractionFSM.h>
+#include <Matcha/Foundation/WidgetFsm.h>
 #include <Matcha/UiNodes/Core/ContainerNode.h>
 #include <Matcha/UiNodes/Core/TokenEnums.h>
 #include <Matcha/UiNodes/Core/UiNodeNotification.h>
@@ -19,138 +19,157 @@
 #include <QWidget>
 
 using namespace matcha::fw;
+namespace sw = matcha::fw::fsm::simple_widget;
 
 // ============================================================================
-// InteractionFSM tests
+// SimpleWidget FSM tests (replaces old InteractionFSM tests)
 // ============================================================================
 
-TEST_SUITE("InteractionFSM") {
+TEST_SUITE("SimpleWidgetFSM") {
 
 TEST_CASE("Initial state is Normal") {
-    InteractionFSM fsm;
-    CHECK(fsm.CurrentState() == InteractionState::Normal);
-    CHECK_FALSE(fsm.HasFocus());
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    CHECK(ctrl.FsmState() == sw::State::Normal);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Normal);
 }
 
-TEST_CASE("Normal -> Hovered on Enter") {
-    InteractionFSM fsm;
-    auto s = fsm.HandleInput(InteractionInput::Enter);
-    CHECK(s == InteractionState::Hovered);
-    CHECK(fsm.CurrentState() == InteractionState::Hovered);
+TEST_CASE("Normal -> Hover on MouseEnter") {
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::MouseEnter);
+    CHECK(ctrl.FsmState() == sw::State::Hover);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Hovered);
 }
 
-TEST_CASE("Normal -> Focused on Focus") {
-    InteractionFSM fsm;
-    auto s = fsm.HandleInput(InteractionInput::Focus);
-    CHECK(s == InteractionState::Focused);
-    CHECK(fsm.HasFocus());
+TEST_CASE("Normal -> Focused on FocusIn") {
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::FocusIn);
+    CHECK(ctrl.FsmState() == sw::State::Focused);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Focused);
 }
 
 TEST_CASE("Normal -> Disabled on Disable") {
-    InteractionFSM fsm;
-    auto s = fsm.HandleInput(InteractionInput::Disable);
-    CHECK(s == InteractionState::Disabled);
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::Disable);
+    CHECK(ctrl.FsmState() == sw::State::Disabled);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Disabled);
 }
 
-TEST_CASE("Hovered -> Pressed on Press") {
-    InteractionFSM fsm;
-    fsm.HandleInput(InteractionInput::Enter);
-    auto s = fsm.HandleInput(InteractionInput::Press);
-    CHECK(s == InteractionState::Pressed);
+TEST_CASE("Hover -> Pressed on MouseDown") {
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::MouseEnter);
+    ctrl.Process(sw::Event::MouseDown);
+    CHECK(ctrl.FsmState() == sw::State::Pressed);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Pressed);
 }
 
-TEST_CASE("Hovered -> Normal on Leave (no focus)") {
-    InteractionFSM fsm;
-    fsm.HandleInput(InteractionInput::Enter);
-    auto s = fsm.HandleInput(InteractionInput::Leave);
-    CHECK(s == InteractionState::Normal);
+TEST_CASE("Hover -> Normal on MouseLeave") {
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::MouseEnter);
+    ctrl.Process(sw::Event::MouseLeave);
+    CHECK(ctrl.FsmState() == sw::State::Normal);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Normal);
 }
 
-TEST_CASE("Hovered -> Focused on Leave (with focus)") {
-    InteractionFSM fsm;
-    fsm.HandleInput(InteractionInput::Focus);   // Normal -> Focused
-    fsm.HandleInput(InteractionInput::Enter);    // Focused -> Hovered (hasFocus=true)
-    auto s = fsm.HandleInput(InteractionInput::Leave);
-    CHECK(s == InteractionState::Focused);
+TEST_CASE("Pressed -> Hover on MouseUp") {
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::MouseEnter);
+    ctrl.Process(sw::Event::MouseDown);
+    ctrl.Process(sw::Event::MouseUp);
+    CHECK(ctrl.FsmState() == sw::State::Hover);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Hovered);
 }
 
-TEST_CASE("Pressed -> Hovered on Release") {
-    InteractionFSM fsm;
-    fsm.HandleInput(InteractionInput::Enter);
-    fsm.HandleInput(InteractionInput::Press);
-    auto s = fsm.HandleInput(InteractionInput::Release);
-    CHECK(s == InteractionState::Hovered);
+TEST_CASE("Pressed -> Normal on MouseLeave") {
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::MouseEnter);
+    ctrl.Process(sw::Event::MouseDown);
+    ctrl.Process(sw::Event::MouseLeave);
+    CHECK(ctrl.FsmState() == sw::State::Normal);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Normal);
 }
 
-TEST_CASE("Pressed -> Normal on Leave") {
-    InteractionFSM fsm;
-    fsm.HandleInput(InteractionInput::Enter);
-    fsm.HandleInput(InteractionInput::Press);
-    auto s = fsm.HandleInput(InteractionInput::Leave);
-    CHECK(s == InteractionState::Normal);
+TEST_CASE("Focused -> Hover on MouseEnter") {
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::FocusIn);
+    ctrl.Process(sw::Event::MouseEnter);
+    CHECK(ctrl.FsmState() == sw::State::Hover);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Hovered);
 }
 
-TEST_CASE("Focused -> Hovered on Enter") {
-    InteractionFSM fsm;
-    fsm.HandleInput(InteractionInput::Focus);
-    auto s = fsm.HandleInput(InteractionInput::Enter);
-    CHECK(s == InteractionState::Hovered);
-}
-
-TEST_CASE("Focused -> Normal on Blur") {
-    InteractionFSM fsm;
-    fsm.HandleInput(InteractionInput::Focus);
-    auto s = fsm.HandleInput(InteractionInput::Blur);
-    CHECK(s == InteractionState::Normal);
-    CHECK_FALSE(fsm.HasFocus());
+TEST_CASE("Focused -> Normal on FocusOut") {
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::FocusIn);
+    ctrl.Process(sw::Event::FocusOut);
+    CHECK(ctrl.FsmState() == sw::State::Normal);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Normal);
 }
 
 TEST_CASE("Disabled -> Normal on Enable") {
-    InteractionFSM fsm;
-    fsm.HandleInput(InteractionInput::Disable);
-    auto s = fsm.HandleInput(InteractionInput::Enable);
-    CHECK(s == InteractionState::Normal);
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::Disable);
+    ctrl.Process(sw::Event::Enable);
+    CHECK(ctrl.FsmState() == sw::State::Normal);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Normal);
 }
 
-TEST_CASE("Disabled ignores Enter/Leave/Press/Release/Focus/Blur") {
-    InteractionFSM fsm;
-    fsm.HandleInput(InteractionInput::Disable);
+TEST_CASE("Disabled ignores other events") {
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::Disable);
 
-    CHECK(fsm.HandleInput(InteractionInput::Enter) == InteractionState::Disabled);
-    CHECK(fsm.HandleInput(InteractionInput::Leave) == InteractionState::Disabled);
-    CHECK(fsm.HandleInput(InteractionInput::Press) == InteractionState::Disabled);
-    CHECK(fsm.HandleInput(InteractionInput::Release) == InteractionState::Disabled);
-    CHECK(fsm.HandleInput(InteractionInput::Focus) == InteractionState::Disabled);
-    CHECK(fsm.HandleInput(InteractionInput::Blur) == InteractionState::Disabled);
+    CHECK_FALSE(ctrl.Process(sw::Event::MouseEnter));
+    CHECK_FALSE(ctrl.Process(sw::Event::MouseLeave));
+    CHECK_FALSE(ctrl.Process(sw::Event::MouseDown));
+    CHECK_FALSE(ctrl.Process(sw::Event::MouseUp));
+    CHECK_FALSE(ctrl.Process(sw::Event::FocusIn));
+    CHECK_FALSE(ctrl.Process(sw::Event::FocusOut));
+    CHECK(ctrl.FsmState() == sw::State::Disabled);
 }
 
-TEST_CASE("ForceState sets state directly") {
-    InteractionFSM fsm;
-    fsm.ForceState(InteractionState::Selected);
-    CHECK(fsm.CurrentState() == InteractionState::Selected);
+TEST_CASE("Reset sets state directly") {
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Reset(sw::State::Focused);
+    CHECK(ctrl.FsmState() == sw::State::Focused);
+    CHECK(ctrl.GetInteractionState() == InteractionState::Focused);
 }
 
 TEST_CASE("Full cycle: Normal -> Hover -> Press -> Release -> Leave -> Normal") {
-    InteractionFSM fsm;
-    CHECK(fsm.HandleInput(InteractionInput::Enter) == InteractionState::Hovered);
-    CHECK(fsm.HandleInput(InteractionInput::Press) == InteractionState::Pressed);
-    CHECK(fsm.HandleInput(InteractionInput::Release) == InteractionState::Hovered);
-    CHECK(fsm.HandleInput(InteractionInput::Leave) == InteractionState::Normal);
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    CHECK(ctrl.Process(sw::Event::MouseEnter));
+    CHECK(ctrl.GetInteractionState() == InteractionState::Hovered);
+    CHECK(ctrl.Process(sw::Event::MouseDown));
+    CHECK(ctrl.GetInteractionState() == InteractionState::Pressed);
+    CHECK(ctrl.Process(sw::Event::MouseUp));
+    CHECK(ctrl.GetInteractionState() == InteractionState::Hovered);
+    CHECK(ctrl.Process(sw::Event::MouseLeave));
+    CHECK(ctrl.GetInteractionState() == InteractionState::Normal);
 }
 
 TEST_CASE("Any state -> Disabled on Disable") {
-    for (auto input : {InteractionInput::Enter, InteractionInput::Focus}) {
-        InteractionFSM fsm;
-        fsm.HandleInput(input);
-        auto s = fsm.HandleInput(InteractionInput::Disable);
-        CHECK(s == InteractionState::Disabled);
+    for (auto event : {sw::Event::MouseEnter, sw::Event::FocusIn}) {
+        sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+        ctrl.Process(event);
+        ctrl.Process(sw::Event::Disable);
+        CHECK(ctrl.FsmState() == sw::State::Disabled);
     }
 
     // Also from Pressed
-    InteractionFSM fsm;
-    fsm.HandleInput(InteractionInput::Enter);
-    fsm.HandleInput(InteractionInput::Press);
-    CHECK(fsm.HandleInput(InteractionInput::Disable) == InteractionState::Disabled);
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    ctrl.Process(sw::Event::MouseEnter);
+    ctrl.Process(sw::Event::MouseDown);
+    ctrl.Process(sw::Event::Disable);
+    CHECK(ctrl.FsmState() == sw::State::Disabled);
+}
+
+TEST_CASE("InteractionState callback fires on state change") {
+    sw::Controller ctrl(sw::State::Normal, sw::kTransitions);
+    InteractionState oldIS{}, newIS{};
+    ctrl.OnInteractionStateChanged([&](InteractionState o, InteractionState n) {
+        oldIS = o;
+        newIS = n;
+    });
+    ctrl.Process(sw::Event::MouseEnter);
+    CHECK(oldIS == InteractionState::Normal);
+    CHECK(newIS == InteractionState::Hovered);
 }
 
 } // TEST_SUITE

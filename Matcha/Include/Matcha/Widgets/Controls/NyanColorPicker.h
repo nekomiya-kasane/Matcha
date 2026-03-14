@@ -37,7 +37,7 @@ class QLabel;
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware full-featured color selection panel.
@@ -147,7 +147,7 @@ private:
     QPushButton* _okBtn = nullptr;
 
     std::array<QColor, kSwatchCount> _presetColors;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

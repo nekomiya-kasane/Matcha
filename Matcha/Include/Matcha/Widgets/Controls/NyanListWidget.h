@@ -25,7 +25,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware list widget with styled selection and optional drag reorder.
@@ -65,7 +65,7 @@ private:
     void ApplyStyle();
 
     bool _dragReorderEnabled = false;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

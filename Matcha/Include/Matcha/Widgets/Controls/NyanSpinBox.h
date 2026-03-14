@@ -25,7 +25,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware integer spin box.
@@ -75,7 +75,7 @@ private:
     static constexpr int kFixedHeight = 26; ///< Fixed height matching NyanLineEdit
     static constexpr int kButtonWidth = 16; ///< Up/down button area width
     static constexpr int kArrowSize   = 4;  ///< Arrow triangle half-size
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

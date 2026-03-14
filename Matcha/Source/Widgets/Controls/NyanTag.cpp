@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanTag.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <algorithm>
 
@@ -29,7 +29,7 @@ NyanTag::NyanTag(QWidget* parent)
     setMaximumWidth(kMaxWidth);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     setAttribute(Qt::WA_Hover, true);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanTag::~NyanTag() = default;

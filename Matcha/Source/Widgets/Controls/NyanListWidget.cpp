@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanListWidget.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 namespace matcha::gui {
 
@@ -19,7 +19,7 @@ NyanListWidget::NyanListWidget(QWidget* parent)
 {
     setAlternatingRowColors(true);
     ApplyStyle();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanListWidget::~NyanListWidget() = default;

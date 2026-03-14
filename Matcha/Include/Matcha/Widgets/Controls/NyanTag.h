@@ -32,7 +32,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware closable tag/chip widget.
@@ -137,7 +137,7 @@ private:
     bool    _closable = false;
     bool    _selected = false;
     bool    _hovered  = false;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanPaginator.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QMouseEvent>
 #include <QPainter>
@@ -21,7 +21,7 @@ NyanPaginator::NyanPaginator(QWidget* parent)
     , ThemeAware(WidgetKind::Paginator)
 {
     setFixedHeight(kHeight);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanPaginator::~NyanPaginator() = default;

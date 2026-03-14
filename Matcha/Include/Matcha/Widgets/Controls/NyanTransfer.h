@@ -24,7 +24,7 @@ class QPushButton;
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware dual-list transfer selector.
@@ -87,7 +87,7 @@ private:
     QPushButton* _moveLeftBtn = nullptr;
     QPushButton* _moveAllRightBtn = nullptr;
     QPushButton* _moveAllLeftBtn = nullptr;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

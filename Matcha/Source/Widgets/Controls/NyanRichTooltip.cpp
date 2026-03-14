@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanRichTooltip.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <Matcha/Widgets/Controls/NyanLabel.h>
 
@@ -68,7 +68,7 @@ NyanRichTooltip::NyanRichTooltip(QWidget* parent)
 
     connect(_tier1Timer, &QTimer::timeout, this, &NyanRichTooltip::ShowTier1);
     connect(_tier2Timer, &QTimer::timeout, this, &NyanRichTooltip::ExpandToTier2);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanRichTooltip::~NyanRichTooltip() = default;

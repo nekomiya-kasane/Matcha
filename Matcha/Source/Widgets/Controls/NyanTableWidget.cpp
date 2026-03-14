@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanTableWidget.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QHeaderView>
 
@@ -21,7 +21,7 @@ NyanTableWidget::NyanTableWidget(QWidget* parent)
 {
     setAlternatingRowColors(true);
     ApplyStyle();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanTableWidget::NyanTableWidget(int rows, int columns, QWidget* parent)
@@ -30,7 +30,7 @@ NyanTableWidget::NyanTableWidget(int rows, int columns, QWidget* parent)
 {
     setAlternatingRowColors(true);
     ApplyStyle();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanTableWidget::~NyanTableWidget() = default;

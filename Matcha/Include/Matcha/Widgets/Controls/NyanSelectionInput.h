@@ -29,7 +29,7 @@ class QPushButton;
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Pick mode for entity selection.
@@ -160,7 +160,7 @@ private:
     PickMode       _mode         = PickMode::Single;
     SelectionState _state        = SelectionState::Idle;
     QString        _selection;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

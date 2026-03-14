@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanLine.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QPaintEvent>
 #include <QPainter>
@@ -18,7 +18,7 @@ NyanLine::NyanLine(QWidget* parent)
 {
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     setFixedHeight(1);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanLine::~NyanLine() = default;

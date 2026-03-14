@@ -32,7 +32,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware prev/next page navigation widget.
@@ -112,7 +112,7 @@ private:
     int _count = 0;
     int _current = -1;
     bool _resetButtonVisible = false;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

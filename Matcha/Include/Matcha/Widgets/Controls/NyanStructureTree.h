@@ -36,7 +36,7 @@ class QVBoxLayout;
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Generic hierarchical tree browser (Navigator).
@@ -169,7 +169,7 @@ private:
     bool _titleBarPinned     = false;
     bool _collapsed          = false;
     bool _backgroundTransparent = true;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 /**
@@ -197,7 +197,7 @@ private:
     [[nodiscard]] auto BranchIconSize() const -> QSize;
 
     bool _backgroundTransparent = true;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

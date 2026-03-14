@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanLegend.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QMouseEvent>
 #include <QPaintEvent>
@@ -22,7 +22,7 @@ NyanLegend::NyanLegend(QWidget* parent)
     , ThemeAware(WidgetKind::Legend)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanLegend::~NyanLegend() = default;

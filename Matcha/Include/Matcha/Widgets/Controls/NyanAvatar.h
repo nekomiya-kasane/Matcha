@@ -22,7 +22,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /** @brief Avatar display size. */
 enum class AvatarSize : uint8_t {
@@ -92,7 +92,7 @@ private:
     std::string _initials;
     AvatarSize _size = AvatarSize::Medium;
     OnlineStatus _status = OnlineStatus::None;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

@@ -1,6 +1,6 @@
 #include <Matcha/Widgets/Controls/NyanStructureTree.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QAbstractItemModel>
 #include <QHBoxLayout>
@@ -33,7 +33,7 @@ NyanTreeView::NyanTreeView(QWidget* parent)
     setDragDropMode(QAbstractItemView::InternalMove);
 
     SetBackgroundTransparent(true);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanTreeView::~NyanTreeView() = default;
@@ -193,7 +193,7 @@ NyanStructureTree::NyanStructureTree(QWidget* parent)
     connect(_hideTimer, &QTimer::timeout, this, &NyanStructureTree::OnTitleBarHideTimeout);
 
     UpdateTitleBarVisibility();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanStructureTree::~NyanStructureTree() = default;

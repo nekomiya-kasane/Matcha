@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanPushButton.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/PushButtonEventFilter.h"
 
 #include <QPaintEvent>
 #include <QPainter>
@@ -21,7 +21,7 @@ NyanPushButton::NyanPushButton(QWidget* parent)
     , ThemeAware(WidgetKind::PushButton)
 {
     setFixedHeight(static_cast<int>(_size));
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _pbFilter = new PushButtonEventFilter(this, nullptr);
 }
 
 NyanPushButton::NyanPushButton(const QString& text, QWidget* parent)
@@ -29,7 +29,7 @@ NyanPushButton::NyanPushButton(const QString& text, QWidget* parent)
     , ThemeAware(WidgetKind::PushButton)
 {
     setFixedHeight(static_cast<int>(_size));
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _pbFilter = new PushButtonEventFilter(this, nullptr);
 }
 
 NyanPushButton::NyanPushButton(const QIcon& icon, const QString& text,
@@ -38,7 +38,7 @@ NyanPushButton::NyanPushButton(const QIcon& icon, const QString& text,
     , ThemeAware(WidgetKind::PushButton)
 {
     setFixedHeight(static_cast<int>(_size));
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _pbFilter = new PushButtonEventFilter(this, nullptr);
 }
 
 NyanPushButton::~NyanPushButton() = default;
@@ -101,8 +101,8 @@ void NyanPushButton::paintEvent(QPaintEvent* /*event*/)
     // Variant index maps directly from ButtonVariant enum
     const auto variantIdx = static_cast<std::size_t>(std::to_underlying(_variant));
 
-    // Interaction state from FSM, with checked mapped to Pressed
-    auto istate = _interactionFilter->Fsm().CurrentState();
+    // Interaction state from per-widget FSM, with checked mapped to Pressed
+    auto istate = _pbFilter->Controller().GetInteractionState();
     if (isCheckable() && isChecked() && istate == fw::InteractionState::Normal) {
         istate = fw::InteractionState::Pressed;
     }

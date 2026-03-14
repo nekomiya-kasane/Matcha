@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanSlider.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QPaintEvent>
 #include <QPainter>
@@ -21,7 +21,7 @@ NyanSlider::NyanSlider(QWidget* parent)
     , ThemeAware(WidgetKind::Slider)
 {
     setFixedHeight(kCrossSize);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanSlider::NyanSlider(Qt::Orientation orientation, QWidget* parent)
@@ -33,7 +33,7 @@ NyanSlider::NyanSlider(Qt::Orientation orientation, QWidget* parent)
     } else {
         setFixedWidth(kCrossSize);
     }
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanSlider::~NyanSlider() = default;

@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanSearchBox.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <Matcha/Widgets/Controls/NyanLineEdit.h>
 
@@ -27,7 +27,7 @@ NyanSearchBox::NyanSearchBox(QWidget* parent)
 {
     setFixedHeight(kFixedHeight);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
     _lineEdit->setFrame(false);
 
     // Layout: [icon gap] [line edit] [clear button gap]

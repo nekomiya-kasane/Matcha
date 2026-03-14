@@ -31,7 +31,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware circular progress ring.
@@ -116,7 +116,7 @@ private:
     bool  _textVisible   = true;
     int   _spinAngle     = 0;
     QTimer _spinTimer;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

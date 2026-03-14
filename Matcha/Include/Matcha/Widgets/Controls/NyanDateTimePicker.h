@@ -28,7 +28,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Display mode for NyanDateTimePicker.
@@ -93,7 +93,7 @@ private:
     static constexpr int kFixedHeight = 26;
 
     DateTimeMode _mode = DateTimeMode::DateTime;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

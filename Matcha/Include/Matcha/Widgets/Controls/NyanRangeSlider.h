@@ -26,7 +26,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware dual-handle range slider.
@@ -123,7 +123,7 @@ private:
     int        _high       = 100;
     int        _step       = 1;
     DragHandle _dragging   = DragHandle::None;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

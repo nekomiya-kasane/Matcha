@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanAlert.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -20,7 +20,7 @@ NyanAlert::NyanAlert(QWidget* parent)
     , ThemeAware(WidgetKind::Alert)
 {
     SetupUi();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanAlert::~NyanAlert() = default;

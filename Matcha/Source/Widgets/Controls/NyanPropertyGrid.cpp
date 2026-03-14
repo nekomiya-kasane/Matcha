@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanPropertyGrid.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 #include <Matcha/Widgets/Controls/NyanCollapsibleSection.h>
 
 #include <QCheckBox>
@@ -41,7 +41,7 @@ NyanPropertyGrid::NyanPropertyGrid(QWidget* parent)
     _mainLayout->addStretch();
 
     ApplyStyle();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanPropertyGrid::~NyanPropertyGrid() = default;

@@ -32,7 +32,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 class NyanCollapsibleSection;
 
@@ -158,7 +158,7 @@ private:
     QVBoxLayout* _mainLayout = nullptr;
     QWidget* _defaultContainer = nullptr;
     QVBoxLayout* _defaultLayout = nullptr;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

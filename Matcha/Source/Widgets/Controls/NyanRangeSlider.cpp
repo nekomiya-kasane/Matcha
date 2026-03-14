@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanRangeSlider.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QMouseEvent>
 #include <QPaintEvent>
@@ -25,7 +25,7 @@ NyanRangeSlider::NyanRangeSlider(QWidget* parent)
 {
     setFixedHeight(kCrossSize);
     setMouseTracking(true);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanRangeSlider::~NyanRangeSlider() = default;

@@ -28,7 +28,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware single-handle slider.
@@ -93,7 +93,7 @@ private:
     static constexpr int kTickHeight    = 4;   ///< Tick mark height in px
 
     bool _ticksVisible = false;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

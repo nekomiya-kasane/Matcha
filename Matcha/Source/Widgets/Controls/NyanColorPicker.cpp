@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanColorPicker.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QApplication>
 #include <QGridLayout>
@@ -45,7 +45,7 @@ NyanColorPicker::NyanColorPicker(QWidget* parent)
 
     SetupUi();
     setMouseTracking(true);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanColorPicker::~NyanColorPicker() = default;

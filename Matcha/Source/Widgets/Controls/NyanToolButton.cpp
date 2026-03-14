@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanToolButton.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QMenu>
 #include <QMouseEvent>
@@ -25,7 +25,7 @@ NyanToolButton::NyanToolButton(QWidget* parent)
 {
     setFixedSize(kDefaultSize, kDefaultSize);
     setToolButtonStyle(Qt::ToolButtonIconOnly);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanToolButton::~NyanToolButton() = default;

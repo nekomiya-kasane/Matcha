@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanToggleSwitch.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QMouseEvent>
 #include <QPainter>
@@ -19,7 +19,7 @@ NyanToggleSwitch::NyanToggleSwitch(QWidget* parent)
 {
     setFixedSize(sizeHint());
     setCursor(Qt::PointingHandCursor);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanToggleSwitch::~NyanToggleSwitch() = default;

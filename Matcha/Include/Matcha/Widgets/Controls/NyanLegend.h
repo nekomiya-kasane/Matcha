@@ -30,7 +30,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Data for a single legend item.
@@ -135,7 +135,7 @@ private:
     std::vector<LegendItem> _items;
     bool _selectable  = true;
     bool _useDefault  = true;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

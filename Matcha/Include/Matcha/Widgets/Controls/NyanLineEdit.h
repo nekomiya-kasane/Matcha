@@ -36,7 +36,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class LineEditEventFilter;
 
 /**
  * @brief Input mode for NyanLineEdit.
@@ -166,7 +166,7 @@ private:
     double         _upperValue = 1e15;
     int            _precision  = 6;
     QString        _unitSuffix;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    LineEditEventFilter* _leFilter = nullptr;
 };
 
 } // namespace matcha::gui

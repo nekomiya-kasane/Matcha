@@ -33,7 +33,7 @@ class QMenu;
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Flyout popup behavior policy.
@@ -117,7 +117,7 @@ private:
 
     FlyoutPolicy _flyoutPolicy = FlyoutPolicy::Simple;
     QMenu*       _flyoutMenu   = nullptr;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

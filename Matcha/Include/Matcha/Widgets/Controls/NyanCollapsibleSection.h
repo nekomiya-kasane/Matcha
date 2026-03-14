@@ -28,7 +28,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Borderless collapsible content group with title row and expand/collapse arrow.
@@ -105,7 +105,7 @@ private:
     QWidget* _content  = nullptr;
     int      _contentHeight = 0;
     qreal    _arrowRotation = 90.0;  ///< Arrow rotation: 0=collapsed (right), 90=expanded (down)
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

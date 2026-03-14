@@ -22,7 +22,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware toggle switch with animated sliding knob.
@@ -93,7 +93,7 @@ private:
     qreal   _knobPos = 0.0;    ///< Animated knob X position (0.0=left, 1.0=right)
     QString _onText;            ///< Text displayed when ON
     QString _offText;           ///< Text displayed when OFF
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

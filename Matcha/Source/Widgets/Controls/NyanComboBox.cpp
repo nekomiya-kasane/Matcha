@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanComboBox.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/ComboBoxEventFilter.h"
 
 #include <QCompleter>
 #include <QPaintEvent>
@@ -21,7 +21,7 @@ NyanComboBox::NyanComboBox(QWidget* parent)
     , ThemeAware(WidgetKind::ComboBox)
 {
     setFixedHeight(kFixedHeight);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _cbFilter = new ComboBoxEventFilter(this, nullptr);
 }
 
 NyanComboBox::~NyanComboBox() = default;
@@ -74,6 +74,7 @@ void NyanComboBox::showPopup()
 {
     QComboBox::showPopup();
     _popupVisible = true;
+    _cbFilter->NotifyPopupOpened();
 
     // Animate arrow rotation 0 -> -180 degrees
     auto* anim = new QVariantAnimation(this);
@@ -97,6 +98,7 @@ void NyanComboBox::hidePopup()
         return;
     }
     _popupVisible = false;
+    _cbFilter->NotifyPopupClosed();
 
     // Animate arrow rotation -180 -> 0 degrees
     auto* anim = new QVariantAnimation(this);
@@ -137,10 +139,7 @@ void NyanComboBox::paintEvent(QPaintEvent* /*event*/)
     QPainter p(this);
     p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 
-    const auto istate = !isEnabled()                    ? InteractionState::Disabled
-                      : (hasFocus() || _popupVisible)   ? InteractionState::Focused
-                      : underMouse()                     ? InteractionState::Hovered
-                                                         : InteractionState::Normal;
+    const auto istate = _cbFilter->Controller().GetInteractionState();
 
     const auto style = Theme().Resolve(WidgetKind::ComboBox, 0, istate);
     const QRect r = rect().adjusted(1, 1, -1, -1);

@@ -28,7 +28,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware group box with animated collapse and checkable title.
@@ -93,7 +93,7 @@ private:
     bool _collapsible = false;
     bool _collapsed   = false;
     int  _expandedHeight = 0;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

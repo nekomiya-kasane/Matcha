@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanDateTimePicker.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QPaintEvent>
 #include <QPainter>
@@ -24,7 +24,7 @@ NyanDateTimePicker::NyanDateTimePicker(QWidget* parent)
     setCalendarPopup(true);
     setButtonSymbols(QAbstractSpinBox::NoButtons);
     ApplyMode();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanDateTimePicker::~NyanDateTimePicker() = default;

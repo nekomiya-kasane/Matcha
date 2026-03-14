@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanCascader.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QHBoxLayout>
 #include <QListWidget>
@@ -18,7 +18,7 @@ NyanCascader::NyanCascader(QWidget* parent)
     , ThemeAware(WidgetKind::Cascader)
 {
     SetupUi();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanCascader::~NyanCascader() = default;

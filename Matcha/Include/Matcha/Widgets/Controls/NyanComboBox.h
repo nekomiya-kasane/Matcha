@@ -33,7 +33,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class ComboBoxEventFilter;
 
 /**
  * @brief Theme-aware combo box with custom-painted frame and popup.
@@ -116,7 +116,7 @@ private:
     bool    _popupVisible = false;      ///< Popup state for hide guard
     bool    _searchEnabled = false;     ///< Search/filter mode
     bool    _editableMode = false;      ///< Free-form editable mode
-    InteractionEventFilter* _interactionFilter = nullptr;
+    ComboBoxEventFilter* _cbFilter = nullptr;
 };
 
 } // namespace matcha::gui

@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanGroupBox.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <Matcha/UiNodes/Core/WidgetNode.h>
 #include <Matcha/Widgets/Core/IAnimationService.h>
@@ -23,7 +23,7 @@ NyanGroupBox::NyanGroupBox(QWidget* parent)
     , ThemeAware(WidgetKind::GroupBox)
 {
     ApplyStyle();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanGroupBox::NyanGroupBox(const QString& title, QWidget* parent)
@@ -31,7 +31,7 @@ NyanGroupBox::NyanGroupBox(const QString& title, QWidget* parent)
     , ThemeAware(WidgetKind::GroupBox)
 {
     ApplyStyle();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanGroupBox::~NyanGroupBox() = default;

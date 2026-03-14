@@ -30,7 +30,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware checkbox with custom-painted indicator.
@@ -81,7 +81,7 @@ private:
     static constexpr int kFixedHeight   = 24;  ///< Widget fixed height in px
     static constexpr int kIndicatorInset = 2;  ///< Inset from indicator rect edge
     static constexpr int kTextGap       = 4;   ///< Gap between indicator and text
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

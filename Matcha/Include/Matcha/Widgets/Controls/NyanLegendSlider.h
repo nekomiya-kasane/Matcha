@@ -30,7 +30,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief A color stop for the gradient bar.
@@ -129,7 +129,7 @@ private:
     double _value  = 0.0;
     bool   _dragging = false;
     std::vector<ColorStop> _colorStops;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

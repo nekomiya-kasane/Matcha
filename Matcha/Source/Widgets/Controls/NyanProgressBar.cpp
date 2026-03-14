@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanProgressBar.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QPaintEvent>
 #include <QPainter>
@@ -22,7 +22,7 @@ NyanProgressBar::NyanProgressBar(QWidget* parent)
 {
     setFixedHeight(kBarHeight);
     setTextVisible(false);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanProgressBar::~NyanProgressBar() = default;

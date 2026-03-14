@@ -24,7 +24,7 @@ class QLabel;
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware label-input pair form layout.
@@ -71,7 +71,7 @@ private:
     QFormLayout* _formLayout = nullptr;
     int _labelWidth = 120;
     std::vector<QLabel*> _labels;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

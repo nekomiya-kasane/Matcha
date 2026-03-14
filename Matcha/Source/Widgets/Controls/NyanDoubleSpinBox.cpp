@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanDoubleSpinBox.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QPaintEvent>
 #include <QPainter>
@@ -24,7 +24,7 @@ NyanDoubleSpinBox::NyanDoubleSpinBox(QWidget* parent)
     setFixedHeight(kFixedHeight);
     setButtonSymbols(QAbstractSpinBox::NoButtons);
     setDecimals(_precision);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanDoubleSpinBox::~NyanDoubleSpinBox() = default;

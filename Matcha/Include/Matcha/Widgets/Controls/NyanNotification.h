@@ -35,7 +35,7 @@ class QPropertyAnimation;
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Notification type determines icon and color scheme.
@@ -170,7 +170,7 @@ private:
     std::chrono::milliseconds  _duration = kDefaultDuration;
     std::function<void()>      _actionCallback;
     int                        _slideOffset = 0;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 /**

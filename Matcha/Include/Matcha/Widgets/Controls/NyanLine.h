@@ -21,7 +21,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 
 /**
  * @brief Theme-aware 1px separator line.
@@ -73,7 +73,7 @@ protected:
 private:
     Qt::Orientation _orientation = Qt::Horizontal;
     ColorToken      _colorToken  = ColorToken::Separator;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui

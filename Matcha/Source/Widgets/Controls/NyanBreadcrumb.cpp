@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanBreadcrumb.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QFontMetrics>
 #include <QMouseEvent>
@@ -24,7 +24,7 @@ NyanBreadcrumb::NyanBreadcrumb(QWidget* parent)
 {
     setFixedHeight(kFixedHeight);
     setMouseTracking(true);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanBreadcrumb::~NyanBreadcrumb() = default;

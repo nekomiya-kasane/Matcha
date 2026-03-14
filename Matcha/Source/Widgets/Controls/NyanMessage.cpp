@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanMessage.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -19,7 +19,7 @@ NyanMessage::NyanMessage(QWidget* parent)
     , ThemeAware(WidgetKind::Message)
 {
     SetupUi();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanMessage::~NyanMessage() = default;

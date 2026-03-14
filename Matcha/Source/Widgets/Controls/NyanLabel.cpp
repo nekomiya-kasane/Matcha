@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanLabel.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <Matcha/UiNodes/Core/MnemonicManager.h>
 #include <Matcha/Widgets/Core/MnemonicState.h>
@@ -21,7 +21,7 @@ NyanLabel::NyanLabel(QWidget* parent)
     , ThemeAware(WidgetKind::Label)
 {
     setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanLabel::NyanLabel(const QString& text, QWidget* parent)
@@ -29,7 +29,7 @@ NyanLabel::NyanLabel(const QString& text, QWidget* parent)
     , ThemeAware(WidgetKind::Label)
 {
     setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanLabel::~NyanLabel()

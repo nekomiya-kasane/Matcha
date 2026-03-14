@@ -2,30 +2,98 @@
 
 /**
  * @file WidgetFsm.h
- * @brief Canonical FSM transition tables for core widgets (Spec §5.x).
+ * @brief Single source of truth for all widget FSMs.
  *
- * Each widget kind has:
- * - A State enum (uint8_t)
- * - An Event enum (uint8_t)
- * - A constexpr transition table (std::array)
- * - A type alias for StateMachine<State, Event>
+ * Each widget namespace contains:
+ * - State enum + Event enum
+ * - constexpr transition table
+ * - constexpr ToInteractionState mapping
+ * - Controller type alias (WidgetFsmController instantiation)
  *
- * These transition tables are the single source of truth for widget
- * interaction behavior. The Widget layer's Qt event handlers should
- * dispatch events into these FSMs.
+ * This file is the ONLY place to look for a widget's interaction model.
  *
  * Qt-free Foundation layer.
  *
- * @see Matcha_Design_System_Specification.md §5.1, §5.3, §5.6
  * @see StateMachine.h
+ * @see WidgetFsmBridge.h for WidgetFsmController template definition
+ * @see Matcha_Design_System_Specification.md §5.x
  */
 
-#include <Matcha/Foundation/StateMachine.h>
+#include <Matcha/Foundation/WidgetFsmBridge.h>
 
 #include <array>
 #include <cstdint>
 
 namespace matcha::fw::fsm {
+
+// ============================================================================
+// SimpleWidget FSM — for widgets with basic hover/press/focus/disabled
+// (CheckBox, RadioButton, ToggleSwitch, Slider, SpinBox, ToolButton, etc.)
+// ============================================================================
+
+namespace simple_widget {
+
+enum class State : uint8_t {
+    Normal,
+    Hover,
+    Pressed,
+    Focused,
+    Disabled,
+};
+
+enum class Event : uint8_t {
+    MouseEnter,
+    MouseLeave,
+    MouseDown,
+    MouseUp,
+    FocusIn,
+    FocusOut,
+    Disable,
+    Enable,
+};
+
+using FSM = StateMachine<State, Event>;
+
+inline constexpr std::array kTransitions = {
+    // Normal
+    FSM::Transition{State::Normal,   Event::MouseEnter, State::Hover},
+    FSM::Transition{State::Normal,   Event::FocusIn,    State::Focused},
+    FSM::Transition{State::Normal,   Event::Disable,    State::Disabled},
+
+    // Hover
+    FSM::Transition{State::Hover,    Event::MouseLeave, State::Normal},
+    FSM::Transition{State::Hover,    Event::MouseDown,  State::Pressed},
+    FSM::Transition{State::Hover,    Event::Disable,    State::Disabled},
+
+    // Pressed
+    FSM::Transition{State::Pressed,  Event::MouseUp,    State::Hover},
+    FSM::Transition{State::Pressed,  Event::MouseLeave, State::Normal},
+    FSM::Transition{State::Pressed,  Event::Disable,    State::Disabled},
+
+    // Focused
+    FSM::Transition{State::Focused,  Event::FocusOut,   State::Normal},
+    FSM::Transition{State::Focused,  Event::MouseEnter, State::Hover},
+    FSM::Transition{State::Focused,  Event::Disable,    State::Disabled},
+
+    // Disabled
+    FSM::Transition{State::Disabled, Event::Enable,     State::Normal},
+};
+
+[[nodiscard]] constexpr auto ToInteractionState(State s) -> InteractionState
+{
+    switch (s) {
+    case State::Normal:   return InteractionState::Normal;
+    case State::Hover:    return InteractionState::Hovered;
+    case State::Pressed:  return InteractionState::Pressed;
+    case State::Focused:  return InteractionState::Focused;
+    case State::Disabled: return InteractionState::Disabled;
+    }
+    return InteractionState::Normal;
+}
+
+using Controller = WidgetFsmController<State, Event, ToInteractionState>;
+
+} // namespace simple_widget
 
 // ============================================================================
 // PushButton FSM (§5.1)
@@ -82,6 +150,20 @@ inline constexpr std::array kTransitions = {
     // Disabled
     FSM::Transition{State::Disabled, Event::Enable,       State::Normal},
 };
+
+[[nodiscard]] constexpr auto ToInteractionState(State s) -> InteractionState
+{
+    switch (s) {
+    case State::Normal:   return InteractionState::Normal;
+    case State::Hover:    return InteractionState::Hovered;
+    case State::Pressed:  return InteractionState::Pressed;
+    case State::Focused:  return InteractionState::Focused;
+    case State::Disabled: return InteractionState::Disabled;
+    }
+    return InteractionState::Normal;
+}
+
+using Controller = WidgetFsmController<State, Event, ToInteractionState>;
 
 } // namespace push_button
 
@@ -147,6 +229,21 @@ inline constexpr std::array kTransitions = {
     FSM::Transition{State::ReadOnly, Event::ClearReadOnly,  State::Normal},
 };
 
+[[nodiscard]] constexpr auto ToInteractionState(State s) -> InteractionState
+{
+    switch (s) {
+    case State::Normal:   return InteractionState::Normal;
+    case State::Hover:    return InteractionState::Hovered;
+    case State::Focused:  return InteractionState::Focused;
+    case State::Error:    return InteractionState::Error;
+    case State::Disabled: return InteractionState::Disabled;
+    case State::ReadOnly: return InteractionState::Disabled;
+    }
+    return InteractionState::Normal;
+}
+
+using Controller = WidgetFsmController<State, Event, ToInteractionState>;
+
 } // namespace line_edit
 
 // ============================================================================
@@ -197,6 +294,32 @@ inline constexpr std::array kTransitions = {
     FSM::Transition{State::Disabled, Event::Enable,        State::Closed},
 };
 
+[[nodiscard]] constexpr auto ToInteractionState(State s) -> InteractionState
+{
+    switch (s) {
+    case State::Closed:   return InteractionState::Normal;
+    case State::Hover:    return InteractionState::Hovered;
+    case State::Open:     return InteractionState::Focused;
+    case State::Disabled: return InteractionState::Disabled;
+    }
+    return InteractionState::Normal;
+}
+
+using Controller = WidgetFsmController<State, Event, ToInteractionState>;
+
 } // namespace combo_box
 
 } // namespace matcha::fw::fsm
+
+// ============================================================================
+// Backward-compatible aliases at matcha::fw scope
+// ============================================================================
+
+namespace matcha::fw {
+
+using SimpleWidgetFsmController = fsm::simple_widget::Controller;
+using PushButtonFsmController   = fsm::push_button::Controller;
+using LineEditFsmController     = fsm::line_edit::Controller;
+using ComboBoxFsmController     = fsm::combo_box::Controller;
+
+} // namespace matcha::fw

@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanFormLayout.h>
 
-#include "../Core/InteractionEventFilter.h"
+#include "../Core/SimpleWidgetEventFilter.h"
 
 #include <QFormLayout>
 #include <QLabel>
@@ -18,7 +18,7 @@ NyanFormLayout::NyanFormLayout(QWidget* parent)
     , ThemeAware(WidgetKind::FormLayout)
 {
     SetupUi();
-    _interactionFilter = new InteractionEventFilter(this, nullptr);
+    _swFilter = new SimpleWidgetEventFilter(this, nullptr);
 }
 
 NyanFormLayout::~NyanFormLayout() = default;

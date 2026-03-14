@@ -31,7 +31,7 @@
 
 namespace matcha::gui {
 
-class InteractionEventFilter;
+class SimpleWidgetEventFilter;
 class NyanLineEdit;
 
 /**
@@ -125,7 +125,7 @@ private:
     NyanLineEdit*        _lineEdit = nullptr;
     SearchMode           _searchMode = SearchMode::Instant;
     std::vector<QString> _history;
-    InteractionEventFilter* _interactionFilter = nullptr;
+    SimpleWidgetEventFilter* _swFilter = nullptr;
 };
 
 } // namespace matcha::gui
