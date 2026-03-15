@@ -9557,25 +9557,76 @@ Matcha/
 │   │   └── fa/                      ← FontAwesome subset (if bundled)
 │   └── cursors/                     ← Custom cursor SVGs (if any)
 ├── Include/Matcha/
-│   └── Foundation/
-│       ├── ColorToken.h             ← enum ColorToken { Surface, ..., 75 entries }
-│       ├── SpacingToken.h           ← enum SpacingToken { Px2, ..., Px64 }
-│       ├── RadiusToken.h            ← enum RadiusToken { None, ..., Round }
-│       ├── SizeToken.h              ← enum SizeToken { Xs, ..., Xl }
-│       ├── ElevationToken.h         ← enum ElevationToken { Flat, ..., Raised3 }
-│       ├── LayerToken.h             ← enum LayerToken { Base, ..., Maximum }
-│       ├── FontRole.h               ← enum FontRole { Body, ..., ToolTip }
-│       ├── AnimationToken.h         ← enum AnimationToken { Instant, ..., Slow }
-│       ├── EasingToken.h            ← enum EasingToken { Linear, ..., Spring }
-│       ├── CursorToken.h            ← enum CursorToken { Default, ..., Grabbing }
-│       ├── FontSpec.h               ← struct FontSpec
-│       ├── SpringSpec.h             ← struct SpringSpec
-│       ├── TransitionDef.h          ← struct TransitionDef
-│       ├── StateStyle.h             ← struct StateStyle
-│       ├── VariantStyle.h           ← struct VariantStyle
-│       ├── WidgetStyleSheet.h       ← struct WidgetStyleSheet
-│       ├── ResolvedStyle.h          ← struct ResolvedStyle
-│       └── ComponentOverride.h      ← struct ComponentOverride
+│   ├── Core/                        ← L0: Zero-dependency foundation types
+│   │   ├── ErrorCode.h              ← enum ErrorCode
+│   │   ├── FixedString.h            ← NTTP string literal template
+│   │   ├── Macros.h                 ← MATCHA_EXPORT, MATCHA_API macros
+│   │   ├── Observable.h             ← Reactive Observable<T>
+│   │   ├── PropertyBinding.h        ← Two-way property binding
+│   │   ├── StateMachine.h           ← Constexpr state machine
+│   │   ├── StrongId.h               ← Type-safe ID wrapper
+│   │   ├── StringId.h               ← Interned string identifier
+│   │   └── Types.h                  ← observer_ptr, common type aliases
+│   ├── Event/                       ← L1: Command/Notification tree
+│   │   ├── BaseObject.h             ← Root base class
+│   │   ├── MetaClass.h              ← Runtime type metadata
+│   │   ├── EventNode.h              ← Subscription + callback dispatch
+│   │   ├── CommandNode.h            ← Parent-child command tree
+│   │   ├── Notification.h           ← Base notification class
+│   │   └── NotificationQueue.h      ← Async notification queue
+│   ├── Tree/                        ← L2: UiNode tree + widget skeleton
+│   │   ├── UiNode.h                 ← Base UI node (owns children)
+│   │   ├── WidgetNode.h             ← Qt widget wrapper node
+│   │   ├── ContainerNode.h          ← Layout container node
+│   │   ├── UiNodeQuery.h            ← Tree query utilities
+│   │   ├── FSM/                     ← Widget finite state machines
+│   │   │   ├── WidgetFsm.h          ← All widget FSM definitions
+│   │   │   ├── WidgetFsmBridge.h     ← FSM ↔ InteractionState bridge
+│   │   │   └── WidgetEnums.h        ← InteractionState, LayoutKind
+│   │   ├── Layout/                  ← Responsive layout engine
+│   │   │   ├── LayoutEngine.h       ← Flexbox-like layout algorithm
+│   │   │   └── BreakpointObserver.h ← Responsive breakpoint system
+│   │   ├── Controls/                ← Leaf widget nodes (25+ types)
+│   │   │   ├── PushButtonNode.h
+│   │   │   ├── LineEditNode.h
+│   │   │   └── ...                  ← CheckBox, Slider, DataTable, etc.
+│   │   └── Composition/             ← Composed multi-node structures
+│   │       ├── Shell/               ← Application shell (Window, TitleBar)
+│   │       ├── ActionBar/           ← Ribbon-like action bar system
+│   │       ├── Document/            ← Tab/Viewport document management
+│   │       ├── Menu/                ← Menu, Dialog, MenuBar nodes
+│   │       └── Workbench/           ← Workbench/Workshop system
+│   ├── Theming/                     ← Token resolution + theme engine
+│   │   ├── IThemeService.h          ← Theme service interface
+│   │   ├── NyanTheme.h              ← Concrete theme implementation
+│   │   ├── DesignTokens.h           ← Token struct definitions
+│   │   ├── Token/                   ← Token enums + registry
+│   │   │   ├── TokenEnums.h         ← ColorToken, SpacingToken, etc.
+│   │   │   └── ITokenRegistry.h     ← Token lookup interface
+│   │   └── Palette/                 ← Color palette generation
+│   │       ├── DefaultPalette.h     ← Built-in palette definitions
+│   │       └── TonalPaletteGenerator.h ← HCT tonal scale generator
+│   ├── Interaction/                 ← Input, focus, selection, DnD
+│   │   ├── Focus/                   ← Focus chain + mnemonic management
+│   │   ├── Input/                   ← Keyboard, gesture, scroll physics
+│   │   ├── Selection/               ← Multi-selection model
+│   │   └── PopupPositioner.h        ← 12-anchor popup placement
+│   ├── Animation/                   ← Motion engine + choreography
+│   │   ├── IAnimationService.h      ← Animation service interface
+│   │   ├── ChoreographyEngine.h     ← Stagger + sequenced animations
+│   │   └── SharedElementTransition.h ← Cross-view element transitions
+│   ├── Feedback/                    ← Error boundary, content state
+│   │   ├── ErrorBoundary.h          ← Error recovery + fallback UI
+│   │   ├── FeedbackPolicy.h         ← Feedback timing + level policy
+│   │   └── ContentStateModel.h      ← Loading/Empty/Error state machine
+│   ├── DSL/                         ← Declarative UI description
+│   │   └── Blueprint.h              ← Compile-time verified Blueprint DSL
+│   ├── Services/                    ← Application-level services
+│   │   ├── IDocumentManager.h       ← Document lifecycle interface
+│   │   ├── DocumentManager.h        ← Concrete document manager
+│   │   └── PluginHost.h             ← Plugin loading + isolation
+│   └── CApi/                        ← C ABI for cross-language use
+│       └── NyanCApi.h               ← Flat C function exports
 └── docs/
     └── assets/anatomy/              ← Widget anatomy SVGs (designer-produced)
         ├── pushbutton.svg

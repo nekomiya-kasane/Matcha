@@ -22,11 +22,11 @@
  * @see docs/02_Architecture_Design.md section 2.5.5
  */
 
-#include "Matcha/Foundation/ErrorCode.h"
-#include "Matcha/Foundation/Macros.h"
-#include "Matcha/Foundation/StrongId.h"
-#include "Matcha/Foundation/Types.h"
-#include "Matcha/UiNodes/Core/CommandNode.h"
+#include "Matcha/Core/ErrorCode.h"
+#include "Matcha/Core/Macros.h"
+#include "Matcha/Core/StrongId.h"
+#include "Matcha/Core/Types.h"
+#include "Matcha/Event/CommandNode.h"
 
 #include <optional>
 #include <string_view>

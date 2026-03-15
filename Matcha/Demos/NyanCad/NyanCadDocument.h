@@ -8,10 +8,10 @@
  * DocumentManager Notifications via the command tree.
  */
 
-#include "Matcha/Foundation/StrongId.h"
-#include "Matcha/Foundation/Types.h"
-#include "Matcha/UiNodes/Core/CommandNode.h"
-#include "Matcha/UiNodes/Core/UiNodeNotification.h"
+#include "Matcha/Core/StrongId.h"
+#include "Matcha/Core/Types.h"
+#include "Matcha/Event/CommandNode.h"
+#include "Matcha/Tree/UiNodeNotification.h"
 
 #include <string>
 #include <string_view>

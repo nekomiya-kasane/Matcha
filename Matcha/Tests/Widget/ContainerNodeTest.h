@@ -2,13 +2,13 @@
 
 #include "WidgetTestFixture.h"
 
-#include <Matcha/UiNodes/ActionBar/ActionBarNode.h>
-#include <Matcha/UiNodes/Shell/StatusBarNode.h>
-#include <Matcha/UiNodes/Shell/StatusItemNode.h>
-#include <Matcha/Widgets/Core/IThemeService.h>
+#include <Matcha/Tree/Composition/ActionBar/ActionBarNode.h>
+#include <Matcha/Tree/Composition/Shell/StatusBarNode.h>
+#include <Matcha/Tree/Composition/Shell/StatusItemNode.h>
+#include <Matcha/Theming/IThemeService.h>
 #include <Matcha/Widgets/ActionBar/NyanActionBar.h>
 #include <Matcha/Widgets/Shell/NyanStatusBar.h>
-#include <Matcha/Widgets/Core/NyanTheme.h>
+#include <Matcha/Theming/NyanTheme.h>
 
 #include <QTest>
 

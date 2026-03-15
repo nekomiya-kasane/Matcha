@@ -17,7 +17,7 @@
 #include <Matcha/Widgets/Shell/NyanStackedWidget.h>
 #include <Matcha/Widgets/Shell/NyanTabWidget.h>
 #include <Matcha/Widgets/Controls/NyanTableWidget.h>
-#include <Matcha/Widgets/Core/NyanTheme.h>
+#include <Matcha/Theming/NyanTheme.h>
 
 #include <QSignalSpy>
 #include <QTest>

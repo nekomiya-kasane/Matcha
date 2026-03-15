@@ -7,12 +7,12 @@
 
 #include "doctest.h"
 
-#include "Matcha/UiNodes/ActionBar/ActionBarNode.h"
-#include "Matcha/UiNodes/Shell/Shell.h"
-#include "Matcha/UiNodes/Core/UiNodeNotification.h"
-#include "Matcha/UiNodes/Shell/WindowNode.h"
+#include "Matcha/Tree/Composition/ActionBar/ActionBarNode.h"
+#include "Matcha/Tree/Composition/Shell/Shell.h"
+#include "Matcha/Tree/UiNodeNotification.h"
+#include "Matcha/Tree/Composition/Shell/WindowNode.h"
 #include "Matcha/Widgets/ActionBar/NyanActionBar.h"
-#include "Matcha/Widgets/Core/NyanTheme.h"
+#include "Matcha/Theming/NyanTheme.h"
 
 using matcha::fw::ActionBarNode;
 using matcha::fw::Shell;

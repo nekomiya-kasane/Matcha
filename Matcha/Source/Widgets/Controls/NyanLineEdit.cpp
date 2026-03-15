@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanLineEdit.h>
 
-#include "../Core/LineEditEventFilter.h"
+#include "../_Private/LineEditEventFilter.h"
 
 #include <QDoubleValidator>
 #include <QFontMetrics>

@@ -2,11 +2,11 @@
 
 #include "WidgetTestFixture.h"
 
-#include <Matcha/Foundation/Types.h>
-#include <Matcha/UiNodes/Document/SplitTreeNode.h>
-#include <Matcha/UiNodes/Document/Viewport.h>
-#include <Matcha/UiNodes/Document/ViewportGroup.h>
-#include <Matcha/Widgets/Core/DropZoneOverlay.h>
+#include <Matcha/Core/Types.h>
+#include <Matcha/Tree/Composition/Document/SplitTreeNode.h>
+#include <Matcha/Tree/Composition/Document/Viewport.h>
+#include <Matcha/Tree/Composition/Document/ViewportGroup.h>
+#include <Matcha/Interaction/DropZoneOverlay.h>
 #include <Matcha/Widgets/Shell/ViewportFrame.h>
 #include <Matcha/Widgets/Shell/ViewportHeaderBar.h>
 #include <Matcha/Widgets/Shell/ViewportWidget.h>

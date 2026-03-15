@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanComboBox.h>
 
-#include "../Core/ComboBoxEventFilter.h"
+#include "../_Private/ComboBoxEventFilter.h"
 
 #include <QCompleter>
 #include <QPaintEvent>

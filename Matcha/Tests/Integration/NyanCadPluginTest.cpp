@@ -11,9 +11,9 @@
 #include "doctest.h"
 
 #include "Matcha/Services/PluginHost.h"
-#include "Matcha/UiNodes/Shell/Application.h"
-#include "Matcha/UiNodes/Shell/Shell.h"
-#include "Matcha/Widgets/Core/NyanTheme.h"
+#include "Matcha/Tree/Composition/Shell/Application.h"
+#include "Matcha/Tree/Composition/Shell/Shell.h"
+#include "Matcha/Theming/NyanTheme.h"
 
 #include <QString>
 

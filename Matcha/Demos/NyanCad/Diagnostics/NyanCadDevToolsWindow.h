@@ -8,7 +8,7 @@
  * FloatingWindowNode with a QTabWidget.
  */
 
-#include "Matcha/UiNodes/Shell/FloatingWindowNode.h"
+#include "Matcha/Tree/Composition/Shell/FloatingWindowNode.h"
 
 #include <QHash>
 

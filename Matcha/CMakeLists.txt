@@ -40,28 +40,28 @@ endif()
 # Matcha shared library
 # --------------------------------------------------------------------------- #
 add_library(Matcha SHARED
-    Source/Foundation/Placeholder.cpp
-    Source/Widgets/Core/ThemeAware.cpp
-    Source/Widgets/Core/ThemeServiceGlobal.cpp
-    Source/Widgets/Core/AnimationServiceGlobal.cpp
-    Source/Widgets/Core/MnemonicState.cpp
-    Source/Widgets/Core/MnemonicStateGlobal.cpp
-    Include/Matcha/Widgets/Core/MnemonicState.h
-    Source/Widgets/Core/NyanTheme.cpp
-    Source/Widgets/Core/TonalPaletteGenerator.cpp
-    Source/Widgets/Core/SvgIconProvider.cpp
-    Source/Widgets/Core/AnimationService.cpp
-    Source/Widgets/Core/SpringAnimation.cpp
-    Source/Widgets/Core/StateTransition.cpp
-    Source/Widgets/Core/ContrastChecker.cpp
-    Source/Widgets/Core/A11yAudit.cpp
-    Source/Widgets/Core/SimpleWidgetEventFilter.cpp
-    Source/Widgets/Core/PushButtonEventFilter.cpp
-    Source/Widgets/Core/LineEditEventFilter.cpp
-    Source/Widgets/Core/ComboBoxEventFilter.cpp
-    Source/Widgets/Core/TooltipEventFilter.cpp
-    Source/Widgets/Core/WhatsThisEventFilter.cpp
-    Source/Widgets/Core/FlowLayout.cpp
+    Source/Core/Placeholder.cpp
+    Source/Theming/ThemeAware.cpp
+    Source/Theming/ThemeServiceGlobal.cpp
+    Source/Animation/AnimationServiceGlobal.cpp
+    Source/Interaction/Focus/MnemonicState.cpp
+    Source/Interaction/Focus/MnemonicStateGlobal.cpp
+    Include/Matcha/Interaction/Focus/MnemonicState.h
+    Source/Theming/NyanTheme.cpp
+    Source/Theming/Palette/TonalPaletteGenerator.cpp
+    Source/Theming/SvgIconProvider.cpp
+    Source/Animation/AnimationService.cpp
+    Source/Animation/SpringAnimation.cpp
+    Source/Animation/StateTransition.cpp
+    Source/Theming/Palette/ContrastChecker.cpp
+    Source/Theming/A11yAudit.cpp
+    Source/Widgets/_Private/SimpleWidgetEventFilter.cpp
+    Source/Widgets/_Private/PushButtonEventFilter.cpp
+    Source/Widgets/_Private/LineEditEventFilter.cpp
+    Source/Widgets/_Private/ComboBoxEventFilter.cpp
+    Source/Widgets/_Private/TooltipEventFilter.cpp
+    Source/Widgets/_Private/WhatsThisEventFilter.cpp
+    Source/Widgets/_Private/FlowLayout.cpp
     Source/Widgets/Controls/NyanCheckBox.cpp
     Source/Widgets/Controls/NyanRadioButton.cpp
     Source/Widgets/Controls/NyanComboBox.cpp
@@ -144,8 +144,8 @@ add_library(Matcha SHARED
     Include/Matcha/Widgets/Controls/NyanPropertyGrid.h
     Source/Widgets/Controls/NyanColorPicker.cpp
     Include/Matcha/Widgets/Controls/NyanColorPicker.h
-    Source/Widgets/Core/UpdateGuard.cpp
-    Include/Matcha/Widgets/Core/UpdateGuard.h
+    Source/Tree/UpdateGuard.cpp
+    Include/Matcha/Tree/UpdateGuard.h
     Source/Widgets/Shell/NyanStatusBar.cpp
     Include/Matcha/Widgets/Shell/NyanStatusBar.h
     Source/Widgets/Shell/NyanTabBar.cpp
@@ -200,145 +200,151 @@ add_library(Matcha SHARED
     Include/Matcha/Widgets/Shell/ViewportWidget.h
     Source/Widgets/Shell/ViewportHeaderBar.cpp
     Include/Matcha/Widgets/Shell/ViewportHeaderBar.h
-    Source/Widgets/Core/DropZoneOverlay.cpp
-    Include/Matcha/Widgets/Core/DropZoneOverlay.h
+    Source/Interaction/DropZoneOverlay.cpp
+    Include/Matcha/Interaction/DropZoneOverlay.h
     Source/Widgets/Shell/ViewportFrame.cpp
     Include/Matcha/Widgets/Shell/ViewportFrame.h
-    Source/UiNodes/Core/BaseObject.cpp
-    Source/UiNodes/Core/Notification.cpp
-    Source/UiNodes/Core/EventNode.cpp
-    Source/UiNodes/Core/CommandNode.cpp
-    Source/UiNodes/Core/NotificationQueue.cpp
-    Source/UiNodes/Core/UiNode.cpp
-    Source/UiNodes/Core/FocusChain.cpp
-    Source/UiNodes/Core/FocusManager.cpp
-    Include/Matcha/UiNodes/Core/FocusManager.h
-    Source/UiNodes/Core/MnemonicManager.cpp
-    Source/UiNodes/Core/MnemonicManagerGlobal.cpp
-    Include/Matcha/UiNodes/Core/MnemonicManager.h
-    Include/Matcha/UiNodes/Core/UiNode.h
-    Source/UiNodes/Core/WidgetWrapper.cpp
-    Include/Matcha/UiNodes/Core/WidgetWrapper.h
-    Source/UiNodes/Core/WidgetNode.cpp
-    Include/Matcha/UiNodes/Core/WidgetNode.h
-    Include/Matcha/UiNodes/Core/GridConstants.h
-    Source/UiNodes/Controls/LineEditNode.cpp
-    Include/Matcha/UiNodes/Controls/LineEditNode.h
-    Source/UiNodes/Controls/ComboBoxNode.cpp
-    Include/Matcha/UiNodes/Controls/ComboBoxNode.h
-    Source/UiNodes/Controls/SpinBoxNode.cpp
-    Include/Matcha/UiNodes/Controls/SpinBoxNode.h
-    Source/UiNodes/Controls/CheckBoxNode.cpp
-    Include/Matcha/UiNodes/Controls/CheckBoxNode.h
-    Source/UiNodes/Controls/ToggleSwitchNode.cpp
-    Include/Matcha/UiNodes/Controls/ToggleSwitchNode.h
-    Source/UiNodes/Controls/PushButtonNode.cpp
-    Include/Matcha/UiNodes/Controls/PushButtonNode.h
-    Source/UiNodes/Controls/ToolButtonNode.cpp
-    Include/Matcha/UiNodes/Controls/ToolButtonNode.h
-    Source/UiNodes/Controls/RadioButtonNode.cpp
-    Include/Matcha/UiNodes/Controls/RadioButtonNode.h
-    Source/UiNodes/Controls/DoubleSpinBoxNode.cpp
-    Include/Matcha/UiNodes/Controls/DoubleSpinBoxNode.h
-    Include/Matcha/UiNodes/Core/WidgetNotification.h
-    Source/UiNodes/Controls/LabelNode.cpp
-    Include/Matcha/UiNodes/Controls/LabelNode.h
-    Source/UiNodes/Controls/ProgressBarNode.cpp
-    Include/Matcha/UiNodes/Controls/ProgressBarNode.h
-    Source/UiNodes/Controls/SliderNode.cpp
-    Include/Matcha/UiNodes/Controls/SliderNode.h
-    Source/UiNodes/Controls/ColorPickerNode.cpp
-    Include/Matcha/UiNodes/Controls/ColorPickerNode.h
-    Source/UiNodes/Controls/ColorSwatchNode.cpp
-    Include/Matcha/UiNodes/Controls/ColorSwatchNode.h
-    Source/UiNodes/Controls/PlainTextEditNode.cpp
-    Include/Matcha/UiNodes/Controls/PlainTextEditNode.h
-    Source/UiNodes/Controls/LineNode.cpp
-    Include/Matcha/UiNodes/Controls/LineNode.h
-    Source/UiNodes/Controls/BadgeNode.cpp
-    Include/Matcha/UiNodes/Controls/BadgeNode.h
-    Source/UiNodes/Controls/MessageNode.cpp
-    Include/Matcha/UiNodes/Controls/MessageNode.h
-    Source/UiNodes/Controls/ProgressRingNode.cpp
-    Include/Matcha/UiNodes/Controls/ProgressRingNode.h
-    Source/UiNodes/Controls/RangeSliderNode.cpp
-    Include/Matcha/UiNodes/Controls/RangeSliderNode.h
-    Source/UiNodes/Controls/DateTimePickerNode.cpp
-    Include/Matcha/UiNodes/Controls/DateTimePickerNode.h
-    Source/UiNodes/Controls/PaginatorNode.cpp
-    Include/Matcha/UiNodes/Controls/PaginatorNode.h
-    Source/UiNodes/Controls/CollapsibleSectionNode.cpp
-    Include/Matcha/UiNodes/Controls/CollapsibleSectionNode.h
-    Source/UiNodes/Controls/NotificationNode.cpp
-    Include/Matcha/UiNodes/Controls/NotificationNode.h
-    Source/UiNodes/Shell/Shell.cpp
-    Include/Matcha/UiNodes/Shell/Shell.h
-    Source/UiNodes/Shell/Application.cpp
-    Include/Matcha/UiNodes/Shell/Application.h
-    Source/UiNodes/Shell/WindowNode.cpp
-    Include/Matcha/UiNodes/Shell/WindowNode.h
-    Source/UiNodes/Shell/TitleBarNode.cpp
-    Include/Matcha/UiNodes/Shell/TitleBarNode.h
-    Source/UiNodes/Shell/MainTitleBarNode.cpp
-    Include/Matcha/UiNodes/Shell/MainTitleBarNode.h
-    Source/UiNodes/Shell/DocumentToolBarNode.cpp
-    Include/Matcha/UiNodes/Shell/DocumentToolBarNode.h
-    Source/UiNodes/Shell/LogoButtonNode.cpp
-    Include/Matcha/UiNodes/Shell/LogoButtonNode.h
-    Source/UiNodes/Shell/FloatingTitleBarNode.cpp
-    Include/Matcha/UiNodes/Shell/FloatingTitleBarNode.h
-    Source/UiNodes/Document/TabBarNode.cpp
-    Include/Matcha/UiNodes/Document/TabBarNode.h
-    Source/UiNodes/Document/TabItemNode.cpp
-    Include/Matcha/UiNodes/Document/TabItemNode.h
-    Source/UiNodes/Shell/FloatingWindowNode.cpp
-    Include/Matcha/UiNodes/Shell/FloatingWindowNode.h
-    Source/UiNodes/Shell/FloatingTabWindowNode.cpp
-    Include/Matcha/UiNodes/Shell/FloatingTabWindowNode.h
+    Source/Event/BaseObject.cpp
+    Source/Event/Notification.cpp
+    Source/Event/EventNode.cpp
+    Source/Event/CommandNode.cpp
+    Source/Event/NotificationQueue.cpp
+    Source/Tree/UiNode.cpp
+    Source/Interaction/Focus/FocusChain.cpp
+    Source/Interaction/Focus/FocusManager.cpp
+    Include/Matcha/Interaction/Focus/FocusManager.h
+    Source/Interaction/Focus/MnemonicManager.cpp
+    Source/Interaction/Focus/MnemonicManagerGlobal.cpp
+    Include/Matcha/Interaction/Focus/MnemonicManager.h
+    Include/Matcha/Tree/UiNode.h
+    Source/Tree/WidgetWrapper.cpp
+    Include/Matcha/Tree/WidgetWrapper.h
+    Source/Tree/WidgetNode.cpp
+    Include/Matcha/Tree/WidgetNode.h
+    Source/DSL/Materializer.cpp
+    Include/Matcha/DSL/Blueprint.h
+    Include/Matcha/Tree/GridConstants.h
+    Source/Tree/Controls/LineEditNode.cpp
+    Include/Matcha/Tree/Controls/LineEditNode.h
+    Source/Tree/Controls/ComboBoxNode.cpp
+    Include/Matcha/Tree/Controls/ComboBoxNode.h
+    Source/Tree/Controls/SpinBoxNode.cpp
+    Include/Matcha/Tree/Controls/SpinBoxNode.h
+    Source/Tree/Controls/CheckBoxNode.cpp
+    Include/Matcha/Tree/Controls/CheckBoxNode.h
+    Source/Tree/Controls/ToggleSwitchNode.cpp
+    Include/Matcha/Tree/Controls/ToggleSwitchNode.h
+    Source/Tree/Controls/PushButtonNode.cpp
+    Include/Matcha/Tree/Controls/PushButtonNode.h
+    Source/Tree/Controls/ToolButtonNode.cpp
+    Include/Matcha/Tree/Controls/ToolButtonNode.h
+    Source/Tree/Controls/RadioButtonNode.cpp
+    Include/Matcha/Tree/Controls/RadioButtonNode.h
+    Source/Tree/Controls/DoubleSpinBoxNode.cpp
+    Include/Matcha/Tree/Controls/DoubleSpinBoxNode.h
+    Include/Matcha/Tree/WidgetNotification.h
+    Source/Tree/Controls/LabelNode.cpp
+    Include/Matcha/Tree/Controls/LabelNode.h
+    Source/Tree/Controls/ProgressBarNode.cpp
+    Include/Matcha/Tree/Controls/ProgressBarNode.h
+    Source/Tree/Controls/SliderNode.cpp
+    Include/Matcha/Tree/Controls/SliderNode.h
+    Source/Tree/Controls/ColorPickerNode.cpp
+    Include/Matcha/Tree/Controls/ColorPickerNode.h
+    Source/Tree/Controls/ColorSwatchNode.cpp
+    Include/Matcha/Tree/Controls/ColorSwatchNode.h
+    Source/Tree/Controls/PlainTextEditNode.cpp
+    Include/Matcha/Tree/Controls/PlainTextEditNode.h
+    Source/Tree/Controls/LineNode.cpp
+    Include/Matcha/Tree/Controls/LineNode.h
+    Source/Tree/Controls/BadgeNode.cpp
+    Include/Matcha/Tree/Controls/BadgeNode.h
+    Source/Tree/Controls/MessageNode.cpp
+    Include/Matcha/Tree/Controls/MessageNode.h
+    Source/Tree/Controls/ProgressRingNode.cpp
+    Include/Matcha/Tree/Controls/ProgressRingNode.h
+    Source/Tree/Controls/RangeSliderNode.cpp
+    Include/Matcha/Tree/Controls/RangeSliderNode.h
+    Source/Tree/Controls/DateTimePickerNode.cpp
+    Include/Matcha/Tree/Controls/DateTimePickerNode.h
+    Source/Tree/Controls/PaginatorNode.cpp
+    Include/Matcha/Tree/Controls/PaginatorNode.h
+    Source/Tree/Controls/CollapsibleSectionNode.cpp
+    Include/Matcha/Tree/Controls/CollapsibleSectionNode.h
+    Source/Tree/Controls/NotificationNode.cpp
+    Include/Matcha/Tree/Controls/NotificationNode.h
+    Source/Tree/Composition/Shell/Shell.cpp
+    Include/Matcha/Tree/Composition/Shell/Shell.h
+    Source/Tree/Composition/Shell/Application.cpp
+    Include/Matcha/Tree/Composition/Shell/Application.h
+    Source/Tree/Composition/Shell/WindowNode.cpp
+    Include/Matcha/Tree/Composition/Shell/WindowNode.h
+    Source/Tree/Composition/Shell/TitleBarNode.cpp
+    Include/Matcha/Tree/Composition/Shell/TitleBarNode.h
+    Source/Tree/Composition/Shell/MainTitleBarNode.cpp
+    Include/Matcha/Tree/Composition/Shell/MainTitleBarNode.h
+    Source/Tree/Composition/Shell/DocumentToolBarNode.cpp
+    Include/Matcha/Tree/Composition/Shell/DocumentToolBarNode.h
+    Source/Tree/Composition/Shell/LogoButtonNode.cpp
+    Include/Matcha/Tree/Composition/Shell/LogoButtonNode.h
+    Source/Tree/Composition/Shell/FloatingTitleBarNode.cpp
+    Include/Matcha/Tree/Composition/Shell/FloatingTitleBarNode.h
+    Source/Tree/Composition/Document/TabBarNode.cpp
+    Include/Matcha/Tree/Composition/Document/TabBarNode.h
+    Source/Tree/Composition/Document/TabItemNode.cpp
+    Include/Matcha/Tree/Composition/Document/TabItemNode.h
+    Source/Tree/Composition/Shell/FloatingWindowNode.cpp
+    Include/Matcha/Tree/Composition/Shell/FloatingWindowNode.h
+    Source/Tree/Composition/Shell/FloatingTabWindowNode.cpp
+    Include/Matcha/Tree/Composition/Shell/FloatingTabWindowNode.h
     Include/Matcha/Services/IDocumentManager.h
     Source/Services/DocumentManager.cpp
     Include/Matcha/Services/DocumentManager.h
-    Source/UiNodes/ActionBar/ActionBarNode.cpp
-    Include/Matcha/UiNodes/ActionBar/ActionBarNode.h
-    Source/UiNodes/Shell/StatusBarNode.cpp
-    Include/Matcha/UiNodes/Shell/StatusBarNode.h
-    Source/UiNodes/Shell/StatusItemNode.cpp
-    Include/Matcha/UiNodes/Shell/StatusItemNode.h
-    Source/UiNodes/ActionBar/ActionTabNode.cpp
-    Include/Matcha/UiNodes/ActionBar/ActionTabNode.h
-    Source/UiNodes/ActionBar/ActionToolbarNode.cpp
-    Include/Matcha/UiNodes/ActionBar/ActionToolbarNode.h
-    Source/UiNodes/ActionBar/ActionButtonNode.cpp
-    Include/Matcha/UiNodes/ActionBar/ActionButtonNode.h
-    Source/UiNodes/Workbench/WorkshopRegistry.cpp
-    Include/Matcha/UiNodes/Workbench/WorkshopRegistry.h
-    Include/Matcha/UiNodes/Workbench/WorkbenchTypes.h
-    Source/UiNodes/Workbench/WorkbenchManager.cpp
-    Include/Matcha/UiNodes/Workbench/WorkbenchManager.h
-    Source/UiNodes/Core/TokenRegistryGlobal.cpp
-    Source/UiNodes/Core/ContainerNode.cpp
-    Include/Matcha/UiNodes/Core/ContainerNode.h
-    Source/UiNodes/Menu/DialogNode.cpp
-    Include/Matcha/UiNodes/Menu/DialogNode.h
-    Source/UiNodes/Core/ContextMenuRequest.cpp
-    Source/UiNodes/Menu/MenuBarNode.cpp
-    Include/Matcha/UiNodes/Menu/MenuBarNode.h
-    Source/UiNodes/Menu/MenuNode.cpp
-    Include/Matcha/UiNodes/Menu/MenuNode.h
-    Source/UiNodes/Menu/MenuItemNode.cpp
-    Include/Matcha/UiNodes/Menu/MenuItemNode.h
-    Source/UiNodes/Controls/DataTableNode.cpp
-    Include/Matcha/UiNodes/Controls/DataTableNode.h
-    Source/UiNodes/Controls/PropertyGridNode.cpp
-    Include/Matcha/UiNodes/Controls/PropertyGridNode.h
-    Source/UiNodes/Controls/ListWidgetNode.cpp
-    Include/Matcha/UiNodes/Controls/ListWidgetNode.h
-    Source/UiNodes/Controls/TreeItemNode.cpp
-    Include/Matcha/UiNodes/Controls/TreeItemNode.h
-    Source/UiNodes/Controls/TreeWidgetNode.cpp
-    Include/Matcha/UiNodes/Controls/TreeWidgetNode.h
-    Source/UiNodes/Controls/SearchBoxNode.cpp
-    Include/Matcha/UiNodes/Controls/SearchBoxNode.h
+    Source/Tree/Composition/ActionBar/ActionBarNode.cpp
+    Include/Matcha/Tree/Composition/ActionBar/ActionBarNode.h
+    Source/Tree/Composition/Shell/StatusBarNode.cpp
+    Include/Matcha/Tree/Composition/Shell/StatusBarNode.h
+    Source/Tree/Composition/Shell/StatusItemNode.cpp
+    Include/Matcha/Tree/Composition/Shell/StatusItemNode.h
+    Source/Tree/Composition/ActionBar/ActionTabNode.cpp
+    Include/Matcha/Tree/Composition/ActionBar/ActionTabNode.h
+    Source/Tree/Composition/ActionBar/ActionToolbarNode.cpp
+    Include/Matcha/Tree/Composition/ActionBar/ActionToolbarNode.h
+    Source/Tree/Composition/ActionBar/ActionButtonNode.cpp
+    Include/Matcha/Tree/Composition/ActionBar/ActionButtonNode.h
+    Source/Tree/Composition/Workbench/WorkshopRegistry.cpp
+    Include/Matcha/Tree/Composition/Workbench/WorkshopRegistry.h
+    Include/Matcha/Tree/Composition/Workbench/WorkbenchTypes.h
+    Source/Tree/Composition/Workbench/WorkbenchManager.cpp
+    Include/Matcha/Tree/Composition/Workbench/WorkbenchManager.h
+    Source/Theming/Token/TokenRegistryGlobal.cpp
+    Source/Tree/ContainerNode.cpp
+    Include/Matcha/Tree/ContainerNode.h
+    Source/Tree/PopupNode.cpp
+    Include/Matcha/Tree/PopupNode.h
+    Source/Tree/Composition/Menu/DialogNode.cpp
+    Include/Matcha/Tree/Composition/Menu/DialogNode.h
+    Source/Tree/Composition/Menu/PopConfirmNode.cpp
+    Include/Matcha/Tree/Composition/Menu/PopConfirmNode.h
+    Source/Interaction/ContextMenuRequest.cpp
+    Source/Tree/Composition/Menu/MenuBarNode.cpp
+    Include/Matcha/Tree/Composition/Menu/MenuBarNode.h
+    Source/Tree/Composition/Menu/MenuNode.cpp
+    Include/Matcha/Tree/Composition/Menu/MenuNode.h
+    Source/Tree/Composition/Menu/MenuItemNode.cpp
+    Include/Matcha/Tree/Composition/Menu/MenuItemNode.h
+    Source/Tree/Controls/DataTableNode.cpp
+    Include/Matcha/Tree/Controls/DataTableNode.h
+    Source/Tree/Controls/PropertyGridNode.cpp
+    Include/Matcha/Tree/Controls/PropertyGridNode.h
+    Source/Tree/Controls/ListWidgetNode.cpp
+    Include/Matcha/Tree/Controls/ListWidgetNode.h
+    Source/Tree/Controls/TreeItemNode.cpp
+    Include/Matcha/Tree/Controls/TreeItemNode.h
+    Source/Tree/Controls/TreeWidgetNode.cpp
+    Include/Matcha/Tree/Controls/TreeWidgetNode.h
+    Source/Tree/Controls/SearchBoxNode.cpp
+    Include/Matcha/Tree/Controls/SearchBoxNode.h
     Source/Widgets/Controls/NyanCascader.cpp
     Include/Matcha/Widgets/Controls/NyanCascader.h
     Source/Widgets/Controls/NyanTransfer.cpp
@@ -351,77 +357,77 @@ add_library(Matcha SHARED
     Include/Matcha/Widgets/Controls/NyanAlert.h
     Source/Widgets/Controls/NyanAvatar.cpp
     Include/Matcha/Widgets/Controls/NyanAvatar.h
-    Include/Matcha/Widgets/Core/IThemeService.h
-    Include/Matcha/Widgets/Core/NyanTheme.h
-    Source/UiNodes/Document/DocumentPage.cpp
-    Include/Matcha/UiNodes/Document/DocumentPage.h
-    Source/UiNodes/Document/SplitTreeNode.cpp
-    Include/Matcha/UiNodes/Document/SplitTreeNode.h
-    Source/UiNodes/Document/ViewportGroup.cpp
-    Include/Matcha/UiNodes/Document/ViewportGroup.h
-    Source/UiNodes/Document/Viewport.cpp
-    Include/Matcha/UiNodes/Document/Viewport.h
-    Source/UiNodes/Core/UiNodeQuery.cpp
-    Include/Matcha/UiNodes/Core/UiNodeQuery.h
-    Source/UiNodes/Core/SelectionModel.cpp
-    Include/Matcha/UiNodes/Core/SelectionModel.h
-    Source/UiNodes/Core/PopupPositioner.cpp
-    Include/Matcha/UiNodes/Core/PopupPositioner.h
-    Source/UiNodes/Core/LayoutEngine.cpp
-    Include/Matcha/Foundation/LayoutEngine.h
-    Source/UiNodes/Core/ContentStateModel.cpp
-    Include/Matcha/Foundation/ContentStateModel.h
-    Source/UiNodes/Core/BreakpointObserver.cpp
-    Include/Matcha/Foundation/BreakpointObserver.h
-    Source/UiNodes/Core/CompositionTemplate.cpp
-    Include/Matcha/Foundation/CompositionTemplate.h
-    Source/UiNodes/Core/InteractionTimingRegistry.cpp
-    Include/Matcha/Foundation/InteractionTimingRegistry.h
-    Source/UiNodes/Core/ErrorBoundary.cpp
-    Include/Matcha/Foundation/ErrorBoundary.h
-    Source/UiNodes/Core/FormValidator.cpp
-    Include/Matcha/Foundation/FormValidator.h
-    Source/UiNodes/Core/ScrollPhysics.cpp
-    Include/Matcha/Foundation/ScrollPhysics.h
-    Source/UiNodes/Core/ShortcutManager.cpp
-    Include/Matcha/Foundation/ShortcutManager.h
-    Source/UiNodes/Core/NotificationStackManager.cpp
-    Include/Matcha/Foundation/NotificationStackManager.h
-    Source/UiNodes/Core/ContextMenuComposer.cpp
-    Include/Matcha/Foundation/ContextMenuComposer.h
-    Source/UiNodes/Core/ContextualHelpService.cpp
-    Include/Matcha/Foundation/ContextualHelpService.h
-    Source/UiNodes/Core/DragDropVisual.cpp
-    Include/Matcha/Foundation/DragDropVisual.h
-    Source/UiNodes/Core/ChoreographyEngine.cpp
-    Include/Matcha/Foundation/ChoreographyEngine.h
-    Source/UiNodes/Core/SharedElementTransition.cpp
-    Include/Matcha/Foundation/SharedElementTransition.h
-    Source/UiNodes/Core/GestureMotionTracker.cpp
-    Include/Matcha/Foundation/GestureMotionTracker.h
-    Source/UiNodes/Core/AnimationBlendLayer.cpp
-    Include/Matcha/Foundation/AnimationBlendLayer.h
-    Source/UiNodes/Core/DtcgTokenModel.cpp
-    Include/Matcha/Foundation/DtcgTokenModel.h
-    Source/UiNodes/Core/VariantNameRegistry.cpp
-    Include/Matcha/Foundation/VariantNameRegistry.h
-    Include/Matcha/Foundation/WidgetFsm.h
-    Include/Matcha/Foundation/WidgetFsmBridge.h
-    Source/UiNodes/Core/KeyboardContract.cpp
-    Include/Matcha/Foundation/KeyboardContract.h
-    Source/UiNodes/Core/DestructiveActionPolicy.cpp
-    Include/Matcha/Foundation/DestructiveActionPolicy.h
-    Source/UiNodes/Core/EdgeCaseGuard.cpp
-    Include/Matcha/Foundation/EdgeCaseGuard.h
-    Source/UiNodes/Core/FeedbackPolicy.cpp
-    Include/Matcha/Foundation/FeedbackPolicy.h
-    Include/Matcha/Foundation/FixedString.h
-    Source/UiNodes/Document/DocumentArea.cpp
-    Include/Matcha/UiNodes/Document/DocumentArea.h
-    Source/UiNodes/Shell/WorkspaceFrame.cpp
-    Include/Matcha/UiNodes/Shell/WorkspaceFrame.h
-    Source/UiNodes/Shell/ControlBar.cpp
-    Include/Matcha/UiNodes/Shell/ControlBar.h
+    Include/Matcha/Theming/IThemeService.h
+    Include/Matcha/Theming/NyanTheme.h
+    Source/Tree/Composition/Document/DocumentPage.cpp
+    Include/Matcha/Tree/Composition/Document/DocumentPage.h
+    Source/Tree/Composition/Document/SplitTreeNode.cpp
+    Include/Matcha/Tree/Composition/Document/SplitTreeNode.h
+    Source/Tree/Composition/Document/ViewportGroup.cpp
+    Include/Matcha/Tree/Composition/Document/ViewportGroup.h
+    Source/Tree/Composition/Document/Viewport.cpp
+    Include/Matcha/Tree/Composition/Document/Viewport.h
+    Source/Tree/UiNodeQuery.cpp
+    Include/Matcha/Tree/UiNodeQuery.h
+    Source/Interaction/Selection/SelectionModel.cpp
+    Include/Matcha/Interaction/Selection/SelectionModel.h
+    Source/Interaction/PopupPositioner.cpp
+    Include/Matcha/Interaction/PopupPositioner.h
+    Source/Tree/Layout/LayoutEngine.cpp
+    Include/Matcha/Tree/Layout/LayoutEngine.h
+    Source/Feedback/ContentStateModel.cpp
+    Include/Matcha/Feedback/ContentStateModel.h
+    Source/Tree/Layout/BreakpointObserver.cpp
+    Include/Matcha/Tree/Layout/BreakpointObserver.h
+    Source/Animation/CompositionTemplate.cpp
+    Include/Matcha/Animation/CompositionTemplate.h
+    Source/Animation/InteractionTimingRegistry.cpp
+    Include/Matcha/Animation/InteractionTimingRegistry.h
+    Source/Feedback/ErrorBoundary.cpp
+    Include/Matcha/Feedback/ErrorBoundary.h
+    Source/Interaction/FormValidator.cpp
+    Include/Matcha/Interaction/FormValidator.h
+    Source/Interaction/Input/ScrollPhysics.cpp
+    Include/Matcha/Interaction/Input/ScrollPhysics.h
+    Source/Interaction/Input/ShortcutManager.cpp
+    Include/Matcha/Interaction/Input/ShortcutManager.h
+    Source/Feedback/NotificationStackManager.cpp
+    Include/Matcha/Feedback/NotificationStackManager.h
+    Source/Interaction/ContextMenuComposer.cpp
+    Include/Matcha/Interaction/ContextMenuComposer.h
+    Source/Interaction/ContextualHelpService.cpp
+    Include/Matcha/Interaction/ContextualHelpService.h
+    Source/Interaction/DragDropVisual.cpp
+    Include/Matcha/Interaction/DragDropVisual.h
+    Source/Animation/ChoreographyEngine.cpp
+    Include/Matcha/Animation/ChoreographyEngine.h
+    Source/Animation/SharedElementTransition.cpp
+    Include/Matcha/Animation/SharedElementTransition.h
+    Source/Interaction/Input/GestureMotionTracker.cpp
+    Include/Matcha/Interaction/Input/GestureMotionTracker.h
+    Source/Animation/AnimationBlendLayer.cpp
+    Include/Matcha/Animation/AnimationBlendLayer.h
+    Source/Theming/Token/DtcgTokenModel.cpp
+    Include/Matcha/Theming/Token/DtcgTokenModel.h
+    Source/Theming/Token/VariantNameRegistry.cpp
+    Include/Matcha/Theming/Token/VariantNameRegistry.h
+    Include/Matcha/Tree/FSM/WidgetFsm.h
+    Include/Matcha/Tree/FSM/WidgetFsmBridge.h
+    Source/Interaction/Input/KeyboardContract.cpp
+    Include/Matcha/Interaction/Input/KeyboardContract.h
+    Source/Feedback/DestructiveActionPolicy.cpp
+    Include/Matcha/Feedback/DestructiveActionPolicy.h
+    Source/Feedback/EdgeCaseGuard.cpp
+    Include/Matcha/Feedback/EdgeCaseGuard.h
+    Source/Feedback/FeedbackPolicy.cpp
+    Include/Matcha/Feedback/FeedbackPolicy.h
+    Include/Matcha/Core/FixedString.h
+    Source/Tree/Composition/Document/DocumentArea.cpp
+    Include/Matcha/Tree/Composition/Document/DocumentArea.h
+    Source/Tree/Composition/Shell/WorkspaceFrame.cpp
+    Include/Matcha/Tree/Composition/Shell/WorkspaceFrame.h
+    Source/Tree/Composition/Shell/ControlBar.cpp
+    Include/Matcha/Tree/Composition/Shell/ControlBar.h
     Include/Matcha/Services/IExpansionPlugin.h
     Include/Matcha/Services/IViewportRenderer.h
     Include/Matcha/Services/PluginHost.h
@@ -434,6 +440,11 @@ target_include_directories(Matcha
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>
         $<INSTALL_INTERFACE:include>
+)
+
+target_include_directories(Matcha
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source
 )
 
 target_compile_definitions(Matcha PRIVATE MATCHA_LIB_EXPORT)
@@ -457,6 +468,8 @@ add_executable(NyanCad
     Demos/NyanCad/NyanCadMainWindow.cpp
     Demos/NyanCad/NyanCadWorkshopSetup.h
     Demos/NyanCad/NyanCadWorkshopSetup.cpp
+    Demos/NyanCad/LayerDemo.h
+    Demos/NyanCad/LayerDemo.cpp
     Demos/NyanCad/DocumentView.h
     Demos/NyanCad/DocumentView.cpp
     Demos/NyanCad/NyanCadDocument.h
@@ -499,6 +512,29 @@ target_link_libraries(NyanCad
         Qt6::Widgets
         Matcha_CompilerWarnings
 )
+
+# --------------------------------------------------------------------------- #
+# Deploy Qt runtime DLLs next to executables (Windows only, dev convenience)
+# --------------------------------------------------------------------------- #
+if(WIN32)
+    # Copy Qt DLLs + plugins needed at runtime into the build output directory.
+    # Uses qt_generate_deploy_app_script (Qt 6.5+) for correct platform/plugin resolution.
+    qt_generate_deploy_app_script(
+        TARGET NyanCad
+        OUTPUT_SCRIPT NYANCAD_DEPLOY_SCRIPT
+        NO_UNSUPPORTED_PLATFORM_ERROR
+        NO_TRANSLATIONS
+    )
+    install(SCRIPT ${NYANCAD_DEPLOY_SCRIPT})
+
+    # For F5/debug convenience: post-build copy of essential Qt DLLs via $<TARGET_RUNTIME_DLLS>
+    add_custom_command(TARGET NyanCad POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:NyanCad> $<TARGET_FILE_DIR:NyanCad>
+        COMMAND_EXPAND_LISTS
+        COMMENT "Copying Qt runtime DLLs to build output directory..."
+    )
+endif()
 
 # --------------------------------------------------------------------------- #
 # NyanCad plugin DLLs (6 expansion plugins)
@@ -553,69 +589,73 @@ enable_testing()
 # -- MatchaUnitTests (doctest only, no Qt event loop) ---------------------- #
 add_executable(MatchaUnitTests
     Tests/Unit/main.cpp
-    Tests/Unit/Foundation/StrongIdTest.cpp
-    Tests/Unit/Foundation/ErrorCodeTest.cpp
-    Tests/Unit/Foundation/ObserverPtrTest.cpp
-    Tests/Unit/Foundation/StateMachineTest.cpp
-    Tests/Unit/Foundation/LayoutEngineTest.cpp
-    Tests/Unit/Foundation/ContentStateModelTest.cpp
-    Tests/Unit/Foundation/BreakpointObserverTest.cpp
-    Tests/Unit/Foundation/CompositionTemplateTest.cpp
-    Tests/Unit/Foundation/InteractionTimingRegistryTest.cpp
-    Tests/Unit/Foundation/ErrorBoundaryTest.cpp
-    Tests/Unit/Foundation/FormValidatorTest.cpp
-    Tests/Unit/Foundation/ScrollPhysicsTest.cpp
-    Tests/Unit/Foundation/ShortcutManagerTest.cpp
-    Tests/Unit/Foundation/NotificationStackManagerTest.cpp
-    Tests/Unit/Foundation/ContextMenuComposerTest.cpp
-    Tests/Unit/Foundation/ContextualHelpServiceTest.cpp
-    Tests/Unit/Foundation/DragDropVisualTest.cpp
-    Tests/Unit/Foundation/ChoreographyEngineTest.cpp
-    Tests/Unit/Foundation/SharedElementTransitionTest.cpp
-    Tests/Unit/Foundation/GestureMotionTrackerTest.cpp
-    Tests/Unit/Foundation/AnimationBlendLayerTest.cpp
-    Tests/Unit/Foundation/DtcgTokenModelTest.cpp
-    Tests/Unit/Foundation/VariantNameRegistryTest.cpp
-    Tests/Unit/Foundation/WidgetFsmTest.cpp
-    Tests/Unit/Foundation/KeyboardContractTest.cpp
-    Tests/Unit/Foundation/PhaseFTest.cpp
-    Tests/Unit/Foundation/CrossPhaseIntegrationTest.cpp
-    Tests/Unit/Core/CommandNodeTest.cpp
-    Tests/Unit/Core/DesignTokenTest.cpp
-    Tests/Unit/Core/TokenEnumsTest.cpp
-    Tests/Unit/Core/SelectionModelTest.cpp
-    Tests/Unit/Core/PopupPositionerTest.cpp
-    Tests/Unit/Core/PhaseBTest.cpp
-    Tests/Unit/Core/PhaseCTest.cpp
-    Tests/Unit/Core/PhaseDTest.cpp
-    Tests/Unit/Core/ITokenRegistryTest.cpp
-    Tests/Unit/Core/TonalPaletteTest.cpp
-    Tests/Unit/Core/WidgetStyleSheetTest.cpp
-    Tests/Unit/Core/PaletteLoadTest.cpp
-    Tests/Unit/Core/CoreWidgetEnumTest.cpp
-    Tests/Unit/Core/ContainerWidgetEnumTest.cpp
-    Tests/Unit/Core/ApplicationWidgetEnumTest.cpp
-    Tests/Unit/Core/UiNodeTest.cpp
-    Tests/Unit/Document/DocumentManagerTest.cpp
-    Tests/Unit/Shell/WorkspaceFrameTest.cpp
-    Tests/Unit/Document/DocumentAreaTest.cpp
-    Tests/Unit/Document/ViewportGroupTest.cpp
-    Tests/Unit/Foundation/InputEventTest.cpp
-    Tests/Unit/Document/ViewportBindTest.cpp
-    Tests/Unit/Document/ViewportGroupLayoutTest.cpp
-    Tests/Unit/Document/SplitTreeNodeTest.cpp
+    Tests/Unit/Core/StrongIdTest.cpp
+    Tests/Unit/Core/ErrorCodeTest.cpp
+    Tests/Unit/Core/ObserverPtrTest.cpp
+    Tests/Unit/Core/StateMachineTest.cpp
+    Tests/Unit/Tree/LayoutEngineTest.cpp
+    Tests/Unit/Feedback/ContentStateModelTest.cpp
+    Tests/Unit/Tree/BreakpointObserverTest.cpp
+    Tests/Unit/Animation/CompositionTemplateTest.cpp
+    Tests/Unit/Animation/InteractionTimingRegistryTest.cpp
+    Tests/Unit/Feedback/ErrorBoundaryTest.cpp
+    Tests/Unit/Interaction/FormValidatorTest.cpp
+    Tests/Unit/Interaction/ScrollPhysicsTest.cpp
+    Tests/Unit/Interaction/ShortcutManagerTest.cpp
+    Tests/Unit/Feedback/NotificationStackManagerTest.cpp
+    Tests/Unit/Interaction/ContextMenuComposerTest.cpp
+    Tests/Unit/Interaction/ContextualHelpServiceTest.cpp
+    Tests/Unit/Interaction/DragDropVisualTest.cpp
+    Tests/Unit/Animation/ChoreographyEngineTest.cpp
+    Tests/Unit/Animation/SharedElementTransitionTest.cpp
+    Tests/Unit/Interaction/GestureMotionTrackerTest.cpp
+    Tests/Unit/Animation/AnimationBlendLayerTest.cpp
+    Tests/Unit/Theming/DtcgTokenModelTest.cpp
+    Tests/Unit/Theming/VariantNameRegistryTest.cpp
+    Tests/Unit/Tree/WidgetFsmTest.cpp
+    Tests/Unit/Interaction/KeyboardContractTest.cpp
+    Tests/Unit/Feedback/PhaseFTest.cpp
+    Tests/Unit/Feedback/CrossPhaseIntegrationTest.cpp
+    Tests/Unit/Core/ObservableTest.cpp
+    Tests/Unit/DSL/BlueprintTest.cpp
+    Tests/Unit/Event/CommandNodeTest.cpp
+    Tests/Unit/Theming/DesignTokenTest.cpp
+    Tests/Unit/Theming/TokenEnumsTest.cpp
+    Tests/Unit/Interaction/SelectionModelTest.cpp
+    Tests/Unit/Interaction/PopupPositionerTest.cpp
+    Tests/Unit/Tree/PhaseBTest.cpp
+    Tests/Unit/Tree/PhaseCTest.cpp
+    Tests/Unit/Tree/PhaseDTest.cpp
+    Tests/Unit/Theming/ITokenRegistryTest.cpp
+    Tests/Unit/Theming/TonalPaletteTest.cpp
+    Tests/Unit/Theming/WidgetStyleSheetTest.cpp
+    Tests/Unit/Theming/PaletteLoadTest.cpp
+    Tests/Unit/Tree/CoreWidgetEnumTest.cpp
+    Tests/Unit/Tree/ContainerWidgetEnumTest.cpp
+    Tests/Unit/Tree/ApplicationWidgetEnumTest.cpp
+    Tests/Unit/Tree/UiNodeTest.cpp
+    Tests/Unit/Services/DocumentManagerTest.cpp
+    Tests/Unit/Tree/WorkspaceFrameTest.cpp
+    Tests/Unit/Tree/DocumentAreaTest.cpp
+    Tests/Unit/Tree/ViewportGroupTest.cpp
+    Tests/Unit/Core/InputEventTest.cpp
+    Tests/Unit/Tree/ViewportBindTest.cpp
+    Tests/Unit/Tree/ViewportGroupLayoutTest.cpp
+    Tests/Unit/Tree/SplitTreeNodeTest.cpp
     Tests/Unit/Services/PluginHostTest.cpp
     Tests/Unit/CApi/CApiRoundTripTest.cpp
     Tests/Unit/CApi/CApiSafetyTest.cpp
-    Tests/Unit/Query/UiNodeQueryTest.cpp
-    Tests/Unit/Workbench/WorkshopRegistryTest.cpp
-    Tests/Unit/Core/MnemonicStateTest.cpp
-    Tests/Unit/Core/MnemonicManagerTest.cpp
+    Tests/Unit/Tree/UiNodeQueryTest.cpp
+    Tests/Unit/Tree/WorkshopRegistryTest.cpp
+    Tests/Unit/Interaction/MnemonicStateTest.cpp
+    Tests/Unit/Interaction/MnemonicManagerTest.cpp
+    Tests/Unit/Tree/PopupNodeTest.cpp
 )
 
 target_include_directories(MatchaUnitTests PRIVATE
     Tests/TestUtils
     Include
+    Source
 )
 
 target_compile_definitions(MatchaUnitTests PRIVATE
@@ -687,6 +727,8 @@ add_executable(MatchaIntegrationTests
     Demos/NyanCad/NyanCadMainWindow.cpp
     Demos/NyanCad/NyanCadWorkshopSetup.h
     Demos/NyanCad/NyanCadWorkshopSetup.cpp
+    Demos/NyanCad/LayerDemo.h
+    Demos/NyanCad/LayerDemo.cpp
     Demos/NyanCad/DocumentView.h
     Demos/NyanCad/DocumentView.cpp
     Demos/NyanCad/DetectionFreedomEdge.h

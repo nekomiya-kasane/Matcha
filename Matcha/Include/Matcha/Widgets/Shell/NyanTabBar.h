@@ -17,9 +17,9 @@
  * @see ThemeAware for mixin lifecycle.
  */
 
-#include <Matcha/Foundation/Macros.h>
-#include <Matcha/Foundation/StrongId.h>
-#include <Matcha/Widgets/Core/ThemeAware.h>
+#include <Matcha/Core/Macros.h>
+#include <Matcha/Core/StrongId.h>
+#include <Matcha/Theming/ThemeAware.h>
 
 #include <QWidget>
 

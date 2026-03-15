@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanPropertyGrid.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 #include <Matcha/Widgets/Controls/NyanCollapsibleSection.h>
 
 #include <QCheckBox>

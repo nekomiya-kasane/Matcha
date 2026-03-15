@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanLegendSlider.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QLinearGradient>
 #include <QMouseEvent>

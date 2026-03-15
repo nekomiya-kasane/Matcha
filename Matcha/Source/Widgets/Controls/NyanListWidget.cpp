@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanListWidget.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 namespace matcha::gui {
 

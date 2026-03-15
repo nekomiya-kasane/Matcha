@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanToolButton.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QMenu>
 #include <QMouseEvent>

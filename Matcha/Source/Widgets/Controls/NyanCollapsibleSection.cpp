@@ -5,11 +5,11 @@
 
 #include <Matcha/Widgets/Controls/NyanCollapsibleSection.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
-#include <Matcha/UiNodes/Core/WidgetNode.h>
-#include <Matcha/Widgets/Core/IAnimationService.h>
-#include <Matcha/Widgets/Core/MnemonicState.h>
+#include <Matcha/Tree/WidgetNode.h>
+#include <Matcha/Animation/IAnimationService.h>
+#include <Matcha/Interaction/Focus/MnemonicState.h>
 
 #include <QMouseEvent>
 #include <QPainter>

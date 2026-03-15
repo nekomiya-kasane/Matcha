@@ -5,9 +5,9 @@
 
 #include "NyanFwSurfaceMeshEditor.h"
 
-#include "Matcha/UiNodes/ActionBar/ActionBarNode.h"
-#include "Matcha/UiNodes/Shell/Application.h"
-#include "Matcha/UiNodes/Shell/Shell.h"
+#include "Matcha/Tree/Composition/ActionBar/ActionBarNode.h"
+#include "Matcha/Tree/Composition/Shell/Application.h"
+#include "Matcha/Tree/Composition/Shell/Shell.h"
 
 namespace nyancad {
 

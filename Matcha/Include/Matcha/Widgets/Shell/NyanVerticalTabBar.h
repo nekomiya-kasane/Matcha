@@ -13,7 +13,7 @@
  * For horizontal orientation this class behaves identically to QTabBar.
  */
 
-#include <Matcha/Foundation/Macros.h>
+#include <Matcha/Core/Macros.h>
 
 #include <QTabBar>
 

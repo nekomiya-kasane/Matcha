@@ -1,6 +1,6 @@
 #include "Matcha/Services/DocumentManager.h"
 
-#include "Matcha/UiNodes/Document/DocumentNotification.h"
+#include "Matcha/Tree/Composition/Document/DocumentNotification.h"
 
 namespace matcha::fw {
 

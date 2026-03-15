@@ -7,14 +7,14 @@
 #include "LayoutBoundsOverlay.h"
 #include "WidgetPickerFilter.h"
 
-#include "Matcha/UiNodes/Controls/LabelNode.h"
-#include "Matcha/UiNodes/Controls/PlainTextEditNode.h"
-#include "Matcha/UiNodes/Controls/PushButtonNode.h"
-#include "Matcha/UiNodes/Core/Notification.h"
-#include "Matcha/UiNodes/Core/UiNode.h"
-#include "Matcha/UiNodes/Core/WidgetNode.h"
-#include "Matcha/UiNodes/Shell/Application.h"
-#include "Matcha/UiNodes/Shell/Shell.h"
+#include "Matcha/Tree/Controls/LabelNode.h"
+#include "Matcha/Tree/Controls/PlainTextEditNode.h"
+#include "Matcha/Tree/Controls/PushButtonNode.h"
+#include "Matcha/Event/Notification.h"
+#include "Matcha/Tree/UiNode.h"
+#include "Matcha/Tree/WidgetNode.h"
+#include "Matcha/Tree/Composition/Shell/Application.h"
+#include "Matcha/Tree/Composition/Shell/Shell.h"
 #include "Matcha/Widgets/Shell/NyanScrollBar.h"
 
 #include <QAbstractScrollArea>

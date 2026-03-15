@@ -20,7 +20,7 @@
  * @see NyanDialog for custom dialogs.
  */
 
-#include <Matcha/Foundation/Macros.h>
+#include <Matcha/Core/Macros.h>
 
 #include <QString>
 

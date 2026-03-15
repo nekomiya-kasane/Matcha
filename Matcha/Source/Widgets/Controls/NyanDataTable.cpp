@@ -6,7 +6,7 @@
 #include <Matcha/Widgets/Controls/NyanDataTable.h>
 #include <Matcha/Widgets/Shell/NyanScrollBar.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QKeyEvent>
 #include <QLineEdit>

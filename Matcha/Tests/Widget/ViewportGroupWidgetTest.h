@@ -2,9 +2,9 @@
 
 #include "WidgetTestFixture.h"
 
-#include <Matcha/UiNodes/Document/SplitTreeNode.h>
-#include <Matcha/UiNodes/Document/Viewport.h>
-#include <Matcha/UiNodes/Document/ViewportGroup.h>
+#include <Matcha/Tree/Composition/Document/SplitTreeNode.h>
+#include <Matcha/Tree/Composition/Document/Viewport.h>
+#include <Matcha/Tree/Composition/Document/ViewportGroup.h>
 
 #include <QSplitter>
 #include <QTest>

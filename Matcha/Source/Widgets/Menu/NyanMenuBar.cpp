@@ -1,7 +1,7 @@
 #include <Matcha/Widgets/Menu/NyanMenuBar.h>
 #include <Matcha/Widgets/Menu/NyanMenu.h>
-#include <Matcha/Widgets/Core/MnemonicState.h>
-#include <Matcha/UiNodes/Core/MnemonicManager.h>
+#include <Matcha/Interaction/Focus/MnemonicState.h>
+#include <Matcha/Interaction/Focus/MnemonicManager.h>
 
 #include <QApplication>
 #include <QHBoxLayout>

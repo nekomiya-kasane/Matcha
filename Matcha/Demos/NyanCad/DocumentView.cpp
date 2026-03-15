@@ -9,14 +9,14 @@
 
 #include "DocumentView.h"
 
-#include "Matcha/UiNodes/Document/DocumentArea.h"
-#include "Matcha/UiNodes/Document/DocumentPage.h"
+#include "Matcha/Tree/Composition/Document/DocumentArea.h"
+#include "Matcha/Tree/Composition/Document/DocumentPage.h"
 #include "Matcha/Services/IDocumentManager.h"
-#include "Matcha/UiNodes/Document/TabBarNode.h"
-#include "Matcha/UiNodes/Document/SplitTreeNode.h"
-#include "Matcha/UiNodes/Core/UiNodeNotification.h"
-#include "Matcha/UiNodes/Document/Viewport.h"
-#include "Matcha/UiNodes/Document/ViewportGroup.h"
+#include "Matcha/Tree/Composition/Document/TabBarNode.h"
+#include "Matcha/Tree/Composition/Document/SplitTreeNode.h"
+#include "Matcha/Tree/UiNodeNotification.h"
+#include "Matcha/Tree/Composition/Document/Viewport.h"
+#include "Matcha/Tree/Composition/Document/ViewportGroup.h"
 
 #include <QWidget>
 #include <string>

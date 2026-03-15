@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanBreadcrumb.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QFontMetrics>
 #include <QMouseEvent>

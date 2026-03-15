@@ -11,9 +11,9 @@
  * @see 05_Greenfield_Plan.md ss 8.2.4 for the rendering integration spec.
  */
 
-#include <Matcha/Foundation/ErrorCode.h>
-#include <Matcha/Foundation/Macros.h>
-#include <Matcha/Foundation/Types.h>
+#include <Matcha/Core/ErrorCode.h>
+#include <Matcha/Core/Macros.h>
+#include <Matcha/Core/Types.h>
 
 #include <cstdint>
 #include <span>

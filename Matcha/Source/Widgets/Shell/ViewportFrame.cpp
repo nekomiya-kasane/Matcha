@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Shell/ViewportFrame.h>
 
-#include <Matcha/Widgets/Core/DropZoneOverlay.h>
+#include <Matcha/Interaction/DropZoneOverlay.h>
 #include <Matcha/Widgets/Shell/ViewportHeaderBar.h>
 #include <Matcha/Widgets/Shell/ViewportWidget.h>
 

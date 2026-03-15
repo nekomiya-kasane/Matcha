@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanRangeSlider.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QMouseEvent>
 #include <QPaintEvent>

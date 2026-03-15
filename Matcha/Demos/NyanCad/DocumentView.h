@@ -11,8 +11,8 @@
  * - Observes (non-owning) a fw::DocumentArea that lives in the UiNode tree
  */
 
-#include "Matcha/Foundation/StrongId.h"
-#include "Matcha/UiNodes/Core/EventNode.h"
+#include "Matcha/Core/StrongId.h"
+#include "Matcha/Event/EventNode.h"
 
 #include <memory>
 #include <vector>

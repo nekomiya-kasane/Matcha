@@ -12,7 +12,7 @@
  * - Edge snap detection: when dragged near a container edge, emits a signal
  */
 
-#include <Matcha/Foundation/Macros.h>
+#include <Matcha/Core/Macros.h>
 
 #include <QWidget>
 

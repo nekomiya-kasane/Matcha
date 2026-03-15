@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanColorSwatch.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QMouseEvent>
 #include <QPaintEvent>

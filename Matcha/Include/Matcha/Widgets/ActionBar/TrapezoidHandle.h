@@ -15,9 +15,9 @@
  * - Right-docked: wider edge at right, narrows leftward
  */
 
-#include <Matcha/Foundation/Macros.h>
+#include <Matcha/Core/Macros.h>
 #include <Matcha/Widgets/ActionBar/NyanActionBar.h>  // DockSide
-#include <Matcha/Widgets/Core/ThemeAware.h>
+#include <Matcha/Theming/ThemeAware.h>
 
 #include <QWidget>
 

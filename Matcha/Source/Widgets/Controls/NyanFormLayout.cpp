@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanFormLayout.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QFormLayout>
 #include <QLabel>

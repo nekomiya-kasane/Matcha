@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Matcha/UiNodes/Document/Viewport.h>
+#include <Matcha/Tree/Composition/Document/Viewport.h>
 
 #include <QTest>
 

@@ -5,8 +5,8 @@
 
 #include "NyanCadWorkshopSetup.h"
 
-#include "Matcha/UiNodes/Workbench/WorkbenchTypes.h"
-#include "Matcha/UiNodes/Workbench/WorkshopRegistry.h"
+#include "Matcha/Tree/Composition/Workbench/WorkbenchTypes.h"
+#include "Matcha/Tree/Composition/Workbench/WorkshopRegistry.h"
 
 namespace nyancad {
 

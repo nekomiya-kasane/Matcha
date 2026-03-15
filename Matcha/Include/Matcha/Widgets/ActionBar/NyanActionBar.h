@@ -19,9 +19,9 @@
  * @see NyanActionToolbar for button groups.
  */
 
-#include <Matcha/Foundation/Macros.h>
+#include <Matcha/Core/Macros.h>
 #include <Matcha/Widgets/ActionBar/NyanActionTab.h>
-#include <Matcha/Widgets/Core/ThemeAware.h>
+#include <Matcha/Theming/ThemeAware.h>
 
 #include <QTabWidget>
 

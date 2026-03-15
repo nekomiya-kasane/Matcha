@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanCascader.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QHBoxLayout>
 #include <QListWidget>

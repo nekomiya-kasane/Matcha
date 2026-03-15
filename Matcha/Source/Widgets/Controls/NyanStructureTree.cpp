@@ -1,6 +1,6 @@
 #include <Matcha/Widgets/Controls/NyanStructureTree.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QAbstractItemModel>
 #include <QHBoxLayout>

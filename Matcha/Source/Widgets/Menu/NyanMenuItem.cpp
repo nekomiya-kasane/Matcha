@@ -1,6 +1,6 @@
 #include <Matcha/Widgets/Menu/NyanMenuItem.h>
 
-#include <Matcha/Widgets/Core/MnemonicState.h>
+#include <Matcha/Interaction/Focus/MnemonicState.h>
 
 #include <QMouseEvent>
 #include <QPainter>

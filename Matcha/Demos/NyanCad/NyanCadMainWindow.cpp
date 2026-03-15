@@ -13,60 +13,61 @@
 
 #include "DocumentView.h"
 
-#include "Matcha/UiNodes/ActionBar/ActionBarNode.h"
-#include "Matcha/UiNodes/ActionBar/ActionButtonNode.h"
-#include "Matcha/UiNodes/ActionBar/ActionTabNode.h"
-#include "Matcha/UiNodes/ActionBar/ActionToolbarNode.h"
-#include "Matcha/UiNodes/Controls/BadgeNode.h"
-#include "Matcha/UiNodes/Controls/CheckBoxNode.h"
-#include "Matcha/UiNodes/Controls/CollapsibleSectionNode.h"
-#include "Matcha/UiNodes/Controls/ColorPickerNode.h"
-#include "Matcha/UiNodes/Controls/ColorSwatchNode.h"
-#include "Matcha/UiNodes/Controls/ComboBoxNode.h"
-#include "Matcha/UiNodes/Controls/DataTableNode.h"
-#include "Matcha/UiNodes/Controls/DateTimePickerNode.h"
-#include "Matcha/UiNodes/Controls/DoubleSpinBoxNode.h"
-#include "Matcha/UiNodes/Controls/LabelNode.h"
-#include "Matcha/UiNodes/Controls/LineEditNode.h"
-#include "Matcha/UiNodes/Controls/LineNode.h"
-#include "Matcha/UiNodes/Controls/ListWidgetNode.h"
-#include "Matcha/UiNodes/Controls/MessageNode.h"
-#include "Matcha/UiNodes/Controls/NotificationNode.h"
-#include "Matcha/UiNodes/Controls/PaginatorNode.h"
-#include "Matcha/UiNodes/Controls/PlainTextEditNode.h"
-#include "Matcha/UiNodes/Controls/ProgressBarNode.h"
-#include "Matcha/UiNodes/Controls/ProgressRingNode.h"
-#include "Matcha/UiNodes/Controls/PropertyGridNode.h"
-#include "Matcha/UiNodes/Controls/PushButtonNode.h"
-#include "Matcha/UiNodes/Controls/RadioButtonNode.h"
-#include "Matcha/UiNodes/Controls/RangeSliderNode.h"
-#include "Matcha/UiNodes/Controls/SearchBoxNode.h"
-#include "Matcha/UiNodes/Controls/SliderNode.h"
-#include "Matcha/UiNodes/Controls/SpinBoxNode.h"
-#include "Matcha/UiNodes/Controls/ToggleSwitchNode.h"
-#include "Matcha/UiNodes/Controls/ToolButtonNode.h"
-#include "Matcha/UiNodes/Controls/TreeWidgetNode.h"
-#include "Matcha/UiNodes/Core/ContainerNode.h"
-#include "Matcha/UiNodes/Core/UiNodeNotification.h"
-#include "Matcha/UiNodes/Document/DocumentArea.h"
+#include "Matcha/Tree/Composition/ActionBar/ActionBarNode.h"
+#include "Matcha/Tree/Composition/ActionBar/ActionButtonNode.h"
+#include "Matcha/Tree/Composition/ActionBar/ActionTabNode.h"
+#include "Matcha/Tree/Composition/ActionBar/ActionToolbarNode.h"
+#include "Matcha/Tree/Controls/BadgeNode.h"
+#include "Matcha/Tree/Controls/CheckBoxNode.h"
+#include "Matcha/Tree/Controls/CollapsibleSectionNode.h"
+#include "Matcha/Tree/Controls/ColorPickerNode.h"
+#include "Matcha/Tree/Controls/ColorSwatchNode.h"
+#include "Matcha/Tree/Controls/ComboBoxNode.h"
+#include "Matcha/Tree/Controls/DataTableNode.h"
+#include "Matcha/Tree/Controls/DateTimePickerNode.h"
+#include "Matcha/Tree/Controls/DoubleSpinBoxNode.h"
+#include "Matcha/Tree/Controls/LabelNode.h"
+#include "Matcha/Tree/Controls/LineEditNode.h"
+#include "Matcha/Tree/Controls/LineNode.h"
+#include "Matcha/Tree/Controls/ListWidgetNode.h"
+#include "Matcha/Tree/Controls/MessageNode.h"
+#include "Matcha/Tree/Controls/NotificationNode.h"
+#include "Matcha/Tree/Controls/PaginatorNode.h"
+#include "Matcha/Tree/Controls/PlainTextEditNode.h"
+#include "Matcha/Tree/Controls/ProgressBarNode.h"
+#include "Matcha/Tree/Controls/ProgressRingNode.h"
+#include "Matcha/Tree/Controls/PropertyGridNode.h"
+#include "Matcha/Tree/Controls/PushButtonNode.h"
+#include "Matcha/Tree/Controls/RadioButtonNode.h"
+#include "Matcha/Tree/Controls/RangeSliderNode.h"
+#include "Matcha/Tree/Controls/SearchBoxNode.h"
+#include "Matcha/Tree/Controls/SliderNode.h"
+#include "Matcha/Tree/Controls/SpinBoxNode.h"
+#include "Matcha/Tree/Controls/ToggleSwitchNode.h"
+#include "Matcha/Tree/Controls/ToolButtonNode.h"
+#include "Matcha/Tree/Controls/TreeWidgetNode.h"
+#include "Matcha/Tree/ContainerNode.h"
+#include "Matcha/Tree/UiNodeNotification.h"
+#include "Matcha/Tree/Composition/Document/DocumentArea.h"
 #include "Matcha/Services/DocumentManager.h"
-#include "Matcha/UiNodes/Document/TabBarNode.h"
-#include "Matcha/UiNodes/Menu/DialogNode.h"
-#include "Matcha/UiNodes/Menu/MenuBarNode.h"
-#include "Matcha/UiNodes/Menu/MenuItemNode.h"
-#include "Matcha/UiNodes/Menu/MenuNode.h"
-#include "Matcha/Widgets/Core/IAnimationService.h"
-#include "Matcha/Widgets/Core/MnemonicState.h"
+#include "Matcha/Tree/Composition/Document/TabBarNode.h"
+#include "Matcha/Tree/Composition/Menu/DialogNode.h"
+#include "Matcha/Tree/Composition/Menu/MenuBarNode.h"
+#include "Matcha/Tree/Composition/Menu/MenuItemNode.h"
+#include "Matcha/Tree/Composition/Menu/MenuNode.h"
+#include "Matcha/Animation/IAnimationService.h"
+#include "Matcha/Interaction/Focus/MnemonicState.h"
+#include "LayerDemo.h"
 
-#include "Matcha/UiNodes/Controls/TreeItemNode.h"
-#include "Matcha/UiNodes/Shell/Application.h"
-#include "Matcha/UiNodes/Shell/FloatingTabWindowNode.h"
-#include "Matcha/UiNodes/Shell/DocumentToolBarNode.h"
-#include "Matcha/UiNodes/Shell/MainTitleBarNode.h"
-#include "Matcha/UiNodes/Shell/Shell.h"
-#include "Matcha/UiNodes/Shell/StatusBarNode.h"
-#include "Matcha/UiNodes/Shell/WindowNode.h"
-#include "Matcha/UiNodes/Shell/WorkspaceFrame.h"
+#include "Matcha/Tree/Controls/TreeItemNode.h"
+#include "Matcha/Tree/Composition/Shell/Application.h"
+#include "Matcha/Tree/Composition/Shell/FloatingTabWindowNode.h"
+#include "Matcha/Tree/Composition/Shell/DocumentToolBarNode.h"
+#include "Matcha/Tree/Composition/Shell/MainTitleBarNode.h"
+#include "Matcha/Tree/Composition/Shell/Shell.h"
+#include "Matcha/Tree/Composition/Shell/StatusBarNode.h"
+#include "Matcha/Tree/Composition/Shell/WindowNode.h"
+#include "Matcha/Tree/Composition/Shell/WorkspaceFrame.h"
 
 namespace nyancad {
 
@@ -344,6 +345,12 @@ void NyanCadMainWindow::Setup(matcha::fw::Application& app)
             auto* helpMenu = menuBarObs->AddMenu("&Help");
             helpMenu->AddItem("&User Guide");
             helpMenu->AddItem("&API Reference");
+            helpMenu->AddSeparator();
+            auto* layerDemoItem = helpMenu->AddItem("&Layer Demo...");
+            layerDemoItem->Subscribe(layerDemoItem, "Activated",
+                [this](matcha::EventNode&, matcha::Notification&) {
+                    OnOpenLayerDemo();
+                });
             helpMenu->AddSeparator();
             helpMenu->AddItem("A&bout NyanCad...");
         }
@@ -2902,6 +2909,26 @@ void NyanCadMainWindow::OnOpenDialog()
         wsFrame->ShowDialog(std::move(dialogNode));
     }
 }
+void NyanCadMainWindow::OnOpenLayerDemo()
+{
+    using namespace matcha::fw;
+
+    if (_app == nullptr) { return; }
+    auto& mainWin = _app->MainWindow();
+
+    auto dialogNode = std::make_unique<DialogNode>("layer-demo-dialog", nullptr);
+    dialogNode->SetTitle("Layer Demo -- Semantic UI Layering");
+    dialogNode->SetWidth(DialogWidth::Large);
+
+    auto content = BuildLayerDemoPage(*_app);
+    dialogNode->SetContentNode(std::move(content));
+
+    auto wsFrame = mainWin.GetWorkspaceFrame();
+    if (wsFrame.get() != nullptr) {
+        wsFrame->ShowDialog(std::move(dialogNode));
+    }
+}
+
 void NyanCadMainWindow::OnOpenFloatingWindow()
 {
     if (_app == nullptr) { return; }

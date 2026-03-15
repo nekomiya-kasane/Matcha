@@ -13,9 +13,9 @@
 
 #include "MenuBarTest.h"
 
-#include <Matcha/UiNodes/Menu/MenuBarNode.h>
-#include <Matcha/UiNodes/Menu/MenuItemNode.h>
-#include <Matcha/UiNodes/Menu/MenuNode.h>
+#include <Matcha/Tree/Composition/Menu/MenuBarNode.h>
+#include <Matcha/Tree/Composition/Menu/MenuItemNode.h>
+#include <Matcha/Tree/Composition/Menu/MenuNode.h>
 #include <Matcha/Widgets/Menu/NyanMenu.h>
 #include <Matcha/Widgets/Menu/NyanMenuBar.h>
 #include <Matcha/Widgets/Menu/NyanMenuItem.h>

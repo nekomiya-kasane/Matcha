@@ -10,8 +10,8 @@
  * @see 05_Greenfield_Plan.md ss 8.2.3 for the PluginHost spec.
  */
 
-#include <Matcha/Foundation/Macros.h>
-#include <Matcha/Foundation/Types.h>
+#include <Matcha/Core/Macros.h>
+#include <Matcha/Core/Types.h>
 
 #include <string>
 #include <string_view>

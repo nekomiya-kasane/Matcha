@@ -7,7 +7,7 @@
 
 #include "DocumentView.h"
 
-#include "Matcha/Foundation/StrongId.h"
+#include "Matcha/Core/StrongId.h"
 
 #include <memory>
 #include <vector>
@@ -62,6 +62,7 @@ public:
 private:
     void OnOpenDialog();
     void OnOpenFloatingWindow();
+    void OnOpenLayerDemo();
 
     void CreateFloatingWindowForPage(matcha::fw::PageId pageId, int globalX, int globalY);
 

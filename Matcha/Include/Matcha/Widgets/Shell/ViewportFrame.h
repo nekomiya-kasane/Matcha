@@ -12,8 +12,8 @@
  * Internal to Matcha — not part of the public UiNode API.
  */
 
-#include <Matcha/Foundation/Macros.h>
-#include <Matcha/Foundation/Types.h>
+#include <Matcha/Core/Macros.h>
+#include <Matcha/Core/Types.h>
 
 #include <QWidget>
 

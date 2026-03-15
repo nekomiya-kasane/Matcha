@@ -5,10 +5,10 @@
 
 #include <Matcha/Widgets/Controls/NyanLabel.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
-#include <Matcha/UiNodes/Core/MnemonicManager.h>
-#include <Matcha/Widgets/Core/MnemonicState.h>
+#include <Matcha/Interaction/Focus/MnemonicManager.h>
+#include <Matcha/Interaction/Focus/MnemonicState.h>
 
 #include <QFontMetrics>
 #include <QPaintEvent>

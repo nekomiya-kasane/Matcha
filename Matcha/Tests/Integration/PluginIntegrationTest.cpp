@@ -6,14 +6,14 @@
 #include "doctest.h"
 
 #include <Matcha/Services/PluginHost.h>
-#include <Matcha/UiNodes/ActionBar/ActionBarNode.h>
-#include <Matcha/UiNodes/Document/DocumentArea.h>
+#include <Matcha/Tree/Composition/ActionBar/ActionBarNode.h>
+#include <Matcha/Tree/Composition/Document/DocumentArea.h>
 #include <Matcha/Services/IExpansionPlugin.h>
-#include <Matcha/UiNodes/Shell/Shell.h>
-#include <Matcha/UiNodes/Shell/StatusBarNode.h>
-#include <Matcha/UiNodes/Shell/WindowNode.h>
-#include <Matcha/UiNodes/Shell/WorkspaceFrame.h>
-#include <Matcha/Widgets/Core/NyanTheme.h>
+#include <Matcha/Tree/Composition/Shell/Shell.h>
+#include <Matcha/Tree/Composition/Shell/StatusBarNode.h>
+#include <Matcha/Tree/Composition/Shell/WindowNode.h>
+#include <Matcha/Tree/Composition/Shell/WorkspaceFrame.h>
+#include <Matcha/Theming/NyanTheme.h>
 
 #include <string>
 

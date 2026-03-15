@@ -5,13 +5,13 @@
 
 #include "doctest.h"
 
-#include <Matcha/Foundation/StringId.h>
-#include <Matcha/UiNodes/Core/CommandNode.h>
-#include <Matcha/UiNodes/Shell/Shell.h>
-#include <Matcha/UiNodes/Workbench/WorkbenchManager.h>
-#include <Matcha/UiNodes/Workbench/WorkbenchNotification.h>
-#include <Matcha/UiNodes/Workbench/WorkbenchTypes.h>
-#include <Matcha/UiNodes/Workbench/WorkshopRegistry.h>
+#include <Matcha/Core/StringId.h>
+#include <Matcha/Event/CommandNode.h>
+#include <Matcha/Tree/Composition/Shell/Shell.h>
+#include <Matcha/Tree/Composition/Workbench/WorkbenchManager.h>
+#include <Matcha/Tree/Composition/Workbench/WorkbenchNotification.h>
+#include <Matcha/Tree/Composition/Workbench/WorkbenchTypes.h>
+#include <Matcha/Tree/Composition/Workbench/WorkshopRegistry.h>
 
 #include <algorithm>
 #include <memory>

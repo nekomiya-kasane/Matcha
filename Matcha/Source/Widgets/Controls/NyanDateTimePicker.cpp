@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanDateTimePicker.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QPaintEvent>
 #include <QPainter>

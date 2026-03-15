@@ -15,7 +15,7 @@
  * @see 05_Greenfield_Plan.md "Qt Widget Hierarchy (Floating Tab Window)"
  */
 
-#include <Matcha/Foundation/Macros.h>
+#include <Matcha/Core/Macros.h>
 
 #include <QWidget>
 

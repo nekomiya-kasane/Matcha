@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanPushButton.h>
 
-#include "../Core/PushButtonEventFilter.h"
+#include "../_Private/PushButtonEventFilter.h"
 
 #include <QPaintEvent>
 #include <QPainter>

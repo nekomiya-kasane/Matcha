@@ -19,7 +19,7 @@
  * @see NyanPanel for base container.
  */
 
-#include <Matcha/Foundation/Macros.h>
+#include <Matcha/Core/Macros.h>
 #include <Matcha/Widgets/ActionBar/NyanPanel.h>
 
 namespace matcha::gui {

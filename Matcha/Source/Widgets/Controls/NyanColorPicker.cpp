@@ -5,7 +5,7 @@
 
 #include <Matcha/Widgets/Controls/NyanColorPicker.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QApplication>
 #include <QGridLayout>

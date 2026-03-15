@@ -1,4 +1,6 @@
 #include <Matcha/Widgets/Menu/NyanMenu.h>
+
+#include <Matcha/Interaction/PopupPositioner.h>
 #include <Matcha/Widgets/Menu/NyanMenuBar.h>
 #include <Matcha/Widgets/Menu/NyanMenuCheckItem.h>
 #include <Matcha/Widgets/Menu/NyanMenuItem.h>
@@ -302,32 +304,25 @@ void NyanMenu::StartShowAnimation(const QPoint& globalPos)
 void NyanMenu::ClampToScreen(QPoint& pos)
 {
     QScreen* screen = QApplication::screenAt(pos);
-    if (!screen) {
-        screen = QApplication::primaryScreen();
-    }
-    if (!screen) {
-        return;
-    }
+    if (screen == nullptr) { screen = QApplication::primaryScreen(); }
+    if (screen == nullptr) { return; }
 
-    QRect screenRect = screen->availableGeometry();
-    QSize menuSize = sizeHint();
+    const QRect avail = screen->availableGeometry();
+    const QSize menuSize = sizeHint();
 
-    // Clamp right edge
-    if (pos.x() + menuSize.width() > screenRect.right()) {
-        pos.setX(screenRect.right() - menuSize.width());
-    }
-    // Clamp left edge
-    if (pos.x() < screenRect.left()) {
-        pos.setX(screenRect.left());
-    }
-    // Clamp bottom edge
-    if (pos.y() + menuSize.height() > screenRect.bottom()) {
-        pos.setY(screenRect.bottom() - menuSize.height());
-    }
-    // Clamp top edge
-    if (pos.y() < screenRect.top()) {
-        pos.setY(screenRect.top());
-    }
+    // Use PopupPositioner with Shift+Resize (no Flip — menu opens at cursor).
+    // We treat the anchor as a zero-size rect at the cursor position.
+    fw::PopupRequest req;
+    req.anchorRect = {pos.x(), pos.y(), 0, 0};
+    req.popupSize  = {menuSize.width(), menuSize.height()};
+    req.placement  = fw::PopupPlacement::BottomStart;
+    req.offset     = {0, 0};
+    req.viewport   = {avail.x(), avail.y(), avail.width(), avail.height()};
+    req.strategy   = fw::OverflowStrategy::Shift | fw::OverflowStrategy::Resize;
+
+    const auto result = fw::PopupPositioner::Compute(req);
+    pos.setX(result.position.x);
+    pos.setY(result.position.y);
 }
 
 // -- Keyboard Navigation --

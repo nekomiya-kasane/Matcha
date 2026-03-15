@@ -7,7 +7,7 @@
 
 #include <Matcha/Services/PluginHost.h>
 #include <Matcha/Services/IExpansionPlugin.h>
-#include <Matcha/UiNodes/Shell/Shell.h>
+#include <Matcha/Tree/Composition/Shell/Shell.h>
 
 #include <filesystem>
 #include <string>

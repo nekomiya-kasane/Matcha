@@ -19,7 +19,7 @@
 #include <Matcha/Widgets/Controls/NyanSelectionInput.h>
 #include <Matcha/Widgets/Shell/NyanStatusBar.h>
 #include <Matcha/Widgets/Controls/NyanStructureTree.h>
-#include <Matcha/Widgets/Core/NyanTheme.h>
+#include <Matcha/Theming/NyanTheme.h>
 
 #include <QSignalSpy>
 #include <QTest>

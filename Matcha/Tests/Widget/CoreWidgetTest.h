@@ -26,7 +26,7 @@
 #include <Matcha/Widgets/Controls/NyanSlider.h>
 #include <Matcha/Widgets/Controls/NyanSpinBox.h>
 #include <Matcha/Widgets/Controls/NyanTag.h>
-#include <Matcha/Widgets/Core/NyanTheme.h>
+#include <Matcha/Theming/NyanTheme.h>
 #include <Matcha/Widgets/Controls/NyanToggleSwitch.h>
 #include <Matcha/Widgets/Controls/NyanToolButton.h>
 

@@ -5,8 +5,9 @@
 
 #include <Matcha/Widgets/Controls/NyanRichTooltip.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
+#include <Matcha/Interaction/PopupPositioner.h>
 #include <Matcha/Widgets/Controls/NyanLabel.h>
 
 #include <QApplication>
@@ -260,39 +261,26 @@ void NyanRichTooltip::PositionNear(QWidget* trigger)
     const QSize mySize = sizeHint();
     resize(mySize);
 
-    constexpr int kGap = 4;
-
-    // Default: below the trigger, left-aligned
-    int x = triggerGlobal.x();
-    int y = triggerGlobal.y() + trigger->height() + kGap;
-
-    // Screen-edge clamping
+    // Determine viewport
+    fw::Rect viewport{};
     QScreen* screen = QApplication::screenAt(triggerGlobal);
-    if (screen == nullptr) {
-        screen = QApplication::primaryScreen();
-    }
+    if (screen == nullptr) { screen = QApplication::primaryScreen(); }
     if (screen != nullptr) {
         const QRect avail = screen->availableGeometry();
-
-        // If tooltip clips bottom, flip above trigger
-        if (y + mySize.height() > avail.bottom()) {
-            y = triggerGlobal.y() - mySize.height() - kGap;
-        }
-        // Clamp top
-        if (y < avail.top()) {
-            y = avail.top();
-        }
-        // Clamp right edge
-        if (x + mySize.width() > avail.right()) {
-            x = avail.right() - mySize.width();
-        }
-        // Clamp left edge
-        if (x < avail.left()) {
-            x = avail.left();
-        }
+        viewport = {avail.x(), avail.y(), avail.width(), avail.height()};
     }
 
-    move(x, y);
+    fw::PopupRequest req;
+    req.anchorRect = {triggerGlobal.x(), triggerGlobal.y(),
+                      trigger->width(), trigger->height()};
+    req.popupSize  = {mySize.width(), mySize.height()};
+    req.placement  = fw::PopupPlacement::BottomStart;
+    req.offset     = {0, 4};
+    req.viewport   = viewport;
+    req.strategy   = fw::OverflowStrategy::All;
+
+    const auto result = fw::PopupPositioner::Compute(req);
+    move(result.position.x, result.position.y);
 }
 
 void NyanRichTooltip::UpdateTierVisibility()

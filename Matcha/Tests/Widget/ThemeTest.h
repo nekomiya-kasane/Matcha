@@ -2,8 +2,8 @@
 
 #include "WidgetTestFixture.h"
 
-#include <Matcha/Widgets/Core/NyanTheme.h>
-#include <Matcha/Widgets/Core/ThemeAware.h>
+#include <Matcha/Theming/NyanTheme.h>
+#include <Matcha/Theming/ThemeAware.h>
 
 #include <QSignalSpy>
 #include <QTest>

@@ -1,6 +1,6 @@
 #include <Matcha/Widgets/Controls/NyanSelectionInput.h>
 
-#include "../Core/SimpleWidgetEventFilter.h"
+#include "../_Private/SimpleWidgetEventFilter.h"
 
 #include <QHBoxLayout>
 #include <QLineEdit>

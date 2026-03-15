@@ -2,10 +2,10 @@
 
 #include "WidgetTestFixture.h"
 
-#include <Matcha/UiNodes/Menu/DialogNode.h>
-#include <Matcha/Widgets/Core/IThemeService.h>
+#include <Matcha/Tree/Composition/Menu/DialogNode.h>
+#include <Matcha/Theming/IThemeService.h>
 #include <Matcha/Widgets/Menu/NyanDialog.h>
-#include <Matcha/Widgets/Core/NyanTheme.h>
+#include <Matcha/Theming/NyanTheme.h>
 
 #include <QTest>
 

@@ -2,16 +2,16 @@
 
 #include "WidgetTestFixture.h"
 
-#include <Matcha/UiNodes/Core/UiNode.h>
-#include <Matcha/UiNodes/Core/WidgetNode.h>
-#include <Matcha/UiNodes/Core/WidgetWrapper.h>
-#include <Matcha/UiNodes/Controls/LineEditNode.h>
-#include <Matcha/UiNodes/Controls/ComboBoxNode.h>
-#include <Matcha/UiNodes/Controls/SpinBoxNode.h>
-#include <Matcha/UiNodes/Controls/CheckBoxNode.h>
-#include <Matcha/UiNodes/Controls/ToggleSwitchNode.h>
-#include <Matcha/Widgets/Core/IThemeService.h>
-#include <Matcha/Widgets/Core/NyanTheme.h>
+#include <Matcha/Tree/UiNode.h>
+#include <Matcha/Tree/WidgetNode.h>
+#include <Matcha/Tree/WidgetWrapper.h>
+#include <Matcha/Tree/Controls/LineEditNode.h>
+#include <Matcha/Tree/Controls/ComboBoxNode.h>
+#include <Matcha/Tree/Controls/SpinBoxNode.h>
+#include <Matcha/Tree/Controls/CheckBoxNode.h>
+#include <Matcha/Tree/Controls/ToggleSwitchNode.h>
+#include <Matcha/Theming/IThemeService.h>
+#include <Matcha/Theming/NyanTheme.h>
 
 #include <QTest>
 #include <QWidget>

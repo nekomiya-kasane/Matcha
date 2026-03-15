@@ -7,11 +7,11 @@
 
 #include "doctest.h"
 
-#include "Matcha/Foundation/StrongId.h"
-#include "Matcha/UiNodes/Document/DocumentArea.h"
-#include "Matcha/UiNodes/Document/DocumentPage.h"
-#include "Matcha/UiNodes/Document/ViewportGroup.h"
-#include "Matcha/UiNodes/Document/Viewport.h"
+#include "Matcha/Core/StrongId.h"
+#include "Matcha/Tree/Composition/Document/DocumentArea.h"
+#include "Matcha/Tree/Composition/Document/DocumentPage.h"
+#include "Matcha/Tree/Composition/Document/ViewportGroup.h"
+#include "Matcha/Tree/Composition/Document/Viewport.h"
 
 using matcha::fw::DocumentArea;
 using matcha::fw::DocumentId;
