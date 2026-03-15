@@ -273,6 +273,10 @@ add_library(Matcha SHARED
     Include/Matcha/Tree/Controls/CollapsibleSectionNode.h
     Source/Tree/Controls/NotificationNode.cpp
     Include/Matcha/Tree/Controls/NotificationNode.h
+    Source/Tree/Controls/ToastStackNode.cpp
+    Include/Matcha/Tree/Controls/ToastStackNode.h
+    Source/Widgets/Controls/DragGhostOverlay.cpp
+    Include/Matcha/Widgets/Controls/DragGhostOverlay.h
     Source/Tree/Composition/Shell/Shell.cpp
     Include/Matcha/Tree/Composition/Shell/Shell.h
     Source/Tree/Composition/Shell/Application.cpp

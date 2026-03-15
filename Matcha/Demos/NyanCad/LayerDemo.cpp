@@ -12,12 +12,16 @@
 #include "Matcha/Tree/Composition/Menu/DialogNode.h"
 #include "Matcha/Tree/Composition/Menu/MenuNode.h"
 #include "Matcha/Tree/Composition/Menu/PopConfirmNode.h"
+#include "Matcha/Tree/Controls/ToastStackNode.h"
 #include "Matcha/Tree/Composition/Shell/Application.h"
 #include "Matcha/Event/EventNode.h"
 #include "Matcha/Event/Notification.h"
 #include "Matcha/Feedback/NotificationStackManager.h"
+#include "Matcha/Interaction/DragDropVisual.h"
+#include "Matcha/Widgets/Controls/DragGhostOverlay.h"
 
 #include <QLabel>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -346,7 +350,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
     }
 
     // ================================================================
-    // Row 4: Toast + DragGhost info
+    // Row 4: Toast + DragGhost
     // ================================================================
     {
         auto row = std::make_unique<ContainerNode>("row-4", LayoutKind::Horizontal);
@@ -355,14 +359,15 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
         // -- Toast --
         auto sec1 = MakeSection("sec-toast", "7. Toast (LayerToken::Notification)");
         auto descLbl = std::make_unique<LabelNode>("desc-toast");
-        descLbl->SetText("Non-modal, auto-dismiss. Managed by NotificationStackManager.");
+        descLbl->SetText(
+            "Non-modal, auto-dismiss. Rendered by NyanNotification widget,\n"
+            "managed via ToastStackNode bridging NotificationStackManager.");
         sec1->AddNode(std::move(descLbl));
 
         auto btn1 = MakeButton("btn-toast", "Push Toast Notification");
         auto* btn1Raw = btn1.get();
         sec1->AddNode(std::move(btn1));
 
-        // Show current toast count
         auto toastCount = std::make_unique<LabelNode>("lbl-toast-count");
         toastCount->SetText("(Toast count: 0)");
         auto* toastCountRaw = toastCount.get();
@@ -374,34 +379,69 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
         auto descLbl2 = std::make_unique<LabelNode>("desc-drag");
         descLbl2->SetText(
             "Highest Z-layer. No events, follows cursor.\n"
-            "Configured via DragDropVisualManager.\n"
-            "Drag any tab in the DocumentBar to see the ghost.");
+            "Rendered by DragGhostOverlay widget.\n"
+            "Click button to show a 3-second ghost demo.");
         sec2->AddNode(std::move(descLbl2));
 
-        auto infoLbl = std::make_unique<LabelNode>("lbl-drag-info");
-        infoLbl->SetText(
-            "DragPreviewStyle: Ghost | Icon | Compact | Custom\n"
-            "DropZoneHighlight: None | Idle | Hover | Accepted | Rejected");
-        sec2->AddNode(std::move(infoLbl));
+        auto btn2 = MakeButton("btn-drag-demo", "Show Drag Ghost (3s)");
+        auto* btn2Raw = btn2.get();
+        sec2->AddNode(std::move(btn2));
         row->AddNode(std::move(sec2));
 
         grid->AddNode(std::move(row));
 
-        // Wire: Toast button
-        static NotificationStackManager sToastMgr;
+        // Wire: Toast button — uses real ToastStackNode + NyanNotificationManager
+        static std::unique_ptr<ToastStackNode> sToastStack;
         static int sToastSeq = 0;
         btn1Raw->Subscribe(btn1Raw, "Clicked",
-            [toastCountRaw](EventNode& /*s*/, Notification& /*n*/) {
+            [btn1Raw, toastCountRaw](EventNode& /*s*/, Notification& /*n*/) {
+                if (!sToastStack) {
+                    sToastStack = std::make_unique<ToastStackNode>("demo-toast-stack");
+                    // Anchor to the button's top-level window
+                    if (btn1Raw->Widget() != nullptr) {
+                        sToastStack->SetAnchorWidget(btn1Raw->Widget()->window());
+                    }
+                }
                 ++sToastSeq;
                 StackNotification toast;
                 toast.priority = NotificationPriority::Normal;
                 toast.title    = "Toast #" + std::to_string(sToastSeq);
                 toast.message  = "This notification auto-dismisses after 5 seconds.";
                 toast.duration = std::chrono::milliseconds{5000};
-                sToastMgr.Push(std::move(toast));
+                sToastStack->Push(std::move(toast));
                 toastCountRaw->SetText(
-                    "(Visible: " + std::to_string(sToastMgr.VisibleCount()) +
-                    ", Queued: " + std::to_string(sToastMgr.TotalCount() - sToastMgr.VisibleCount()) + ")");
+                    "(Visible: " + std::to_string(sToastStack->VisibleCount()) +
+                    ", Total: " + std::to_string(sToastStack->TotalCount()) + ")");
+            });
+
+        // Wire: DragGhost button — shows a DragGhostOverlay for 3 seconds
+        static matcha::gui::DragGhostOverlay* sGhostOverlay = nullptr;
+        btn2Raw->Subscribe(btn2Raw, "Clicked",
+            [btn2Raw](EventNode& /*s*/, Notification& /*n*/) {
+                if (sGhostOverlay != nullptr) {
+                    sGhostOverlay->StopFollowing();
+                    delete sGhostOverlay;
+                    sGhostOverlay = nullptr;
+                }
+                sGhostOverlay = new matcha::gui::DragGhostOverlay(nullptr);
+                DragPreviewConfig config;
+                config.style      = DragPreviewStyle::Ghost;
+                config.label      = "Dragged Item";
+                config.badgeCount = 3;
+                config.opacity    = 0.8;
+                config.offsetX    = 15;
+                config.offsetY    = 15;
+                sGhostOverlay->SetConfig(config);
+                sGhostOverlay->StartFollowing();
+
+                // Auto-stop after 3 seconds
+                QTimer::singleShot(3000, btn2Raw->Widget(), [&]() {
+                    if (sGhostOverlay != nullptr) {
+                        sGhostOverlay->StopFollowing();
+                        delete sGhostOverlay;
+                        sGhostOverlay = nullptr;
+                    }
+                });
             });
     }
 
