@@ -13,9 +13,7 @@
 ## Table of Contents
 
 > **TOC will be regenerated after all content is finalized.**
-> See `doc_plan.md` for the complete 7-pillar structure.
 
----
 ---
 
 # Part 0 -- Motivation & Theoretical Foundations
@@ -159,11 +157,7 @@ Each part addresses a specific failure mode observed in systems that lack a desi
 
 # Part I -- Design Language Specification
 
-> 🆕 **Post-v1 structural reorganization.** Part I is the designer's complete expression of the
-> Matcha design system. It defines all visual, typographic, spatial, stylistic, interactive, and
-> motion specifications needed to implement the UI from scratch.
->
-> **8-chapter structure**: Ch.1 Design Philosophy & Principles · Ch.2 Design Tokens ·
+> Ch.1 Design Philosophy & Principles · Ch.2 Design Tokens ·
 > Ch.3 Typography · Ch.4 Style Architecture · Ch.5 Widget Specifications ·
 > Ch.6 Layout & Composition · Ch.7 Interaction & Accessibility · Ch.8 Motion & Timing ·
 > Appendix I Designer-Developer Handoff Contract
@@ -171,56 +165,566 @@ Each part addresses a specific failure mode observed in systems that lack a desi
 > Later Parts (II–VIII) provide architecture and implementation details that realize
 > Part I's design intent. Part I cross-references those Parts where appropriate.
 
-## Chapter 1. Design Philosophy & Principles
+## Chapter 1. Design Philosophy: A Top-Down Theoretical Derivation
 
-### 1.1 Document Scope & Audience
+### 1.1 Methodological: Domain Model → Semantics → Presentation
 
-- What this document covers (complete design system spec)
-- Who should read it (widget authors, plugin devs, theme designers, QA)
-- What it does NOT cover (application-level UX patterns, domain logic)
+The design of a UI frameworkmust follow a specific order. The order is not a suggestion; violating it may produce the view-model entanglement.
 
-### 1.2 Core Design Principles
+**The derivation chain:**
 
-Matcha is governed by six architectural principles that apply across all Parts
-of this specification. Each principle is introduced here and expanded in the
-relevant chapter.
+```
+Stage 0  Domain Model              What entities, properties, and relations exist?
+   ↓     (mathematical structure)
+Stage 1  Cognitive Constraint Field What are the human limits on perceiving and manipulating them?
+   ↓     (psychophysics + HFE)
+Stage 2  Information Architecture   How do we organize thousands of entities under those limits?
+   ↓     (taxonomy + topology)
+Stage 3  Interaction State Machine  How does the user traverse the architecture over time?
+   ↓     (FSM + command lifecycle)
+Stage 4  Semantic Design System     How do we render each state visually, consistently, and accessibly?
+         (tokens + components)
+```
 
-#### 1.2.1 Separation of Concerns: What / How / When / Who
+Each stage's outputs are the inputs to the next stage. A visual decision (Stage 4) must trace back through Stages 3→2→1→0 to a domain fact. If it cannot, the decision is arbitrary and will not survive the next paradigm change — which is precisely the failure mode Chapter 0 diagnosed.
 
-Every visual property passes through four separable concerns:
+This is not only the standard UCD "empathize → define → ideate → prototype → test" loop (See [Design Methodologies](https://transitionsproject.eu/wp-content/uploads/2025/08/M01-LU-Design-Theories-Design-Methodologies.pdf)). UCD describes a *process* (how to discover requirements); our derivation chain describes a *logical dependency order* (why each design decision is necessary). The two are complementary: UCD populates each stage with empirical data; the derivation chain ensures that data is consumed in the correct order.
+
+#### 1.1.1 The Top-Down Design Discipline
+
+The derivation chain above is not merely descriptive — it is **prescriptive**. It dictates the order in which design decisions must be made, and therefore the order in which this document must be read and authored. We call this the *top-down design discipline*.
+
+**The three conceptual spaces.** Before stating the discipline's operational rules, we must make explicit the epistemological structure that justifies it. Design is a mapping between three conceptual spaces:
+
+| Space | Symbol | Content | Derivation Stage |
+|-------|--------|---------|-----------------|
+| **Domain Model** | $\mathcal{D}$ | The objective structure of the modeling domain: entity types, relations, invariants, operations, and their mathematical properties. This space exists independently of any user or any screen. | Stage 0 |
+| **User Mental Model** | $\mathcal{U}$ | The user's cognitive representation of $\mathcal{D}$, shaped and bounded by perceptual limits (Fitts, Hick, Miller), prior training, task-frequency distributions, and error-recovery expectations. $\mathcal{U}$ is not a degraded copy of $\mathcal{D}$; it is a *lossy projection* whose distortion pattern is measurable through UCD methods (§1.1). | Stage 1 |
+| **Representation Model** | $\mathcal{R}$ | The interface's symbol system: information architecture, interaction state machines, visual tokens, layout grammar. $\mathcal{R}$ encodes $\mathcal{U}$ into perceivable and operable artifacts on a 2D screen. | Stages 2–4 |
+
+The **designer's role** is to construct a mapping $f: \mathcal{D} \times \mathcal{U} \rightarrow \mathcal{R}$ such that a composite quality functional — encompassing learnability, efficiency, error rate, accessibility, and aesthetic coherence — is optimized. The designer is *not* a transparent conduit between user needs and screen pixels; the designer's domain expertise, cognitive biases, and aesthetic judgment all enter the construction of $f$. This is precisely why UCD empirical methods (§1.1) are indispensable: they provide external validation that constrains the designer's subjective choices, preventing $f$ from degenerating into a projection of the designer's own mental model rather than the user's.
+
+**Implementation** ($\mathcal{I}$) is *not* a fourth conceptual space parallel to $\mathcal{D}$, $\mathcal{U}$, $\mathcal{R}$. It is a **compilation** of $\mathcal{R}$ into executable code. The compilation may introduce engineering constraints (performance budgets, platform limitations, framework capabilities), but it does not introduce new *design decisions*. When an engineering constraint makes a region of $\mathcal{R}$ unrealizable, the correct response is to re-derive from the appropriate upstream space — not to patch $\mathcal{R}$ locally. This asymmetry is formalized in §1.1.2's Design → Implementation relationship.
+
+**Constraint priority order.** The three spaces impose constraints with a strict priority:
+
+$$\text{Domain invariant} \succ \text{Cognitive constraint} \succ \text{Information-theoretic limit} \succ \text{Aesthetic/brand preference}$$
+
+A design decision that violates a domain invariant (e.g., allowing a user to create a cyclic feature tree in a parametric CAD system) is *wrong*, regardless of how learnable or beautiful the resulting UI might be. A decision that satisfies domain invariants but violates a cognitive constraint (e.g., presenting 500 materials in a flat unsearchable list) is *hostile*. A decision that satisfies both but ignores information-theoretic limits (e.g., requiring 12 clicks to reach a frequently-used command) is *inefficient*. Only after all three classes of constraint are satisfied does aesthetic preference enter — and even then, it is the weakest voice at the table.
+
+This priority order is the epistemological foundation of the derivation chain: Stages 0–4 are ordered precisely because $\mathcal{D}$ constrains $\mathcal{U}$ constrains $\mathcal{R}$, and within $\mathcal{R}$, information architecture (Stage 2) constrains interaction patterns (Stage 3) constrains visual tokens (Stage 4).
+
+> **Never begin with the widget.** Begin with the domain entity, derive the cognitive constraints, derive the information architecture, derive the interaction pattern, and *only then* decide which widget realizes it.
+
+The discipline exists for three independent reasons, each sufficient on its own:
+
+**1. Unification of designer and implementer mental models.** In a traditional widget-first workflow, the designer opens a component library and assembles screens by dragging buttons, dropdowns, and panels onto a canvas. The implementer receives a pixel-perfect mockup and reverse-engineers the data flow. The two parties share a visual artifact but not a *conceptual model*. When the designer moves a button, the implementer must guess whether the move implies a change in command grouping, disclosure level, or mere aesthetics. The guess is often wrong.
+
+A top-down derivation produces a shared conceptual model *before* any visual artifact exists. When the designer writes "the Fillet command belongs to Shape Operations (Workshop: Part Design, Workbench: Shape Ops, Disclosure: L2, Applicability: requires Edge selection)," the implementer can build the correct `CommandHeaderDescriptor` without ever seeing a mockup. The mockup, when it arrives, is a *verification* of the model — not the source of truth. Disagreements are resolved by tracing back through the derivation chain, not by pixel-diffing screenshots.
+
+**2. Induction of a coherent design language.** A bottom-up approach — choosing widgets case by case — produces local optima: each screen is internally consistent, but the system as a whole accumulates contradictions. One screen uses a dropdown for material selection; another uses a list box; a third uses a searchable combo. The contradiction is invisible at the individual-screen level but devastating at the system level: users cannot form stable mental models (violating the germane-load maximization principle of §1.3.2).
+
+A top-down approach forces every material-selection instance through the same derivation: "Material is a domain entity of type `MaterialRef` → the cognitive constraint is that the material library contains 500+ entries (violating Miller if presented as a flat list) → the information architecture requires hierarchical browsing with search → the interaction pattern is a searchable combo with category grouping." The derivation produces a single answer, and that answer becomes part of the design language. Every subsequent material-selection need reuses the same pattern — not by convention, but by derivation.
+
+**3. The deliverable as institutional knowledge.** In large engineering organizations, designers and product owners rotate between projects. A specification that says "use `ComboBoxNode` with search" transmits zero design rationale. A specification that says "material selection uses searchable combo because: 500+ items exceed Miller → flat list unacceptable → hierarchical browsing with search → `ComboBoxNode` with category headers" transmits the *reasoning*, making the deliverable self-explanatory. A successor who disagrees with the conclusion must disagree with a premise — and that disagreement is productive, because it refines the shared understanding rather than merely overriding a preference.
+
+**Operational consequence:** Every widget specification in Part I, Chapters 5–6, begins with a **"Derivation"** section that traces the widget's existence back through the five stages. A widget that cannot justify its existence through this trace is a candidate for removal or consolidation.
+
+#### 1.1.2 Design Autonomy, Terminology Contract, and Deliverable Standards
+
+**The four layers of design.** A common failure mode in industrial software projects is *implementability anxiety*: the designer constrains the design to what they believe the current codebase can easily support, producing a design that is feasible but mediocre. This is backwards. Design and implementation are related but distinct activities, and design itself has internal stratification. We identify four layers, each constraining the one below:
+
+| Layer | What It Determines | Artifact | Stability |
+|-------|-------------------|----------|-----------|
+| **1. Design Intent** | *Why* — the ideal interaction for the user, constrained only by domain physics (Stage 0), human cognition (Stage 1), and information-theoretic limits (Stages 2–3). | Principles, heuristics, user-journey narratives | Highest — changes only when domain understanding deepens |
+| **2. Design Language** | *What vocabulary* — the shared set of concepts (tokens, states, variants, disclosure levels, interaction patterns) through which all design decisions are expressed. | Glossary (§1.9), token taxonomy (§1.6.3), state model | High — new terms added incrementally, existing terms rarely renamed |
+| **3. Design System** | *How consistently* — the rules that compose Design Language primitives into reusable patterns: token resolution algorithm, density scaling, state-matrix template, variant algebra. | This specification document (Parts I–IX) | Medium — evolves as new widget categories emerge |
+| **4. Design Artifact** | *What specifically* — per-widget specs, screen layouts, interaction flows, motion curves. The concrete deliverable that the implementation team consumes. | Widget spec sheets (Chapters 5–6), layout blueprints | Lowest — iterated per release cycle |
+
+The layers form a **derivation chain**: Intent constrains Language, Language constrains System, System constrains Artifact. A design decision at Layer 4 that contradicts Layer 1 is a defect; a Layer 2 term that cannot be traced to a Layer 1 principle is dead weight.
+
+**The Design → Implementation relationship.** Implementation is *not* a fifth layer — it is a *translation* of Layers 3–4 into code. When the Design-Code Isomorphism (§1.6.1) holds, this translation is largely mechanical: each widget spec maps to one `WidgetKind`, one `WidgetNode` subclass, one `WidgetStyleSheet`, and one set of notification types. Implementation does not *invent* design decisions; it *realizes* them. Conversely, when implementation reveals that a design decision is infeasible or carries unexpected cost, the feedback flows *upward* through the layers — the designer revises the Artifact or System, not the implementer silently downgrades the design.
+
+This separation does not mean the designer ignores engineering reality. It means the designer's primary obligation is to the user, not to the current codebase. When a design decision would require significant engineering effort, the correct response is to document the requirement clearly and let the implementation team estimate cost — not to silently downgrade the design. The designer does *not* self-censor based on Qt version, widget availability, or current API shape.
+
+**The terminology contract.** Industrial software suffers chronically from terminology drift: the designer calls it a "panel," the product manager calls it a "pane," and the developer calls it a "dock widget." Three terms for one concept triple the communication overhead and guarantee misinterpretation.
+
+Matcha enforces a strict **terminology contract**: every concept that appears in the design specification, the code, the user-facing UI text, and the documentation must use exactly one term. The authoritative term list is the glossary (§1.9). Compliance rules:
+
+| Artifact | Terminology Source | Example |
+|----------|--------------------|---------|
+| Design spec (this document) | §1.9 glossary | "Workshop" not "module" or "app" |
+| C++ class/enum/function names | §1.9 glossary (PascalCase) | `WorkbenchManager` not `ModuleManager` |
+| UI labels and tooltips | §1.9 glossary (sentence case) | "Switch workbench" not "Switch module" |
+| API documentation (Doxygen) | §1.9 glossary | `/// @brief Activates the given Workshop.` |
+| User documentation | §1.9 glossary (localized) | 中文: "工作坊" not "模块" |
+| Test names and assertions | §1.9 glossary | `TEST(WorkbenchManager, ActivatesCorrectWorkshop)` |
+
+When a new concept arises that is not yet in the glossary, the **designer** proposes the term, the **architect** validates that the term does not collide with existing infrastructure, and the term is added to §1.9 before any artifact uses it. No artifact may introduce a novel term unilaterally.
+
+**Deliverable standards.** The design specification is not a mood board or a wireframe collection. It is a *formal deliverable* with verifiable completeness criteria. Every chapter in Part I must satisfy the following:
+
+| Criterion | What It Means | Verification |
+|-----------|---------------|--------------|
+| **Derivation trace** | Every design decision traces back through Stages 0–4 to a domain fact or cognitive constraint | Each widget spec includes a "Derivation" section |
+| **Token coverage** | Every visual property (color, spacing, radius, shadow, font) is expressed as a named token, never as a literal value | Automated lint: `grep -rn '#[0-9a-fA-F]' *.md` returns zero hits outside the seed-token definitions |
+| **State matrix completeness** | Every widget defines behavior for all applicable `InteractionState` values | State matrix table present; no empty cells |
+| **Terminology consistency** | All terms match §1.9 glossary exactly | Automated cross-reference check against glossary |
+| **Testability** | Every behavioral claim is accompanied by a falsifiable test scenario | "Test:" subsection in each widget spec |
+| **Accessibility baseline** | WCAG 2.1 AA compliance specified per-widget (contrast, focus, keyboard, screen reader) | Accessibility table present in each widget spec |
+
+These criteria are not aspirational. They are **gate conditions**: a chapter that fails any criterion is incomplete and must not be considered ready for implementation.
+
+### 1.2 Stage 0: Domain Model — The Mathematical Substrate of Industrial Software
+
+Before any graphical work begins, we must answer: *what is the mathematical structure that this software manipulates?* The UI is a view of this structure projected onto a 2D screen. If the view is designed without understanding the structure, it will distort — and distortion is exactly what Chapter 0's "translation layer" produced.
+
+#### 1.2.1 The Three Domain Archetypes
+
+Industrial modeling software exhibits one of three fundamental domain structures. Each structure implies a radically different UI topology.
+
+| Archetype | Core Data Structure | Temporal Semantics | UI Implication |
+|-----------|--------------------|--------------------|----------------|
+| **Feature-based** (parametric CAD) | Directed acyclic graph of operations (feature tree) | Linear history; editing past operations triggers full recomputation | UI must expose the *time sequence* and *parameter dependency graph*. The feature tree panel is not optional decoration — it is the primary projection of the domain model. |
+| **Node-based** (procedural generation, non-destructive workflows) | Directed graph of data-flow nodes | No history; the graph *is* the computation | UI must manage *graph connectivity*: node creation, edge routing, cycle detection. The node editor is the domain model itself. |
+| **Direct modeling** (push-pull CAD, sculpting) | Boundary representation (B-Rep) geometry with no history | Stateless; each operation mutates geometry directly | UI must minimize historical panels and maximize *spatial manipulation tools* (gizmos, handles, snapping). The 3D viewport is the primary interaction surface. |
+
+Most real-world systems are *hybrids*: CATIA V5 is primarily feature-based but supports direct modeling for quick edits; Blender's Geometry Nodes are node-based within a feature-based modifier stack. Matcha must support all three archetypes because the COCA platform serves multiple application domains (CAD, CAE, CAM) that span the full spectrum.
+
+**Design rule:**
+
+1. **Component layer: domain-agnostic.** Individual widgets must not hard-code any single domain archetype. A `TreeView` can display a feature tree, a BOM tree, or a mesh hierarchy with equal fidelity; a `SpinBox` binds to any numeric property regardless of domain semantics. This keeps the component library reusable across application domains.
+2. **Composition layer: domain-committed.** The application designer must — *before any screen layout work begins* — deliberate on the software's dominant domain archetype (or hybrid profile) and derive a coherent interaction framework from it. The composition layer (how widgets are assembled, wired, and orchestrated via Workshop/Workbench) then implements targeted optimizations for that archetype: a feature-based CAD application prioritizes the feature tree panel and history navigation; a node-based procedural system prioritizes the node graph editor and data-flow visualization. Designing the composition layer without a prior domain commitment produces the same architectural drift analyzed in Chapter 0.
+
+The boundary is clear: **components are general; compositions are specialized.** A well-designed component library enables — but does not replace — the designer's deliberate, upfront choice of interaction framework.
+
+#### 1.2.2 The Semantic Data Model: Entity–Property–Relation
+
+Regardless of archetype, every industrial modeling system manipulates a semantic data model consisting of:
+
+- **Entities** — discrete objects with identity (Part, Feature, Constraint, Mesh Element, Material, Load Case)
+- **Properties** — typed attributes of entities (name: String, radius: Length, material: MaterialRef)
+- **Relations** — typed connections between entities (Part *contains* Feature, Constraint *references* two Faces, Load *applies-to* Region)
+
+Every UI panel in the application is a *CRUD view* (Create, Read, Update, Delete) over some subset of this semantic model. The property panel is a *Read+Update* view of the selected entity's properties. The model tree is a *Read* view of the containment relation. The context menu is a *Create+Delete* interface filtered by the selected entity's type.
+
+**Design rule:** Widget data binding must operate on *semantic properties*, not on widget-specific data formats. A `SpinBox` bound to a `Length` property must automatically inherit the property's unit, range, and precision — not because the SpinBox "knows about" lengths, but because the binding layer resolves `Length → {min, max, step, unit, displayFormat}` before the SpinBox ever sees the value.
+
+#### 1.2.3 Context-Dependent Design
+
+A button that is always visible, always enabled, and always does the same thing regardless of what the user is working on is a *statically designed* element. In a consumer application with a dozen features, static design is adequate. In an industrial modeling system with thousands of commands and dozens of operational modes, static design is catastrophic: every element competes for the same screen real estate, and the user drowns in irrelevant options (violating the cognitive constraints that Stage 1 will formalize).
+
+The antidote is **context-dependent design**: every UI element must declare the conditions under which it appears, enables, disables, highlights, or hides. This is not a nice-to-have progressive-disclosure optimization — it is the central architectural decision that separates a usable industrial UI from a wall of grey buttons. Getting context wrong produces exactly the view-model entanglement analyzed in Chapter 0: when the UI cannot express "this button only makes sense when an edge is selected inside the Part Design workshop," the developer hard-codes visibility logic into scattered callbacks, and the system becomes untranslatable.
+
+**The Entity State Model.** To design context-dependent elements rigorously, the designer must think about each UI entity (a button, a panel, a toolbar group, a property field) as a small state machine driven by four factors:
+
+| Factor | What It Is | Example (Fillet button) |
+|--------|-----------|------------------------|
+| **Context** | The ambient environment the entity lives in — which Workshop is active, which Workbench is selected, what the user has selected, what command is in progress | Workshop = Part Design, Workbench = Shape Ops, Selection = {Edge_042} |
+| **Intrinsic State** | The entity's own persistent properties that do not depend on any external signal — its identity, type, configuration, default values | CommandId = "Fillet", RequiresSelection = Edge, DefaultRadius = 2mm |
+| **Input** | The event or signal that triggers a state transition — a user click, a selection change, a command commit, a drag gesture | User clicks the Fillet button → `CommandInvoked` |
+| **Output** | The observable response — visual state change, notification dispatch, domain mutation, feedback to the user | Button transitions to Active state; PropertyPanel populates with fillet parameters; 3D viewport shows preview geometry |
+
+The four factors form a **behavioral equation**: given the current context, the entity's intrinsic state, and an incoming input, the entity produces a deterministic output and (possibly) transitions to a new intrinsic state. This is precisely what a designer must specify for every element: not just "what it looks like," but "under what conditions it appears, what it does when activated, and what feedback it produces." An element whose behavioral equation is incompletely specified — for instance, a button with no defined behavior when the selection is empty — is a design defect, not an implementation oversight.
+
+**Why this matters for designers.** The Entity State Model forces the designer to answer four questions for every element before drawing a single pixel:
+
+1. **Context dependencies:** What must be true in the environment for this element to be relevant? (Workshop, Workbench, selection type, active command, panel visibility)
+2. **Intrinsic configuration:** What are this element's own properties that persist across context changes? (Command identity, parameter defaults, disclosure level, keyboard shortcut)
+3. **Input vocabulary:** What events can this element receive? (Click, hover, focus, drag-start, value-change, external notification)
+4. **Output contract:** For each (context, intrinsic state, input) triple, what does the element produce? (Visual state transition, notification dispatch, domain mutation)
+
+A design that answers all four questions is *complete* — an implementer can build it without guessing. A design that answers only "what it looks like in the happy path" is incomplete and will produce the ad-hoc coupling that Chapter 0 documented.
+
+**The interaction context, decomposed.** The "context" factor above is not a monolithic blob. It decomposes into independently observable components, each with a different change frequency and a different scope of influence on the UI:
+
+| Component | Meaning | Change Frequency | What It Invalidates |
+|-----------|---------|-----------------|---------------------|
+| **Workshop** | Active discipline (Part Design, Assembly, FEA…) | Low — typically at document open | Entire ActionBar tab structure, available command set |
+| **Workbench** | Active task phase within the Workshop | Medium — per user task switch | ActionBar tab selection, context toolbar content |
+| **Selection** | Currently selected domain entities | High — every click | Property panel content, context menu items, command enable/disable |
+| **Active Command** | Command currently being parameterized (if any) | Medium — on command invoke/commit/cancel | Property panel mode, status bar text, preview overlay |
+| **View State** | Viewport camera, zoom, section plane, visibility filters | Continuous — during navigation | Viewport renderer, minimap |
+| **Panel Layout** | Which panels are open, their dock positions, splitter ratios | Low — on user layout edits | Layout persistence, window management |
+
+The critical insight is that these components change at vastly different rates. An implementation that conflates them into a single "context changed" event will either over-invalidate (rebuilding the entire ActionBar on every mouse click) or under-invalidate (failing to update the context menu when selection changes). The architecture must expose each component as a separately observable signal, so that downstream consumers subscribe only to what they actually depend on.
+
+**Design case study: Fillet command availability.** This walkthrough shows how the Entity State Model and the context decomposition work together:
+
+1. **Workshop** = Part Design, **Workbench** = Shape Operations. The ActionBar materializes the Shape Operations tab.
+2. User **selects** an edge entity → the Selection component changes to `{Edge_042}`.
+3. The `WorkbenchManager` evaluates each visible command's applicability predicate against the new selection. The Fillet command's intrinsic state declares `RequiresSelection = Edge` → predicate evaluates to true → Fillet button transitions from `Disabled` to `Normal`.
+4. User clicks Fillet (input) → the Active Command component changes to Fillet → the PropertyPanel populates with fillet-specific parameters (output).
+5. User rotates the viewport to inspect the edge → the View State component changes → but the ActionBar and PropertyPanel are **not** re-evaluated, because they do not subscribe to View State. Only the viewport renderer responds.
+
+Without the decomposition, step 5 is the failure point: a naive "context changed" event would trigger a full UI rebuild on every camera rotation, destroying performance in a 60fps viewport.
+
+**Architectural consequence for Matcha.** The `Shell` must maintain the interaction context as a structured observable record, not a monolithic state object. Each component maps to a distinct notification channel:
+
+| Context Component | Notification | Typical Subscribers |
+|-------------------|-------------|---------------------|
+| Workshop | `WorkshopActivated` | `ActionBarNode`, `DocumentManager`, `StatusBarNode` |
+| Workbench | `WorkbenchActivated` | `ActionBarNode` tab group, context toolbar |
+| Selection | `SelectionChanged` | `PropertyPanelNode`, `ContextMenuNode`, command applicability evaluator |
+| Active Command | `CommandInvoked` / `CommandCommitted` / `CommandCancelled` | `StatusBarNode`, `PropertyPanelNode`, preview overlay |
+| View State | `ViewStateChanged` | Viewport renderer, minimap (NOT ActionBar, NOT PropertyPanel) |
+| Panel Layout | `PanelLayoutChanged` | Layout persistence, window management |
+
+This decomposition is not an implementation detail — it is a **design-level decision** that determines subscription granularity, performance characteristics, and testing boundaries. A test for "Fillet button enables on edge selection" subscribes only to Selection and Active Command, isolating it from viewport and layout state entirely.
+
+**Design rule:** Every UI element specification must include a complete behavioral equation: the context it depends on, the intrinsic state it maintains, the inputs it accepts, and the outputs it produces for each valid combination. An element with an incomplete behavioral equation is a design defect that must be resolved before implementation begins.
+
+#### 1.2.4 Workflows as First-Class Domain Objects
+
+The EPR model (§1.2.2) describes the static structure of domain data. But industrial software users do not merely view data — they execute **workflows**: ordered sequences of operations that transform the model from one valid state to another. A workflow is itself a domain object, not a UI concept.
+
+Consider a typical sheet-metal workflow: Create Base Flange → Add Bend → Unfold → Add Cutout → Refold → Export Flat Pattern. This sequence is not arbitrary — metallurgical constraints dictate that certain operations must precede others. The sequence is a **partial order** over commands, constrained by domain physics. We augment the EPR model to include workflows as a fourth fundamental concept: a workflow $W = (C, \preceq)$ is a partial order over commands $C$, with optional branch points (user choices) and join points (convergence after parallel branches).
+
+**Three tiers of workflow.** The framework must support workflows at three levels of authorship:
+
+| Tier | Author | Mutability | Example |
+|------|--------|-----------|---------|
+| **Built-in** | Application designer | Read-only for end user | "Create Part → Add Feature → Validate → Export" |
+| **Organization-defined** | CAD manager / team lead | Editable by admin, read-only for operators | Company-standard QA checklist workflow |
+| **User-defined** | End user | Fully editable, shareable, deletable | Personal macro: "Select all fillets → set radius to 2mm → confirm" |
+
+**Allowing users to define workflows** is not a convenience feature — it is a direct corollary of treating commands as first-class citizens (§1.5.5). Because every user action flows through a typed `CommandHeaderDescriptor` with explicit preconditions and parameters, a workflow is simply a serializable sequence of `(CommandId, ParameterSnapshot)` pairs with ordering constraints. The user creates a workflow by:
+
+1. **Recording**: executing commands normally while a recorder captures the `CommandInvoked` stream — producing a concrete sequence.
+2. **Editing**: reordering, adding, removing, or parameterizing steps in a visual workflow editor — producing an abstract template with parameter placeholders.
+3. **Sharing**: exporting the workflow as a portable artifact (JSON or equivalent) that another user can import and adapt.
+
+This is architecturally possible *only* because commands are self-describing objects with typed parameter schemas, not opaque callbacks (§1.5.5). A system where "fillet" is a button callback cannot record what parameters were used, cannot replay with different parameters, and cannot share the recording across machines. Matcha's command-centric architecture makes all three operations trivial.
+
+**Design rule:** `CommandHeaderDescriptor` could include a `preconditions` field — a predicate over the current context — so that the framework can evaluate workflow validity at each step and surface the next valid actions. This same query (`ValidNextCommands`) serves three consumers equally: the UI (for guided workflows), AI agents (for automated suggestions, §1.5.6), and the test framework (for workflow-level integration tests).
+
+### 1.3 Stage 1: The Cognitive Constraint Field
+
+Stage 0 defined *what* the user must perceive and manipulate. Stage 1 asks a different question: *why do some industrial UIs feel effortless while others — exposing the same domain data — exhaust the user within minutes?* The answer is not aesthetics or taste; it is a set of measurable human cognitive limits that every interface either respects or violates. This section identifies those limits, derives concrete design rules from them, and cites the underlying research for traceability.
+
+#### 1.3.1 Three Perceptual-Motor Constraints and Their Design Consequences
+
+Three recurring design failures in industrial UI can each be traced to a well-established cognitive or motor constraint. We present each failure first, derive the design rule, then cite the underlying law.
+
+**Problem 1: Too many choices at once.** An ActionBar tab exposing 20 commands side by side forces the user to visually scan, compare, and decide among all 20 — even when only 3 are relevant to the current task. Empirically, decision time grows logarithmically with the number of visible options (Hick-Hyman law). At 20 items the cost is roughly 4× that of 5 items, a penalty paid on *every single click*.
+
+**Design rule:** Max 7 commands per toolbar group. Overflow into a "More" menu. The Workshop/Workbench two-level hierarchy reduces the visible option set at each decision point, keeping effective choice count well within the fast-decision range.
+
+**Problem 2: Ungrouped information overwhelms working memory.** A property panel that lists 30 fields in a flat scroll — material, dimensions, tolerances, metadata — exceeds the human working-memory capacity of roughly 5–9 meaningful chunks (Miller, 1956). The user forgets what they saw at the top by the time they reach the bottom.
+
+**Design rule:** Max 5–7 fields per visual group. Use `ContainerNode` with section headers to create semantic chunks that map to the user's mental model (geometry vs. material vs. metadata). Collapsible sections handle overflow without leaving the context.
+
+**Problem 3: Frequently used targets are too far or too small.** A 16×16 px icon placed 800 px from the user's current focus demands nearly a full second of pointing time. Fitts' law quantifies this: pointing time grows with distance and shrinks with target size. In a multi-monitor CAD setup, the penalty compounds with every viewport switch.
+
+**Design rule:** High-frequency actions must be proximal — context menus appear at the cursor, property panels dock adjacent to the viewport, and the ActionBar spans the full window width to exploit Fitts' edge effect. Minimum touch targets: 32×32 px (Compact density), 40×40 px (Default density).
+
+#### 1.3.2 Cognitive Load: Fighting the Domain vs. Fighting the Interface
+
+Every moment a user spends navigating menus, deciphering icons, or remembering which panel hides which setting is a moment *not* spent solving the actual engineering problem. Cognitive Load Theory (Sweller, 1988) gives us a diagnostic lens to distinguish productive mental effort from wasteful friction:
+
+| Load Type | What It Feels Like | Industrial Example | Matcha Strategy |
+|-----------|--------------------|--------------------|-----------------|
+| **Intrinsic** | "This problem is genuinely hard" | Understanding a 500-constraint parametric assembly. Cannot be reduced by UI design. | **Accept.** Do not oversimplify. A 500-node feature tree is the *correct* representation. |
+| **Extraneous** | "I know what I want to do but can't find how" | Navigating 3 menu levels to find "Fillet" when the edge is already selected. | **Eliminate.** Context-sensitive command filtering (Workshop/Workbench/Selection → visible commands) exists to minimize this. |
+| **Germane** | "I'm building intuition that will help next time" | Learning that "blue highlight = selected for operation" accelerates all future interactions. | **Maximize.** Consistent visual language ensures mental models transfer across contexts. The token system exists for this. |
+
+The design objective is clear: keep extraneous load as close to zero as possible, so that the user's entire cognitive budget goes to the domain (intrinsic) and to building expertise (germane). When a user complains that a tool "feels heavy," the diagnosis is almost always excessive extraneous load — and the cure is never "add a tutorial" but "redesign the interaction to need no tutorial."
+
+#### 1.3.3 The Multi-Role User Model
+
+Different user roles project the same domain model through different cognitive lenses, requiring the UI to adapt its visible structure per role.
+
+| Role | Primary Mental Model | Key Task | UI Projection Strategy |
+|------|---------------------|----------|----------------------|
+| **Design Engineer** | Parametric tree with constraint propagation | Create/modify geometry | Feature tree + 3D viewport + property panel. Full command palette. |
+| **Manufacturing Engineer** | BOM hierarchy with process annotations | Review manufacturability | BOM tree + section views + annotation toolbar. Read-heavy. |
+| **Simulation Analyst** | Mesh topology + boundary conditions + results | Define loads, run solver | Mesh tree + load table + result contour viewport. |
+| **Reviewer / Auditor** | Change log with before/after comparison | Approve/reject changes | Diff view + requirement traceability matrix. Minimal editing. |
+| **Novice (any role)** | Guided wizard | Complete bounded task | Progressive disclosure: wizard mode overlays on expert UI. |
+| **Expert (any role)** | Keyboard-driven, minimal chrome | Execute at max speed | Command palette, custom shortcuts, macro recording. |
+
+**Design rule:** The framework must support *role-based view filtering* without role-specific widget implementations. The same `TreeViewNode` displays a feature tree or BOM tree — only data binding changes. The `Workshop` mechanism (§1.5.3) is the architectural realization of this.
+
+#### 1.3.4 Safety-Critical Constraints: The Error Cost Function
+
+In industrial software, a modeling error can propagate silently through a constraint network into a physical product failure. The total cost of an error is the sum of detection cost, correction cost, and — critically — the downstream propagation cost that accrues whenever the error escapes unnoticed. The earlier the UI surfaces an error, the lower the propagation term; the later, the more expensive. This asymmetry makes error visibility a first-order design concern, not a nice-to-have.
+
+| HFE Principle | Matcha Mechanism |
+|---------------|-----------------|
+| **Error visibility** | Inline validation (`InteractionState::Error`), real-time constraint violation highlighting, "affects N downstream features" preview |
+| **Error reversibility** | Undo/Redo stack with named operations. Destructive actions require `PopConfirmNode`. |
+| **Error prevention** | Disabled buttons for invalid ops (`InteractionState::Disabled`). Range clamping on `SpinBox`. Type-safe DnD (MIME filtering). |
+| **Error containment** | Transaction boundaries: failed multi-step ops roll back completely. Gestalt proximity groups coupled parameters visually. |
+
+**Design rule:** Every widget that modifies domain state must implement the error prevention/visibility/reversibility triad. `InteractionState::Error` is a first-class state because error display is as fundamental as hover or focus.
+
+#### 1.3.5 The Gulf Model: Measuring Operational Distance
+
+Donald Norman's *gulf of execution* and *gulf of evaluation* capture the semantic distance between user intention and interface action, complementing the perceptual-motor costs quantified by Hick, Miller, and Fitts.
+
+- **Gulf of execution** — the number of physical/cognitive steps between the user's goal and the interface actions required. A CAD user who thinks "fillet this edge with 2mm radius" must: locate → click → select edge → type value → confirm — five steps, only two of which map directly to domain concepts.
+- **Gulf of evaluation** — the effort to verify the result. If feedback is a status-bar string "Feature_042 created" with no geometric preview, the user must rotate the viewport and inspect manually — a wide evaluation gulf.
+
+Matcha's progressive-disclosure apparatus (§1.4.2, §1.5.3) minimizes the execution gulf by surfacing the right command at the right moment. The command lifecycle's Preview state (§1.4.4) minimizes the evaluation gulf by showing the geometric effect *before* commitment.
+
+**Design case study: Gulf reduction via context.**
+
+| Design | Steps | Execution Gulf | Evaluation Gulf |
+|--------|-------|----------------|----------------|
+| **Menu-driven** | Menu → Material → Assign → browse → select → OK → inspect | 6 steps, 3 mode switches | Result visible only after confirmation |
+| **Context-driven (Matcha)** | Right-click part → "Assign Material" (L2) → inline picker with live preview | 3 steps, 0 mode switches | Result visible during selection |
+
+The context-driven design halves the execution gulf and eliminates the evaluation gulf entirely — derived from the context decomposition in §1.2.3: the right-click menu is populated by evaluating applicability against the current selection; the live preview is the Preview state (§1.4.4) applied to material assignment.
+
+**Design rule:** Every command's interaction design must be evaluated against both gulfs. If execution requires more than 3 steps or evaluation requires a mode switch, the design is a candidate for context-promotion (L3 → L2) or preview enhancement.
+#### 1.3.6 Information Density and Spatial Scaling
+
+Industrial software users operate under sustained cognitive load across extended sessions, often managing dozens of parameters simultaneously on multi-monitor setups. This usage pattern demands **high information density** — maximizing visible data per screen area — to minimize viewport switching and scrolling. Conversely, novice users, reviewers, and touch-interface users require **generous whitespace** to reduce visual clutter and support larger tap targets.
+
+The framework resolves this tension by treating density as a **global, user-controllable parameter** rather than a per-widget property. All geometric spacing is expressed as multiples of `SpacingToken` (§1.6.3), which the theme multiplies by a density scale factor at resolution time. This ensures that a single user preference — Compact / Default / Comfortable — propagates uniformly across all widgets, maintaining visual rhythm and proportional relationships.
+
+| Level | Spacing Scale | Minimum Row Height | Target User Profile |
+|-------|---------------|-------------------|---------------------|
+| **Compact** | `SpacingToken` × 0.75 | 24px | Expert users, multi-monitor CAD workstations, maximum data per viewport |
+| **Default** | `SpacingToken` × 1.0 | 32px | General-purpose industrial use, balanced density |
+| **Comfortable** | `SpacingToken` × 1.5 | 40px | Reviewers, touch interfaces, accessibility (motor impairment, low vision) |
+
+**Design rule:** All spacing, padding, margins, and minimum component sizes **must** be expressed as `SpacingToken` multiples, never as literal pixel values. A widget or plugin that respects `SpacingToken` automatically inherits density adaptation, theme switching, and accessibility scaling without additional implementation. Hard-coded pixel dimensions are a **specification violation** — they break density coherence and create visual discontinuities when the user changes their density preference.
+
+**Architectural consequence:** The `SpacingToken` system is not a convenience abstraction — it is the **enforcement mechanism** for density-independence. The `Resolve()` function (§4.9) applies the density multiplier during style resolution, ensuring that all geometric values presented to widgets are pre-scaled. Widgets paint using resolved pixel values (`paddingHPx`, `gapPx`) without awareness of the underlying token or density level, maintaining separation of concerns between theme logic and rendering logic.
+
+### 1.4 Stage 2: Information Architecture and Business Topology
+
+Stage 1 established the human constraints. Stage 2 answers: *given those constraints, how do we organize the thousands of entities, commands, and views that an industrial modeling system requires?*
+
+#### 1.4.1 The Fundamental Tension: Feature Count vs. Cognitive Capacity
+
+A mature industrial modeling system contains 2,000–5,000 distinct commands. The user's working memory holds $7 \pm 2$ items. The ratio is ~500:1. This is the *information architecture problem*.
+
+The solution is **hierarchical decomposition with context-sensitive filtering**. Organize commands into a balanced tree where each level presents a manageable number of choices. Two forces compete: fewer items per level means faster scanning (Hick-Hyman), but deeper nesting means more clicks. The sweet spot — confirmed by both HCI literature and 3DEXPERIENCE's 8–12 items per ActionBar tab group — falls around **7–15 items per group, across 3–4 hierarchy levels**. Empirical navigation time for a 3,000-command system:
+
+| Items per Group | Hierarchy Depth | Approximate Total Navigation Time |
+|:---------------:|:---------------:|:---------------------------------:|
+| 5 | 5 | ~2.7 s |
+| 7 | 4 | ~2.6 s |
+| 10 | 4 | ~2.9 s |
+| 15 | 3 | ~2.4 s |
+
+Branching factors of 7–15 minimize total navigation time. Below 7, the tree is too deep; above 15, per-level scanning slows down.
+
+**Design rule:** ActionBar tabs should contain 5–12 command groups, each with 3–7 commands. Commands used >10 times per session should also be accessible via Command Palette, bypassing hierarchy entirely.
+
+#### 1.4.2 The Four-Level Progressive Disclosure Model
+
+| Level | Visibility | Trigger | Examples | Matcha Mechanism |
+|-------|-----------|---------|----------|-----------------|
+| **L0: Permanent** | Always visible | None | Viewport nav, Undo/Redo, Selection | `StatusBarNode`, viewport controls |
+| **L1: Workspace** | When Workshop/Workbench active | Workshop activation | "Extrude" in Part Design | `ActionBarNode` tabs via `WorkbenchManager` |
+| **L2: Context** | When specific entity selected | Selection | "Fillet" only when edge selected | Context toolbar + `ContextMenuNode` |
+| **L3: Deep** | Behind explicit user action | Click "More..." or expand section | Solver convergence settings | `DialogNode`, collapsible `ContainerNode` |
+
+**Design rule:** Every command must be assigned exactly one disclosure level (L0–L3) in its `CommandHeaderDescriptor`. A command at L2 visible at L0 is a *design bug*.
+
+#### 1.4.3 Navigation Topology: Tree + Graph + Timeline
+
+| Structure | What It Projects | User's Mental Model | Matcha Realization |
+|-----------|-----------------|--------------------|--------------------|
+| **Tree** (containment) | Part → Subassembly → Feature → Face | "I can decompose this into parts" | `TreeViewNode` with lazy expansion, drag-reorder |
+| **Graph** (dependency) | Feature A *depends on* Feature B | "Changing one affects others" | Dependency overlay; `DataTableNode` for relations |
+| **Timeline** (history) | Operation 1 → ... → Operation N | "I built this step by step" | Undo/Redo visualization; insertion point marker |
+
+#### 1.4.4 Business Flow: The Command Lifecycle State Machine
+
+```
+Idle → CommandSelected → ParameterInput → Preview → Confirm → Committed → Idle
+                                ↑                       ↓
+                                └──── Modify ───────────┘
+                                ↓
+                             Cancel → Idle
+```
+
+| State | UI Requirement | Matcha Mechanism |
+|-------|---------------|-----------------|
+| **Idle** | Show available commands | ActionBar enabled; status bar = "Ready" |
+| **CommandSelected** | Indicate active command; constrain inputs | Status bar shows command; irrelevant UI dims |
+| **ParameterInput** | Input widgets matched to parameter types | `PropertyPanelNode` dynamically populated |
+| **Preview** | Show effect before committing | Overlay geometry; "Affects N features" label |
+| **Confirm** | Explicit commitment for irreversible actions | `PopConfirmNode` for destructive ops |
+| **Committed** | Confirm success; push to undo stack | Toast via `ToastStackNode`; tree refreshed |
+| **Cancel** | Restore all state; no side effects | Full rollback; cursor restored |
+
+**Design rule:** No command may modify domain state without passing through Preview → Confirm (or Cancel). This is §1.3.4's error-prevention principle applied to the command lifecycle.
+
+### 1.5 Stage 3: Interaction State Machine and Behavioral Control
+
+Stage 2 organized *static structure*. Stage 3 defines *dynamic behavior*.
+
+#### 1.5.1 Modal vs. Non-Modal: A Principled Classification
+
+| Mode | Focus Scope | Escape Behavior | Example |
+|------|------------|----------------|---------|
+| **Global modal** | Entire application blocked | Escape = Cancel | Critical error dialog |
+| **Window modal** | Parent window blocked | Escape = Cancel | Save confirmation |
+| **Workspace modal** | Specialized command mode | Escape = exit mode | Sketcher mode |
+| **Panel modal** | Panel captures focus temporarily | Escape = dismiss | Inline cell editor |
+| **Non-modal** | No restriction | N/A | Property panel, model tree |
+
+**Design rule:** Every `PopupNode` subclass declares modality via `PopupBehavior`. The overlay system (`LayerToken`) enforces Z-ordering: Global > Window > Workspace > Panel > Non-modal. A non-modal panel must never obscure a modal dialog.
+
+#### 1.5.2 Command Execution Paradigms
+
+Every command in an industrial application follows one of two fundamental interaction orders:
+
+| Paradigm | Sequence | Best For | UI Feedback Requirement |
+|----------|---------|----------|------------------------|
+| **Noun-Verb** | Select entity → invoke command | Exploratory work, multi-entity batch ops, commands requiring complex selection sets | ActionBar enables/disables based on selection applicability |
+| **Verb-Noun** | Invoke command → select entity(s) | Repetitive single-entity ops, commands with constrained input types (e.g., "pick one face") | Status bar prompt: "Select a face to apply fillet"; `CursorToken` changes to signal expected entity type |
+
+The choice between them is not a UI preference — it is a **semantic property of the command** that the designer must specify explicitly in advance. The reason: the two paradigms produce fundamentally different state machine graphs, different applicability predicates, and different feedback requirements. A command that supports both (e.g., Rhino's `Fillet` accepts pre-selected edges *or* prompts for selection) must declare this explicitly, because the UI must handle two distinct entry paths into the same command lifecycle.
+
+**Designer obligation.** For each command, the design specification must state:
+
+1. **Primary paradigm** — Noun-Verb, Verb-Noun, or Both.
+2. **Selection precondition** (Noun-Verb) — the predicate that enables the command. E.g., "exactly 2 edges selected, both belonging to the same solid body."
+3. **Prompt sequence** (Verb-Noun) — the ordered list of entity picks required, with type constraint and multiplicity. E.g., "Step 1: pick 1 face; Step 2: pick 1 edge on that face."
+4. **Fallback behavior** (Both) — what happens if the command is invoked with a partial or empty selection. E.g., "if 1 edge pre-selected, skip Step 1 of Verb-Noun sequence."
+
+Without this analysis, the implementer must guess — and different implementers will guess differently, producing inconsistent interaction patterns across the application.
+
+**Design rule:** `InteractionState::Disabled` is a *semantic signal* computed from the command's applicability predicate against the current context. No command may exist in the registry without a declared paradigm and corresponding applicability/prompt specification.
+
+#### 1.5.3 The Workshop/Workbench Hierarchy
+
+Commands are organized into a two-level scope: a **Workshop** (document type / discipline) defines the base command set; a **Workbench** (task context within a Workshop) further filters to the current operation phase. This yields multiplicative reduction — 3,000 commands across 10 Workshops × 5 Workbenches ≈ 60 commands per Workbench — well within the ActionBar's cognitive capacity (§1.4.1).
+
+The full architecture — including the CATIA V5 reference model, atomic UI reconfiguration, lazy-loading strategy, and the mapping to Matcha's UiNode tree — is documented in **Appendix C**.
+
+**Design rule:** Every command must belong to exactly one Workshop and at least one Workbench. Orphan commands are architectural violations.
+
+#### 1.5.4 Expert Acceleration: The Command Palette
+
+For users who have internalized the command vocabulary, hierarchical navigation is wasted time. The Command Palette provides $O(1)$ access by name: activated by `Ctrl+K`, fuzzy-matches against labels/aliases/keywords, shows disclosure level and shortcut context, supports "recently used" sorting. This addresses the expert-vs-novice tension (§1.3.3): novices navigate to *discover*; experts type to *recall*. Both paths terminate at the same `CommandInvoked` notification.
+
+#### 1.5.5 Commands as First-Class Citizens
+
+Commands — not buttons, not menu items — are the atomic units of user intent. This distinction is architecturally decisive and is the single most validated pattern in modern application design.
+
+**Industry precedent.** The pattern appears independently in every successful extensible application:
+
+| Application | Command Registry | Visual Entry Points | Text Entry Point | Result |
+|-------------|-----------------|---------------------|------------------|--------|
+| **Rhino 8** | `RhinoCommand` objects registered in `CommandTable` | Ribbon toolbar + context menu | Command line (always visible, accepts typed command names) | Same command reachable from 3+ surfaces; plugins add commands without UI changes |
+| **VS Code** | `commands.registerCommand()` in extension API | Menu bar, sidebar buttons, status bar | Command Palette (`Ctrl+Shift+P`) | 2,000+ commands across 40,000+ extensions, all discoverable via one search box |
+| **JetBrains IDEs** | `AnAction` subclasses registered in `plugin.xml` | Menu bar, toolbar, gutter icons | Search Everywhere (`Shift+Shift`) / Find Action (`Ctrl+Shift+A`) | Uniform access; actions testable in headless mode |
+
+The common architecture: a **command is a self-describing object with identity, metadata, and lifecycle**, decoupled from any visual representation. Every visual surface — toolbar button, context menu item, keyboard shortcut, command palette entry, scripting API — is a *projection* of the same underlying command record.
+
+**The dual-entry principle.** Rhino's design is particularly instructive for CAD: it provides *both* a graphical Ribbon toolbar (for discovery by novices) *and* a persistent command line (for recall by experts), yet both converge on the identical `RhinoCommand::RunCommand()` path. This is not an accident — it is the architectural consequence of treating commands as first-class. Matcha adopts the same principle: the ActionBar (§1.4.1) is the graphical discovery surface; the Command Palette (§1.5.4) is the textual recall surface; both terminate at a single `CommandInvoked` notification through the `Shell`.
+
+This architecture yields three concrete consequences:
+
+1. **Testability.** A command's applicability, preconditions, and lifecycle can be tested entirely without UI — construct a mock context $c(t)$, evaluate the predicate, assert the result. No widget instantiation needed.
+2. **Discoverability.** The Command Palette enumerates *all* registered commands with labels, keywords, and applicability status — because the registry is a queryable data structure, not a scan of menu hierarchies.
+3. **Extensibility.** A plugin registers new commands by adding `CommandHeaderDescriptor` entries to the `WorkshopRegistry`. The ActionBar, context menu, and Command Palette automatically surface them without visual-layer changes.
+
+
+
+#### 1.5.6 AI-Friendly Architecture: The Machine as a First-Class User
+
+In 2026, a significant fraction of interactions with industrial software originates not from a human pointing and clicking, but from a **non-human consumer** — an AI copilot, an automation script, or an autonomous design explorer issuing structured commands. GitHub Copilot Workspace, Autodesk's generative design pipelines, and Siemens's industrial copilots already demonstrate the pattern. Matcha's architecture must be machine-friendly *by construction*, not through an afterthought API.
+
+**Three consumer types.** Matcha recognizes three distinct classes of consumers that interact with the application through the same underlying infrastructure but differ in modality and trust level:
+
+| Consumer | Input Modality | Output Modality | Trust Level | Example |
+|----------|---------------|-----------------|-------------|---------|
+| **Human user** | Mouse, keyboard, touch → visual widgets | Pixels, audio, haptic feedback | Full (direct manipulation) | CAD engineer using ActionBar |
+| **Scripting agent** | Deterministic script → C ABI function calls | Return codes, structured result objects | Full (pre-authored, reviewed) | Batch processing macro, CI/CD test harness |
+| **AI agent** | LLM-generated → C ABI function calls | Structured result + context diff | Supervised (human-in-the-loop review) | Copilot proposing assembly constraints |
+
+All three converge on the same `CommandInvoked` execution path (§1.5.5). The difference is bandwidth, modality, and the degree of human oversight — not the underlying API surface.
+
+**Two-layer access architecture.** The programmatic interface is organized into two layers that mirror the separation of concerns between *observation* and *action*:
+
+**Layer 1 — Widget & State Observation.** Read-only access to the current application state. This layer allows any consumer to understand *what is happening* without modifying anything:
+
+- **Context query.** The full context tuple $c(t) = (\omega, \beta, \sigma(t), \kappa(t), v(t), \pi(t))$ (§1.2.4) is queryable via the C ABI. An agent that cannot read the current selection or active workbench is blind.
+- **Widget tree introspection.** The UiNode tree (§2.x) is traversable: node types, visibility, enabled state, current values of input widgets. This enables automated UI testing and accessibility auditing without screen-scraping.
+- **Structured feedback.** Command results — success, failure, validation errors, affected entities — are returned as typed data, not as Toast messages only a human can read.
+
+**Layer 2 — Command Access & Organization.** Read-write access to the command system. This layer allows consumers to *discover* available commands, *understand* their parameters, and *invoke* them:
+
+- **Command introspection.** The registry exposes the full command vocabulary — labels, keywords, applicability predicates, disclosure levels — as machine-readable data. This is the same data structure that powers the Command Palette (§1.5.4) — reuse, not duplication.
+- **Typed parameter schema.** Each command's parameter set is described as a typed schema (name, type, range, default), not as "whatever the PropertyPanel shows." An AI agent filling in fillet parameters needs `{radius: Length, min: 0.01mm, max: 1000mm, default: 1mm}`, not a screenshot of a SpinBox.
+- **Workflow-aware filtering.** `ValidNextCommands(c(t))` (§1.2.4) exposes which commands are currently applicable given the workflow state — the same logic that enables/disables ActionBar buttons.
+- **Deterministic invocation.** `Shell::InvokeCommand(cmdId, params)` produces the same domain-state transition regardless of whether the invocation originated from a button click, a keyboard shortcut, or an API call. No "UI-only" side effects.
+
+**Design case study: AI-assisted assembly.** An AI copilot helping a user assemble components — demonstrating both layers in action:
+
+1. **L1** — Agent queries context: reads active Workshop, current selection, model topology.
+2. **L2** — Agent queries `ValidNextCommands(c(t))` → receives `{InsertConstraint, MateConstraint, AlignConstraint, ...}`.
+3. **L2** — Agent queries `MateConstraint` parameter schema → receives `{face1: FaceRef, face2: FaceRef, offset: Length}`.
+4. **L2** — Agent invokes `MateConstraint(face1=Part1.Face_003, face2=Part2.Face_007, offset=0mm)`.
+5. **L1** — Human reviews the preview (command lifecycle Preview state, §1.4.4) and confirms or modifies.
+6. **L1** — Agent observes the committed result and updates its internal model.
+
+At no point does the AI agent interact with widgets directly. It operates entirely through Layer 1 (observation) and Layer 2 (command invocation) — the same infrastructure that supports the Command Palette and scripting. This is the architectural payoff of treating commands as first-class citizens (§1.5.5): a single abstraction serves all three consumer types.
+
+**Design rule:** The C ABI layer (`NyanCApi.h`) must expose both Layer 1 (context observation, widget tree query, structured feedback) and Layer 2 (command introspection, typed parameter schemas, deterministic invocation) as stable, versioned functions. Any command invocable by a human must be equally invocable by a scripting agent or AI agent through this API. A command that requires "clicking a specific pixel" to function is an accessibility defect for all non-human consumers.
+
+### 1.6 Stage 4: The Semantic Design System
+
+Stages 0–3 determined *what* to show, *to whom*, *when*, and *in what order*. Stage 4 determines *how* to render it — but the rendering must be derivable from the preceding stages, not invented independently.
+
+#### 1.6.1 The Design-Code Isomorphism Criterion
+
+> **Design-Code Isomorphism.** The mapping from the design specification to the C++ implementation must be a *structure-preserving bijection.* Every widget specified here corresponds to exactly one `WidgetKind` enum value, one `WidgetNode` subclass, one `WidgetStyleSheet` configuration, and one set of notification types.
+
+Formally: `UI = f(state)` where:
+
+- **Domain**: `InteractionState x VariantIndex x WidgetKind`
+- **Codomain**: `ResolvedStyle` (colors, geometry, typography, animation)
+- **Mapping**: `IThemeService::Resolve(kind, variant, state)` — a pure function
+
+When this mapping is explicit and declarative, the designer's component tree and the developer's widget tree are two representations of the same mathematical structure.
+
+#### 1.6.2 Separation of Concerns: What / How / When / Who
 
 | Concern | Question | Matcha Mechanism | Chapter |
 |---------|----------|-----------------|---------|
-| **What** | What visual properties does the widget need? | `WidgetStyleSheet` | Ch 9 |
-| **How** | How are those properties computed from tokens? | `IThemeService::Resolve()` | Ch 6 |
-| **When** | When do properties change (state transitions)? | `InteractionState` + `IAnimationService` | Ch 12 |
-| **Who** | Who can override the defaults? | `ComponentOverride` + `RegisterDynamicTokens()` | Ch 11, 20 |
+| **What** | What visual properties does the widget need? | `WidgetStyleSheet` | Ch 5 |
+| **How** | How are those properties computed from tokens? | `IThemeService::Resolve()` | Ch 4 |
+| **When** | When do properties change (state transitions)? | `InteractionState` + `IAnimationService` | Ch 8 |
+| **Who** | Who can override the defaults? | `ComponentOverride` + `RegisterDynamicTokens()` | Ch 4 |
 
-This separation ensures that adding a new widget (What) does not require
-modifying the theme engine (How), that animation behavior (When) is independent
-of visual values, and that plugin customization (Who) has a bounded blast radius.
+This separation ensures that adding a new widget (What) does not require modifying the theme engine (How), that animation behavior (When) is independent of visual values, and that plugin customization (Who) has a bounded blast radius.
 
-#### 1.2.2 Design-Code Isomorphism
+#### 1.6.3 The Design Token Hierarchy
 
-The design system and the C++ implementation must be **structurally isomorphic**:
-every element in the design spec has a 1:1 counterpart in code, and vice versa.
+Design tokens are named, semantic values that abstract concrete visual parameters. The hierarchy has three layers:
 
-Formally: `UI = f(state)` where:
-- **Domain**: `InteractionState x VariantIndex x WidgetKind`
-- **Codomain**: `ResolvedStyle` (colors, geometry, typography, animation)
-- **Mapping**: `IThemeService::Resolve(kind, variant, state)` -- a pure function
+| Layer | Purpose | Example | Mutability |
+|-------|---------|---------|-----------|
+| **Seed Tokens** | Brand-defining primitives | `primary: #1677FF` | Changed only for full rebrand |
+| **Map Tokens** (`ColorToken` enum) | Semantic roles derived from seeds | `PrimaryDefault`, `ErrorBorder` | Derived via palette algorithm |
+| **Component Tokens** (`WidgetStyleSheet`) | Per-widget-kind bindings | PushButton.Primary.Normal.bg = `PrimaryDefault` | Per `WidgetKind` + variant + state |
 
-When this mapping is explicit and declarative, the designer's component tree
-and the developer's widget tree are two representations of the same structure.
-This eliminates the "design drift" problem where implementation gradually
-diverges from the design spec. See Chapter 9 for the four-dimension model
-and quantified motivation.
+**Design rule:** All visual properties are expressed as semantic design tokens, not raw values. Every widget must use `IThemeService::Resolve()` instead of hard-coded colors/sizes.
 
-#### 1.2.3 Qt-Free Public Surface
+Industry comparison — token depth:
 
-All public interfaces in Layer 0 (`fw` namespace) are Qt-free. Layer 1 (`gui`)
-uses Qt types only in implementation, never in abstract interfaces consumed
-by plugins.
+| Depth | Matcha | Material 3 | Ant Design v5 |
+|-------|--------|-----------|---------------|
+| **Primitive** | JSON hex values | XML color resources | Less variables |
+| **Semantic** | `ColorToken` enum | `ColorScheme` roles | `token` functions |
+| **Component** | `WidgetStyleSheet` per `WidgetKind` | Compose modifier | Component CSS vars |
+| **Variant** | `VariantStyle` array | Compose variant param | `type` prop |
+| **State** | `StateStyle` per `InteractionState` | `Interaction.Indication` | CSS pseudo-classes |
+| **Override** | `ComponentOverride` | `MaterialTheme` composition | `ConfigProvider` |
+| **Dynamic** | `RegisterDynamicTokens()` | N/A | N/A |
+
+Matcha achieves 7 levels of token depth. Most web design systems stop at 4–5.
+
+#### 1.6.4 Qt-Free Public Surface
 
 | Layer | Qt Allowed In | Qt Forbidden In | Examples |
 |-------|--------------|----------------|---------|
@@ -228,295 +732,133 @@ by plugins.
 | **Layer 1** (gui) | Implementations | Abstract interfaces | `IThemeService` uses `QColor` only in `NyanTheme` |
 | **Layer 2** (widget) | Freely | N/A | `QPainter`, `QWidget`, `QFont` |
 
-**Rationale**: Plugins compiled against Layer 0/1 headers survive Qt minor
-version bumps. The C ABI (`NyanCApi.h`) wraps all Qt types behind `extern "C"`
-functions, enabling Python/Rust/C# bindings. Future backend replacement
-(e.g., Qt -> custom renderer) only affects `NyanTheme`/`NyanAnimation`
-implementations, not the public API surface.
+**Rationale**: Plugins compiled against Layer 0/1 headers survive Qt minor version bumps. The C ABI (`NyanCApi.h`) wraps all Qt types behind `extern "C"` functions. Future backend replacement affects only implementation classes, not the public API surface.
 
-#### 1.2.4 Upward-Only Information Flow
+#### 1.6.5 Upward-Only Information Flow
 
-Notifications propagate **upward only** (child -> parent -> ancestor), never
-downward or sideways. This constraint, borrowed from CATIA V5's
-Command/Notification architecture, has three consequences:
+Notifications propagate **upward only** (child → parent → ancestor), never downward or sideways. Three consequences:
 
 1. **No circular dispatch**: A notification cannot trigger itself
 2. **Predictable flow**: Every notification has a single propagation path (to root)
 3. **Subscription locality**: A consumer must be an ancestor of the producer
 
-For non-ancestor consumers, the `NotificationBridge` pattern (a lightweight
-CommandNode inserted as a child of both the producer's subtree and the
-consumer's subtree) provides a structured workaround. See Chapter 26.5 for
-the 3-layer subscription safety model.
+For non-ancestor consumers, the `NotificationBridge` pattern provides a structured workaround. See Part IX for the subscription safety model.
 
-#### 1.2.5 Test-Driven Specification: Tests as Behavioral Contracts
+#### 1.6.6 Visual Design Principles
 
-In Matcha's development methodology, **tests are written before or alongside
-implementation, not after**. Tests serve a dual role:
+| Principle | Derived From | Rationale |
+|-----------|-------------|-----------|
+| **Professional-tool-first** | §1.3.2 (CLT) | High information density, low color noise, max readability under sustained use. No decorative elements. |
+| **Brand-neutral** | §1.2.1 (component-layer agnosticism) | Seed colors replaceable; rebranding = seed-swap, not codebase search-replace. |
+| **Accessibility-built-in** | §1.3.4 (error visibility) + WCAG 2.1 AA | Contrast $\geq 4.5:1$ as hard constraint. Focus rings, reduced-motion, screen reader roles specified per-widget. |
+| **Density-adaptive** | §1.3.3 (expert vs. novice) + §1.3.6 (information density) | Three levels (Compact / Default / Comfortable) derived from empirical density bounds. All spacing via `SpacingToken` × density multiplier. |
+| **Theme-extensible** | §1.6.3 (dynamic tokens) | JSON themes + runtime plugin tokens. Open at token level, closed at resolution algorithm (OCP). |
 
-1. **Behavioral contract**: A test defines what a widget MUST do under a specific
-   condition. It is a machine-verifiable subset of this specification.
-2. **Regression guard**: Once a behavior is tested, any code change that breaks
-   it is immediately detected.
+#### 1.6.7 High-Density Layout Rules
 
-This is classical Test-Driven Development (TDD) applied to a UI framework.
-The key insight is that widget behavior under different states, themes, and
-density levels is **fully specifiable** -- there are no "it depends" cases.
+| Gestalt Principle | Application | Matcha Rule |
+|-------------------|------------|-------------|
+| **Proximity** | Coupled parameters spatially adjacent | Group in `ContainerNode` sections. Inter-group spacing $\geq 2\times$ intra-group. |
+| **Similarity** | Visually similar = semantically related | Editable fields share border style; read-only fields share a different style. |
+| **Continuity** | Eye follows smooth contours | Align labels/inputs on 4px modular grid (`SpacingToken` = multiples of 4). |
+| **Closure** | Incomplete shapes perceived as complete | Panel borders and dividers create visual containers. |
+| **Figure-Ground** | Important elements stand out | 3D viewport (figure) uses distinct bg from panels (ground). Selected items use `PrimaryDefault`. |
 
-**Example: Menu System TDD Workflow**
+**Typography for density:** Font selection must prioritize tabular figures (fixed-width digits) and small-size legibility. Padding follows the 4px/8px modular grid strictly.
 
-Consider implementing the Context Menu subsystem. Before writing any
-`NyanContextMenu` widget code, the following tests are written:
+### 1.7 Architectural Principles Summary
 
-```cpp
-TEST_CASE("ContextMenu: shows on right-click") {
-    WidgetTestFixture fixture;
-    ContextMenu menu;
-    auto action = menu.AddAction("Cut", fw::icons::Cut);
-    // Verify: menu is not visible before trigger
-    CHECK_FALSE(menu.IsVisible());
-    // Simulate right-click on parent widget -> menu appears
-    // (implementation not yet written -- test fails, driving implementation)
-}
+The five stages plus the methodological preamble (§1.1) converge into eleven principles governing every subsequent chapter. P1–P2 are meta-principles on design methodology; P3–P7 emerged from the stage derivation; P8–P11 address cross-cutting dimensions — context decomposition, operational distance, command centrality, and AI accessibility.
 
-TEST_CASE("ContextMenu: keyboard navigation") {
-    WidgetTestFixture fixture;
-    ContextMenu menu;
-    menu.AddAction("Cut", fw::icons::Cut);
-    menu.AddAction("Copy", fw::icons::Copy);
-    menu.AddAction("Paste", fw::icons::Paste);
-    menu.Show(QPoint(100, 100));
-    // Arrow Down -> first item highlighted
-    fixture.SimulateKeyPress(&menu, Qt::Key_Down);
-    CHECK(menu.HighlightedIndex() == 0);
-    // Arrow Down -> second item highlighted
-    fixture.SimulateKeyPress(&menu, Qt::Key_Down);
-    CHECK(menu.HighlightedIndex() == 1);
-    // Enter -> action triggered
-    NotificationSpy spy(nullptr);
-    menu.node().SetParent(&spy);
-    fixture.SimulateKeyPress(&menu, Qt::Key_Return);
-    CHECK(spy.Count<MenuActionTriggered>() == 1);
-}
+| # | Principle | Source | One-Sentence Rule |
+|---|-----------|--------|-------------------|
+| **P1** | Top-down derivation discipline | §1.1.1 | Never begin with the widget; derive every design decision through Stages 0–4 in order. |
+| **P2** | Design autonomy & terminology contract | §1.1.2 | Design intent governs specification; one term per concept across all artifacts, enforced via §1.9 glossary. |
+| **P3** | Component-agnostic, composition-committed | §1.2.1 | Components are domain-agnostic; the composition layer commits to a deliberate interaction framework derived from the application's dominant domain archetype. |
+| **P4** | Extraneous load elimination | §1.3.2 | Every UI element must justify its existence by reducing intrinsic load or building germane models. |
+| **P5** | Progressive disclosure by context | §1.4.2 | Commands visible only when relevant to current Workshop, Workbench, and selection. |
+| **P6** | Error prevention by construction | §1.3.4 | Impossible states unreachable; reversible states undoable; irreversible states require confirmation. |
+| **P7** | Design-code isomorphism | §1.6.1 | Spec-to-implementation mapping is a structure-preserving bijection. |
+| **P8** | Structured context decomposition | §1.2.3 | Interaction context is a typed tuple of independently observable components, not a monolithic state. |
+| **P9** | Minimal operational distance | §1.3.5 | Every command must minimize execution gulf and evaluation gulf via context-sensitivity and live preview. |
+| **P10** | Commands as first-class citizens | §1.5.5 | Every user action flows through a single `CommandHeaderDescriptor` → `CommandInvoked` path — no exceptions. |
+| **P11** | AI-equal accessibility | §1.5.6 | Any command invocable by a human is equally invocable by an AI agent via the C ABI; pixel-dependent actions are defects. |
 
-TEST_CASE("ContextMenu: disabled items are skipped by keyboard") {
-    WidgetTestFixture fixture;
-    ContextMenu menu;
-    menu.AddAction("Cut", fw::icons::Cut);
-    auto paste = menu.AddAction("Paste", fw::icons::Paste);
-    paste->SetEnabled(false);
-    menu.AddAction("Delete", fw::icons::Delete);
-    menu.Show(QPoint(100, 100));
-    fixture.SimulateKeyPress(&menu, Qt::Key_Down);  // -> Cut (index 0)
-    fixture.SimulateKeyPress(&menu, Qt::Key_Down);  // -> skips Paste, lands on Delete (index 2)
-    CHECK(menu.HighlightedIndex() == 2);
-}
+### 1.8 Test-Driven Specification: Tests as Behavioral Contracts
 
-TEST_CASE("ContextMenu: submenu opens on hover with delay") {
-    WidgetTestFixture fixture;
-    auto submenu = std::make_unique<ContextMenu>();
-    submenu->AddAction("Submenu Item");
-    ContextMenu menu;
-    menu.AddSubmenu("More...", std::move(submenu));
-    menu.Show(QPoint(100, 100));
-    // Hover over "More..." item
-    fixture.SimulateHover(&menu, menu.ItemRect(0).center());
-    // Submenu should NOT appear immediately (anti-flicker delay)
-    CHECK_FALSE(menu.SubmenuAt(0)->IsVisible());
-    // After delay, submenu appears
-    QTest::qWait(300);
-    CHECK(menu.SubmenuAt(0)->IsVisible());
-}
+**Tests are written before or alongside implementation, not after.** They serve as:
 
-TEST_CASE("ContextMenu: accessibility audit passes") {
-    WidgetTestFixture fixture;
-    ContextMenu menu;
-    menu.AddAction("Cut");
-    menu.AddAction("Copy");
-    menu.AddSeparator();
-    menu.AddAction("Paste");
-    auto violations = A11yAudit::AuditWidget(&menu.node());
-    CHECK(violations.empty());
-}
-```
-
-These five tests encode the **complete behavioral contract** for the Context
-Menu's core interaction model: visibility lifecycle, keyboard navigation,
-disabled-item skipping, submenu timing, and accessibility. The implementation
-is then written to make these tests pass, in order. Any future refactoring
-that breaks keyboard navigation will be caught immediately.
-
-**Test categories and their specification role**:
+1. **Behavioral contract**: A test defines what a widget MUST do — a machine-verifiable subset of this specification.
+2. **Regression guard**: Any code change that breaks tested behavior is immediately detected.
 
 | Test Category | What It Specifies | Example |
 |---------------|------------------|---------|
-| **Widget API** | Public method behavior | `SetValue(42)` -> `Value() == 42` |
-| **User interaction** | Mouse/keyboard response | Right-click -> context menu visible |
-| **State transitions** | InteractionState changes | Hover -> Hovered state -> bg color change |
-| **Theme switching** | Visual adaptation | Light -> Dark -> `bg != previousBg` |
-| **Density scaling** | Layout adaptation | Compact -> smaller minHeight |
+| **Widget API** | Public method behavior | `SetValue(42)` → `Value() == 42` |
+| **User interaction** | Mouse/keyboard response | Right-click → context menu visible |
+| **State transitions** | InteractionState changes | Hover → Hovered → bg color change |
+| **Theme switching** | Visual adaptation | Light → Dark → `bg != previousBg` |
+| **Density scaling** | Layout adaptation | Compact → smaller minHeight |
 | **Accessibility** | A11y contract | No Error-severity audit violations |
-| **Notification emission** | Event contract | `SetValue()` -> `IntValueChanged` dispatched |
+| **Notification emission** | Event contract | `SetValue()` → `IntValueChanged` dispatched |
 
-> See Chapter 23 for test infrastructure details (`WidgetTestFixture`,
-> `NotificationSpy`, `A11yAudit`).
+See Part VIII for test infrastructure (`WidgetTestFixture`, `NotificationSpy`, `A11yAudit`).
 
-### 1.3 Design Language Principles
+### 1.9 Terminology Glossary
 
-Matcha's visual design language is built on five principles:
+> Quick-start glossary. For the complete reference (~120 entries), see **Appendix A**.
 
-1. **Professional-tool-first** -- Optimized for CAD/CAE: high information density,
-   low color noise, maximum readability under sustained use
-2. **Brand-neutral** -- Seed colors are replaceable; the framework binds to no brand
-3. **Accessibility-built-in** -- WCAG 2.1 AA contrast as a hard constraint, not a bolt-on
-4. **Density-adaptive** -- Three density levels (Compact/Default/Comfortable) for
-   different user contexts (power user vs touch screen)
-5. **Theme-extensible** -- Unlimited custom themes via JSON; plugins extend tokens at runtime
-
-### 1.4 Three-Layer Token Architecture
-
-```mermaid
-graph TD
-    subgraph "Layer 0: Seed Tokens"
-        S1[primary seed<br/>#1677FF]
-        S2[success seed<br/>#52C41A]
-        S3[warning seed<br/>#FAAD14]
-        S4[error seed<br/>#FF4D4F]
-        S5[info seed<br/>#1677FF]
-        S6[neutralBg<br/>#FFFFFF]
-        S7[neutralText<br/>#1A1A1A]
-    end
-
-    subgraph "Layer 1: Map Tokens (ColorToken enum)"
-        N[16 Neutral tokens]
-        H[50 Hue tokens<br/>5 hues x 10 steps]
-        SP[9 Special tokens]
-    end
-
-    subgraph "Layer 2: Component Tokens"
-        WS[WidgetStyleSheet<br/>per-WidgetKind]
-        CO[ComponentOverride<br/>per-widget-class]
-        VS[VariantStyle<br/>variant x state matrix]
-    end
-
-    S1 --> H
-    S2 --> H
-    S3 --> H
-    S4 --> H
-    S5 --> H
-    S6 --> N
-    S7 --> N
-
-    N --> WS
-    H --> WS
-    SP --> WS
-    WS --> VS
-    CO --> WS
-```
-
-#### 1.4.1 Token Architecture Depth (Industry Comparison)
-
-Matcha achieves 7 levels of token depth. Most web design systems stop at 4-5.
-
-| Depth | Matcha | Material 3 | Ant Design v5 | Description |
-|-------|--------|-----------|---------------|-------------|
-| **Primitive** | JSON hex values | XML color resources | Less variables | Raw values |
-| **Semantic** | `ColorToken` enum | `ColorScheme` roles | `token` functions | Named intent |
-| **Component** | `WidgetStyleSheet` per `WidgetKind` | `ColorScheme` + Compose modifier | Component-level CSS vars | Per-widget defaults |
-| **Variant** | `VariantStyle` array | Compose variant parameter | Component `type` prop | Visual variant |
-| **State** | `StateStyle` per `InteractionState` | `Interaction.Indication` | CSS pseudo-classes | Interaction feedback |
-| **Override** | `ComponentOverride` | `MaterialTheme` composition | `ConfigProvider` | Plugin/app customization |
-| **Dynamic** | `RegisterDynamicTokens()` | N/A | N/A | Runtime extension |
-
-**Design rule.** All visual properties are expressed as semantic design tokens, not raw values. This enables theme switching, density scaling, and accessibility overrides without widget code changes. Every widget must use `IThemeService::Resolve()` instead of hard-coded colors/sizes.
-
-### 1.5 Architecture Layer Diagram
-
-```mermaid
-graph LR
-    subgraph L0["Layer 0 : fw -- Qt-free"]
-        TE["TokenEnums.h\nSpacingToken RadiusToken\nAnimationToken EasingToken\nSpringSpec InteractionState\nDensityLevel TextDirection\nIconId CursorToken LayerToken\nSizeToken TransitionDef\nAnimationPropertyId\nAnimatableValue"]
-        ITR["ITokenRegistry\nSpacingPx Radius AnimationMs\nSetDensity SetDirection"]
-    end
-
-    subgraph L1["Layer 1 : gui -- Qt-dependent"]
-        DT["DesignTokens.h\nColorToken FontRole\nFontSpec ShadowSpec\nStateStyle VariantStyle"]
-        ITS["IThemeService\nColor Font Shadow Easing\nSpring ResolveIcon\nResolve ResolveStyleSheet\nComponentOverride\nDynamicTokens"]
-        IAS["IAnimationService\nAnimate AnimateSpring\nAnimateGroup Cancel\nCancelGroup CancelAll"]
-    end
-
-    subgraph L2["Layer 2 : Widget"]
-        TA["ThemeAware mixin\nStyleSheet Theme\nAnimateTransition\nPaintFocusRing"]
-        W["Widget paintEvent\nauto style = Resolve\nQPainter draw commands"]
-    end
-
-    TE --> ITR
-    TE --> DT
-    ITR --> ITS
-    DT --> ITS
-    ITS --> TA
-    IAS --> TA
-    TA --> W
-```
-
-### 1.6 Terminology Glossary
-
-> Quick-start glossary of the ~25 most important terms. For the complete
-> reference (~120 entries with C++ types and spec cross-references), see
-> **Appendix A. Design System Glossary**.
-
-#### 1.6.1 Core Architecture
+#### 1.9.1 Core Architecture
 
 | Term | 中文 | Definition |
 |------|------|-----------|
-| **Token** | 设计令牌 | A named, semantic design value (color, spacing, duration, etc.) that abstracts the concrete visual parameter from its usage context |
-| **Variant** | 变体 | A visual sub-type of a widget (e.g., PushButton has Primary, Secondary, Ghost, Danger variants) |
-| **State** | 交互状态 | An interaction state of a widget (`InteractionState` enum: Normal, Hovered, Pressed, Disabled, Focused, Selected, Error, DragOver) |
-| **Density** | 密度等级 | A global UI compactness level that scales spacing, radius, shadow, and component sizes |
-| **WidgetKind** | 组件类型 | An enum identifying each widget type for style sheet resolution (54+ entries) |
-| **ResolvedStyle** | 解析样式 | A fully concrete style snapshot (QColor, QFont, px values) produced by `IThemeService::Resolve()` |
-| **ThemeAware** | 主题感知混入 | A mixin class that auto-connects widgets to the theme engine and provides style accessors |
-| **WidgetStyleSheet** | 组件样式表 | Per-widget-kind composite of geometry tokens + variant color maps |
-| **ComponentOverride** | 组件覆盖 | Per-widget-class token deviations registered by widget authors or plugins |
-| **DynamicToken** | 动态令牌 | A plugin-registered token (color, font, or spacing) that extends the core vocabulary at runtime |
+| **Token** | 设计令牌 | Named semantic design value abstracting visual parameters from context |
+| **Variant** | 变体 | Visual sub-type of a widget (e.g., Primary, Secondary, Ghost, Danger) |
+| **State** | 交互状态 | `InteractionState` enum: Normal, Hovered, Pressed, Disabled, Focused, Selected, Error, DragOver |
+| **Density** | 密度等级 | Global compactness level scaling spacing, radius, shadow, sizes |
+| **WidgetKind** | 组件类型 | Enum identifying each widget type for style resolution (56+ entries) |
+| **ResolvedStyle** | 解析样式 | Concrete style snapshot (QColor, QFont, px) from `IThemeService::Resolve()` |
+| **ThemeAware** | 主题感知混入 | Mixin auto-connecting widgets to theme engine |
+| **WidgetStyleSheet** | 组件样式表 | Per-widget-kind geometry tokens + variant color maps |
+| **ComponentOverride** | 组件覆盖 | Per-widget-class token deviations from plugins |
+| **DynamicToken** | 动态令牌 | Plugin-registered token extending core vocabulary at runtime |
 
-#### 1.6.2 UiNode Tree & Architecture
-
-| Term | 中文 | Definition |
-|------|------|-----------|
-| **UiNode** | UI 节点 | Pure C++ node in the logical tree — not a QWidget. Decouples domain model from Qt rendering |
-| **CommandNode** | 命令节点 | UiNode base class providing parent-child hierarchy, notification dispatch, and subscription management |
-| **Shell** | 应用外壳 | UiNode root of the application. Holds references to MainWindow, ActionBar, DocumentManager |
-| **Notification** | 通知 | Typed message propagated upward through the UiNode tree; the sole communication channel from widget to business logic |
-
-#### 1.6.3 Design Theory & Cognitive Science
+#### 1.9.2 UiNode Tree & Architecture
 
 | Term | 中文 | Definition |
 |------|------|-----------|
-| **Affordance** | 功能可供性 | An action possibility that an object offers to a user (Don Norman). In Matcha: what a widget *can do* |
-| **Signifier** | 示能符号 | A perceivable indicator of an affordance — what tells the user *how* to interact (Don Norman, §7.12) |
-| **Cognitive Load** | 认知负荷 | The total mental effort required to use the interface. Governed by Hick's Law, Miller's Law (7±2), Fitts' Law (§7.13) |
-| **Hick's Law** | 希克定律 | Decision time $T = a + b \cdot \log_2(n+1)$: fewer choices → faster decisions |
-| **Miller's Law** | 米勒定律 | Working memory limit of 7±2 items. Constrains menu items, tab counts, form fields per section |
-| **Fitts' Law** | 费茨定律 | Movement time $T = a + b \cdot \log_2(1 + D/W)$: larger targets closer to cursor → faster acquisition |
+| **UiNode** | UI 节点 | Pure C++ logical tree node — not a QWidget. Decouples domain from Qt |
+| **CommandNode** | 命令节点 | UiNode base with parent-child hierarchy, notification dispatch, subscription |
+| **Shell** | 应用外壳 | UiNode root. Holds MainWindow, ActionBar, DocumentManager |
+| **Notification** | 通知 | Typed message propagating upward through UiNode tree |
+| **Workshop** | 工作坊 | Discipline-level context defining role-specific command set |
+| **Workbench** | 工作台 | Task-level context within a Workshop further filtering commands |
 
-#### 1.6.4 Accessibility & Internationalization
+#### 1.9.3 Design Theory & Cognitive Science
 
 | Term | 中文 | Definition |
 |------|------|-----------|
-| **WCAG** | 网页内容无障碍指南 | Web Content Accessibility Guidelines. Matcha enforces WCAG 2.1 AA contrast (≥ 4.5:1) as a hard constraint |
-| **Reduced Motion** | 减弱动效 | Accessibility mode where all animations snap to target value (0 ms). Honors OS `prefers-reduced-motion` |
-| **Focus Trap** | 焦点陷阱 | A focus scope that prevents Tab from leaving a container (e.g., modal dialog, onboarding tooltip) |
-| **Mnemonic** | 助记键 | Keyboard shortcut activated by Alt+underlined letter (e.g., `Alt+F` for File). §7.9.11 |
-| **RTL / LTR** | 右到左/左到右 | Text direction enum affecting padding, icon position, chevron direction, menu cascade side (§7.10) |
+| **Affordance** | 功能可供性 | Action possibility an object offers a user (Norman) |
+| **Signifier** | 示能符号 | Perceivable indicator of an affordance |
+| **Cognitive Load** | 认知负荷 | Total mental effort; governed by Hick, Miller, Fitts |
+| **Hick's Law** | 希克定律 | $RT = a + b \cdot \log_2(n+1)$: fewer choices → faster decisions |
+| **Miller's Law** | 米勒定律 | Working memory $7 \pm 2$ chunks |
+| **Fitts' Law** | 费茨定律 | $MT = a + b \cdot \log_2(1 + D/W)$: larger/closer targets → faster |
 
-### 1.7 Content & Writing Guidelines 🆕
+#### 1.9.4 Accessibility & Internationalization
 
-> 🆕 Post-v1 supplement.
-> UI copy style guide ensuring consistent voice, terminology, and messaging across
-> all Matcha widgets. Based on NN/g writing for interfaces guidelines.
+| Term | 中文 | Definition |
+|------|------|-----------|
+| **WCAG** | 无障碍指南 | Web Content Accessibility Guidelines. Matcha enforces 2.1 AA ($\geq 4.5:1$ contrast) |
+| **Reduced Motion** | 减弱动效 | Animations snap to target (0 ms). Honors OS `prefers-reduced-motion` |
+| **Focus Trap** | 焦点陷阱 | Focus scope preventing Tab escape (modal dialogs, tooltips) |
+| **Mnemonic** | 助记键 | Alt+underlined letter shortcut |
+| **RTL / LTR** | 右到左/左到右 | Text direction affecting padding, icon position, cascade side |
 
-#### 1.7.1 Voice & Tone
+### 1.10 Content & Writing Guidelines
+
+> Operational realization of the Terminology Contract (§1.1.2): concrete rules governing UI copy voice, terminology, and messaging across all Matcha widgets. These rules ensure that the one-term-per-concept principle is enforced at every user-facing touchpoint. Based on NN/g writing-for-interfaces guidelines.
+
+#### 1.10.1 Voice & Tone
 
 | Attribute | Guideline |
 |-----------|-----------|
@@ -526,7 +868,7 @@ graph LR
 | **Sentence case** | Use sentence case for all UI text except proper nouns. "Save as template" not "Save As Template". |
 | **Punctuation** | No period on single-sentence labels, tooltips, or button text. Use periods in multi-sentence descriptions. |
 
-#### 1.7.2 Button Label Rules
+#### 1.10.2 Button Label Rules
 
 | Pattern | Example | Anti-pattern |
 |---------|---------|-------------|
@@ -538,7 +880,7 @@ graph LR
 **Exception**: Standard dialog buttons "OK" and "Cancel" are acceptable when the dialog title
 already describes the action (e.g., title = "Save changes?", buttons = "Save" / "Don't save" / "Cancel").
 
-#### 1.7.3 Error Message Template
+#### 1.10.3 Error Message Template
 
 ```
 [What happened]. [Why it happened (if known)]. [What to do next].
@@ -552,7 +894,7 @@ already describes the action (e.g., title = "Save changes?", buttons = "Save" / 
 
 **Full example**: "Could not save file. The disk is full. Free up space and try again."
 
-#### 1.7.4 Placeholder Text
+#### 1.10.4 Placeholder Text
 
 | Widget | Placeholder purpose | Example |
 |--------|-------------------|---------|
@@ -565,19 +907,16 @@ Rules:
 - Do not repeat the label text in the placeholder
 - Placeholder disappears on focus (not on first keystroke)
 
-#### 1.7.5 Tooltip Text
+#### 1.10.5 Tooltip Text
 
 - Maximum 2 sentences (≤ 80 characters preferred)
 - First sentence: what the control does
 - Second sentence (optional): keyboard shortcut or additional context
 - Example: "Undo the last action. Ctrl+Z"
 
-#### 1.7.6 Terminology Consistency
+#### 1.10.6 Terminology Consistency
 
-Maintain a project-level glossary. Within a single application:
-- Use one term per concept (e.g., always "node" or always "element", never both)
-- Use the same term in UI, documentation, and code identifiers
-- Prefer domain terms familiar to the target user (e.g., "mesh" not "polygon soup" in CAE context)
+See the Terminology Contract in §1.1.2 for the authoritative rules. The glossary (§1.9) is the single source of truth for all terms used in UI copy, code, and documentation.
 
 ---
 
@@ -1921,9 +2260,8 @@ structural isomorphism with the design component tree.
 | **Component FSM** | State enum, state-to-visual mapping | `InteractionState` + `StateStyle` + `VariantStyle` |
 | **Dynamic Behavior** | Animation duration, easing, spring | `TransitionDef` + `AnimationToken` + `EasingToken` + `SpringSpec` |
 
-### 4.4 Token Taxonomy 🆕
+### 4.4 Token Taxonomy 
 
-> 🆕 Post-v1 supplement.
 > Aligns Matcha's token architecture with the W3C Design Tokens Community Group
 > specification (DTCG 2025.10) and Material Design 3's three-tier token model.
 
@@ -2083,9 +2421,8 @@ struct VariantStyle {
 8 states per variant: Normal, Hovered, Pressed, Disabled, Focused,
 Selected, Error, DragOver.
 
-#### 4.7.1 InteractionState Extended Discussion 🆕
+#### 4.7.1 InteractionState Extended Discussion 
 
-> 🆕 Post-v1 supplement.
 
 The 8-state `InteractionState` enum covers the most common widget states.
 The following **extended states** are recognized by the design system but
@@ -2103,9 +2440,8 @@ ensure the variant × state matrix remains tractable ($V \times 8$ cells per
 widget, where $V$ is typically 1–4). Extended states are encoded as either
 additional variants or boolean flags, never as new `InteractionState` enum values.
 
-#### 4.7.2 Variant Naming Convention 🆕
+#### 4.7.2 Variant Naming Convention 
 
-> 🆕 Post-v1 supplement.
 
 While `VariantStyle` is index-based at the C++ level (for cache-line density
 and zero-overhead `std::array` access), each variant index has a **canonical name**
@@ -2317,9 +2653,8 @@ Used by: DataTable, ListWidget, TreeWidget.
 | Component FSM | StateColors only | StateStyle (opacity, borderWidth, cursor) |
 | Dynamic Behavior | AnimationToken only | TransitionDef (duration + easing combined) |
 
-### 4.13 Visual Grouping Rules 🆕
+### 4.13 Visual Grouping Rules 
 
-> 🆕 Post-v1 supplement.
 > Design rules for visual grouping based on Gestalt principles (proximity, similarity,
 > common region, continuity). Defines when to use spacing vs borders vs background
 > to communicate hierarchical structure.
@@ -2376,9 +2711,8 @@ Maximum visual nesting depth: **3 levels** (container → sub-container → elem
 Beyond depth 3, use spacing and borders only — do not introduce additional background
 color layers, as they reduce contrast and readability.
 
-### 4.14 SpringSpec Struct 🆕
+### 4.14 SpringSpec Struct 
 
-> 🆕 Post-v1 supplement.
 > Defines physics-based spring animation parameters, complementing the existing
 > `TransitionDef` (duration + easing) with a spring model for natural motion.
 > Industry alignment: Flutter `SpringDescription`, Jetpack Compose `spring()`,
@@ -2422,9 +2756,8 @@ When `spring` is set, the animation engine solves the damped harmonic oscillator
 ODE and ignores `duration`/`easing`. The animation terminates when displacement
 drops below 0.5px (perceptual convergence threshold).
 
-### 4.15 Reduced Motion Strategy 🆕
+### 4.15 Reduced Motion Strategy 
 
-> 🆕 Post-v1 supplement.
 > Addresses WCAG 2.2 SC 2.3.3 (Animation from Interactions) and
 > `prefers-reduced-motion` system setting.
 
@@ -2466,9 +2799,8 @@ the returned `ResolvedStyle`:
 Widgets do not need any special code — the reduced-motion behavior is fully
 encapsulated in the `Resolve()` path.
 
-### 4.16 Component Override Mechanism 🆕
+### 4.16 Component Override Mechanism 
 
-> 🆕 Post-v1 supplement.
 > Allows applications, plugins, and theme packs to override per-widget style
 > sheets without modifying the base theme. Inspired by Material Design 3's
 > component-level theming and Jetpack Compose's `LocalContentColor`.
@@ -2525,9 +2857,8 @@ a patch — if `has_value()`, it replaces the corresponding base field; otherwis
 the base value is kept. Multiple overrides at the same priority level are
 applied in registration order (last wins).
 
-### 4.17 Style Cascade Resolution 🆕
+### 4.17 Style Cascade Resolution 
 
-> 🆕 Post-v1 supplement.
 > Defines the complete resolution algorithm that `IThemeService::Resolve()`
 > follows, combining all layers into a single `ResolvedStyle`.
 
@@ -2577,8 +2908,8 @@ per widget (~4), yielding ≤ 1792 cache slots × ~128 bytes ≈ **224 KB** wors
 ## Chapter 5. Widget Specifications
 
 > 46 components with full visual and behavioral specifications.
-> Each widget follows a 12-section template (Synopsis · Anatomy 🆕 · Theme ·
-> Variant×State · FSM 🆕 · Notifications · API · Animation · Math · Keyboard 🆕 · A11y · Usage 🆕).
+> Each widget follows a 12-section template (Synopsis · Anatomy · Theme ·
+> Variant×State · FSM · Notifications · API · Animation · Math · Keyboard · A11y · Usage ).
 
 > This chapter is the core deliverable of the design system. Each widget
 > is specified with a uniform 8-section template:
@@ -2628,7 +2959,7 @@ mathematical abstraction. Related widgets share behavioral patterns:
 | **A11yRole** | `Button` |
 | **Variant enum** | `gui::ButtonVariant { Primary, Secondary, Ghost, Danger }` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![PushButton Anatomy](assets/anatomy/pushbutton.svg)
 
@@ -2638,7 +2969,7 @@ mathematical abstraction. Related widgets share behavioral patterns:
 | 2 | Label text (FontRole::Body) | Required (or accessible name for icon-only) |
 | 3 | Focus ring (2px Primary, inset) | Auto (keyboard focus) |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 ```mermaid
 stateDiagram-v2
@@ -2655,7 +2986,7 @@ stateDiagram-v2
     Disabled --> Normal : SetEnabled(true)
 ```
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action | Condition |
 |-----|--------|-----------|
@@ -2665,7 +2996,7 @@ stateDiagram-v2
 | `Shift+Tab` | Move focus to previous widget | Focused |
 | `Alt+Mnemonic` | Focus + fire `Activated` | Mnemonic assigned |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -2773,7 +3104,7 @@ When no icon: `textRect = contentRect`.
 | **A11yRole** | `Button` |
 | **Variants** | Default (0), Active (1) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![ToolButton Anatomy](assets/anatomy/toolbutton.svg)
 
@@ -2782,7 +3113,7 @@ When no icon: `textRect = contentRect`.
 | 1 | Icon (16×16) | Typical |
 | 2 | Label text (FontRole::Caption) | Optional |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 Same as PushButton FSM, plus toggle mode:
 
@@ -2792,7 +3123,7 @@ Same as PushButton FSM, plus toggle mode:
 | Space/Enter | Fire `Activated` | Toggle `checked` state + fire `Activated` |
 | Right-click | Fire `RightClicked` | Fire `RightClicked` |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action | Condition |
 |-----|--------|-----------|
@@ -2801,7 +3132,7 @@ Same as PushButton FSM, plus toggle mode:
 | `Alt+Mnemonic` | Focus + activate | Mnemonic assigned |
 | `Shift+F10` or `Menu` key | Fire `RightClicked` | Focused |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -2874,7 +3205,7 @@ Right-click context available via `RightClicked` notification.
 | **A11yRole** | `TextInput` |
 | **Variants** | Default (0) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![LineEdit Anatomy](assets/anatomy/lineedit.svg)
 
@@ -2886,7 +3217,7 @@ Right-click context available via `RightClicked` notification.
 | 4 | Suffix icon (16×16) | Optional |
 | 5 | Validation message (below) | On error state |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 ```mermaid
 stateDiagram-v2
@@ -2905,7 +3236,7 @@ stateDiagram-v2
     ReadOnly --> Normal : SetReadOnly(false)
 ```
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -2921,7 +3252,7 @@ stateDiagram-v2
 | `Escape` | Revert to value at focus-enter (if configured) |
 | `Tab` / `Shift+Tab` | Move focus out |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3013,7 +3344,7 @@ Keyboard: standard text editing (Ctrl+A, Ctrl+C/V/X, Home/End, etc.).
 Same theme styling as LineEdit (radius, padding, minHeight). Up/down buttons
 use `ToolButton` styling internally.
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![SpinBox Anatomy](assets/anatomy/spinbox.svg)
 
@@ -3023,7 +3354,7 @@ use `ToolButton` styling internally.
 | 2 | Up arrow button (ToolButton) | Required |
 | 3 | Down arrow button (ToolButton) | Required |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 Inherits LineEdit FSM for text editing. Additional transitions:
 
@@ -3034,7 +3365,7 @@ Inherits LineEdit FSM for text editing. Additional transitions:
 | Hold ▲/▼ (>400ms) | Auto-repeat at 50ms interval, accelerating after 2s |
 | Direct text entry + Enter | Parse → clamp → fire `IntValueChanged` + `EditingFinished` |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -3047,7 +3378,7 @@ Inherits LineEdit FSM for text editing. Additional transitions:
 | Direct digits | Edit value as text |
 | `Enter` | Commit value, fire `EditingFinished` |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3089,19 +3420,19 @@ Display: `sprintf("%d%s", v, suffix)`.
 | **UiNode class** | `DoubleSpinBoxNode` |
 | **A11yRole** | `SpinBox` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 Same as SpinBox (§5.4). Text displays floating-point value with configurable precision and suffix.
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 Same as SpinBox (§5.4). Step size is `double` instead of `int`.
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 Same as SpinBox (§5.4). Additionally accepts `.` (decimal point) in text editing mode.
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3149,7 +3480,7 @@ Same base styling as LineEdit. Dropdown arrow icon uses `TextSecondary`.
 Dropdown popup uses `SurfaceElevated` with `ElevationToken::Medium`,
 `LayerToken::Dropdown`.
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![ComboBox Anatomy](assets/anatomy/combobox.svg)
 
@@ -3159,7 +3490,7 @@ Dropdown popup uses `SurfaceElevated` with `ElevationToken::Medium`,
 | 2 | Dropdown arrow icon (▼) | Required |
 | 3 | Dropdown popup (list of UiNode items) | Auto |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 ```mermaid
 stateDiagram-v2
@@ -3173,7 +3504,7 @@ stateDiagram-v2
     Closed --> Disabled : SetEnabled(false)
 ```
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Closed State | Open State |
 |-----|-------------|------------|
@@ -3184,7 +3515,7 @@ stateDiagram-v2
 | `Escape` | — | Close without selecting |
 | Type-ahead (letter keys) | Jump to first matching item | Jump to matching item |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3242,7 +3573,7 @@ Dropdown popup: `SlideOffset` from -8px to 0px, `Quick` (160ms), `OutCubic`.
 | **A11yRole** | `CheckBox` |
 | **Variants** | Unchecked (0), Checked (1) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![CheckBox Anatomy](assets/anatomy/checkbox.svg)
 
@@ -3251,7 +3582,7 @@ Dropdown popup: `SlideOffset` from -8px to 0px, `Quick` (160ms), `OutCubic`.
 | 1 | Square indicator (16×16, custom painted) | Required |
 | 2 | Label text (FontRole::Body) | Required |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 ```mermaid
 stateDiagram-v2
@@ -3264,14 +3595,14 @@ stateDiagram-v2
     Checked --> Disabled : SetEnabled(false)
 ```
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
 | `Space` | Toggle checked state |
 | `Tab` / `Shift+Tab` | Navigate focus |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3352,7 +3683,7 @@ Identical token mapping to CheckBox, except:
 - Inner dot: 6px circle, `OnAccent` when selected
 - Radio group exclusivity is handled by Qt's button group mechanism
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![RadioButton Anatomy](assets/anatomy/radiobutton.svg)
 
@@ -3361,14 +3692,14 @@ Identical token mapping to CheckBox, except:
 | 1 | Circle indicator (12×12, custom painted) | Required |
 | 2 | Label text (FontRole::Body) | Required |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 | Trigger | Unselected | Selected |
 |---------|:----------:|:--------:|
 | Click / Space | Select this, deselect others in group | No change |
 | Arrow keys (within group) | Move selection to adjacent radio | Move selection |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -3377,7 +3708,7 @@ Identical token mapping to CheckBox, except:
 | `Down` / `Right` | Select next in group (wraps) |
 | `Tab` | Leave radio group (focus to next widget) |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3411,7 +3742,7 @@ Keyboard: Arrow keys move selection within group.
 | **UiNode class** | `SliderNode` |
 | **A11yRole** | `Slider` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Slider Anatomy](assets/anatomy/slider.svg)
 
@@ -3422,7 +3753,7 @@ Keyboard: Arrow keys move selection within group.
 | 3 | Thumb (circular handle, 16px) | Required |
 | 4 | Optional tick marks | Optional |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 ```mermaid
 stateDiagram-v2
@@ -3435,7 +3766,7 @@ stateDiagram-v2
     Normal --> Disabled : SetEnabled(false)
 ```
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -3446,7 +3777,7 @@ stateDiagram-v2
 | `Home` | Set to min |
 | `End` | Set to max |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3537,7 +3868,7 @@ Keyboard: Left/Down = decrement, Right/Up = increment, PageUp/PageDown = 10x ste
 | **UiNode class** | `ToggleSwitchNode` |
 | **A11yRole** | `Toggle` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![ToggleSwitch Anatomy](assets/anatomy/toggleswitch.svg)
 
@@ -3547,7 +3878,7 @@ Keyboard: Left/Down = decrement, Right/Up = increment, PageUp/PageDown = 10x ste
 | 2 | Thumb (circular handle, 16px) | Required |
 | 3 | Optional on/off label (not standard) | Optional |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 ```mermaid
 stateDiagram-v2
@@ -3560,14 +3891,14 @@ stateDiagram-v2
     On --> Disabled : SetEnabled(false)
 ```
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
 | `Space` | Toggle on/off |
 | `Tab` / `Shift+Tab` | Navigate focus |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3642,11 +3973,11 @@ Keyboard: `Space` toggles.
 | **A11yRole** | `Label` |
 | **Variant enum** | `gui::LabelRole { Title, Name, Body, Caption }` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 Single text element. No internal structure beyond the text run itself.
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3697,7 +4028,7 @@ Role: `Label`. Not focusable unless contains links.
 | **WidgetKind** | `Tag` |
 | **A11yRole** | `Label` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Tag Anatomy](assets/anatomy/tag.svg)
 
@@ -3706,7 +4037,7 @@ Role: `Label`. Not focusable unless contains links.
 | 1 | Tag text (FontRole::Caption) | Required |
 | 2 | Close icon (×) | Optional (closable variant only) |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3746,7 +4077,7 @@ None. Tags are static display elements.
 | **WidgetKind** | `ScrollArea` / `ScrollBar` |
 | **A11yRole** | `ScrollView` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![ScrollArea Anatomy](assets/anatomy/scrollarea.svg)
 
@@ -3756,7 +4087,7 @@ None. Tags are static display elements.
 | 2 | Vertical scrollbar (overlay) | Auto (when content overflows vertically) |
 | 3 | Horizontal scrollbar (overlay) | Auto (when content overflows horizontally) |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 | Trigger | Action |
 |---------|--------|
@@ -3767,7 +4098,7 @@ None. Tags are static display elements.
 | Mouse enter viewport | Show scrollbar thumbs (fade in) |
 | Mouse leave viewport (no drag) | Hide scrollbar thumbs (fade out, 800ms delay) |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -3776,7 +4107,7 @@ None. Tags are static display elements.
 | `Home` / `End` | Scroll to top / bottom |
 | `Space` (when no focusable child) | Page down |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3812,7 +4143,7 @@ Thumb opacity: fade-in/fade-out when scroll area gains/loses hover.
 | **UiNode class** | `CollapsibleSectionNode` |
 | **A11yRole** | `Group` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![CollapsibleSection Anatomy](assets/anatomy/collapsiblesection.svg)
 
@@ -3823,7 +4154,7 @@ Thumb opacity: fade-in/fade-out when scroll area gains/loses hover.
 | 3 | Content area (child widget container) | Required |
 | 4 | Bottom border separator | Required |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 ```mermaid
 stateDiagram-v2
@@ -3834,14 +4165,14 @@ stateDiagram-v2
     Collapsing --> Collapsed : Animation complete
 ```
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
 | `Enter` / `Space` | Toggle expand/collapse |
 | `Tab` | When expanded, move focus into content area |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3849,9 +4180,8 @@ stateDiagram-v2
 | Default to expanded for the most commonly used section | Collapse all sections by default (frustrates users) |
 | Use consistent section titles across similar panels | Use inconsistent casing or punctuation in titles |
 
-#### Accordion Mode 🆕
+#### Accordion Mode 
 
-> 🆕 Post-v1 supplement.
 
 When `SetAccordionGroup(groupId)` is called on sibling CollapsibleSections, they form an **accordion group** where expanding one section auto-collapses all other sections in the same group.
 
@@ -3866,9 +4196,8 @@ When `SetAccordionGroup(groupId)` is called on sibling CollapsibleSections, they
 - `SetAccordionGroup(std::string groupId)` — join an accordion group
 - `ClearAccordionGroup()` — return to independent mode
 
-#### Nesting Rules 🆕
+#### Nesting Rules 
 
-> 🆕 Post-v1 supplement.
 
 | Nesting Depth | Indentation | Background | Example |
 |:-------------:|:-----------:|-----------|---------|
@@ -3936,11 +4265,11 @@ Keyboard: `Enter`/`Space` toggles. Focus on title row.
 
 #### 5.15 Panel / GroupBox
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Panel / GroupBox Anatomy](assets/anatomy/panel_groupbox.svg)
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -3966,7 +4295,7 @@ border around the content area.
 | **A11yRole** | `TabPanel` |
 | **Variants** | Inactive (0), Active (1) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![TabWidget Anatomy](assets/anatomy/tabwidget.svg)
 
@@ -3976,7 +4305,7 @@ border around the content area.
 | 2 | Active tab indicator (2px accent bar) | Required |
 | 3 | Tab content area (stacked pages) | Required |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 ```mermaid
 stateDiagram-v2
@@ -3987,7 +4316,7 @@ stateDiagram-v2
     note right of Tab_A_Active: Accent bar slides to active tab
 ```
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -3996,7 +4325,7 @@ stateDiagram-v2
 | `Tab` | Move focus from tab bar into tab content |
 | `Shift+Tab` | Move focus back to tab bar from content |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4033,7 +4362,7 @@ Keyboard: Left/Right arrows switch tabs. Home/End jump to first/last.
 | **WidgetKind** | `Dialog` / `DialogTitleBar` / `DialogFootBar` |
 | **A11yRole** | `Dialog` or `AlertDialog` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Dialog Anatomy](assets/anatomy/dialog.svg)
 
@@ -4044,7 +4373,7 @@ Keyboard: Left/Right arrows switch tabs. Home/End jump to first/last.
 | 3 | Content area (custom body) | Required |
 | 4 | DialogFootBar (action buttons) | Optional (informational dialogs may omit) |
 
-#### Interaction FSM 🆕
+#### Interaction FSM 
 
 ```mermaid
 stateDiagram-v2
@@ -4059,7 +4388,7 @@ stateDiagram-v2
 
 **Focus trap**: While open, `Tab` / `Shift+Tab` cycle only within dialog children.
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -4067,7 +4396,7 @@ stateDiagram-v2
 | `Enter` | Activate default/primary button |
 | `Tab` / `Shift+Tab` | Cycle focus within dialog (trapped) |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4113,7 +4442,7 @@ Backdrop: `Opacity` from 0 to 0.4, `Normal` (200ms).
 | **WidgetKind** | `ActionBar` / `ActionTab` |
 | **A11yRole** | `Toolbar` / `Tab` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![ActionBar Anatomy](assets/anatomy/actionbar.svg)
 
@@ -4123,7 +4452,7 @@ Backdrop: `Opacity` from 0 to 0.4, `Normal` (200ms).
 | 2 | Icon per tab (24px) | Required |
 | 3 | Label per tab (Caption) | Optional (may be icon-only) |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -4131,7 +4460,7 @@ Backdrop: `Opacity` from 0 to 0.4, `Normal` (200ms).
 | `Enter` / `Space` | Activate selected tab |
 | `Home` / `End` | Jump to first / last tab |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4172,7 +4501,7 @@ Backdrop: `Opacity` from 0 to 0.4, `Normal` (200ms).
 
 Custom-painted table widget supporting rich column definitions, per-column sorting with custom comparators, row filtering (text or predicate), frozen (pinned) columns, multi-row selection, inline cell editing, per-row icons, and keyboard navigation. Does not use Qt Model/View — all painting and hit-testing is manual.
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![DataTable Anatomy](assets/anatomy/datatable.svg)
 
@@ -4185,7 +4514,7 @@ Custom-painted table widget supporting rich column definitions, per-column sorti
 | 5 | Empty state text | Conditional (when row count = 0) |
 | 6 | Scrollbars (h/v, overlay style) | Auto |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4346,9 +4675,8 @@ Hit-testing (`HitTestHeader`, `HitTestRow`, `HitTestColumnEdge`) uses the same f
 
 Navigation operates on the **display row** space (post-filter), mapping back to data rows for selection.
 
-#### Sort State FSM 🆕
+#### Sort State FSM 
 
-> 🆕 Post-v1 supplement.
 
 Column sort cycles through three states on header click:
 
@@ -4374,9 +4702,8 @@ stateDiagram-v2
 - Sort indicator icon: 12×12, right-aligned in header cell, `Px4` gap from header text
 - Programmatic `SortByColumn(col, SortOrder::None)` clears sort state
 
-#### Inline Edit FSM 🆕
+#### Inline Edit FSM 
 
-> 🆕 Post-v1 supplement.
 
 ```mermaid
 stateDiagram-v2
@@ -4399,9 +4726,8 @@ stateDiagram-v2
 - `Tab`: commit current cell → advance to next editable cell in the row → enter Editing
 - Click outside: commit current cell → return to Display
 
-#### Column Drag Reorder 🆕
+#### Column Drag Reorder 
 
-> 🆕 Post-v1 supplement.
 
 Users can reorder columns by dragging column headers:
 
@@ -4435,7 +4761,7 @@ Role: `Table`. Cell navigation via arrow keys. Selection announced via `Selectio
 
 Similar token mapping to DataTable Default/Selected variants (single-column).
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![ListWidget Anatomy](assets/anatomy/listwidget.svg)
 
@@ -4445,7 +4771,7 @@ Similar token mapping to DataTable Default/Selected variants (single-column).
 | 2 | Selection highlight (PrimaryBg) | Conditional |
 | 3 | Vertical scrollbar | Auto |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -4454,7 +4780,7 @@ Similar token mapping to DataTable Default/Selected variants (single-column).
 | `Enter` | Activate selected item (fires `ItemDoubleClicked`) |
 | `Space` | Toggle selection (if multi-select) |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4501,7 +4827,7 @@ Each item's `Widget()` is embedded into the `QListWidget` row via `setItemWidget
 | **UiNode class** | `TreeWidgetNode` |
 | **A11yRole** | `Tree` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![TreeWidget Anatomy](assets/anatomy/treewidget.svg)
 
@@ -4513,7 +4839,7 @@ Each item's `Widget()` is embedded into the `QListWidget` row via `setItemWidget
 | 4 | Per-item icon | Optional |
 | 5 | Selection highlight | Conditional |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -4524,7 +4850,7 @@ Each item's `Widget()` is embedded into the `QListWidget` row via `setItemWidget
 | `Enter` | Activate selected item |
 | `*` (asterisk) | Expand all siblings |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4589,7 +4915,7 @@ Expand/collapse chevron: `ArrowRotation` from 0 to 90 deg, `Normal` (200ms), `Ou
 
 #### 5.22 Menu System
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Menu System Anatomy](assets/anatomy/menusystem.svg)
 
@@ -4600,7 +4926,7 @@ Expand/collapse chevron: `ArrowRotation` from 0 to 90 deg, `Normal` (200ms), `Ou
 | 3 | Separators (1px horizontal line) | Optional |
 | 4 | Submenu cascade (nested Menu) | Optional |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Context | Action |
 |-----|---------|--------|
@@ -4612,7 +4938,7 @@ Expand/collapse chevron: `ArrowRotation` from 0 to 90 deg, `Normal` (200ms), `Ou
 | `Alt+Letter` | MenuBar | Open menu by mnemonic |
 | `F10` | Any | Toggle MenuBar activation |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4664,7 +4990,7 @@ Menu popup: `SlideOffset` from -4px to 0px + `Opacity` from 0 to 1, `Quick` (160
 | **WidgetKind** | `StatusBar` |
 | **A11yRole** | `Toolbar` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![StatusBar Anatomy](assets/anatomy/statusbar.svg)
 
@@ -4674,7 +5000,7 @@ Menu popup: `SlideOffset` from -4px to 0px + `Opacity` from 0 to 1, `Quick` (160
 | 2 | Right-aligned utility items | Optional |
 | 3 | Separator between regions (implicit flex spacer) | Auto |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4694,7 +5020,7 @@ No notifications -- pure display container.
 |-----------|-------|
 | **WidgetKind** | `Splitter` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Splitter Anatomy](assets/anatomy/splitter.svg)
 
@@ -4704,7 +5030,7 @@ No notifications -- pure display container.
 | 2 | Left/Top panel | Required |
 | 3 | Right/Bottom panel | Required |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -4713,7 +5039,7 @@ No notifications -- pure display container.
 | `Home` | Move handle to minimum position |
 | `End` | Move handle to maximum position |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4741,7 +5067,7 @@ Handle width: 4px (8px hit-test area).
 | **UiNode class** | `PropertyGridNode` |
 | **A11yRole** | `Table` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![PropertyGrid Anatomy](assets/anatomy/propertygrid.svg)
 
@@ -4752,7 +5078,7 @@ Handle width: 4px (8px hit-test area).
 | 3 | Group header (collapsible section) | Optional |
 | 4 | Alternating row background | Auto |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -4761,7 +5087,7 @@ Handle width: 4px (8px hit-test area).
 | `Enter` | Commit current editor value |
 | `Escape` | Revert current editor to previous value |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4795,9 +5121,8 @@ which inherit their own WidgetKind styling.
 | `AddGroup(name)` | Add section group |
 | `Clear()` | Remove all |
 
-#### Custom Editor Registration 🆕
+#### Custom Editor Registration 
 
-> 🆕 Post-v1 supplement.
 
 Beyond the built-in `PropertyType` enum, applications and plugins can register custom editors for domain-specific property types.
 
@@ -4826,7 +5151,7 @@ grid->AddProperty("Position", "Vector3", "0, 0, 0");  // uses registered "Vector
 3. Respect the PropertyGrid's `WidgetStyleSheet` for consistent visual appearance
 4. Support `setReadOnly(bool)` for disabled/read-only property rows
 
-**Built-in compound editors** 🆕:
+**Built-in compound editors** :
 
 | Type Name | Editor Widget | Visual |
 |-----------|--------------|--------|
@@ -4854,7 +5179,7 @@ grid->AddProperty("Position", "Vector3", "0, 0, 0");  // uses registered "Vector
 | **WidgetKind** | `ColorPicker` |
 | **UiNode class** | `ColorPickerNode` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![ColorPicker Anatomy](assets/anatomy/colorpicker.svg)
 
@@ -4868,7 +5193,7 @@ grid->AddProperty("Position", "Vector3", "0, 0, 0");  // uses registered "Vector
 | 6 | Color preview (old vs new) | Required |
 | 7 | OK / Cancel buttons | Required |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -4877,7 +5202,7 @@ grid->AddProperty("Position", "Vector3", "0, 0, 0");  // uses registered "Vector
 | `Enter` | Confirm color (equivalent to OK) |
 | `Escape` | Cancel and revert |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4912,7 +5237,7 @@ Dispatches `ColorChanged` on click (opens ColorPicker dialog).
 | **WidgetKind** | `DocumentBar` |
 | **A11yRole** | `TabPanel` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![DocumentBar Anatomy](assets/anatomy/documentbar.svg)
 
@@ -4922,7 +5247,7 @@ Dispatches `ColorChanged` on click (opens ColorPicker dialog).
 | 2 | Active indicator (bottom border) | Required |
 | 3 | Overflow menu (when tabs exceed width) | Conditional |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -4932,7 +5257,7 @@ Dispatches `ColorChanged` on click (opens ColorPicker dialog).
 | `Ctrl+1..9` | Switch to tab by index |
 | `Middle-click` | Close clicked tab |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -4966,7 +5291,7 @@ Tab strip for document pages. Uses TabWidget Active/Inactive styling.
 
 Pure display -- no user interaction, no notifications.
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![ProgressBar Anatomy](assets/anatomy/progressbar.svg)
 
@@ -4976,7 +5301,7 @@ Pure display -- no user interaction, no notifications.
 | 2 | Fill bar (colored progress) | Required |
 | 3 | Label (percentage text, optional) | Optional |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5029,7 +5354,7 @@ fillRect  = QRect(trackLeft, trackTop, fillWidth, grooveHeight)
 | **UiNode class** | `PaginatorNode` |
 | **A11yRole** | `Toolbar` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Paginator Anatomy](assets/anatomy/paginator.svg)
 
@@ -5041,7 +5366,7 @@ fillRect  = QRect(trackLeft, trackTop, fillWidth, grooveHeight)
 | 4 | Next button (`→`) | Required |
 | 5 | Reset button | Optional |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -5050,7 +5375,7 @@ fillRect  = QRect(trackLeft, trackTop, fillWidth, grooveHeight)
 | `Home` | Go to first page |
 | `End` | Go to last page |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5090,7 +5415,7 @@ Active page: `Primary` bg, `OnAccent` fg.
 | **UiNode class** | `SearchBoxNode` |
 | **A11yRole** | `SearchBox` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![SearchBox Anatomy](assets/anatomy/searchbox.svg)
 
@@ -5101,7 +5426,7 @@ Active page: `Primary` bg, `OnAccent` fg.
 | 3 | Clear button (trailing, visible when non-empty) | Required |
 | 4 | Placeholder text | Required |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -5110,7 +5435,7 @@ Active page: `Primary` bg, `OnAccent` fg.
 | `Escape` | Clear text and defocus |
 | `Ctrl+A` | Select all text |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5151,7 +5476,7 @@ LineEdit styling + search icon (`TextTertiary`) on the left.
 
 Dual-handle slider defining a `[low, high]` sub-interval.
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![RangeSlider Anatomy](assets/anatomy/rangeslider.svg)
 
@@ -5162,7 +5487,7 @@ Dual-handle slider defining a `[low, high]` sub-interval.
 | 3 | Low thumb (draggable) | Required |
 | 4 | High thumb (draggable) | Required |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -5172,7 +5497,7 @@ Dual-handle slider defining a `[low, high]` sub-interval.
 | `Home` | Set focused thumb to min (low) or low value (high) |
 | `End` | Set focused thumb to high value (low) or max (high) |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5223,7 +5548,7 @@ Constraint: `low <= high` enforced by the widget.
 | **UiNode class** | `NotificationNode` |
 | **A11yRole** | `Label` (live region) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Notification Anatomy](assets/anatomy/notification.svg)
 
@@ -5235,7 +5560,7 @@ Constraint: `low <= high` enforced by the widget.
 | 4 | Action button | Optional |
 | 5 | Close button | Optional (auto-dismiss provides alternative) |
 
-#### Keyboard Contract 🆕
+#### Keyboard Contract 
 
 | Key | Action |
 |-----|--------|
@@ -5243,7 +5568,7 @@ Constraint: `low <= high` enforced by the widget.
 | `Tab` | Focus action button (if present) |
 | `Enter` | Activate focused action button |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5308,7 +5633,7 @@ Constraint: `low <= high` enforced by the widget.
 | **WidgetKind** | `Tooltip` |
 | **A11yRole** | `Tooltip` |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Tooltip Anatomy](assets/anatomy/tooltip.svg)
 
@@ -5319,7 +5644,7 @@ Constraint: `low <= high` enforced by the widget.
 | 3 | Icon (RichTooltip only) | Optional |
 | 4 | Description line (RichTooltip only) | Optional |
 
-#### Positioning Rules 🆕
+#### Positioning Rules 
 
 | Rule | Detail |
 |------|--------|
@@ -5330,7 +5655,7 @@ Constraint: `low <= high` enforced by the widget.
 | **Show delay** | 500ms hover before appearance |
 | **Hide delay** | Immediate on mouse-leave; 100ms grace period when moving to tooltip |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5360,7 +5685,7 @@ Show delay: 500ms. Fade-in: `Opacity` 0->1, `Quick` (160ms).
 | **Variants** | `MessageSemantic{Info, Success, Warning, Error}` |
 | **Category** | Dialog & Overlay (lifecycle FSM) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Message Anatomy](assets/anatomy/message.svg)
 
@@ -5370,7 +5695,7 @@ Show delay: 500ms. Fade-in: `Opacity` 0->1, `Quick` (160ms).
 | 2 | Message text | Required |
 | 3 | Close button (Ghost) | Optional |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5452,7 +5777,7 @@ Position: centered horizontally at top of parent container.
 | **Variants** | `MessageSemantic{Info, Success, Warning, Error}` |
 | **Category** | Dialog & Overlay (lifecycle FSM) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Alert Banner Anatomy](assets/anatomy/alertbanner.svg)
 
@@ -5463,7 +5788,7 @@ Position: centered horizontally at top of parent container.
 | 3 | Description text (second line) | Optional |
 | 4 | Close button (Ghost) | Optional (controlled by `SetClosable`) |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5525,7 +5850,7 @@ Same as Message. Close button: `A11yRole::Button`, accessible name "Close alert"
 | **Variants** | `AvatarMode{Initials, Image, Icon}` |
 | **Category** | Static Display (stateless projection) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Avatar Anatomy](assets/anatomy/avatar.svg)
 
@@ -5535,7 +5860,7 @@ Same as Message. Close button: `A11yRole::Button`, accessible name "Close alert"
 | 2 | Initials text / Image / Icon (mutually exclusive) | Required |
 | 3 | Border ring (Image mode only) | Optional |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5604,7 +5929,7 @@ Image: center-crop to circle using QPainterPath clipping.
 | **Variants** | `BadgeMode{Dot, Count}` |
 | **Category** | Static Display (stateless projection) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Badge Anatomy](assets/anatomy/badge.svg)
 
@@ -5613,7 +5938,7 @@ Image: center-crop to circle using QPainterPath clipping.
 | 1 | Badge indicator (dot or count pill) | Required |
 | 2 | Contrast ring (1px `Surface` border) | Required |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5679,7 +6004,7 @@ Decorative. Not focusable. Parent widget's accessible description should include
 | **Variants** | (single variant) |
 | **Category** | Discrete-Choice Selector (tree path selection) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Cascader Anatomy](assets/anatomy/cascader.svg)
 
@@ -5689,7 +6014,7 @@ Decorative. Not focusable. Parent widget's accessible description should include
 | 2 | Level panels (one per depth, Menu styling) | Auto |
 | 3 | Chevron (▶) on non-leaf items | Required |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5751,7 +6076,7 @@ Display text: `join(labels[p_0], " / ", labels[p_1], ..., labels[p_k])`.
 | **Variants** | (single variant) |
 | **Category** | Data Collection (subset selection: S ⊂ U) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Transfer Anatomy](assets/anatomy/transfer.svg)
 
@@ -5764,7 +6089,7 @@ Display text: `join(labels[p_0], " / ", labels[p_1], ..., labels[p_k])`.
 | 5 | Search box per list | Optional |
 | 6 | List title + count | Optional |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5830,7 +6155,7 @@ Move-left: `T' = T \ S` where `S` = selected items in target.
 | **Variants** | `FormLayoutStyle{Horizontal, Vertical}` |
 | **Category** | Property Editing (key-value pairs) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![FormLayout Anatomy](assets/anatomy/formlayout.svg)
 
@@ -5839,7 +6164,7 @@ Move-left: `T' = T \ S` where `S` = selected items in target.
 | 1 | Label column (right-aligned in Horizontal) | Required |
 | 2 | Field column (any WidgetNode) | Required |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5903,7 +6228,7 @@ Layout: 2-column grid (Horizontal) or stacked label-above-field (Vertical).
 | **Variants** | `PickerMode{Date, Time, DateTime}` |
 | **Category** | Discrete-Choice Selector (date ∈ calendar grid) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![DateTimePicker Anatomy](assets/anatomy/datetimepicker.svg)
 
@@ -5914,7 +6239,7 @@ Layout: 2-column grid (Horizontal) or stacked label-above-field (Vertical).
 | 3 | Day grid (6×7 cells) | Required (Date/DateTime mode) |
 | 4 | Time spinners (hour:minute) | Required (Time/DateTime mode) |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -5993,7 +6318,7 @@ Time: `hour ∈ [0,23]`, `minute ∈ [0,59]`, `second ∈ [0,59]`.
 | **Variants** | (single variant) |
 | **Category** | Application Shell (fixed-position chrome) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![MainTitleBar Anatomy](assets/anatomy/main_titlebar.svg)
 
@@ -6007,7 +6332,7 @@ Time: `hour ∈ [0,23]`, `minute ∈ [0,59]`, `second ∈ [0,59]`.
 | 6 | System buttons (Minimize, Maximize, Close) | Required (Windows) |
 | 7 | DocumentBar (Row 2, full width) | Optional |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -6080,7 +6405,7 @@ Row 2: `[DocumentBar (full width)]`
 | **Variants** | (single variant) |
 | **Category** | Action Trigger (tap → open app menu) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![LogoButton Anatomy](assets/anatomy/logobutton.svg)
 
@@ -6088,7 +6413,7 @@ Row 2: `[DocumentBar (full width)]`
 |------|---------|:--------:|
 | 1 | Logo image (SVG, 24×24 content area) | Required |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -6147,7 +6472,7 @@ Single-state button: `f(clicked) -> open menu or emit notification`.
 | **Variants** | `FileDialogMode{Open, Save, SelectDirectory}` |
 | **Category** | Dialog & Overlay (modal lifecycle FSM) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![FileDialog Anatomy](assets/anatomy/file_dialog.svg)
 
@@ -6161,7 +6486,7 @@ Single-state button: `f(clicked) -> open menu or emit notification`.
 | 6 | File type filter (ComboBox) | Required |
 | 7 | Action buttons (Cancel + Open/Save) | Required |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -6225,13 +6550,13 @@ Inherits Dialog accessibility. File list: `Table` role. Path bar: `Navigation` r
 | **Variants** | `LineOrientation{Horizontal, Vertical}` |
 | **Category** | Static Display (stateless projection) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![Line Separator Anatomy](assets/anatomy/line_separator.svg)
 
 Single element — no slots. Purely decorative 1px rule in `Separator` color.
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -6288,7 +6613,7 @@ Degenerate rectangle: `width = parentWidth, height = 1px` (horizontal) or
 | **Variants** | (single variant) |
 | **Category** | Scrollable Container (index-based child visibility) |
 
-#### Anatomy 🆕
+#### Anatomy 
 
 ![StackedWidget Anatomy](assets/anatomy/stacked_widget.svg)
 
@@ -6296,7 +6621,7 @@ Degenerate rectangle: `width = parentWidth, height = 1px` (horizontal) or
 |------|---------|:--------:|
 | 0..N | Child pages (any WidgetNode) | Min 1 |
 
-#### Usage Guidelines 🆕
+#### Usage Guidelines 
 
 | Do | Don't |
 |----|-------|
@@ -6354,16 +6679,14 @@ Transition: concurrent opacity animation on outgoing and incoming pages.
 ---
 
 
-## Chapter 6. Layout & Composition 🆕
+## Chapter 6. Layout & Composition 
 
-> 🆕 Post-v1 supplement.
 > Layout algorithms, composition templates, responsive rules, and loading/empty/error state templates.
 > This pillar defines how widgets are spatially arranged, how page-level compositions are structured,
 > and how the UI adapts to window size changes and data availability states.
 
-### 6.1 Layout Algorithm Specification 🆕
+### 6.1 Layout Algorithm Specification 
 
-> 🆕 Post-v1 supplement.
 
 #### 6.1.1 Layout Primitives
 
@@ -6469,9 +6792,8 @@ the explicit column definition. This enables responsive reflow without manual br
 
 ---
 
-### 6.2 Composition Templates 🆕
+### 6.2 Composition Templates 
 
-> 🆕 Post-v1 supplement.
 
 #### 6.2.1 Shell Layout Template
 
@@ -6533,9 +6855,8 @@ Five standard dialog types with canonical layouts:
 
 ---
 
-### 6.3 Responsive Rules 🆕
+### 6.3 Responsive Rules 
 
-> 🆕 Post-v1 supplement.
 
 #### 6.3.1 Window Resize Priority Matrix
 
@@ -6569,9 +6890,8 @@ When the window shrinks below comfortable size, elements hide/collapse in this p
 
 ---
 
-### 6.4 Loading / Empty / Error State Templates 🆕
+### 6.4 Loading / Empty / Error State Templates 
 
-> 🆕 Post-v1 supplement.
 
 #### 6.4.1 Three-State Model
 
@@ -6637,11 +6957,10 @@ For single-item or action-triggered loading:
 
 ## Chapter 7. Interaction & Accessibility
 
-> 🆕 Cross-component interaction patterns, accessibility design rules, and i18n design.
+> Cross-component interaction patterns, accessibility design rules, and i18n design.
 
-### 7.1 Selection Model 🆕
+### 7.1 Selection Model 
 
-> 🆕 Post-v1 supplement.
 
 #### 7.1.1 Selection FSM
 
@@ -6710,9 +7029,8 @@ When multiple widgets observe the same data model (e.g., TreeWidget + DataTable)
 
 ---
 
-### 7.2 Form Validation 🆕
+### 7.2 Form Validation 
 
-> 🆕 Post-v1 supplement.
 
 #### 7.2.1 Validation Rule Types
 
@@ -6787,7 +7105,7 @@ stateDiagram-v2
    d. Submit button remains enabled (user can retry after fixing)
 ```
 
-#### 7.2.6 Error Prevention (Nielsen #5) 🆕
+#### 7.2.6 Error Prevention (Nielsen #5) 
 
 | Pattern | When | Behavior |
 |---------|------|----------|
@@ -6798,9 +7116,8 @@ stateDiagram-v2
 
 ---
 
-### 7.3 Scroll & Virtualization 🆕
+### 7.3 Scroll & Virtualization 
 
-> 🆕 Post-v1 supplement.
 
 #### 7.3.1 Scroll Physics
 
@@ -6855,9 +7172,8 @@ When keyboard focus changes (Tab, mnemonic activation, programmatic `SetFocus()`
 
 ---
 
-### 7.4 Popup Positioning 🆕
+### 7.4 Popup Positioning 
 
-> 🆕 Post-v1 supplement.
 
 #### 7.4.1 Anchor Alignment (12 Positions)
 
@@ -6910,9 +7226,8 @@ the anchor widget. Safety margin: 8px from all edges.
 
 For multi-monitor setups: use the screen that contains the anchor widget's center point.
 
-### 7.5 Text Overflow & Truncation 🆕
+### 7.5 Text Overflow & Truncation 
 
-> 🆕 Post-v1 supplement.
 
 #### 7.5.1 Per-Widget Elide Rules
 
@@ -6949,9 +7264,8 @@ For widgets that support multiple lines (Label, Message description, Empty State
 
 ---
 
-### 7.6 Context Menu Composition 🆕
+### 7.6 Context Menu Composition 
 
-> 🆕 Post-v1 supplement.
 
 #### 7.6.1 Multi-Source Item Contribution
 
@@ -6995,9 +7309,8 @@ Items with `visibleWhen` returning `false` are excluded from the menu entirely (
 
 ---
 
-### 7.7 Notification Stacking 🆕
+### 7.7 Notification Stacking 
 
-> 🆕 Post-v1 supplement.
 
 #### 7.7.1 Stacking Layout
 
@@ -7045,9 +7358,8 @@ stateDiagram-v2
 
 ---
 
-### 7.8 Drag & Drop Design 🆕
+### 7.8 Drag & Drop Design 
 
-> 🆕 Post-v1 supplement.
 
 #### 7.8.1 Generic DnD FSM
 
@@ -7259,9 +7571,8 @@ See Chapter 2.8 for complete API reference.
 **Integration with A11yAudit**: The audit tool uses `ContrastChecker::MeetsAA()`
 to verify all text-on-background combinations in a widget tree.
 
-##### 7.9.4.1 Color Vision Deficiency (CVD) Design Rules 🆕
+##### 7.9.4.1 Color Vision Deficiency (CVD) Design Rules 
 
-> 🆕 Post-v1 supplement.
 > Implements **WCAG 2.1 SC 1.4.1** (Use of Color): "Color is not used as the only
 > visual means of conveying information, indicating an action, prompting a response,
 > or distinguishing a visual element."
@@ -8064,9 +8375,8 @@ label.node().SetProperty("textAlign", "center");
 ---
 
 
-### 7.11 Feedback & System Status (Nielsen #1) 🆕
+### 7.11 Feedback & System Status (Nielsen #1) 
 
-> 🆕 Post-v1 supplement.
 > Implements Nielsen's Heuristic #1: "Visibility of system status — The design should always
 > keep users informed about what is going on, through appropriate feedback within a reasonable
 > amount of time."
@@ -8118,9 +8428,8 @@ StatusBar text transitions: fade out old → fade in new, `100ms, OutCubic`.
 
 ---
 
-### 7.12 Signifier Design (Affordance Theory) 🆕
+### 7.12 Signifier Design (Affordance Theory) 
 
-> 🆕 Post-v1 supplement.
 > Based on Don Norman's affordance/signifier distinction: affordances are possibilities
 > for action; signifiers are perceivable indicators of those affordances.
 
@@ -8164,9 +8473,8 @@ For each widget, verify:
 
 ---
 
-### 7.13 Cognitive Load Thresholds 🆕
+### 7.13 Cognitive Load Thresholds 
 
-> 🆕 Post-v1 supplement.
 > Design constraints derived from Hick's Law, Miller's Law (7±2), and cognitive load theory.
 
 #### 7.13.1 Choice Count Limits
@@ -8223,9 +8531,8 @@ Where `D` = distance to target, `W` = target width.
 
 ---
 
-### 7.14 Keyboard Shortcut Management System 🆕
+### 7.14 Keyboard Shortcut Management System 
 
-> 🆕 Post-v1 supplement.
 > Complete shortcut lifecycle: registration, scope resolution, conflict handling, discovery, customization.
 
 #### 7.14.1 Shortcut Scope Hierarchy
@@ -8334,9 +8641,8 @@ Matcha supports two-key chord shortcuts:
 
 ---
 
-### 7.15 Error Boundary & Recovery Pattern 🆕
+### 7.15 Error Boundary & Recovery Pattern 
 
-> 🆕 Post-v1 supplement.
 > Error classification, display strategy, and recovery actions for framework-level and plugin-level errors.
 
 #### 7.15.1 Error Severity Classification
@@ -8383,9 +8689,8 @@ When multiple validation errors exist (e.g., form with 5 invalid fields):
 
 ---
 
-### 7.16 Contextual Help & Onboarding 🆕
+### 7.16 Contextual Help & Onboarding 
 
-> 🆕 Post-v1 supplement.
 > Implements Nielsen Heuristic #10 (Help and Documentation). Defines how the system
 > provides in-context assistance and first-run guidance.
 
@@ -8452,9 +8757,8 @@ During specific interaction modes, the StatusBar displays ephemeral guidance:
 
 ---
 
-### 7.17 Error Prevention & Destructive Action Safety 🆕
+### 7.17 Error Prevention & Destructive Action Safety 
 
-> 🆕 Post-v1 supplement.
 > Implements Nielsen Heuristic #5 (Error Prevention). Defines safeguards that prevent
 > errors before they occur, complementing §7.15 (recovery after errors).
 
@@ -8551,9 +8855,8 @@ For Low-severity destructive actions, Undo (§Appendix B.4) is the primary preve
 
 ---
 
-### 7.18 Edge Case & Robustness Patterns 🆕
+### 7.18 Edge Case & Robustness Patterns 
 
-> 🆕 Post-v1 supplement.
 > Defines defensive UI behaviors for edge conditions that are routinely encountered
 > in production but often omitted from design specs. Each pattern addresses a specific
 > failure mode that GUI developers must handle explicitly.
@@ -8794,9 +9097,8 @@ Affects all animation durations globally.
 ---
 
 
-### 8.7 Interaction Timing Tokens 🆕
+### 8.7 Interaction Timing Tokens 
 
-> 🆕 Post-v1 supplement.
 
 These tokens define non-animation timing intervals that govern interaction responsiveness.
 They are distinct from animation duration tokens (§8.1) — those control visual motion,
@@ -8836,9 +9138,8 @@ in the timing token registry. Fallback values in the table above apply when the 
 
 ---
 
-### 8.8 Choreography 🆕
+### 8.8 Choreography 
 
-> 🆕 Post-v1 supplement.
 
 Choreography defines how multiple elements animate in coordinated sequence rather than
 independently. It creates visual coherence and directs user attention.
@@ -8893,7 +9194,7 @@ Total: 500ms
 - Wizard step changes
 - Expanding/collapsing CollapsibleSection with content swap
 
-#### 8.8.4 Shared Element Transition 🆕
+#### 8.8.4 Shared Element Transition 
 
 When an element conceptually moves between two locations (e.g., tab indicator sliding,
 ActionBar tab moving between dock positions):
@@ -8909,9 +9210,8 @@ horizontally from the old tab to the new tab, rather than fading out/in.
 
 ---
 
-### 8.9 Gesture-Driven Motion 🆕
+### 8.9 Gesture-Driven Motion 
 
-> 🆕 Post-v1 supplement.
 
 Motion that is directly driven by user input position (finger/pen/mouse drag),
 rather than triggered as a fire-and-forget animation.
@@ -8982,9 +9282,8 @@ On release: spring-back to bound with `stiffness=300, damping=20`.
 
 ---
 
-## Appendix I. Designer-Developer Handoff Contract 🆕
+## Appendix I. Designer-Developer Handoff Contract 
 
-> 🆕 Post-v1 supplement.
 > This section is the **single-page summary** of the entire Part I design language.
 > Its purpose is operational: given this section alone, a UI designer knows exactly
 > what artifacts to produce, in what format and granularity; a GUI programmer knows
@@ -10187,7 +10486,7 @@ For each `ElevationToken` level:
 Constructs `std::vector<VariantStyle>` for each `WidgetKind`.
 Each VariantStyle has 8 `StateStyle` entries (one per `InteractionState`).
 
-Detailed per-widget specifications in Chapter 10.
+Detailed per-widget specifications in Chapter 5.
 
 ### 11.5 BuildGlobalStyleSheet()
 
@@ -10379,9 +10678,8 @@ No token names appear in the generated QSS â€” only resolved hex values.
 
 > **Note**: The resource interface in this project maintains consistency with the future asset manager system, but does not provide concrete implementation. Migration will occur immediately after the asset manager system and resource compiler are merged into the mainstream.
 
-### 11.14 Theme Transition 🆕
+### 11.14 Theme Transition 
 
-> 🆕 Post-v1 supplement.
 > Defines how the UI transitions between themes (e.g., Light → Dark) to avoid
 > jarring visual jumps. Cross-references Part I §8 Motion tokens.
 
@@ -10433,14 +10731,14 @@ After theme transition animation completes:
 
 # Part III -- Component Style Architecture
 
-> Chapters 13-14. Implements Part I §4 Style's declarative resolution.
+> Chapter 13. Implements Part I §4 Style's declarative resolution.
 
-## Chapter 14. WidgetKind Registry & Component Override
+## Chapter 13. WidgetKind Registry & Component Override
 
 > Complete reference for the widget registry, variant system, and component
 > override mechanism.
 
-### 14.1 WidgetKind Enum (54 entries)
+### 13.1 WidgetKind Enum (54 entries)
 
 > **54 vs 66**: The `WidgetKind` enum has **54** entries because some widget
 > classes share a `WidgetKind` (e.g., `SpinBox` and `DoubleSpinBox` both use
@@ -10460,11 +10758,11 @@ Complete list organized by tier:
 | **Title Bar** | MainTitleBar |
 | **Dialog System** | DialogTitleBar, DialogFootBar, FileDialog |
 | **ActionBar System** | ActionTab, ActionToolbar |
-| **Phase 3b** | Cascader, Transfer, FormLayout |
-| **Phase 3c** | Message, Alert, Avatar |
+| **Extended Input** | Cascader, Transfer, FormLayout |
+| **Feedback & Identity** | Message, Alert, Avatar |
 | **Shell Split** | DocumentToolBar, LogoButton |
 
-### 14.2 WidgetKind to UiNode Class Mapping
+### 13.2 WidgetKind to UiNode Class Mapping
 
 Each `WidgetKind` has a corresponding `WidgetNode` subclass:
 
@@ -10505,7 +10803,7 @@ Each `WidgetKind` has a corresponding `WidgetNode` subclass:
 | `ColorPicker` | `ColorPickerNode` | `NyanColorPicker` | (single variant) |
 | `ColorSwatch` | `ColorSwatchNode` | `NyanColorSwatch` | (single variant) |
 
-### 14.3 Variant System Architecture
+### 13.3 Variant System Architecture
 
 Each `WidgetKind` has a fixed number of variants. Each variant is a complete
 `VariantStyle` (8 `StateStyle` entries). The variant index selects the active
@@ -10543,7 +10841,7 @@ classDiagram
 | 4 | PushButton(Primary/Secondary/Ghost/Danger), Notification(Info/Success/Warning/Error) |
 | 5 | Tag(Default/Primary/Success/Warning/Error) |
 
-### 14.4 ComponentOverride Mechanism
+### 13.4 ComponentOverride Mechanism
 
 Widget authors or plugins can register per-widget-class token deviations:
 
@@ -10556,7 +10854,7 @@ ComponentOverride overrides[] = {
 theme.RegisterComponentOverrides(overrides);
 ```
 
-### 14.5 ComponentOverride Struct
+### 13.5 ComponentOverride Struct
 
 ```cpp
 struct ComponentOverride {
@@ -10575,7 +10873,7 @@ struct ComponentOverride {
 Only non-nullopt fields override the default. This allows selective overrides
 without specifying every field.
 
-### 14.6 Override Priority Rules
+### 13.6 Override Priority Rules
 
 ```
 ComponentOverride > BuildDefaultVariants() > WidgetStyleSheet defaults
@@ -10584,7 +10882,7 @@ ComponentOverride > BuildDefaultVariants() > WidgetStyleSheet defaults
 Overrides are applied during `SetTheme()` / theme change. They persist across
 theme switches (registered once, applied to every theme).
 
-### 14.7 Override Lifecycle
+### 13.7 Override Lifecycle
 
 ```mermaid
 sequenceDiagram
@@ -10600,7 +10898,7 @@ sequenceDiagram
     NyanTheme->>NyanTheme: BuildGlobalStyleSheet()
 ```
 
-### 14.8 Variant Color Override (Advanced)
+### 13.8 Variant Color Override (Advanced)
 
 For overriding specific variant x state color mappings:
 
@@ -10631,11 +10929,6 @@ VariantColorOverride override = {
 theme.RegisterVariantColorOverride(override);
 ```
 
----
----
-
-
----
 ---
 
 # Part IV -- Animation Engine
@@ -10923,7 +11216,7 @@ When `SetAnimationOverride(0)` is active:
 ### 17.5 Per-Widget Animation Catalog (Summary Index)
 
 > This table is a convenience index. The authoritative animation specification
-> for each widget is in its Chapter 10 "Animation" section.
+> for each widget is in its Chapter 5 "Animation" section.
 
 | Widget | Animated Properties | Duration | Easing |
 |--------|-------------------|:--------:|--------|
@@ -10970,11 +11263,13 @@ When reduced motion is active:
 
 ---
 
-# Part V -- Accessibility & i18n Infrastructure 🆕
+# Part V -- Accessibility & i18n Infrastructure
 
 > Implementation details for Part I §7.9-7.10.
 > FocusManager, A11yAudit, focus trap, mnemonic system architecture.
-> Note: design rules are now in Part I §7. This Part covers only implementation architecture.
+> Note: design rules are defined in Part I §7. This Part covers only implementation architecture.
+
+This Part is intentionally left as a placeholder. The accessibility and internationalization **design rules** (semantic roles, focus order, RTL mirroring, mnemonic conventions, ARIA-equivalent mappings) are fully specified in Part I §7.9 and §7.10. The **implementation architecture** — including `FocusManager`, `A11yAudit`, focus-trap mechanics, and the mnemonic registration system — will be documented here once the corresponding code infrastructure is implemented and stabilized.
 
 ---
 
@@ -11793,16 +12088,16 @@ flow correctly through the UiNode tree at runtime**. Specifically:
 
 1. **Token propagation**: `IThemeService::Resolve(kind, variant, state)` requires
    the framework to know every widget's `WidgetKind`, current variant index, and
-   `InteractionState`. These are UiNode-layer properties (Chapter 26).
+   `InteractionState`. These are UiNode-layer properties (Chapter 28).
 2. **Theme change broadcast**: `ThemeChanged` signal must reach every `ThemeAware`
    widget in every window, including floating windows created after the initial
-   theme setup. This requires the multi-window protocol (Chapter 27).
+   theme setup. This requires the multi-window protocol (Chapter 29).
 3. **Animation lifecycle**: `IAnimationService` handles must survive viewport
    reparenting during tab drag-out. This requires the renderer abstraction
-   (Chapter 28) and shutdown sequence (section 26.8).
+   (Chapter 30) and shutdown sequence (section 28.8).
 4. **Component override scope**: `ComponentOverride` registrations are global
    to `IThemeService`, but their visual effect must propagate to all existing
-   widget instances. The notification architecture (Chapter 26.5) defines how.
+   widget instances. The notification architecture (Chapter 28.5) defines how.
 
 Without these chapters, the design system specification would be incomplete --
 it would define **what** visual properties exist but not **how** they reach
@@ -12035,9 +12330,9 @@ ReleaseSingleInstanceLock();
 QApplication::processEvents();
 ```
 
-### 28.9 Generic Drag & Drop Protocol 🆕
+### 28.9 Generic Drag & Drop Protocol 
 
-> 🆕 Post-v1 supplement. Implements Part I §7.8 Drag & Drop Design at the UiNode architecture level.
+> Implements Part I §7.8 Drag & Drop Design at the UiNode architecture level.
 
 #### 28.9.1 DnD Notification Flow
 
@@ -12180,9 +12475,9 @@ Three drag scenarios:
 
 **Critical rule**: `setParent(mainWindow)` on FloatingWindowNode ensures correct stacking.
 
-### 29.6 Window Management 🆕
+### 29.6 Window Management 
 
-> 🆕 Post-v1 supplement. Window lifecycle, state persistence, and multi-monitor behavior.
+> Window lifecycle, state persistence, and multi-monitor behavior.
 
 #### 29.6.1 Window State Persistence
 
@@ -12222,9 +12517,8 @@ On startup: restore each window to its saved geometry. If a saved screen is no l
 | DPI change (monitor switch) | Trigger `QScreen::logicalDotsPerInchChanged` → full repaint + layout recalc |
 | Scale factor differs | Per-window DPI awareness; icons/fonts re-rasterize to target DPI |
 
-#### 29.6.2.1 Per-Monitor DPI Scaling Strategy 🆕
+#### 29.6.2.1 Per-Monitor DPI Scaling Strategy 
 
-> 🆕 Post-v1 supplement.
 
 **DPI awareness mode**: `Qt::HighDpiScaleFactorRoundingPolicy::PassThrough` — no rounding, exact fractional scaling.
 
@@ -12535,11 +12829,6 @@ Idle -> DragPending (MousePress in empty area)
 **GUI Test Categories**: Widget API, user interaction, keyboard navigation, theme switching, layout correctness, High-DPI, accessibility, dialog flow, drag and drop, stress/flicker.
 
 ---
----
-
-
----
----
 
 # Appendices
 
@@ -12601,14 +12890,14 @@ relevant specification section.
 | **A11yRole** | 无障碍角色 | Enum of 28 semantic accessibility roles mapped to `QAccessible::Role`. §7.9 |
 | **BuildDefaultVariants()** | 构建默认变体 | NyanTheme method that constructs the complete `VariantStyle` array for every `WidgetKind`, defining the default color matrix. Ch.11 |
 | **BuildGlobalStyleSheet()** | 构建全局样式表 | NyanTheme method that generates a QSS string from design tokens, applied globally via `QApplication::setStyleSheet()`. Ch.11 |
-| **ComponentOverride** | 组件覆盖 | A struct allowing plugins to override default `WidgetStyleSheet` fields for a specific `WidgetKind`. Ch.14 |
+| **ComponentOverride** | 组件覆盖 | A struct allowing plugins to override default `WidgetStyleSheet` fields for a specific `WidgetKind`. Ch.13 |
 | **ResolvedStyle** | 解析样式 | Output struct from `IThemeService::Resolve()` containing all computed visual properties for painting. Ch.9 |
 | **StateStyle** | 状态样式 | Struct defining visual tokens (background, foreground, border, opacity, cursor) for one `InteractionState`. §4.6 |
 | **Variant** | 变体 | A visual sub-type of a widget (e.g., PushButton has Primary, Secondary, Ghost, Danger variants). §4.7 |
-| **VariantColorOverride** | 变体颜色覆盖 | Struct for overriding specific variant × state color mappings in a widget's style matrix. Ch.14 |
+| **VariantColorOverride** | 变体颜色覆盖 | Struct for overriding specific variant × state color mappings in a widget's style matrix. Ch.13 |
 | **VariantStyle** | 变体样式 | Struct containing `array<StateStyle, 8>` — one `StateStyle` per `InteractionState` for a given variant. §4.7 |
-| **WidgetKind** | 组件类型 | Enum of 54+ widget type identifiers, used as index into the style sheet registry. Ch.14 |
-| **WidgetStyleSheet** | 组件样式表 | Struct combining geometry tokens (radius, padding, gap, minHeight), typography (font role), visual (elevation, layer), transition, and variant color maps. Ch.14 |
+| **WidgetKind** | 组件类型 | Enum of 54+ widget type identifiers, used as index into the style sheet registry. Ch.13 |
+| **WidgetStyleSheet** | 组件样式表 | Struct combining geometry tokens (radius, padding, gap, minHeight), typography (font role), visual (elevation, layer), transition, and variant color maps. Ch.13 |
 
 ### A.4 Animation Layer (动画层)
 
@@ -12753,9 +13042,9 @@ enum class SnapshotError : uint8_t {
 
 **Scope exclusion**: Widget-level micro-state (scroll position, text cursor) NOT captured. Only service-level logical state. Typically < 1 KB.
 
-### B.4 Command Pattern for Undo/Redo 🆕
+### B.4 Command Pattern for Undo/Redo 
 
-> 🆕 Post-v1 supplement. Full command-stack architecture for application-level undo/redo.
+> Full command-stack architecture for application-level undo/redo.
 
 #### B.4.1 ICommand Interface
 
@@ -13770,6 +14059,245 @@ graph LR
 | **Semi-Modal** | 半模态状态 | 一种特殊的交互模式，锁定工具链但允许特定视图操作 | 未实现独立半模态。可通过业务层控制 `SetEnabled()` 选择性锁定 UI 区域 |
 | **Focus Scope / Focus Manager** | 焦点域/焦点管理器 | 管理键盘输入焦点在 Main ToolBar、PropertyGrid、Viewport、CommandLine 之间流转的系统 | `FocusManager` (UiNode 层) + `WidgetNode::SetFocusable()` / `SetTabIndex()` |
 | **Rubber Band / Marquee** | 框选框 | 鼠标拖拽生成的矩形或多边形选择区域 | 业务层/渲染层负责。框架提供 DnD 通知（`DragMoved` 含坐标）可用于框选起止点 |
+
+---
+
+## Appendix F. Deliverables Overview — From Thought Process to Product
+
+> This appendix provides a **holistic summary** of what the Matcha Design System
+> delivers — not merely as a software product, but as an **intellectual artifact**
+> that encodes the entire reasoning chain from problem identification through
+> architectural decision to implementation detail. The deliverables span two roles
+> (Designer and Programmer) and three dimensions: **thinking** (why), **specification**
+> (what), and **implementation** (how).
+
+### F.1 Philosophy: Deliverables as Crystallized Reasoning
+
+A design system is often perceived as a library of reusable components. Matcha
+rejects this reductive view. The true deliverable is the **decision trail** —
+the documented chain of reasoning that connects each visual pixel to a
+psychological principle, each API boundary to an architectural constraint, and
+each animation curve to a perceptual model. Without this trail, a component
+library is a black box; with it, every future maintainer can reconstruct *why*
+things are the way they are and evaluate *whether* they should change.
+
+The three-layer deliverable model:
+
+| Layer | Contents |
+|-------|----------|
+| **Thought Process** | Problem analysis · Theoretical foundations · Trade-off evaluation · Decision rationale · Industry benchmarks |
+| **Specification** | Token definitions · Component specs · Behavior rules · Mathematical models · Validation criteria |
+| **Implementation** | C++ code · Qt widgets · Test suites · Build system · Resource files · Documentation |
+
+### F.2 Designer Deliverables
+
+#### F.2.1 Thinking Deliverables (Why)
+
+These artifacts document the designer's reasoning process and ensure
+that design decisions are traceable to evidence rather than personal preference.
+
+| Deliverable | Description | Spec Location | Audience |
+|------------|-------------|---------------|----------|
+| **Problem Diagnosis** | Analysis of why the legacy CATIA UI framework fails modern UX standards: widget inconsistency, unscalable theming, hardcoded colors, no density/DPI awareness | Part 0 (Ch.0) | Both |
+| **Theoretical Foundation** | Selection and application of cognitive science models: Norman's affordance/signifier theory, Gibson's ecological perception, Hick's Law, Fitts' Law, Miller's 7±2, Gestalt principles | §7.11–7.13 | Both |
+| **Perceptual Color Theory** | Justification for HCT (Hue-Chroma-Tone) color space over HSL/HSV; tonal palette generation algorithm; WCAG contrast compliance methodology | §2.1–2.6 | Both |
+| **Motion Rationale** | Why spring-based physics over cubic-bezier for interactive elements; CFL stability analysis; reduced-motion tier classification based on WCAG 2.1 §2.3.3 | §8.1–8.9 | Both |
+| **Typography Rationale** | Platform font selection criteria; mathematical font scaling model (`actualPt = basePt × fontScale × densityScale`); CJK/RTL adaptation rules | §3.1–3.4 | Both |
+| **Information Architecture** | Jesse James Garrett's five planes mapped to the five-layer delivery model; Don Norman's three processing levels mapped to component complexity tiers | Appendix I (AI.1) | Both |
+| **Signifier Audit Methodology** | Systematic checklist derived from Norman's signifier theory for verifying every widget's discoverability, feedback, and mapping | §7.12 | Designer |
+| **Cognitive Load Budget** | Per-context item limits derived from Hick's Law and Miller's Law; Fitts' Law minimum target sizes; information density constraints per visual zone | §7.13 | Both |
+| **Competitive Analysis** | Benchmarking against Ant Design, Material Design 3, Fluent UI, Carbon Design System; identification of gaps and opportunities specific to CAD/CAE domain | §1.1–1.5 | Both |
+| **Trade-off Documentation** | Explicit recording of architectural trade-offs: Qt constraint acceptance, QSS vs. custom paint, retained-mode tree vs. immediate-mode, C ABI for plugin isolation | Part 0, §1.5 | Both |
+
+#### F.2.2 Specification Deliverables (What)
+
+These are the formal design artifacts that constitute the contract between
+designer and programmer.
+
+| Category | Format | Key Content | Spec Location |
+|----------|--------|-------------|---------------|
+| **Color Palette** | JSON (DTCG) | Neutral (16) + 5 hue scales (50) + special (9), light/dark | §2.2–2.4 |
+| **Contrast Matrix** | Table | Every fg/bg combination → WCAG AA/AAA compliance | §2.5 |
+| **Spatial Token Set** | JSON (DTCG) | Spacing (10), radius (5), size (5), elevation (6), layer (10) | §2b |
+| **Typography Scale** | Table + JSON | FontRole → pt/weight/line-height/letter-spacing; CJK overrides | §3 |
+| **Icon Library** | SVG (`currentColor`) | Categorized by `{category}/{name}` URI hierarchy | §6 |
+| **Cursor Mapping** | Table | Widget × state → cursor shape | §7.1 |
+| **Motion Token Set** | Table + JSON | Duration (4) + easing (4) + spring (4) + timing (15) | §8 |
+| **Widget Spec Sheets** | Structured template | Synopsis, anatomy SVG, theme properties, V×S matrix, FSM, notifications, API, animation, math model, keyboard, a11y, usage examples | §5 + Appendix I |
+| **Signifier Audit Reports** | Checklist | Per-widget pass/fail on 6 signifier criteria | §7.12 |
+| **Behavior Specifications** | Tables + formulas | Popup positioning, scroll physics, gesture handoff, DnD, tooltip, text overflow, cognitive limits | §7.3–7.8 |
+| **Layout Templates** | Wireframe + table | Main window, dialog presets, property panel, responsive collapse rules | §6.1–6.4 |
+| **State Templates** | Visual spec | Loading (skeleton shimmer), empty (illustration+CTA), error (icon+action), content | §6.4 |
+| **Experience Specifications** | Mixed | Onboarding tour, undo/destructive protection, shortcut system, i18n catalog, brand/theme pack, choreography patterns | §7.2, §7.14–7.16 |
+| **Anatomy SVGs** | SVG | Annotated widget anatomy with token-name callouts (not px values) | `docs/assets/anatomy/` |
+| **Theme JSON Files** | JSON | `default-light.json`, `default-dark.json`, optional high-contrast | `Resources/themes/` |
+
+#### F.2.3 Process Deliverables (How the Design Was Developed)
+
+| Deliverable | Purpose | Format |
+|------------|---------|--------|
+| **Five-Layer Dependency Graph** | Ensures bottom-up delivery order; prevents skipping prerequisites | Mermaid diagram (AI.1) |
+| **Gate Checklist per Layer** | 33 verification items across 5 layers; each layer's gate must pass before proceeding | Tables (AI.5) |
+| **Common Pitfalls Registry** | 15+ documented failure modes with consequences and mitigations | Table (AI.6) |
+| **Handoff Workflow Sequence** | End-to-end mermaid sequence diagram showing designer → spec → programmer → runtime flow | Mermaid (AI.4) |
+| **Artifact File Structure** | Standardized directory layout mapping design artifacts to build system inputs | Tree diagram (AI.3) |
+
+### F.3 Programmer Deliverables
+
+#### F.3.1 Thinking Deliverables (Why)
+
+| Deliverable | Description | Spec Location |
+|------------|-------------|---------------|
+| **Architecture Rationale** | Why UiNode tree decoupled from QWidget; why CommandNode notification model over Qt signals; why `observer_ptr` over raw pointers | Part II, Part III |
+| **C++23 Idiom Selection** | Why `std::expected<T,E>` over exceptions; `deducing this` for CRTP replacement; `constexpr` token tables; `std::flat_map` for cache-friendly lookup | §1.5, Roadmap |
+| **State Machine Formalism** | Compile-time FSM for widget interaction states; formal state/event/transition tables; `InteractionState` enum design rationale | §4.6, Ch.13 |
+| **Style Resolution Algorithm** | Four-level cascade: token defaults → widget style sheet → variant×state → component override; mathematical resolution order | §4.17 |
+| **Animation Engine Physics** | Semi-implicit Euler integrator for spring simulation; CFL stability condition $\Delta t < 2\sqrt{m/k}$; velocity inheritance at gesture release | Ch.15–16 |
+| **Plugin Isolation Strategy** | C ABI boundary design; `WidgetId` generation counter; `DynamicColorDef`/`DynamicFontDef` for plugin-defined tokens | Ch.22–24 |
+| **Test Strategy Rationale** | Dual framework (doctest + Qt Test) justification; headless widget testing; animation time override for deterministic tests | Ch.32 |
+| **Layout Algorithm Design** | Two-pass flex algorithm (measure + arrange); density-aware spacing; responsive breakpoint system | Ch.13 |
+
+#### F.3.2 Specification Deliverables (What)
+
+| Category | Artifact Count | Format | Key Content |
+|----------|:-------------:|--------|-------------|
+| **Public Header API** | ~60+ headers | C++23 `.h` | All public types, interfaces, and service contracts |
+| **Token Enum Definitions** | 8 enum types | `constexpr` C++ | `ColorToken`(75), `SpacingToken`(10), `RadiusToken`(5), `SizeToken`(5), `ElevationToken`(6), `LayerToken`(10), `FontRole`(7), `CursorToken`(15) |
+| **Widget Node Classes** | 56+ classes | C++ | One `{Widget}Node` per `WidgetKind`; holds state, emits notifications |
+| **Widget Qt Classes** | 56+ classes | C++ (Qt) | One `Nyan{Widget}` per `WidgetKind`; `paintEvent`, `keyPressEvent`, a11y |
+| **Service Interfaces** | ~12 interfaces | Abstract C++ | `IThemeService`, `IAnimationService`, `IResourceResolver`, `IDocumentManager`, `IErrorService`, `ILocaleService`, `IHelpService`, `IDragDropService`, etc. |
+| **FSM Definitions** | 56+ FSMs | `constexpr` C++ | Per-widget `StateMachine<States, Events, Transitions>` |
+| **Notification Catalog** | ~100+ types | C++ structs | Typed notifications for every widget event |
+| **C ABI Surface** | 1 header | C | `NyanCApi.h` — flat function exports for cross-language plugin use |
+| **Blueprint DSL** | 1 system | C++23 templates | Compile-time verified declarative UI description |
+| **CMake Build System** | ~5 files | CMake | Library target, demo target, test targets, plugin targets |
+
+#### F.3.3 Implementation Deliverables (How)
+
+| Category | Artifact Count | Verification Method |
+|----------|:-------------:|-------------------|
+| **Unit Tests (doctest)** | ~120 | Foundation logic, token resolution, FSM transitions, notification dispatch |
+| **Widget Tests (Qt Test)** | ~120 | Rendering correctness, user interaction, keyboard navigation, theme switching |
+| **Integration Tests** | ~60 | Cross-widget behavior, layout correctness, plugin loading, C ABI round-trip |
+| **Stress/Flicker Tests** | ~20 | Rapid theme toggle, resize, 10k-row table, animation under load |
+| **A11y Audit Tests** | ~20 | Contrast ratio, focus chain, role/name/state, reduced-motion |
+| **High-DPI Tests** | ~10 | 100%/125%/150%/200% scale factor; mixed-DPI multi-monitor |
+| **Demo Application** | 1 (`NyanCad`) | Full CAD shell |
+| **Performance Baseline** | 1 report | Theme resolve < 1μs, paint < 2ms, 10k-row scroll > 60fps |
+| **API Documentation** | Doxygen | All public headers documented; cross-referenced to spec sections |
+
+#### F.3.4 Process Deliverables (How the Code Was Developed)
+
+| Deliverable | Purpose |
+|------------|---------|
+| **Phase Gate Records** | Evidence that each implementation phase passed its gate check before proceeding |
+| **Test Coverage Reports** | Per-phase test count vs. target; coverage maps for critical paths |
+| **Regression Test Suite** | Accumulated tests that prevent regressions as new features are added |
+| **Build Reproducibility** | CMake + vcpkg/Conan manifest ensuring deterministic builds across environments |
+| **CI/CD Pipeline** | Automated build + test on every commit; zero-warning policy |
+
+### F.4 Cross-Role Deliverables
+
+These artifacts are jointly owned and require collaboration between designer
+and programmer throughout the development process.
+
+| Deliverable | Designer Role | Programmer Role | Verification |
+|------------|--------------|----------------|--------------|
+| **Design Token JSON Schema** | Defines token names, types, and values | Validates schema; generates `constexpr` arrays | Schema validation + round-trip test |
+| **Widget Anatomy SVGs** | Produces annotated diagrams with token callouts | Verifies implementation matches diagram within ±1px | Visual regression test |
+| **Variant × State Matrices** | Fills all V × 8 states with color tokens | Implements `BuildDefaultVariants()` from matrix | Matrix completeness + rendering test |
+| **Accessibility Compliance** | Specifies roles, names, announce rules | Implements `QAccessibleInterface` | `A11yAudit` automated checker |
+| **Responsive Layout Specs** | Defines breakpoints and collapse priority | Implements `ShellLayoutManager` | Multi-resolution layout test |
+| **Visual QA Sign-off** | Reviews rendered output against spec | Provides pixel-comparison tooling | Side-by-side review session |
+| **Theme Pack Validation** | Produces light/dark/high-contrast theme JSONs | Loads and renders all themes | Theme switch visual test |
+| **Handoff Completeness Audit** | Confirms all 5 layers delivered | Confirms all gate checks passed | 33-item validation checklist (AI.5) |
+
+### F.5 Deliverable Dependency Graph
+
+The following diagram shows the dependency relationships between all major
+deliverable categories. Work proceeds strictly bottom-up; no deliverable
+may be started until all its dependencies are complete and verified.
+
+```mermaid
+graph TB
+    subgraph "Thought Layer"
+        T1["Problem Diagnosis<br/>(Part 0)"]
+        T2["Theoretical Foundations<br/>(§7.11-7.13, §8)"]
+        T3["Architecture Rationale<br/>(Part II-III)"]
+        T4["Trade-off Documentation<br/>(§1.5)"]
+    end
+
+    subgraph "Specification Layer"
+        S1["Foundation Tokens<br/>(L1: §2-3, §6, §8)"]
+        S2["Component Specs<br/>(L2: §5, 56+ widgets)"]
+        S3["Behavior Rules<br/>(L3: §7.3-7.8)"]
+        S4["Composition Templates<br/>(L4: §6.1-6.4)"]
+        S5["Experience Specs<br/>(L5: §7.2, §7.14-7.16)"]
+    end
+
+    subgraph "Implementation Layer"
+        I1["Token Enums +<br/>Theme Engine"]
+        I2["Widget Nodes +<br/>Qt Widgets"]
+        I3["Shared Behaviors<br/>(Popup, Scroll, DnD)"]
+        I4["Shell Layout +<br/>State Templates"]
+        I5["Onboarding, Undo,<br/>Shortcuts, i18n"]
+        I6["Test Suite<br/>(470+ tests)"]
+        I7["Demo App<br/>(NyanCad)"]
+    end
+
+    T1 --> T2 --> S1
+    T1 --> T3 --> I1
+    T1 --> T4
+    T4 --> T3
+
+    S1 --> S2 --> S3 --> S4 --> S5
+    S1 --> I1 --> I2
+    S2 --> I2 --> I3
+    S3 --> I3 --> I4
+    S4 --> I4 --> I5
+    S5 --> I5 --> I7
+
+    I1 --> I6
+    I2 --> I6
+    I3 --> I6
+    I4 --> I6
+    I5 --> I6
+    I6 --> I7
+```
+
+### F.6 Quantitative Deliverable Summary
+
+| Dimension | Designer | Programmer | Joint | Total |
+|-----------|:-------:|:----------:|:-----:|:-----:|
+| **Thinking artifacts** | 10 | 8 | — | 18 |
+| **Token/enum definitions** | ~160 values | 8 enum types | Schema validation | — |
+| **Specification documents** | ~15 artifact categories | ~10 code categories | 8 joint artifacts | ~33 |
+| **Widget specifications** | 56+ × 12 sections = ~672 | 56+ node classes + 56+ Qt classes | 56+ anatomy SVGs | 56+ widgets |
+| **Behavior specifications** | ~40 cross-cutting | ~40 implementations | — | ~40 |
+| **Test cases** | — | 470+ | — | 470+ |
+| **Resource files** | ~830 icons + 2+ themes + tokens | CMake + CI | — | ~835 |
+| **Lines of specification** | ~14,000 (this document) | ~60 public headers | — | — |
+
+### F.7 The Meta-Deliverable: This Document Itself
+
+The Matcha Design System Specification is itself the primary deliverable. It is
+not a byproduct of the design process — it *is* the design process, crystallized
+into a referenceable form. Its structure mirrors the intellectual journey:
+
+1. **Part 0** — *Why does this system need to exist?* Problem diagnosis and theoretical grounding.
+2. **Part I** — *What are the design rules?* Complete design language from tokens to experience patterns.
+3. **Part II** — *How does theming work at runtime?* Theme engine architecture.
+4. **Part III** — *How are widgets structured in code?* UiNode tree and widget catalog.
+5. **Part IV** — *How does motion work?* Animation engine physics and choreography.
+6. **Part V** — *How is accessibility implemented?* (Deferred — design rules in Part I §7.9-7.10.)
+7. **Part VI–VIII** — *How do plugins, C ABI, and shell architecture work?*
+8. **Part IX** — *In what order do we build it?* Implementation roadmap with phase gates.
+9. **Appendices** — *Reference material*: glossary, undo/redo, workbench architecture, ABI boundary, CAD architecture glossary, and this deliverables overview.
+
+Every section answers a *why* before specifying a *what*. Every *what* maps to a
+*how* through explicit programmer consumption tables. This three-level traceability
+— from cognitive science principle to design token to C++ `constexpr` — is what
+distinguishes a design *system* from a design *library*.
 
 ---
 
