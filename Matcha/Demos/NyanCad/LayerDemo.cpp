@@ -193,7 +193,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
 
         // Wire: FloatingPanel button
         static std::unique_ptr<DemoFloatingPanelNode> sFloatingPanel;
-        btn1Raw->Subscribe(btn1Raw, "Clicked",
+        btn1Raw->Subscribe(btn1Raw, "Activated",
             [](EventNode& /*s*/, Notification& /*n*/) {
                 if (sFloatingPanel && sFloatingPanel->IsOpen()) {
                     sFloatingPanel->Close();
@@ -204,7 +204,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
             });
 
         // Wire: Dialog button
-        btn2Raw->Subscribe(btn2Raw, "Clicked",
+        btn2Raw->Subscribe(btn2Raw, "Activated",
             [](EventNode& /*s*/, Notification& /*n*/) {
                 auto dlg = std::make_unique<DialogNode>("demo-dialog");
                 dlg->SetTitle("Example Modal Dialog");
@@ -260,7 +260,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
 
         // Wire: Popover button
         static std::unique_ptr<DemoPopoverNode> sPopover;
-        btn1Raw->Subscribe(btn1Raw, "Clicked",
+        btn1Raw->Subscribe(btn1Raw, "Activated",
             [btn1Raw](EventNode& /*s*/, Notification& /*n*/) {
                 if (sPopover && sPopover->IsOpen()) {
                     sPopover->Close();
@@ -272,7 +272,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
 
         // Wire: Menu button
         static std::unique_ptr<MenuNode> sMenu;
-        btn2Raw->Subscribe(btn2Raw, "Clicked",
+        btn2Raw->Subscribe(btn2Raw, "Activated",
             [btn2Raw](EventNode& /*s*/, Notification& /*n*/) {
                 sMenu = std::make_unique<MenuNode>("demo-menu");
                 sMenu->AddItem("Cut");
@@ -324,7 +324,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
 
         // Wire: Tooltip button
         static std::unique_ptr<DemoTooltipNode> sTooltip;
-        btn1Raw->Subscribe(btn1Raw, "Clicked",
+        btn1Raw->Subscribe(btn1Raw, "Activated",
             [btn1Raw](EventNode& /*s*/, Notification& /*n*/) {
                 if (sTooltip && sTooltip->IsOpen()) {
                     sTooltip->Close();
@@ -336,7 +336,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
 
         // Wire: PopConfirm button
         static std::unique_ptr<PopConfirmNode> sPopConfirm;
-        btn2Raw->Subscribe(btn2Raw, "Clicked",
+        btn2Raw->Subscribe(btn2Raw, "Activated",
             [btn2Raw](EventNode& /*s*/, Notification& /*n*/) {
                 if (sPopConfirm && sPopConfirm->IsOpen()) {
                     sPopConfirm->Close();
@@ -393,7 +393,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
         // Wire: Toast button — uses real ToastStackNode + NyanNotificationManager
         static std::unique_ptr<ToastStackNode> sToastStack;
         static int sToastSeq = 0;
-        btn1Raw->Subscribe(btn1Raw, "Clicked",
+        btn1Raw->Subscribe(btn1Raw, "Activated",
             [btn1Raw, toastCountRaw](EventNode& /*s*/, Notification& /*n*/) {
                 if (!sToastStack) {
                     sToastStack = std::make_unique<ToastStackNode>("demo-toast-stack");
@@ -416,7 +416,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
 
         // Wire: DragGhost button — shows a DragGhostOverlay for 3 seconds
         static matcha::gui::DragGhostOverlay* sGhostOverlay = nullptr;
-        btn2Raw->Subscribe(btn2Raw, "Clicked",
+        btn2Raw->Subscribe(btn2Raw, "Activated",
             [btn2Raw](EventNode& /*s*/, Notification& /*n*/) {
                 if (sGhostOverlay != nullptr) {
                     sGhostOverlay->StopFollowing();

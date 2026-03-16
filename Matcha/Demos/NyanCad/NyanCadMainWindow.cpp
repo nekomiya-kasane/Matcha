@@ -57,6 +57,8 @@
 #include "Matcha/Tree/Composition/Menu/MenuNode.h"
 #include "Matcha/Animation/IAnimationService.h"
 #include "Matcha/Interaction/Focus/MnemonicState.h"
+#include "Matcha/Tree/Composition/Workbench/WorkbenchManager.h"
+#include "Matcha/Tree/Composition/Workbench/WorkbenchNotification.h"
 #include "LayerDemo.h"
 
 #include "Matcha/Tree/Controls/TreeItemNode.h"
@@ -426,6 +428,19 @@ void NyanCadMainWindow::Setup(matcha::fw::Application& app)
     // -- ActionBar tabs are now materialized by WorkbenchManager ----------
     // (see NyanCadApp::Run -> ActivateWorkshop after Setup)
     auto& shell = app.GetShell();
+
+    // -- Wire ActionBar demo commands to open Showcase / LayerDemo dialogs ----
+    // WorkbenchManager dispatches CommandInvoked through Shell, so subscribe there.
+    shell.Subscribe(&shell, "CommandInvoked",
+        [this](matcha::EventNode&, matcha::Notification& n) {
+            if (auto* cmd = n.As<matcha::fw::CommandInvoked>()) {
+                if (cmd->GetCmdHeaderId() == "cmd.showcase") {
+                    OnOpenDialog();
+                } else if (cmd->GetCmdHeaderId() == "cmd.layer-demo") {
+                    OnOpenLayerDemo();
+                }
+            }
+        });
 
     // -- StatusBar (via UiNode tree) ------------------------------------------
     auto statusBarPtr = shell.GetStatusBar();

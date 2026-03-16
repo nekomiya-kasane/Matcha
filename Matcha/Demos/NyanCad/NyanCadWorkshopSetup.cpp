@@ -87,6 +87,8 @@ void RegisterNyanCadWorkshops(WorkshopRegistry& registry)
     meshWs.commands.push_back(MakeCmd("cmd.generate", "Generate", "refresh", "Generate Mesh"));
     meshWs.commands.push_back(MakeCmd("cmd.refine",   "Refine",   "edit",    "Refine Mesh"));
     meshWs.commands.push_back(MakeCmd("cmd.verify",   "Verify",   "check",   "Verify Mesh"));
+    meshWs.commands.push_back(MakeCmd("cmd.showcase",   "Widget Showcase", "check", "Open Widget Showcase Dialog"));
+    meshWs.commands.push_back(MakeCmd("cmd.layer-demo", "Layer Demo",      "check", "Open Layer Demo Dialog"));
 
     // -- Base tabs (always visible when this workshop is active) ---------- //
     meshWs.baseTabs.push_back(MakeTab(
@@ -108,6 +110,11 @@ void RegisterNyanCadWorkshops(WorkshopRegistry& registry)
         {CmdHeaderId::From("cmd.generate"),
          CmdHeaderId::From("cmd.refine"),
          CmdHeaderId::From("cmd.verify")}));
+
+    meshWs.baseTabs.push_back(MakeTab(
+        "demo", "Demo", "demo_ops", "Demo Windows",
+        {CmdHeaderId::From("cmd.showcase"),
+         CmdHeaderId::From("cmd.layer-demo")}));
 
     // -- Workbench IDs belonging to this workshop ------------------------- //
     meshWs.workbenchIds = {

@@ -793,3 +793,31 @@ else()
     message(WARNING "Python3 not found — ValidateTokens target disabled. "
                     "Palette JSON files will NOT be validated at build time.")
 endif()
+
+# --------------------------------------------------------------------------- #
+# POST_BUILD: copy Qt runtime DLLs to build output directory (Windows)
+# --------------------------------------------------------------------------- #
+if(WIN32)
+    set(_MATCHA_EXE_TARGETS NyanCad MatchaUnitTests MatchaWidgetTests MatchaIntegrationTests)
+
+    foreach(_target IN LISTS _MATCHA_EXE_TARGETS)
+        # Copy all runtime DLLs that CMake knows about (Qt6Core, Qt6Gui, etc.)
+        add_custom_command(TARGET ${_target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_RUNTIME_DLLS:${_target}>
+                    $<TARGET_FILE_DIR:${_target}>
+            COMMAND_EXPAND_LISTS
+            COMMENT "Copying Qt runtime DLLs for ${_target}..."
+        )
+
+        # Copy Qt platform plugin (qwindows.dll) — required at runtime
+        add_custom_command(TARGET ${_target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory
+                    "$<TARGET_FILE_DIR:${_target}>/platforms"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<TARGET_FILE:Qt6::QWindowsIntegrationPlugin>"
+                    "$<TARGET_FILE_DIR:${_target}>/platforms/"
+            COMMENT "Copying Qt platform plugin for ${_target}..."
+        )
+    endforeach()
+endif()
