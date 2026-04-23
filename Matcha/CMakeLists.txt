@@ -411,8 +411,8 @@ add_library(Matcha SHARED
     Include/Matcha/Interaction/Input/GestureMotionTracker.h
     Source/Animation/AnimationBlendLayer.cpp
     Include/Matcha/Animation/AnimationBlendLayer.h
-    Source/Theming/Token/DtcgTokenModel.cpp
-    Include/Matcha/Theming/Token/DtcgTokenModel.h
+        Source/Theming/Token/DtfmTokenModel.cpp
+        Include/Matcha/Theming/Token/DtfmTokenModel.h
     Source/Theming/Token/VariantNameRegistry.cpp
     Include/Matcha/Theming/Token/VariantNameRegistry.h
     Include/Matcha/Tree/FSM/WidgetFsm.h

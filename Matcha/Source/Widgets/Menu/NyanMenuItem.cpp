@@ -115,17 +115,17 @@ void NyanMenuItem::DrawContent(QPainter& painter, const QRect& rect, bool hovere
     QColor textColor;
 
     if (!_enabled) {
-        bgColor = theme.Color(ColorToken::SurfaceElevated);
-        textColor = theme.Color(ColorToken::TextDisabled);
+        bgColor = theme.Color(ColorToken::colorPrimaryBg);
+        textColor = theme.Color(ColorToken::colorText);
     } else if (pressed) {
-        bgColor = theme.Color(ColorToken::PrimaryBgHover);
-        textColor = theme.Color(ColorToken::Primary);
+        bgColor = theme.Color(ColorToken::colorPrimaryBgHover);
+        textColor = theme.Color(ColorToken::colorPrimary);
     } else if (hovered) {
-        bgColor = theme.Color(ColorToken::FillActive);
-        textColor = theme.Color(ColorToken::TextPrimary);
+        bgColor = theme.Color(ColorToken::colorFill);
+        textColor = theme.Color(ColorToken::colorText);
     } else {
-        bgColor = theme.Color(ColorToken::SurfaceElevated);
-        textColor = theme.Color(ColorToken::TextPrimary);
+        bgColor = theme.Color(ColorToken::colorPrimaryBg);
+        textColor = theme.Color(ColorToken::colorText);
     }
 
     // Background

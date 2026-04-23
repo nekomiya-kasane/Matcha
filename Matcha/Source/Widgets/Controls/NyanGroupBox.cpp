@@ -128,11 +128,11 @@ void NyanGroupBox::AnimateCollapse(bool collapsed)
         node->AnimateProperty(fw::AnimationPropertyId::MaximumHeight,
                               fw::AnimatableValue::FromInt(startH),
                               fw::AnimatableValue::FromInt(endH),
-                              fw::AnimationToken::Normal);
+                              fw::AnimationsToken::motionDurationDefault);
         node->AnimateProperty(fw::AnimationPropertyId::MinimumHeight,
                               fw::AnimatableValue::FromInt(startH),
                               fw::AnimatableValue::FromInt(endH),
-                              fw::AnimationToken::Normal);
+                              fw::AnimationsToken::motionDurationDefault);
     } else {
         setMaximumHeight(endH);
         setMinimumHeight(endH);

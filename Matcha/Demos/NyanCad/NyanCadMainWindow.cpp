@@ -99,8 +99,8 @@ static auto BuildLeftSidebar() -> std::unique_ptr<matcha::fw::ContainerNode>
     using matcha::gui::LabelRole;
 
     auto panel = std::make_unique<ContainerNode>("left-sidebar", LayoutKind::Vertical);
-    panel->SetMargins(SpacingToken::Px4);
-    panel->SetSpacing(SpacingToken::Px4);
+    panel->SetMargins(SpaceToken::marginXS);
+    panel->SetSpacing(SpaceToken::marginXS);
     panel->SetMinimumSize(220, 0);
     panel->SetMaximumSize(360, 16777215);
 
@@ -150,8 +150,8 @@ static auto BuildRightPanel() -> std::unique_ptr<matcha::fw::ContainerNode>
     using matcha::gui::HAlign;
 
     auto panel = std::make_unique<ContainerNode>("right-panel", LayoutKind::Vertical);
-    panel->SetMargins(SpacingToken::Px6);
-    panel->SetSpacing(SpacingToken::Px6);
+    panel->SetMargins(SpaceToken::marginXS);
+    panel->SetSpacing(SpaceToken::marginXS);
     panel->SetMinimumSize(200, 0);
     panel->SetMaximumSize(320, 16777215);
 
@@ -214,19 +214,19 @@ static auto BuildRightPanel() -> std::unique_ptr<matcha::fw::ContainerNode>
 
     // Buttons row
     auto btnRow = std::make_unique<ContainerNode>("btn-row", LayoutKind::Horizontal);
-    btnRow->SetMargins(SpacingToken::None, SpacingToken::Px4,
-                        SpacingToken::None, SpacingToken::None);
-    btnRow->SetSpacing(SpacingToken::Px4);
+    btnRow->SetMargins(SpaceToken::spaceNone, SpaceToken::marginXS,
+                        SpaceToken::spaceNone, SpaceToken::spaceNone);
+    btnRow->SetSpacing(SpaceToken::marginXS);
     auto applyBtn = std::make_unique<PushButtonNode>("btn-apply");
     applyBtn->SetText("Apply");
     applyBtn->SetIcon(matcha::fw::icons::Check);
-    applyBtn->SetIconSize(matcha::fw::IconSize::Sm);
+    applyBtn->SetIconSize(matcha::fw::IconToken::iconSizeSM);
     applyBtn->SetVariant(ButtonVariant::Primary);
     btnRow->AddNode(std::move(applyBtn));
     auto resetBtn = std::make_unique<PushButtonNode>("btn-reset");
     resetBtn->SetText("Reset");
     resetBtn->SetIcon(matcha::fw::icons::Refresh);
-    resetBtn->SetIconSize(matcha::fw::IconSize::Sm);
+    resetBtn->SetIconSize(matcha::fw::IconToken::iconSizeSM);
     resetBtn->SetVariant(ButtonVariant::Ghost);
     btnRow->AddNode(std::move(resetBtn));
     panel->AddNode(std::move(btnRow));
@@ -362,7 +362,7 @@ void NyanCadMainWindow::Setup(matcha::fw::Application& app)
         if (qatSlot.get() != nullptr) {
             using matcha::fw::ToolButtonNode;
             using matcha::fw::LineNode;
-            qatSlot->SetSpacing(matcha::fw::SpacingToken::Px2);
+            qatSlot->SetSpacing(matcha::fw::SpaceToken::marginXXS);
 
             auto btnSave = std::make_unique<ToolButtonNode>("qat-save");
             btnSave->SetText("Save");
@@ -406,20 +406,20 @@ void NyanCadMainWindow::Setup(matcha::fw::Application& app)
         // Global buttons (right side)
         auto globalSlot = docToolBarNode->GetGlobalButtonSlot();
         if (globalSlot.get() != nullptr) {
-            globalSlot->SetSpacing(matcha::fw::SpacingToken::Px4);
+            globalSlot->SetSpacing(matcha::fw::SpaceToken::marginXXS);
             auto searchBtn = std::make_unique<matcha::fw::PushButtonNode>("btn-search");
             searchBtn->SetIcon(matcha::fw::icons::Search);
-            searchBtn->SetIconSize(matcha::fw::IconSize::Sm);
+            searchBtn->SetIconSize(matcha::fw::IconToken::iconSizeSM);
             searchBtn->SetFixedSize(28, 28);
             globalSlot->AddNode(std::move(searchBtn));
             auto settingsBtn = std::make_unique<matcha::fw::PushButtonNode>("btn-settings");
             settingsBtn->SetIcon(matcha::fw::icons::Settings);
-            settingsBtn->SetIconSize(matcha::fw::IconSize::Sm);
+            settingsBtn->SetIconSize(matcha::fw::IconToken::iconSizeSM);
             settingsBtn->SetFixedSize(28, 28);
             globalSlot->AddNode(std::move(settingsBtn));
             auto helpBtn = std::make_unique<matcha::fw::PushButtonNode>("btn-help");
             helpBtn->SetIcon(matcha::fw::icons::Help);
-            helpBtn->SetIconSize(matcha::fw::IconSize::Sm);
+            helpBtn->SetIconSize(matcha::fw::IconToken::iconSizeSM);
             helpBtn->SetFixedSize(28, 28);
             globalSlot->AddNode(std::move(helpBtn));
         }
@@ -612,8 +612,8 @@ void NyanCadMainWindow::OnOpenDialog()
 
     // Build content using pure UiNode API
     auto content = std::make_unique<ContainerNode>("dlg-content", LayoutKind::Vertical);
-    content->SetMargins(SpacingToken::Px8);
-    content->SetSpacing(SpacingToken::Px6);
+    content->SetMargins(SpaceToken::marginXS);
+    content->SetSpacing(SpaceToken::marginXS);
 
     // =====================================================================
     // Section 1: Theme Settings (live)
@@ -625,7 +625,7 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto themeRow = std::make_unique<ContainerNode>("theme-row", LayoutKind::Horizontal);
-        themeRow->SetSpacing(SpacingToken::Px8);
+        themeRow->SetSpacing(SpaceToken::marginXS);
 
         // Light/Dark toggle
         auto themeLabel = std::make_unique<LabelNode>("lbl-theme-mode");
@@ -690,7 +690,7 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto row = std::make_unique<ContainerNode>("input-row", LayoutKind::Horizontal);
-        row->SetSpacing(SpacingToken::Px8);
+        row->SetSpacing(SpaceToken::marginXS);
 
         auto lineEdit = std::make_unique<LineEditNode>("le-demo");
         lineEdit->SetPlaceholder("LineEditNode...");
@@ -720,7 +720,7 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto row = std::make_unique<ContainerNode>("numeric-row", LayoutKind::Horizontal);
-        row->SetSpacing(SpacingToken::Px8);
+        row->SetSpacing(SpaceToken::marginXS);
 
         auto spin = std::make_unique<SpinBoxNode>("spin-demo");
         spin->SetRange(0, 100);
@@ -754,7 +754,7 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto row = std::make_unique<ContainerNode>("bool-row", LayoutKind::Horizontal);
-        row->SetSpacing(SpacingToken::Px8);
+        row->SetSpacing(SpaceToken::marginXS);
 
         auto chk1 = std::make_unique<CheckBoxNode>("chk-demo-1");
         chk1->SetText("CheckBox (on)");
@@ -774,7 +774,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // RadioButtons
         auto radioRow = std::make_unique<ContainerNode>("radio-row", LayoutKind::Horizontal);
-        radioRow->SetSpacing(SpacingToken::Px8);
+        radioRow->SetSpacing(SpaceToken::marginXS);
 
         auto radioLabel = std::make_unique<LabelNode>("lbl-radio");
         radioLabel->SetText("RadioButton:");
@@ -806,7 +806,7 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto row = std::make_unique<ContainerNode>("color-row", LayoutKind::Horizontal);
-        row->SetSpacing(SpacingToken::Px8);
+        row->SetSpacing(SpaceToken::marginXS);
 
         auto picker = std::make_unique<ColorPickerNode>("cpick-demo");
         picker->SetColor(0x4488CCFF);
@@ -850,26 +850,26 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto row = std::make_unique<ContainerNode>("btn-row-dlg", LayoutKind::Horizontal);
-        row->SetSpacing(SpacingToken::Px8);
+        row->SetSpacing(SpaceToken::marginXS);
 
         auto btnPrimary = std::make_unique<PushButtonNode>("btn-primary");
         btnPrimary->SetText("Primary");
         btnPrimary->SetIcon(icons::Check);
-        btnPrimary->SetIconSize(IconSize::Sm);
+        btnPrimary->SetIconSize(IconToken::iconSizeSM);
         btnPrimary->SetVariant(matcha::gui::ButtonVariant::Primary);
         row->AddNode(std::move(btnPrimary));
 
         auto btnGhost = std::make_unique<PushButtonNode>("btn-ghost");
         btnGhost->SetText("Ghost");
         btnGhost->SetIcon(icons::Refresh);
-        btnGhost->SetIconSize(IconSize::Sm);
+        btnGhost->SetIconSize(IconToken::iconSizeSM);
         btnGhost->SetVariant(matcha::gui::ButtonVariant::Ghost);
         row->AddNode(std::move(btnGhost));
 
         auto btnDefault = std::make_unique<PushButtonNode>("btn-default");
         btnDefault->SetText("Default");
         btnDefault->SetIcon(icons::Settings);
-        btnDefault->SetIconSize(IconSize::Sm);
+        btnDefault->SetIconSize(IconToken::iconSizeSM);
         row->AddNode(std::move(btnDefault));
 
         auto tb1 = std::make_unique<ToolButtonNode>("tb-wire-dlg");
@@ -913,7 +913,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // --- DataTable: comprehensive showcase ---
         auto tableContainer = std::make_unique<ContainerNode>("dt-container", LayoutKind::Vertical);
-        tableContainer->SetSpacing(SpacingToken::Px4);
+        tableContainer->SetSpacing(SpaceToken::marginXS);
 
         auto tableNode = std::make_unique<DataTableNode>("dt-demo");
 
@@ -977,7 +977,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // Controls row: filter + diagnostic label
         auto ctrlRow = std::make_unique<ContainerNode>("dt-ctrl-row", LayoutKind::Horizontal);
-        ctrlRow->SetSpacing(SpacingToken::Px4);
+        ctrlRow->SetSpacing(SpaceToken::marginXS);
 
         auto filterEdit = std::make_unique<LineEditNode>("dt-filter");
         filterEdit->SetPlaceholder("Filter rows...");
@@ -1021,7 +1021,7 @@ void NyanCadMainWindow::OnOpenDialog()
         {
             // Item 1: HBox[ Label "Body_001" | Badge "OK" | ProgressBar 92% ]
             auto row1 = std::make_unique<ContainerNode>("lw-row1", LayoutKind::Horizontal);
-            row1->SetSpacing(matcha::gui::SpacingToken::Px8);
+            row1->SetSpacing(matcha::gui::SpaceToken::marginXS);
             auto lbl1 = std::make_unique<LabelNode>("lw-lbl1");
             lbl1->SetText("Body_001");
             row1->AddNode(std::move(lbl1));
@@ -1037,7 +1037,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
             // Item 2: HBox[ Label "Shell_001" | Badge "WARN" | ProgressBar 72% ]
             auto row2 = std::make_unique<ContainerNode>("lw-row2", LayoutKind::Horizontal);
-            row2->SetSpacing(matcha::gui::SpacingToken::Px8);
+            row2->SetSpacing(matcha::gui::SpaceToken::marginXS);
             auto lbl2 = std::make_unique<LabelNode>("lw-lbl2");
             lbl2->SetText("Shell_001");
             row2->AddNode(std::move(lbl2));
@@ -1053,7 +1053,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
             // Item 3: HBox[ CheckBox "Bolt_Assembly" | Label "128 elems" ]
             auto row3 = std::make_unique<ContainerNode>("lw-row3", LayoutKind::Horizontal);
-            row3->SetSpacing(matcha::gui::SpacingToken::Px8);
+            row3->SetSpacing(matcha::gui::SpaceToken::marginXS);
             auto chk3 = std::make_unique<CheckBoxNode>("lw-chk3");
             chk3->SetText("Bolt_Assembly");
             chk3->SetChecked(true);
@@ -1069,7 +1069,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
             // Item 5: HBox[ ColorSwatch | Label "Plate_004" | Badge "LOCKED" ]
             auto row5 = std::make_unique<ContainerNode>("lw-row5", LayoutKind::Horizontal);
-            row5->SetSpacing(matcha::gui::SpacingToken::Px8);
+            row5->SetSpacing(matcha::gui::SpaceToken::marginXS);
             auto swatch5 = std::make_unique<ColorSwatchNode>("lw-swatch5");
             swatch5->SetColor(0xFF4488CC);
             row5->AddNode(std::move(swatch5));
@@ -1096,7 +1096,7 @@ void NyanCadMainWindow::OnOpenDialog()
         {
             // Item 1: HBox[ Label "Linear Static" | Badge "Ready" ]
             auto cr1 = std::make_unique<ContainerNode>("cb-row1", LayoutKind::Horizontal);
-            cr1->SetSpacing(matcha::gui::SpacingToken::Px8);
+            cr1->SetSpacing(matcha::gui::SpaceToken::marginXS);
             auto cl1 = std::make_unique<LabelNode>("cb-lbl1");
             cl1->SetText("Linear Static");
             cr1->AddNode(std::move(cl1));
@@ -1108,7 +1108,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
             // Item 2: HBox[ Label "Modal Analysis" | Badge "Running" | ProgressRing ]
             auto cr2 = std::make_unique<ContainerNode>("cb-row2", LayoutKind::Horizontal);
-            cr2->SetSpacing(matcha::gui::SpacingToken::Px8);
+            cr2->SetSpacing(matcha::gui::SpaceToken::marginXS);
             auto cl2 = std::make_unique<LabelNode>("cb-lbl2");
             cl2->SetText("Modal Analysis");
             cr2->AddNode(std::move(cl2));
@@ -1126,7 +1126,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
             // Item 4: HBox[ Label "Fatigue" | Badge "Locked" ]
             auto cr4 = std::make_unique<ContainerNode>("cb-row4", LayoutKind::Horizontal);
-            cr4->SetSpacing(matcha::gui::SpacingToken::Px8);
+            cr4->SetSpacing(matcha::gui::SpaceToken::marginXS);
             auto cl4 = std::make_unique<LabelNode>("cb-lbl4");
             cl4->SetText("Fatigue");
             cr4->AddNode(std::move(cl4));
@@ -1179,7 +1179,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // --- BadgeNode row ---
         auto badgeRow = std::make_unique<ContainerNode>("badge-row", LayoutKind::Horizontal);
-        badgeRow->SetSpacing(SpacingToken::Px4);
+        badgeRow->SetSpacing(SpaceToken::marginXS);
         auto badgeLabel = std::make_unique<LabelNode>("lbl-badge");
         badgeLabel->SetText("Badges:");
         badgeRow->AddNode(std::move(badgeLabel));
@@ -1226,7 +1226,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // --- Progress row: ProgressBar + ProgressRing ---
         auto progressRow = std::make_unique<ContainerNode>("progress-row", LayoutKind::Horizontal);
-        progressRow->SetSpacing(SpacingToken::Px8);
+        progressRow->SetSpacing(SpaceToken::marginXS);
 
         auto progLabel = std::make_unique<LabelNode>("lbl-progress-ring");
         progLabel->SetText("Progress Ring:");
@@ -1245,7 +1245,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // --- RangeSliderNode ---
         auto rangeRow = std::make_unique<ContainerNode>("range-row", LayoutKind::Horizontal);
-        rangeRow->SetSpacing(SpacingToken::Px8);
+        rangeRow->SetSpacing(SpaceToken::marginXS);
 
         auto rangeLabel = std::make_unique<LabelNode>("lbl-range");
         rangeLabel->SetText("Range Slider [20, 80]:");
@@ -1262,7 +1262,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // --- DateTimePickerNode ---
         auto dtRow = std::make_unique<ContainerNode>("dt-row", LayoutKind::Horizontal);
-        dtRow->SetSpacing(SpacingToken::Px8);
+        dtRow->SetSpacing(SpaceToken::marginXS);
 
         auto dtLabel = std::make_unique<LabelNode>("lbl-datetime");
         dtLabel->SetText("Date/Time:");
@@ -1276,7 +1276,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // --- PaginatorNode ---
         auto pagRow = std::make_unique<ContainerNode>("pag-row", LayoutKind::Horizontal);
-        pagRow->SetSpacing(SpacingToken::Px8);
+        pagRow->SetSpacing(SpaceToken::marginXS);
 
         auto pagLabel = std::make_unique<LabelNode>("lbl-paginator");
         pagLabel->SetText("Paginator:");
@@ -1321,7 +1321,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // --- Always-Show toggle ---
         auto alwaysRow = std::make_unique<ContainerNode>("mnem-always-row", LayoutKind::Horizontal);
-        alwaysRow->SetSpacing(SpacingToken::Px8);
+        alwaysRow->SetSpacing(SpaceToken::marginXS);
 
         auto alwaysLabel = std::make_unique<LabelNode>("lbl-mnem-always");
         alwaysLabel->SetText("Always Show Underlines:");
@@ -1342,7 +1342,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // --- Label + Buddy: "&Name" -> LineEdit ---
         auto nameRow = std::make_unique<ContainerNode>("mnem-name-row", LayoutKind::Horizontal);
-        nameRow->SetSpacing(SpacingToken::Px8);
+        nameRow->SetSpacing(SpaceToken::marginXS);
 
         auto nameLabel = std::make_unique<LabelNode>("lbl-mnem-name");
         nameLabel->SetText("&Name:");
@@ -1361,7 +1361,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // --- Label + Buddy: "&Thickness" -> LineEdit ---
         auto thickRow = std::make_unique<ContainerNode>("mnem-thick-row", LayoutKind::Horizontal);
-        thickRow->SetSpacing(SpacingToken::Px8);
+        thickRow->SetSpacing(SpaceToken::marginXS);
 
         auto thickLabel = std::make_unique<LabelNode>("lbl-mnem-thick");
         thickLabel->SetText("&Thickness:");
@@ -1380,7 +1380,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // --- Label + Buddy: "&Material" -> ComboBox ---
         auto matRow = std::make_unique<ContainerNode>("mnem-mat-row", LayoutKind::Horizontal);
-        matRow->SetSpacing(SpacingToken::Px8);
+        matRow->SetSpacing(SpaceToken::marginXS);
 
         auto matLabel = std::make_unique<LabelNode>("lbl-mnem-mat");
         matLabel->SetText("&Material:");
@@ -1460,7 +1460,7 @@ void NyanCadMainWindow::OnOpenDialog()
             content->AddNode(std::move(diag));
 
             auto row = std::make_unique<ContainerNode>("anim-case0-row", LayoutKind::Horizontal);
-            row->SetSpacing(SpacingToken::Px8);
+            row->SetSpacing(SpaceToken::marginXS);
 
             auto btnDisableRM = std::make_unique<PushButtonNode>("btn-disable-rm");
             btnDisableRM->SetText("Disable ReducedMotion");
@@ -1525,7 +1525,7 @@ void NyanCadMainWindow::OnOpenDialog()
             content->AddNode(std::move(title));
 
             auto row = std::make_unique<ContainerNode>("anim-case1-row", LayoutKind::Horizontal);
-            row->SetSpacing(SpacingToken::Px8);
+            row->SetSpacing(SpaceToken::marginXS);
 
             auto target = std::make_unique<PushButtonNode>("anim-case1-target");
             target->SetText("FADE TARGET");
@@ -1556,7 +1556,7 @@ void NyanCadMainWindow::OnOpenDialog()
                         AnimationPropertyId::Opacity,
                         AnimatableValue::FromDouble(1.0),
                         AnimatableValue::FromDouble(0.1),
-                        AnimationToken::Normal, EasingToken::OutCubic);
+                        AnimationsToken::motionBase, EasingToken::OutCubic);
                     d->SetText("[diag] FadeOut h=" + std::to_string(static_cast<uint64_t>(h)));
                 });
             bIn->Subscribe(bIn, "Activated",
@@ -1565,7 +1565,7 @@ void NyanCadMainWindow::OnOpenDialog()
                         AnimationPropertyId::Opacity,
                         AnimatableValue::FromDouble(0.1),
                         AnimatableValue::FromDouble(1.0),
-                        AnimationToken::Quick, EasingToken::InOutCubic);
+                        AnimationsToken::motionDurationFast, EasingToken::InOutCubic);
                     d->SetText("[diag] FadeIn h=" + std::to_string(static_cast<uint64_t>(h)));
                 });
         }
@@ -1580,7 +1580,7 @@ void NyanCadMainWindow::OnOpenDialog()
             content->AddNode(std::move(title));
 
             auto row = std::make_unique<ContainerNode>("anim-case2-row", LayoutKind::Horizontal);
-            row->SetSpacing(SpacingToken::Px8);
+            row->SetSpacing(SpaceToken::marginXS);
 
             auto target = std::make_unique<PushButtonNode>("anim-case2-target");
             target->SetText("HEIGHT TARGET");
@@ -1610,7 +1610,7 @@ void NyanCadMainWindow::OnOpenDialog()
                     auto h = tgt->AnimateProperty(
                         AnimationPropertyId::MinimumHeight,
                         AnimatableValue::FromInt(24), AnimatableValue::FromInt(120),
-                        AnimationToken::Slow, EasingToken::OutCubic);
+                        AnimationsToken::motionDurationSlow, EasingToken::OutCubic);
                     d->SetText("[diag] Grow h=" + std::to_string(static_cast<uint64_t>(h)) +
                         " minH=" + std::to_string(tgt->Widget() ? tgt->Widget()->minimumHeight() : -1));
                 });
@@ -1619,7 +1619,7 @@ void NyanCadMainWindow::OnOpenDialog()
                     auto h = tgt->AnimateProperty(
                         AnimationPropertyId::MinimumHeight,
                         AnimatableValue::FromInt(120), AnimatableValue::FromInt(24),
-                        AnimationToken::Quick, EasingToken::OutCubic);
+                        AnimationsToken::motionDurationFast, EasingToken::OutCubic);
                     d->SetText("[diag] Shrink h=" + std::to_string(static_cast<uint64_t>(h)) +
                         " minH=" + std::to_string(tgt->Widget() ? tgt->Widget()->minimumHeight() : -1));
                 });
@@ -1635,7 +1635,7 @@ void NyanCadMainWindow::OnOpenDialog()
             content->AddNode(std::move(title));
 
             auto row = std::make_unique<ContainerNode>("anim-case3-row", LayoutKind::Horizontal);
-            row->SetSpacing(SpacingToken::Px8);
+            row->SetSpacing(SpaceToken::marginXS);
 
             auto target = std::make_unique<PushButtonNode>("anim-case3-target");
             target->SetText("SPRING HEIGHT TARGET");
@@ -1665,7 +1665,7 @@ void NyanCadMainWindow::OnOpenDialog()
                     auto h = tgt->AnimateProperty(
                         AnimationPropertyId::MaximumHeight,
                         AnimatableValue::FromInt(30), AnimatableValue::FromInt(100),
-                        AnimationToken::Normal, EasingToken::Spring);
+                        AnimationsToken::motionDurationDefault, EasingToken::Spring);
                     d->SetText("[diag] Spring h=" + std::to_string(static_cast<uint64_t>(h)) +
                         " maxH=" + std::to_string(tgt->Widget() ? tgt->Widget()->maximumHeight() : -1));
                 });
@@ -1686,7 +1686,7 @@ void NyanCadMainWindow::OnOpenDialog()
             content->AddNode(std::move(title));
 
             auto row = std::make_unique<ContainerNode>("anim-case4-row", LayoutKind::Horizontal);
-            row->SetSpacing(SpacingToken::Px8);
+            row->SetSpacing(SpaceToken::marginXS);
 
             auto target = std::make_unique<PushButtonNode>("anim-case4-target");
             target->SetText("CUSTOM SPRING TARGET");
@@ -1745,7 +1745,7 @@ void NyanCadMainWindow::OnOpenDialog()
             content->AddNode(std::move(title));
 
             auto row = std::make_unique<ContainerNode>("anim-case5-row", LayoutKind::Horizontal);
-            row->SetSpacing(SpacingToken::Px8);
+            row->SetSpacing(SpaceToken::marginXS);
 
             auto target = std::make_unique<PushButtonNode>("anim-case5-target");
             target->SetText("EASING TARGET");
@@ -1784,21 +1784,21 @@ void NyanCadMainWindow::OnOpenDialog()
                 [tgt, d](matcha::EventNode&, matcha::Notification&) {
                     auto h = tgt->AnimateProperty(AnimationPropertyId::MinimumHeight,
                         AnimatableValue::FromInt(30), AnimatableValue::FromInt(80),
-                        AnimationToken::Slow, EasingToken::Linear);
+                        AnimationsToken::motionDurationSlow, EasingToken::Linear);
                     d->SetText("[diag] Linear h=" + std::to_string(static_cast<uint64_t>(h)));
                 });
             bCub->Subscribe(bCub, "Activated",
                 [tgt, d](matcha::EventNode&, matcha::Notification&) {
                     auto h = tgt->AnimateProperty(AnimationPropertyId::MinimumHeight,
                         AnimatableValue::FromInt(30), AnimatableValue::FromInt(80),
-                        AnimationToken::Slow, EasingToken::OutCubic);
+                        AnimationsToken::motionDurationSlow, EasingToken::OutCubic);
                     d->SetText("[diag] OutCubic h=" + std::to_string(static_cast<uint64_t>(h)));
                 });
             bIO->Subscribe(bIO, "Activated",
                 [tgt, d](matcha::EventNode&, matcha::Notification&) {
                     auto h = tgt->AnimateProperty(AnimationPropertyId::MinimumHeight,
                         AnimatableValue::FromInt(30), AnimatableValue::FromInt(80),
-                        AnimationToken::Slow, EasingToken::InOutCubic);
+                        AnimationsToken::motionDurationSlow, EasingToken::InOutCubic);
                     d->SetText("[diag] InOutCubic h=" + std::to_string(static_cast<uint64_t>(h)));
                 });
             bR->Subscribe(bR, "Activated",
@@ -1818,7 +1818,7 @@ void NyanCadMainWindow::OnOpenDialog()
             content->AddNode(std::move(title));
 
             auto row = std::make_unique<ContainerNode>("anim-case6-row", LayoutKind::Horizontal);
-            row->SetSpacing(SpacingToken::Px8);
+            row->SetSpacing(SpaceToken::marginXS);
 
             auto target = std::make_unique<PushButtonNode>("anim-case6-target");
             target->SetText("INTERRUPT TARGET");
@@ -1847,7 +1847,7 @@ void NyanCadMainWindow::OnOpenDialog()
                 [tgt, d](matcha::EventNode&, matcha::Notification&) {
                     auto h = tgt->AnimateProperty(AnimationPropertyId::MinimumHeight,
                         AnimatableValue::FromInt(30), AnimatableValue::FromInt(100),
-                        AnimationToken::Slow, EasingToken::OutCubic);
+                        AnimationsToken::motionDurationSlow, EasingToken::OutCubic);
                     d->SetText("[diag] Started 30->100, h=" + std::to_string(static_cast<uint64_t>(h)));
                 });
             bRe->Subscribe(bRe, "Activated",
@@ -1855,7 +1855,7 @@ void NyanCadMainWindow::OnOpenDialog()
                     int curMinH = tgt->Widget() ? tgt->Widget()->minimumHeight() : 30;
                     auto h = tgt->AnimateProperty(AnimationPropertyId::MinimumHeight,
                         AnimatableValue::FromInt(curMinH), AnimatableValue::FromInt(60),
-                        AnimationToken::Quick, EasingToken::InOutCubic);
+                        AnimationsToken::motionDurationFast, EasingToken::InOutCubic);
                     d->SetText("[diag] Re-targeted from " + std::to_string(curMinH) +
                         "->60, h=" + std::to_string(static_cast<uint64_t>(h)));
                 });
@@ -1871,7 +1871,7 @@ void NyanCadMainWindow::OnOpenDialog()
             content->AddNode(std::move(title));
 
             auto row = std::make_unique<ContainerNode>("anim-case7-row", LayoutKind::Horizontal);
-            row->SetSpacing(SpacingToken::Px8);
+            row->SetSpacing(SpaceToken::marginXS);
 
             auto target = std::make_unique<PushButtonNode>("anim-case7-target");
             target->SetText("LIFECYCLE TARGET");
@@ -1918,7 +1918,7 @@ void NyanCadMainWindow::OnOpenDialog()
                     s_case7Handle = tgt->AnimateProperty(
                         AnimationPropertyId::Opacity,
                         AnimatableValue::FromDouble(1.0), AnimatableValue::FromDouble(0.0),
-                        AnimationToken::Slow, EasingToken::Linear);
+                        AnimationsToken::motionDurationSlow, EasingToken::Linear);
                     d->SetText("[diag] SlowFade h=" + std::to_string(static_cast<uint64_t>(s_case7Handle)));
                 });
             bCancel->Subscribe(bCancel, "Activated",
@@ -1939,7 +1939,7 @@ void NyanCadMainWindow::OnOpenDialog()
                     auto h = tgt->AnimateProperty(
                         AnimationPropertyId::Opacity,
                         AnimatableValue::FromDouble(0.0), AnimatableValue::FromDouble(1.0),
-                        AnimationToken::Quick, EasingToken::InOutCubic);
+                        AnimationsToken::motionDurationFast, EasingToken::InOutCubic);
                     d->SetText("[diag] FadeIn h=" + std::to_string(static_cast<uint64_t>(h)));
                 });
 
@@ -1967,7 +1967,7 @@ void NyanCadMainWindow::OnOpenDialog()
             content->AddNode(std::move(title));
 
             auto row = std::make_unique<ContainerNode>("anim-case8-row", LayoutKind::Horizontal);
-            row->SetSpacing(SpacingToken::Px8);
+            row->SetSpacing(SpaceToken::marginXS);
 
             auto targetA = std::make_unique<PushButtonNode>("anim-case8-tgtA");
             targetA->SetText("GROUP-A (opacity)");
@@ -2022,10 +2022,10 @@ void NyanCadMainWindow::OnOpenDialog()
                     std::array<GroupAnimationSpec, 2> specs = {{
                         { .target=tgtA, .property=AnimationPropertyId::Opacity,
                           .from=AnimatableValue::FromDouble(1.0), .to=AnimatableValue::FromDouble(0.15),
-                          .duration=AnimationToken::Slow, .easing=EasingToken::OutCubic },
+                          .duration=AnimationsToken::motionDurationSlow, .easing=EasingToken::OutCubic },
                         { .target=tgtB, .property=AnimationPropertyId::MinimumHeight,
                           .from=AnimatableValue::FromInt(24), .to=AnimatableValue::FromInt(100),
-                          .duration=AnimationToken::Slow, .easing=EasingToken::OutCubic },
+                          .duration=AnimationsToken::motionDurationSlow, .easing=EasingToken::OutCubic },
                     }};
                     auto gid = svc->AnimateGroup(specs, GroupMode::Parallel);
                     d->SetText("[diag] Parallel gid=" +
@@ -2040,10 +2040,10 @@ void NyanCadMainWindow::OnOpenDialog()
                     std::array<GroupAnimationSpec, 2> specs = {{
                         { .target=tgtA, .property=AnimationPropertyId::Opacity,
                           .from=AnimatableValue::FromDouble(0.15), .to=AnimatableValue::FromDouble(1.0),
-                          .duration=AnimationToken::Slow, .easing=EasingToken::InOutCubic },
+                          .duration=AnimationsToken::motionDurationSlow, .easing=EasingToken::InOutCubic },
                         { .target=tgtB, .property=AnimationPropertyId::MinimumHeight,
                           .from=AnimatableValue::FromInt(100), .to=AnimatableValue::FromInt(24),
-                          .duration=AnimationToken::Slow, .easing=EasingToken::InOutCubic },
+                          .duration=AnimationsToken::motionDurationSlow, .easing=EasingToken::InOutCubic },
                     }};
                     auto gid = svc->AnimateGroup(specs, GroupMode::Parallel);
                     d->SetText("[diag] Reverse gid=" +
@@ -2095,7 +2095,7 @@ void NyanCadMainWindow::OnOpenDialog()
             content->AddNode(std::move(title));
 
             auto row = std::make_unique<ContainerNode>("anim-case9-row", LayoutKind::Horizontal);
-            row->SetSpacing(SpacingToken::Px8);
+            row->SetSpacing(SpaceToken::marginXS);
 
             auto targetA = std::make_unique<PushButtonNode>("anim-case9-tgtA");
             targetA->SetText("SEQ-A (opacity)");
@@ -2152,10 +2152,10 @@ void NyanCadMainWindow::OnOpenDialog()
                     std::array<GroupAnimationSpec, 2> specs = {{
                         { .target=tgtA, .property=AnimationPropertyId::Opacity,
                           .from=AnimatableValue::FromDouble(1.0), .to=AnimatableValue::FromDouble(0.1),
-                          .duration=AnimationToken::Slow, .easing=EasingToken::OutCubic },
+                          .duration=AnimationsToken::motionDurationSlow, .easing=EasingToken::OutCubic },
                         { .target=tgtB, .property=AnimationPropertyId::MinimumHeight,
                           .from=AnimatableValue::FromInt(24), .to=AnimatableValue::FromInt(100),
-                          .duration=AnimationToken::Slow, .easing=EasingToken::OutCubic },
+                          .duration=AnimationsToken::motionDurationSlow, .easing=EasingToken::OutCubic },
                     }};
                     s_case9Gid = svc->AnimateGroup(specs, GroupMode::Sequential);
                     d->SetText("[diag] Sequential gid=" +
@@ -2221,7 +2221,7 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto row = std::make_unique<ContainerNode>("tooltip-row", LayoutKind::Horizontal);
-        row->SetSpacing(SpacingToken::Px8);
+        row->SetSpacing(SpaceToken::marginXS);
 
         // Simple tooltip (tier 1 only)
         auto btnSimple = std::make_unique<PushButtonNode>("btn-tip-simple");
@@ -2237,7 +2237,7 @@ void NyanCadMainWindow::OnOpenDialog()
         auto btnShortcut = std::make_unique<PushButtonNode>("btn-tip-shortcut");
         btnShortcut->SetText("With Shortcut");
         btnShortcut->SetIcon(icons::Save);
-        btnShortcut->SetIconSize(IconSize::Sm);
+        btnShortcut->SetIconSize(IconToken::iconSizeSM);
         {
             TooltipSpec tip;
             tip.title = "Save";
@@ -2250,7 +2250,7 @@ void NyanCadMainWindow::OnOpenDialog()
         auto btnRich = std::make_unique<PushButtonNode>("btn-tip-rich");
         btnRich->SetText("Rich Tooltip");
         btnRich->SetIcon(icons::Settings);
-        btnRich->SetIconSize(IconSize::Sm);
+        btnRich->SetIconSize(IconToken::iconSizeSM);
         btnRich->SetVariant(matcha::gui::ButtonVariant::Primary);
         {
             TooltipSpec tip;
@@ -2302,7 +2302,7 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto pgRow = std::make_unique<ContainerNode>("propgrid-row", LayoutKind::Horizontal);
-        pgRow->SetSpacing(SpacingToken::Px8);
+        pgRow->SetSpacing(SpaceToken::marginXS);
 
         auto grid = std::make_unique<PropertyGridNode>("propgrid-demo");
         grid->AddGroup("Geometry");
@@ -2320,7 +2320,7 @@ void NyanCadMainWindow::OnOpenDialog()
         pgRow->AddNode(std::move(grid));
 
         auto diagCol = std::make_unique<ContainerNode>("propgrid-diag", LayoutKind::Vertical);
-        diagCol->SetSpacing(SpacingToken::Px4);
+        diagCol->SetSpacing(SpaceToken::marginXS);
         auto diagLabel = std::make_unique<LabelNode>("lbl-propgrid-diag");
         diagLabel->SetText("[diag] Edit a property to see notifications");
         auto* dPg = diagLabel.get();
@@ -2349,7 +2349,7 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto treeRow = std::make_unique<ContainerNode>("tree-row", LayoutKind::Horizontal);
-        treeRow->SetSpacing(SpacingToken::Px8);
+        treeRow->SetSpacing(SpaceToken::marginXS);
 
         auto tree = std::make_unique<TreeWidgetNode>("tree-demo");
         tree->SetTitle("Assembly");
@@ -2376,7 +2376,7 @@ void NyanCadMainWindow::OnOpenDialog()
         treeRow->AddNode(std::move(tree));
 
         auto treeDiag = std::make_unique<ContainerNode>("tree-diag", LayoutKind::Vertical);
-        treeDiag->SetSpacing(SpacingToken::Px4);
+        treeDiag->SetSpacing(SpaceToken::marginXS);
 
         auto btnExpand = std::make_unique<PushButtonNode>("btn-tree-expand");
         btnExpand->SetText("Expand All");
@@ -2427,7 +2427,7 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto row = std::make_unique<ContainerNode>("notif-row", LayoutKind::Horizontal);
-        row->SetSpacing(SpacingToken::Px8);
+        row->SetSpacing(SpaceToken::marginXS);
 
         auto diagLabel = std::make_unique<LabelNode>("lbl-notif-diag");
         diagLabel->SetText("[diag] Click a button to show a toast");
@@ -2436,28 +2436,28 @@ void NyanCadMainWindow::OnOpenDialog()
         auto btnInfo = std::make_unique<PushButtonNode>("btn-notif-info");
         btnInfo->SetText("Info Toast");
         btnInfo->SetIcon(icons::Info);
-        btnInfo->SetIconSize(IconSize::Sm);
+        btnInfo->SetIconSize(IconToken::iconSizeSM);
         auto* bInfo = btnInfo.get();
         row->AddNode(std::move(btnInfo));
 
         auto btnSuccess = std::make_unique<PushButtonNode>("btn-notif-success");
         btnSuccess->SetText("Success Toast");
         btnSuccess->SetIcon(icons::Success);
-        btnSuccess->SetIconSize(IconSize::Sm);
+        btnSuccess->SetIconSize(IconToken::iconSizeSM);
         auto* bSuccess = btnSuccess.get();
         row->AddNode(std::move(btnSuccess));
 
         auto btnWarn = std::make_unique<PushButtonNode>("btn-notif-warn");
         btnWarn->SetText("Warning Toast");
         btnWarn->SetIcon(icons::Warning);
-        btnWarn->SetIconSize(IconSize::Sm);
+        btnWarn->SetIconSize(IconToken::iconSizeSM);
         auto* bWarn = btnWarn.get();
         row->AddNode(std::move(btnWarn));
 
         auto btnErr = std::make_unique<PushButtonNode>("btn-notif-error");
         btnErr->SetText("Error Toast");
         btnErr->SetIcon(icons::Error);
-        btnErr->SetIconSize(IconSize::Sm);
+        btnErr->SetIconSize(IconToken::iconSizeSM);
         btnErr->SetVariant(matcha::gui::ButtonVariant::Danger);
         auto* bErr = btnErr.get();
         row->AddNode(std::move(btnErr));
@@ -2576,13 +2576,13 @@ void NyanCadMainWindow::OnOpenDialog()
         for (size_t rowStart = 0; rowStart < iconList.size(); rowStart += 10) {
             auto iconRow = std::make_unique<ContainerNode>(
                 "icon-row-" + std::to_string(rowStart), LayoutKind::Horizontal);
-            iconRow->SetSpacing(SpacingToken::Px4);
+            iconRow->SetSpacing(SpaceToken::marginXS);
             for (size_t i = rowStart; i < rowStart + 10 && i < iconList.size(); ++i) {
                 auto btn = std::make_unique<PushButtonNode>(
                     "btn-icon-" + std::string(iconList[i].label));
                 btn->SetText(std::string(iconList[i].label));
                 btn->SetIcon(iconList[i].id);
-                btn->SetIconSize(IconSize::Sm);
+                btn->SetIconSize(IconToken::iconSizeSM);
                 {
                     TooltipSpec tip;
                     tip.title = std::string(iconList[i].label);
@@ -2605,7 +2605,7 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto ctxRow = std::make_unique<ContainerNode>("ctx-row", LayoutKind::Horizontal);
-        ctxRow->SetSpacing(SpacingToken::Px8);
+        ctxRow->SetSpacing(SpaceToken::marginXS);
 
         auto ctxTarget = std::make_unique<PushButtonNode>("btn-ctx-target");
         ctxTarget->SetText("Right-click me for Context Menu");
@@ -2659,7 +2659,7 @@ void NyanCadMainWindow::OnOpenDialog()
         content->AddNode(std::move(secTitle));
 
         auto helpRow = std::make_unique<ContainerNode>("help-row", LayoutKind::Horizontal);
-        helpRow->SetSpacing(SpacingToken::Px8);
+        helpRow->SetSpacing(SpaceToken::marginXS);
 
         auto btnStatus = std::make_unique<PushButtonNode>("btn-help-status");
         btnStatus->SetText("StatusHint (hover)");
@@ -2699,33 +2699,33 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // All 4 button variants
         auto btnRow = std::make_unique<ContainerNode>("variant-row", LayoutKind::Horizontal);
-        btnRow->SetSpacing(SpacingToken::Px8);
+        btnRow->SetSpacing(SpaceToken::marginXS);
 
         auto bPri = std::make_unique<PushButtonNode>("btn-var-primary");
         bPri->SetText("Primary");
         bPri->SetIcon(icons::Check);
-        bPri->SetIconSize(IconSize::Sm);
+        bPri->SetIconSize(IconToken::iconSizeSM);
         bPri->SetVariant(matcha::gui::ButtonVariant::Primary);
         btnRow->AddNode(std::move(bPri));
 
         auto bSec = std::make_unique<PushButtonNode>("btn-var-secondary");
         bSec->SetText("Secondary");
         bSec->SetIcon(icons::Settings);
-        bSec->SetIconSize(IconSize::Sm);
+        bSec->SetIconSize(IconToken::iconSizeSM);
         bSec->SetVariant(matcha::gui::ButtonVariant::Secondary);
         btnRow->AddNode(std::move(bSec));
 
         auto bGhost = std::make_unique<PushButtonNode>("btn-var-ghost");
         bGhost->SetText("Ghost");
         bGhost->SetIcon(icons::Refresh);
-        bGhost->SetIconSize(IconSize::Sm);
+        bGhost->SetIconSize(IconToken::iconSizeSM);
         bGhost->SetVariant(matcha::gui::ButtonVariant::Ghost);
         btnRow->AddNode(std::move(bGhost));
 
         auto bDanger = std::make_unique<PushButtonNode>("btn-var-danger");
         bDanger->SetText("Danger");
         bDanger->SetIcon(icons::Delete);
-        bDanger->SetIconSize(IconSize::Sm);
+        bDanger->SetIconSize(IconToken::iconSizeSM);
         bDanger->SetVariant(matcha::gui::ButtonVariant::Danger);
         btnRow->AddNode(std::move(bDanger));
 
@@ -2733,7 +2733,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // LabelRole comparison
         auto labelRow = std::make_unique<ContainerNode>("label-role-row", LayoutKind::Vertical);
-        labelRow->SetSpacing(SpacingToken::Px4);
+        labelRow->SetSpacing(SpaceToken::marginXS);
 
         auto lblTitle = std::make_unique<LabelNode>("lbl-role-title");
         lblTitle->SetText("LabelRole::Title — Section headers");
@@ -2769,7 +2769,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // Enabled / Disabled comparison
         auto stateRow1 = std::make_unique<ContainerNode>("state-row1", LayoutKind::Horizontal);
-        stateRow1->SetSpacing(SpacingToken::Px8);
+        stateRow1->SetSpacing(SpaceToken::marginXS);
 
         auto lblEnabled = std::make_unique<LabelNode>("lbl-state-enabled");
         lblEnabled->SetText("Enabled/Disabled:");
@@ -2806,7 +2806,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // Visible/Hidden toggle
         auto stateRow2 = std::make_unique<ContainerNode>("state-row2", LayoutKind::Horizontal);
-        stateRow2->SetSpacing(SpacingToken::Px8);
+        stateRow2->SetSpacing(SpaceToken::marginXS);
 
         auto visTarget = std::make_unique<PushButtonNode>("btn-vis-target");
         visTarget->SetText("I am visible");
@@ -2844,7 +2844,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // Accessibility
         auto stateRow3 = std::make_unique<ContainerNode>("state-row3", LayoutKind::Horizontal);
-        stateRow3->SetSpacing(SpacingToken::Px8);
+        stateRow3->SetSpacing(SpaceToken::marginXS);
 
         auto a11yLabel = std::make_unique<LabelNode>("lbl-a11y-demo");
         a11yLabel->SetText("A11y:");
@@ -2873,7 +2873,7 @@ void NyanCadMainWindow::OnOpenDialog()
 
         // DnD demo (drop target)
         auto stateRow4 = std::make_unique<ContainerNode>("state-row4", LayoutKind::Horizontal);
-        stateRow4->SetSpacing(SpacingToken::Px8);
+        stateRow4->SetSpacing(SpaceToken::marginXS);
 
         auto dndLabel = std::make_unique<LabelNode>("lbl-dnd-demo");
         dndLabel->SetText("Drag & Drop target (accepts text/plain):");

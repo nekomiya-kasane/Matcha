@@ -118,7 +118,7 @@ void NyanSlider::paintEvent(QPaintEvent* /*event*/)
         const int handleX = trackLeft + filledW - halfHandle;
         const int handleY = (height() - kHandleSize) / 2;
         p.setPen(QPen(style.border, 1));
-        p.setBrush(Theme().Color(ColorToken::SurfaceElevated));
+        p.setBrush(Theme().Color(ColorToken::colorPrimary));
         p.drawEllipse(handleX, handleY, kHandleSize, kHandleSize);
 
         // -- Tick marks --
@@ -154,7 +154,7 @@ void NyanSlider::paintEvent(QPaintEvent* /*event*/)
         const int handleX = (width() - kHandleSize) / 2;
         const int handleY = trackBottom - filledH - halfHandle;
         p.setPen(QPen(style.border, 1));
-        p.setBrush(Theme().Color(ColorToken::SurfaceElevated));
+        p.setBrush(Theme().Color(ColorToken::colorPrimary));
         p.drawEllipse(handleX, handleY, kHandleSize, kHandleSize);
     }
 }

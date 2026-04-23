@@ -131,11 +131,11 @@ void NyanMainTitleBar::paintEvent(QPaintEvent* /*event*/)
     p.setRenderHint(QPainter::Antialiasing);
 
     const auto& theme = Theme();
-    p.fillRect(rect(), theme.Color(ColorToken::SurfaceElevated));
+    p.fillRect(rect(), theme.Color(ColorToken::colorPrimaryBg));
 
     // Draw title text if no title logo
     if (_titleLogo.isNull() && !_title.isEmpty()) {
-        p.setPen(theme.Color(ColorToken::TextPrimary));
+        p.setPen(theme.Color(ColorToken::colorText));
         p.setFont(QFont("Segoe UI", 9));
         QRect titleRect = rect();
         titleRect.setLeft(100);
@@ -201,17 +201,17 @@ void NyanMainTitleBar::UpdateButtonStyles()
         "QWidget { background-color: %1; }"
         "QPushButton { background: transparent; border: none; color: %2; font-size: 12px; }"
         "QPushButton:hover { background-color: %3; }"
-    ).arg(theme.Color(ColorToken::SurfaceElevated).name(),
-          theme.Color(ColorToken::TextPrimary).name(),
-          theme.Color(ColorToken::FillActive).name());
+    ).arg(theme.Color(ColorToken::colorPrimaryBg).name(),
+          theme.Color(ColorToken::colorText).name(),
+          theme.Color(ColorToken::colorFillTertiary).name());
     setStyleSheet(style);
 
     // Close button special style (red on hover)
     QString closeStyle = QString(
         "QPushButton { background: transparent; border: none; color: %1; font-size: 16px; font-weight: bold; }"
         "QPushButton:hover { background-color: %2; color: white; }"
-    ).arg(theme.Color(ColorToken::TextPrimary).name(),
-          theme.Color(ColorToken::Error).name());
+    ).arg(theme.Color(ColorToken::colorText).name(),
+          theme.Color(ColorToken::colorError).name());
     _closeButton->setStyleSheet(closeStyle);
 }
 

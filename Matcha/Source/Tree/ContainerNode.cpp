@@ -93,7 +93,7 @@ auto ContainerNode::Kind() const -> LayoutKind
 
 namespace {
 
-auto ResolveToken(SpacingToken token) -> int
+auto ResolveToken(SpaceToken token) -> int
 {
     auto* reg = GetGlobalTokenRegistry();
     if (reg != nullptr) {
@@ -104,20 +104,20 @@ auto ResolveToken(SpacingToken token) -> int
 
 } // namespace
 
-void ContainerNode::SetSpacing(SpacingToken token)
+void ContainerNode::SetSpacing(SpaceToken token)
 {
     _spacingToken = token;
     ApplySpacing();
 }
 
-void ContainerNode::SetMargins(SpacingToken token)
+void ContainerNode::SetMargins(SpaceToken token)
 {
     _marginLeft = _marginTop = _marginRight = _marginBottom = token;
     ApplyMargins();
 }
 
-void ContainerNode::SetMargins(SpacingToken left, SpacingToken top,
-                               SpacingToken right, SpacingToken bottom)
+void ContainerNode::SetMargins(SpaceToken left, SpaceToken top,
+                               SpaceToken right, SpaceToken bottom)
 {
     _marginLeft   = left;
     _marginTop    = top;

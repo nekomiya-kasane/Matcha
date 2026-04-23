@@ -187,8 +187,8 @@ void NyanSelectionInput::UpdateVisualState()
         "QLineEdit::placeholder {"
         "  color: %2;"
         "}"
-    ).arg(theme.Color(ColorToken::TextPrimary).name(),
-          theme.Color(ColorToken::TextTertiary).name());
+    ).arg(theme.Color(ColorToken::colorText).name(),
+          theme.Color(ColorToken::colorTextTertiary).name());
     _displayEdit->setStyleSheet(editStyle);
 
     // Update button styles
@@ -203,8 +203,8 @@ void NyanSelectionInput::UpdateVisualState()
         "QPushButton:hover {"
         "  color: %2;"
         "}"
-    ).arg(theme.Color(ColorToken::TextSecondary).name(),
-          theme.Color(ColorToken::Primary).name());
+    ).arg(theme.Color(ColorToken::colorTextSecondary).name(),
+          theme.Color(ColorToken::colorPrimary).name());
     _pickButton->setStyleSheet(buttonStyle);
 
     QString clearStyle = QString(
@@ -218,8 +218,8 @@ void NyanSelectionInput::UpdateVisualState()
         "QPushButton:hover {"
         "  color: %2;"
         "}"
-    ).arg(theme.Color(ColorToken::TextTertiary).name(),
-          theme.Color(ColorToken::Error).name());
+    ).arg(theme.Color(ColorToken::colorTextTertiary).name(),
+          theme.Color(ColorToken::colorError).name());
     _clearButton->setStyleSheet(clearStyle);
 }
 
@@ -250,16 +250,16 @@ auto NyanSelectionInput::StateBackgroundColor() const -> QColor
 
     switch (_state) {
     case SelectionState::PickingEmpty:
-        return theme.Color(ColorToken::WarningBorder);
+        return theme.Color(ColorToken::colorWarningBorder);
     case SelectionState::PickingIdle:
-        return theme.Color(ColorToken::WarningBgHover);
+        return theme.Color(ColorToken::colorWarningHover);
     case SelectionState::Selected:
-        return theme.Color(ColorToken::SuccessBorder);
+        return theme.Color(ColorToken::colorSuccessBorder);
     case SelectionState::SelectedIdle:
-        return theme.Color(ColorToken::SuccessBgHover);
+        return theme.Color(ColorToken::colorSuccessHover);
     case SelectionState::Idle:
     default:
-        return theme.Color(ColorToken::FillHover);
+        return theme.Color(ColorToken::colorFillHover);
     }
 }
 
@@ -269,16 +269,16 @@ auto NyanSelectionInput::StateBorderColor() const -> QColor
 
     switch (_state) {
     case SelectionState::PickingEmpty:
-        return theme.Color(ColorToken::Warning);
+        return theme.Color(ColorToken::colorWarning);
     case SelectionState::PickingIdle:
-        return theme.Color(ColorToken::BorderDefault);
+        return theme.Color(ColorToken::colorBorder);
     case SelectionState::Selected:
-        return theme.Color(ColorToken::Success);
+        return theme.Color(ColorToken::colorSuccess);
     case SelectionState::SelectedIdle:
-        return theme.Color(ColorToken::BorderDefault);
+        return theme.Color(ColorToken::colorBorder);
     case SelectionState::Idle:
     default:
-        return theme.Color(ColorToken::BorderDefault);
+        return theme.Color(ColorToken::colorBorder);
     }
 }
 

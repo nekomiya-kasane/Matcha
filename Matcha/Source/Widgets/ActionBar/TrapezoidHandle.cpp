@@ -99,13 +99,13 @@ void TrapezoidHandle::paintEvent(QPaintEvent* /*event*/)
     p.setRenderHint(QPainter::Antialiasing);
 
     const auto& theme = Theme();
-    QColor bg = theme.Color(ColorToken::FillActive);
-    QColor border = theme.Color(ColorToken::BorderDefault);
+    QColor bg = theme.Color(ColorToken::colorFillTertiary);
+    QColor border = theme.Color(ColorToken::colorBorder);
 
     if (_pressed) {
-        bg = theme.Color(ColorToken::FillActive);
+        bg = theme.Color(ColorToken::colorFillTertiary);
     } else if (_hovered) {
-        bg = theme.Color(ColorToken::FillActive);
+        bg = theme.Color(ColorToken::colorFillTertiary);
     }
 
     auto path = BuildTrapezoidPath();
@@ -118,7 +118,7 @@ void TrapezoidHandle::paintEvent(QPaintEvent* /*event*/)
     const QPointF center = r.center();
     const qreal arrowHalf = 4.0;
 
-    p.setPen(QPen(theme.Color(ColorToken::TextSecondary), 1.5));
+    p.setPen(QPen(theme.Color(ColorToken::colorTextSecondary), 1.5));
     p.setBrush(Qt::NoBrush);
 
     QPainterPath arrow;

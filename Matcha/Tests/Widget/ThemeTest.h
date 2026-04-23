@@ -58,12 +58,12 @@ private slots: // NOLINT(readability-redundant-access-specifiers)
         theme.SetTheme(kThemeLight);
 
         const auto lightBg0 = theme.Color(ColorToken::Surface);
-        const auto lightFg1 = theme.Color(ColorToken::TextPrimary);
+        const auto lightFg1 = theme.Color(ColorToken::colorText);
 
         theme.SetTheme(kThemeDark);
 
         const auto darkBg0 = theme.Color(ColorToken::Surface);
-        const auto darkFg1 = theme.Color(ColorToken::TextPrimary);
+        const auto darkFg1 = theme.Color(ColorToken::colorText);
 
         QVERIFY(lightBg0 != darkBg0);
         QVERIFY(lightFg1 != darkFg1);
@@ -95,11 +95,11 @@ private slots: // NOLINT(readability-redundant-access-specifiers)
         NyanTheme theme(QStringLiteral(MATCHA_TEST_PALETTE_DIR));
 
         theme.SetTheme(kThemeLight);
-        const auto& lightHigh = theme.Shadow(ElevationToken::High);
+        const auto& lightHigh = theme.Shadow(ShadowToken::High);
         QVERIFY(lightHigh.blurRadius > 0);
 
         theme.SetTheme(kThemeDark);
-        const auto& darkHigh = theme.Shadow(ElevationToken::High);
+        const auto& darkHigh = theme.Shadow(ShadowToken::High);
         QVERIFY(darkHigh.blurRadius > 0);
         // Shadow specs are theme-independent (same elevation = same blur)
         QCOMPARE(darkHigh.blurRadius, lightHigh.blurRadius);
@@ -167,18 +167,18 @@ private slots: // NOLINT(readability-redundant-access-specifiers)
         theme.SetTheme(kThemeLight);
 
         // Default values
-        QCOMPARE(theme.AnimationMs(AnimationToken::Quick), 160);
-        QCOMPARE(theme.AnimationMs(AnimationToken::Slow), 350);
+        QCOMPARE(theme.AnimationMs(AnimationsToken::Quick), 160);
+        QCOMPARE(theme.AnimationMs(AnimationsToken::Slow), 350);
 
         // Override to 0 (test mode)
         theme.SetAnimationOverride(0);
-        QCOMPARE(theme.AnimationMs(AnimationToken::Quick), 0);
-        QCOMPARE(theme.AnimationMs(AnimationToken::Normal), 0);
-        QCOMPARE(theme.AnimationMs(AnimationToken::Slow), 0);
+        QCOMPARE(theme.AnimationMs(AnimationsToken::Quick), 0);
+        QCOMPARE(theme.AnimationMs(AnimationsToken::Normal), 0);
+        QCOMPARE(theme.AnimationMs(AnimationsToken::Slow), 0);
 
         // Restore
         theme.SetAnimationOverride(-1);
-        QCOMPARE(theme.AnimationMs(AnimationToken::Quick), 160);
+        QCOMPARE(theme.AnimationMs(AnimationsToken::Quick), 160);
     }
 
     // -- S4: Component override applied --

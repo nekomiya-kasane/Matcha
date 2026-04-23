@@ -208,7 +208,7 @@ TEST_SUITE("ContainerNode SpacingToken") {
 TEST_CASE("SetSpacing applies token") {
     matcha::test::QtAppGuard::Ensure();
     ContainerNode node("test-hbox", LayoutKind::Horizontal);
-    node.SetSpacing(SpacingToken::Px8);
+    node.SetSpacing(SpaceToken::Px8);
     // Just verify no crash; pixel value depends on ITokenRegistry availability
     CHECK(node.Kind() == LayoutKind::Horizontal);
 }
@@ -216,15 +216,15 @@ TEST_CASE("SetSpacing applies token") {
 TEST_CASE("SetMargins uniform applies token") {
     matcha::test::QtAppGuard::Ensure();
     ContainerNode node("test-vbox", LayoutKind::Vertical);
-    node.SetMargins(SpacingToken::Px4);
+    node.SetMargins(SpaceToken::Px4);
     CHECK(node.Kind() == LayoutKind::Vertical);
 }
 
 TEST_CASE("SetMargins per-side applies tokens") {
     matcha::test::QtAppGuard::Ensure();
     ContainerNode node("test-grid", LayoutKind::Grid);
-    node.SetMargins(SpacingToken::Px2, SpacingToken::Px4,
-                    SpacingToken::Px6, SpacingToken::Px8);
+    node.SetMargins(SpaceToken::Px2, SpaceToken::Px4,
+                    SpaceToken::Px6, SpaceToken::Px8);
     CHECK(node.Kind() == LayoutKind::Grid);
 }
 
@@ -283,8 +283,8 @@ TEST_CASE("RTL with asymmetric margins swaps left/right") {
     matcha::test::QtAppGuard::Ensure();
     ContainerNode node("test-rtl-margins", LayoutKind::Horizontal);
     // Set asymmetric margins: left=8, top=0, right=2, bottom=0
-    node.SetMargins(SpacingToken::Px8, SpacingToken::None,
-                    SpacingToken::Px2, SpacingToken::None);
+    node.SetMargins(SpaceToken::Px8, SpaceToken::None,
+                    SpaceToken::Px2, SpaceToken::None);
     // Now switch to RTL - margins should be swapped
     node.SetDirection(TextDirection::RTL);
 
@@ -307,7 +307,7 @@ TEST_CASE("RTL with asymmetric margins swaps left/right") {
 // Icon system compile-time checks
 // ============================================================================
 
-TEST_SUITE("IconId and IconSize") {
+TEST_SUITE("IconId and SizeToken") {
 
 TEST_CASE("IconId URI format") {
     CHECK(icons::Close == "asset://matcha/icons/close");
@@ -316,12 +316,12 @@ TEST_CASE("IconId URI format") {
     CHECK(IconId().empty());
 }
 
-TEST_CASE("IconSize pixel values") {
-    CHECK(static_cast<uint8_t>(IconSize::Xs) == 12);
-    CHECK(static_cast<uint8_t>(IconSize::Sm) == 16);
-    CHECK(static_cast<uint8_t>(IconSize::Md) == 20);
-    CHECK(static_cast<uint8_t>(IconSize::Lg) == 24);
-    CHECK(static_cast<uint8_t>(IconSize::Xl) == 32);
+TEST_CASE("SizeToken pixel values") {
+    CHECK(static_cast<uint8_t>(SizeToken::Xs) == 12);
+    CHECK(static_cast<uint8_t>(SizeToken::Sm) == 16);
+    CHECK(static_cast<uint8_t>(SizeToken::Md) == 20);
+    CHECK(static_cast<uint8_t>(SizeToken::Lg) == 24);
+    CHECK(static_cast<uint8_t>(SizeToken::Xl) == 32);
 }
 
 TEST_CASE("IsRtlFlippable identifies directional icons") {

@@ -57,7 +57,7 @@ QTreeView QScrollBar::add-page:vertical,QTreeView QScrollBar::sub-page:vertical,
         const auto& theme = Theme();
         QString style = QString(
             "QTreeView { background-color: %1; }"
-        ).arg(theme.Color(ColorToken::SurfaceElevated).name());
+        ).arg(theme.Color(ColorToken::colorPrimaryBg).name());
         setStyleSheet(style);
     }
 }
@@ -73,7 +73,7 @@ void NyanTreeView::drawBranches(QPainter* painter, const QRect& rect, const QMod
     painter->save();
     painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
     painter->setBrush(Qt::NoBrush);
-    painter->setPen(QPen(theme.Color(ColorToken::BorderStrong), 0.5));
+    painter->setPen(QPen(theme.Color(ColorToken::colorBorder), 0.5));
 
     const bool hasChildren = model()->hasChildren(index);
     const bool isExpanded = this->isExpanded(index);
@@ -88,7 +88,7 @@ void NyanTreeView::drawBranches(QPainter* painter, const QRect& rect, const QMod
         painter->drawLine(rect.right() - 8, rect.center().y(), rect.right(), rect.center().y());
 
         // Draw expand/collapse indicator (simple triangle)
-        painter->setBrush(theme.Color(ColorToken::TextSecondary));
+        painter->setBrush(theme.Color(ColorToken::colorTextSecondary));
         painter->setPen(Qt::NoPen);
 
         QPolygonF triangle;
@@ -106,7 +106,7 @@ void NyanTreeView::drawBranches(QPainter* painter, const QRect& rect, const QMod
         painter->drawPolygon(triangle);
 
         painter->setBrush(Qt::NoBrush);
-        painter->setPen(QPen(theme.Color(ColorToken::BorderStrong), 0.5));
+        painter->setPen(QPen(theme.Color(ColorToken::colorBorder), 0.5));
 
         if (hasParent) {
             // Draw top connecting line
@@ -397,10 +397,10 @@ void NyanStructureTree::OnThemeChanged()
         "QLabel { color: %2; font-weight: bold; }"
         "QPushButton { background: transparent; border: none; color: %3; }"
         "QPushButton:hover { color: %4; }"
-    ).arg(theme.Color(ColorToken::FillHover).name(),
-          theme.Color(ColorToken::TextPrimary).name(),
-          theme.Color(ColorToken::TextSecondary).name(),
-          theme.Color(ColorToken::Primary).name());
+    ).arg(theme.Color(ColorToken::colorFillHover).name(),
+          theme.Color(ColorToken::colorText).name(),
+          theme.Color(ColorToken::colorTextSecondary).name(),
+          theme.Color(ColorToken::colorPrimary).name());
     _titleBar->setStyleSheet(titleBarStyle);
 
     update();

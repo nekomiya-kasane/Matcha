@@ -17,10 +17,10 @@ using namespace matcha::fw;
 // ============================================================================
 
 // SpacingToken
-static_assert(std::to_underlying(SpacingToken::None) == 0);
-static_assert(std::to_underlying(SpacingToken::Px8) == 8);
-static_assert(std::to_underlying(SpacingToken::Px32) == 32);
-static_assert(std::to_underlying(SpacingToken::Count_) == 16);
+static_assert(std::to_underlying(SpaceToken::None) == 0);
+static_assert(std::to_underlying(SpaceToken::Px8) == 8);
+static_assert(std::to_underlying(SpaceToken::Px32) == 32);
+static_assert(std::to_underlying(SpaceToken::Count_) == 16);
 
 // RadiusToken
 static_assert(std::to_underlying(RadiusToken::None) == 0);
@@ -29,10 +29,10 @@ static_assert(std::to_underlying(RadiusToken::Round) == 255);
 static_assert(std::to_underlying(RadiusToken::Count_) == 6);
 
 // ElevationToken
-static_assert(kElevationTokenCount == 5);
+static_assert(kShadowTokenCount == 5);
 
 // AnimationToken
-static_assert(kAnimationTokenCount == 4);
+static_assert(kAnimationsTokenCount == 4);
 static_assert(kDefaultAnimationMs[0] == 0);
 static_assert(kDefaultAnimationMs[3] == 350);
 
@@ -56,10 +56,10 @@ static_assert(std::to_underlying(DensityLevel::Comfortable) == 2);
 static_assert(std::to_underlying(TextDirection::LTR) == 0);
 static_assert(std::to_underlying(TextDirection::RTL) == 1);
 
-// IconSize
-static_assert(std::to_underlying(IconSize::Xs) == 12);
-static_assert(std::to_underlying(IconSize::Sm) == 16);
-static_assert(std::to_underlying(IconSize::Xl) == 32);
+// IconToken
+static_assert(std::to_underlying(IconToken::Xs) == 12);
+static_assert(std::to_underlying(IconToken::iconSizeSM) == 16);
+static_assert(std::to_underlying(IconToken::Xl) == 32);
 
 // ============================================================================
 // Runtime tests
@@ -68,12 +68,12 @@ static_assert(std::to_underlying(IconSize::Xl) == 32);
 TEST_SUITE("fw::TokenEnums") {
 
 TEST_CASE("ToPixels(SpacingToken) returns underlying value") {
-    CHECK(ToPixels(SpacingToken::None) == 0);
-    CHECK(ToPixels(SpacingToken::Px1) == 1);
-    CHECK(ToPixels(SpacingToken::Px4) == 4);
-    CHECK(ToPixels(SpacingToken::Px8) == 8);
-    CHECK(ToPixels(SpacingToken::Px16) == 16);
-    CHECK(ToPixels(SpacingToken::Px32) == 32);
+    CHECK(ToPixels(SpaceToken::None) == 0);
+    CHECK(ToPixels(SpaceToken::Px1) == 1);
+    CHECK(ToPixels(SpaceToken::Px4) == 4);
+    CHECK(ToPixels(SpaceToken::Px8) == 8);
+    CHECK(ToPixels(SpaceToken::Px16) == 16);
+    CHECK(ToPixels(SpaceToken::Px32) == 32);
 }
 
 TEST_CASE("ToPixels(RadiusToken) returns underlying value") {

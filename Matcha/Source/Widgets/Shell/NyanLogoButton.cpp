@@ -20,7 +20,7 @@ NyanLogoButton::NyanLogoButton(QWidget* parent)
 
     const auto style = Theme().Resolve(WidgetKind::MainTitleBar, 0, InteractionState::Normal);
     _topColor = style.background;
-    _bottomColor = Theme().Color(ColorToken::PrimaryBgHover);
+    _bottomColor = Theme().Color(ColorToken::colorPrimaryBgHover);
 }
 
 NyanLogoButton::~NyanLogoButton() = default;
@@ -128,7 +128,7 @@ void NyanLogoButton::OnThemeChanged()
 {
     const auto style = Theme().Resolve(WidgetKind::MainTitleBar, 0, InteractionState::Normal);
     _topColor = style.background;
-    _bottomColor = Theme().Color(ColorToken::PrimaryBgHover);
+    _bottomColor = Theme().Color(ColorToken::colorPrimaryBgHover);
     update();
 }
 

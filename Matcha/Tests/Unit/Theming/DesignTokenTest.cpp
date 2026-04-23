@@ -31,12 +31,12 @@ static_assert(std::to_underlying(FontRole::Body) == 0);
 static_assert(std::to_underlying(FontRole::ToolTip) == 6);
 
 // AnimationToken: 4 values + Count_
-static_assert(kAnimationTokenCount == 4);
-static_assert(std::to_underlying(AnimationToken::Instant) == 0);
-static_assert(std::to_underlying(AnimationToken::Slow) == 3);
+static_assert(kAnimationsTokenCount == 4);
+static_assert(std::to_underlying(AnimationsToken::Instant) == 0);
+static_assert(std::to_underlying(AnimationsToken::Slow) == 3);
 
 // ElevationToken: 5 values + Count_
-static_assert(kElevationTokenCount == 5);
+static_assert(kShadowTokenCount == 5);
 
 // kDefaultAnimationMs consistency
 static_assert(kDefaultAnimationMs[0] == 0);   // Instant
@@ -51,12 +51,12 @@ static_assert(kDefaultAnimationMs[3] == 350); // Slow
 TEST_SUITE("DesignTokens") {
 
 TEST_CASE("Spacing underlying value equals pixel value") {
-    CHECK(ToPixels(SpacingToken::None) == 0);
-    CHECK(ToPixels(SpacingToken::Px1) == 1);
-    CHECK(ToPixels(SpacingToken::Px4) == 4);
-    CHECK(ToPixels(SpacingToken::Px8) == 8);
-    CHECK(ToPixels(SpacingToken::Px16) == 16);
-    CHECK(ToPixels(SpacingToken::Px32) == 32);
+    CHECK(ToPixels(SpaceToken::None) == 0);
+    CHECK(ToPixels(SpaceToken::Px1) == 1);
+    CHECK(ToPixels(SpaceToken::Px4) == 4);
+    CHECK(ToPixels(SpaceToken::Px8) == 8);
+    CHECK(ToPixels(SpaceToken::Px16) == 16);
+    CHECK(ToPixels(SpaceToken::Px32) == 32);
 }
 
 TEST_CASE("RadiusToken underlying value equals pixel value") {
@@ -88,14 +88,14 @@ TEST_CASE("ShadowSpec default is zero") {
 TEST_CASE("StateStyle default tokens") {
     StateStyle sc;
     CHECK(sc.background == ColorToken::Surface);
-    CHECK(sc.foreground == ColorToken::TextPrimary);
+    CHECK(sc.foreground == ColorToken::colorText);
     CHECK(sc.border == ColorToken::BorderSubtle);
 }
 
 TEST_CASE("VariantStyle default has zeroed colors array") {
     VariantStyle vs {};
     CHECK(vs.colors[0].background == ColorToken::Surface);
-    CHECK(vs.colors[0].foreground == ColorToken::TextPrimary);
+    CHECK(vs.colors[0].foreground == ColorToken::colorText);
 }
 
 } // TEST_SUITE

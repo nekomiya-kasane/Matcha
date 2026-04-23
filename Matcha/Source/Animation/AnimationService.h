@@ -43,7 +43,7 @@ public:
                  fw::AnimationPropertyId property,
                  fw::AnimatableValue from,
                  fw::AnimatableValue to,
-                 fw::AnimationToken duration,
+                 fw::AnimationsToken duration,
                  fw::EasingToken easing) -> fw::TransitionHandle override;
 
     auto AnimateSpring(fw::WidgetNode* target,
@@ -86,7 +86,7 @@ private:
 
     auto NextHandle() -> fw::TransitionHandle;
     auto ResolveEasing(fw::EasingToken token) const -> int;
-    auto ResolveDurationMs(fw::AnimationToken token) const -> int;
+    auto ResolveDurationMs(fw::AnimationsToken token) const -> int;
     static auto MapPropertyId(fw::AnimationPropertyId id) -> QByteArray;
     static auto MapValue(fw::AnimatableValue val) -> QVariant;
 

@@ -403,8 +403,8 @@ add_library(Matcha SHARED
     Include/Matcha/Foundation/GestureMotionTracker.h
     Source/UiNodes/Core/AnimationBlendLayer.cpp
     Include/Matcha/Foundation/AnimationBlendLayer.h
-    Source/UiNodes/Core/DtcgTokenModel.cpp
-    Include/Matcha/Foundation/DtcgTokenModel.h
+    Source/UiNodes/Core/DtfmTokenModel.cpp
+    Include/Matcha/Foundation/DtfmTokenModel.h
     Source/UiNodes/Core/VariantNameRegistry.cpp
     Include/Matcha/Foundation/VariantNameRegistry.h
     Include/Matcha/Foundation/WidgetFsm.h

@@ -65,7 +65,7 @@ TEST_CASE("GroupAnimationSpec defaults") {
     GroupAnimationSpec spec;
     CHECK(spec.target == nullptr);
     CHECK(spec.property == AnimationPropertyId::Opacity);
-    CHECK(spec.duration == AnimationToken::Normal);
+    CHECK(spec.duration == AnimationsToken::Normal);
     CHECK(spec.easing == EasingToken::OutCubic);
 }
 

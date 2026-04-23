@@ -105,16 +105,16 @@ void DragGhostOverlay::paintEvent(QPaintEvent* /*event*/)
     QColor bgColor;
     switch (_config.style) {
     case matcha::fw::DragPreviewStyle::Ghost:
-        bgColor = theme.Color(ColorToken::SurfaceElevated);
+        bgColor = theme.Color(ColorToken::colorPrimaryBg);
         bgColor.setAlphaF(0.85);
         break;
     case matcha::fw::DragPreviewStyle::Icon:
-        bgColor = theme.Color(ColorToken::Primary);
+        bgColor = theme.Color(ColorToken::colorPrimary);
         bgColor.setAlphaF(0.9);
         break;
     case matcha::fw::DragPreviewStyle::Compact:
     case matcha::fw::DragPreviewStyle::Custom:
-        bgColor = theme.Color(ColorToken::SurfaceElevated);
+        bgColor = theme.Color(ColorToken::colorPrimaryBg);
         break;
     }
 
@@ -123,7 +123,7 @@ void DragGhostOverlay::paintEvent(QPaintEvent* /*event*/)
     p.drawRoundedRect(rect(), 6, 6);
 
     // Border
-    p.setPen(QPen(theme.Color(ColorToken::BorderDefault), 1));
+    p.setPen(QPen(theme.Color(ColorToken::colorBorder), 1));
     p.setBrush(Qt::NoBrush);
     p.drawRoundedRect(rect().adjusted(0, 0, -1, -1), 6, 6);
 }

@@ -21,23 +21,23 @@ TEST_SUITE("DtcgTokenModel") {
 // ============================================================================
 
 TEST_CASE("DtcgTypeToString round-trip") {
-    CHECK(DtcgTypeToString(DtcgType::Color) == "color");
-    CHECK(DtcgTypeToString(DtcgType::Dimension) == "dimension");
-    CHECK(DtcgTypeToString(DtcgType::Transition) == "transition");
-    CHECK(DtcgTypeToString(DtcgType::FontFamily) == "fontFamily");
-    CHECK(DtcgTypeToString(DtcgType::FontWeight) == "fontWeight");
-    CHECK(DtcgTypeToString(DtcgType::Number) == "number");
-    CHECK(DtcgTypeToString(DtcgType::String) == "string");
+    CHECK(DtcgTypeToString(DtfmType::Color) == "color");
+    CHECK(DtcgTypeToString(DtfmType::Dimension) == "dimension");
+    CHECK(DtcgTypeToString(DtfmType::Transition) == "transition");
+    CHECK(DtcgTypeToString(DtfmType::FontFamily) == "fontFamily");
+    CHECK(DtcgTypeToString(DtfmType::FontWeight) == "fontWeight");
+    CHECK(DtcgTypeToString(DtfmType::Number) == "number");
+    CHECK(DtcgTypeToString(DtfmType::String) == "string");
 }
 
 TEST_CASE("DtcgTypeFromString valid values") {
-    CHECK(DtcgTypeFromString("color") == DtcgType::Color);
-    CHECK(DtcgTypeFromString("dimension") == DtcgType::Dimension);
-    CHECK(DtcgTypeFromString("transition") == DtcgType::Transition);
-    CHECK(DtcgTypeFromString("fontFamily") == DtcgType::FontFamily);
-    CHECK(DtcgTypeFromString("fontWeight") == DtcgType::FontWeight);
-    CHECK(DtcgTypeFromString("number") == DtcgType::Number);
-    CHECK(DtcgTypeFromString("string") == DtcgType::String);
+    CHECK(DtcgTypeFromString("color") == DtfmType::Color);
+    CHECK(DtcgTypeFromString("dimension") == DtfmType::Dimension);
+    CHECK(DtcgTypeFromString("transition") == DtfmType::Transition);
+    CHECK(DtcgTypeFromString("fontFamily") == DtfmType::FontFamily);
+    CHECK(DtcgTypeFromString("fontWeight") == DtfmType::FontWeight);
+    CHECK(DtcgTypeFromString("number") == DtfmType::Number);
+    CHECK(DtcgTypeFromString("string") == DtfmType::String);
 }
 
 TEST_CASE("DtcgTypeFromString invalid returns nullopt") {
@@ -50,14 +50,14 @@ TEST_CASE("DtcgTypeFromString invalid returns nullopt") {
 // ============================================================================
 
 TEST_CASE("Export simple color token") {
-    DtcgTokenFile file;
+    DtfmTokenFile file;
     file.schema = "https://www.designtokens.org/schemas/2025.10/format.json";
 
-    DtcgTokenGroup colorGroup;
+    DtfmTokenGroup colorGroup;
     colorGroup.name = "color";
     colorGroup.tokens.push_back({
         .name = "primary",
-        .type = DtcgType::Color,
+        .type = DtfmType::Color,
         .value = std::string("#5b6abf"),
         .description = "Brand primary",
         .aliasRef = {},
@@ -71,13 +71,13 @@ TEST_CASE("Export simple color token") {
 }
 
 TEST_CASE("Export dimension token") {
-    DtcgTokenFile file;
-    DtcgTokenGroup spacingGroup;
+    DtfmTokenFile file;
+    DtfmTokenGroup spacingGroup;
     spacingGroup.name = "spacing";
     spacingGroup.tokens.push_back({
         .name = "px4",
-        .type = DtcgType::Dimension,
-        .value = DtcgDimension{.value = 4.0, .unit = "px"},
+        .type = DtfmType::Dimension,
+        .value = DtfmDimension{.value = 4.0, .unit = "px"},
         .description = {},
         .aliasRef = {},
     });
@@ -90,12 +90,12 @@ TEST_CASE("Export dimension token") {
 }
 
 TEST_CASE("Export alias token") {
-    DtcgTokenFile file;
-    DtcgTokenGroup colorGroup;
+    DtfmTokenFile file;
+    DtfmTokenGroup colorGroup;
     colorGroup.name = "color";
     colorGroup.tokens.push_back({
         .name = "surface",
-        .type = DtcgType::Color,
+        .type = DtfmType::Color,
         .value = std::monostate{},
         .description = "alias to neutral.50",
         .aliasRef = "color.neutral.50",
@@ -131,7 +131,7 @@ TEST_CASE("Import simple color token") {
 
     const auto& token = result->groups[0].tokens[0];
     CHECK(token.name == "primary");
-    CHECK(token.type == DtcgType::Color);
+    CHECK(token.type == DtfmType::Color);
     CHECK(std::get<std::string>(token.value) == "#5b6abf");
     CHECK(token.description == "Brand primary");
 }
@@ -152,8 +152,8 @@ TEST_CASE("Import dimension token") {
     REQUIRE(result->groups[0].tokens.size() == 1);
 
     const auto& token = result->groups[0].tokens[0];
-    CHECK(token.type == DtcgType::Dimension);
-    auto dim = std::get<DtcgDimension>(token.value);
+    CHECK(token.type == DtfmType::Dimension);
+    auto dim = std::get<DtfmDimension>(token.value);
     CHECK(dim.value == doctest::Approx(8.0));
     CHECK(dim.unit == "px");
 }
@@ -196,8 +196,8 @@ TEST_CASE("Import transition token") {
     REQUIRE(result->groups[0].tokens.size() == 1);
 
     const auto& token = result->groups[0].tokens[0];
-    CHECK(token.type == DtcgType::Transition);
-    auto tr = std::get<DtcgTransition>(token.value);
+    CHECK(token.type == DtfmType::Transition);
+    auto tr = std::get<DtfmTransition>(token.value);
     CHECK(tr.duration == doctest::Approx(150.0));
     CHECK(tr.delay == doctest::Approx(0.0));
     REQUIRE(tr.timingFunction.size() == 4);
@@ -214,22 +214,22 @@ TEST_CASE("Import invalid JSON returns nullopt") {
 // ============================================================================
 
 TEST_CASE("Flatten produces dot-separated paths") {
-    DtcgTokenFile file;
-    DtcgTokenGroup colorGroup;
+    DtfmTokenFile file;
+    DtfmTokenGroup colorGroup;
     colorGroup.name = "color";
     colorGroup.tokens.push_back({
         .name = "primary",
-        .type = DtcgType::Color,
+        .type = DtfmType::Color,
         .value = std::string("#5b6abf"),
         .description = {},
         .aliasRef = {},
     });
 
-    DtcgTokenGroup neutralSub;
+    DtfmTokenGroup neutralSub;
     neutralSub.name = "neutral";
     neutralSub.tokens.push_back({
         .name = "50",
-        .type = DtcgType::Color,
+        .type = DtfmType::Color,
         .value = std::string("#fafafa"),
         .description = {},
         .aliasRef = {},
@@ -248,14 +248,14 @@ TEST_CASE("Flatten produces dot-separated paths") {
 // ============================================================================
 
 TEST_CASE("Export then Import round-trip preserves tokens") {
-    DtcgTokenFile original;
+    DtfmTokenFile original;
     original.schema = "https://www.designtokens.org/schemas/2025.10/format.json";
 
-    DtcgTokenGroup colorGroup;
+    DtfmTokenGroup colorGroup;
     colorGroup.name = "color";
     colorGroup.tokens.push_back({
         .name = "primary",
-        .type = DtcgType::Color,
+        .type = DtfmType::Color,
         .value = std::string("#5b6abf"),
         .description = "Brand primary",
         .aliasRef = {},

@@ -458,7 +458,7 @@ auto WidgetNode::Icon() const -> const IconId&
     return _iconId;
 }
 
-void WidgetNode::SetIconSize(fw::IconSize size)
+void WidgetNode::SetIconSize(fw::IconToken size)
 {
     _iconSize = size;
     if (_widget) {
@@ -466,7 +466,7 @@ void WidgetNode::SetIconSize(fw::IconSize size)
     }
 }
 
-auto WidgetNode::GetIconSize() const -> fw::IconSize
+auto WidgetNode::GetIconSize() const -> fw::IconToken
 {
     return _iconSize;
 }
@@ -550,7 +550,7 @@ void WidgetNode::InstallFocusFilter()
 auto WidgetNode::AnimateProperty(AnimationPropertyId property,
                                  AnimatableValue from,
                                  AnimatableValue to,
-                                 AnimationToken duration,
+                                 AnimationsToken duration,
                                  EasingToken easing) -> TransitionHandle
 {
     auto* svc = gui::GetAnimationService();

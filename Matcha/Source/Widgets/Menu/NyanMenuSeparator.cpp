@@ -35,10 +35,10 @@ void NyanMenuSeparator::paintEvent(QPaintEvent* /*event*/)
     const auto& theme = Theme();
 
     // Background
-    p.fillRect(rect(), theme.Color(ColorToken::SurfaceElevated));
+    p.fillRect(rect(), theme.Color(ColorToken::colorPrimary));
 
     // Separator line at bottom
-    p.setPen(QPen(theme.Color(ColorToken::BorderDefault), 1));
+    p.setPen(QPen(theme.Color(ColorToken::colorBorder), 1));
     p.drawLine(rect().left(), rect().bottom(), rect().right(), rect().bottom());
 }
 

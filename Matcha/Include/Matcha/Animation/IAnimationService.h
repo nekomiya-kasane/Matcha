@@ -45,7 +45,7 @@ struct GroupAnimationSpec {
     fw::AnimationPropertyId property = fw::AnimationPropertyId::Opacity;
     fw::AnimatableValue    from;
     fw::AnimatableValue    to;
-    fw::AnimationToken     duration = fw::AnimationToken::Normal;
+    fw::AnimationsToken     duration = fw::AnimationsToken::motionBase;
     fw::EasingToken        easing   = fw::EasingToken::OutCubic;
 };
 
@@ -90,7 +90,7 @@ public:
                          fw::AnimationPropertyId property,
                          fw::AnimatableValue from,
                          fw::AnimatableValue to,
-                         fw::AnimationToken duration,
+                         fw::AnimationsToken duration,
                          fw::EasingToken easing) -> fw::TransitionHandle = 0;
 
     /**

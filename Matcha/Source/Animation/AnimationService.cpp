@@ -111,7 +111,7 @@ auto AnimationService::Animate(fw::WidgetNode* target,
                                fw::AnimationPropertyId property,
                                fw::AnimatableValue from,
                                fw::AnimatableValue to,
-                               fw::AnimationToken duration,
+                               fw::AnimationsToken duration,
                                fw::EasingToken easing) -> fw::TransitionHandle
 {
     if (target == nullptr || target->Widget() == nullptr) {
@@ -530,7 +530,7 @@ auto AnimationService::ResolveEasing(fw::EasingToken token) const -> int
     return _theme.Easing(token);
 }
 
-auto AnimationService::ResolveDurationMs(fw::AnimationToken token) const -> int
+auto AnimationService::ResolveDurationMs(fw::AnimationsToken token) const -> int
 {
     return _theme.AnimationMs(token);
 }

@@ -88,10 +88,10 @@ TEST_CASE("ShadowSpec blur increases with elevation") {
     NyanTheme theme(QStringLiteral(MATCHA_TEST_PALETTE_DIR));
     theme.SetTheme(kThemeLight);
 
-    const auto& flat = theme.Shadow(ElevationToken::Flat);
-    const auto& low = theme.Shadow(ElevationToken::Low);
-    const auto& med = theme.Shadow(ElevationToken::Medium);
-    const auto& high = theme.Shadow(ElevationToken::High);
+    const auto& flat = theme.Shadow(ShadowToken::Flat);
+    const auto& low = theme.Shadow(ShadowToken::Low);
+    const auto& med = theme.Shadow(ShadowToken::Medium);
+    const auto& high = theme.Shadow(ShadowToken::High);
 
     CHECK(flat.blurRadius == 0);
     CHECK(low.blurRadius > flat.blurRadius);
@@ -106,10 +106,10 @@ TEST_CASE("AnimationMs returns default values") {
     NyanTheme theme(QStringLiteral(MATCHA_TEST_PALETTE_DIR));
     theme.SetTheme(kThemeLight);
 
-    CHECK(theme.AnimationMs(AnimationToken::Instant) == 0);
-    CHECK(theme.AnimationMs(AnimationToken::Quick) == 160);
-    CHECK(theme.AnimationMs(AnimationToken::Normal) == 200);
-    CHECK(theme.AnimationMs(AnimationToken::Slow) == 350);
+    CHECK(theme.AnimationMs(AnimationsToken::Instant) == 0);
+    CHECK(theme.AnimationMs(AnimationsToken::Quick) == 160);
+    CHECK(theme.AnimationMs(AnimationsToken::Normal) == 200);
+    CHECK(theme.AnimationMs(AnimationsToken::Slow) == 350);
 }
 
 TEST_CASE("SetAnimationOverride forces all to return override value") {
@@ -118,14 +118,14 @@ TEST_CASE("SetAnimationOverride forces all to return override value") {
     theme.SetTheme(kThemeLight);
 
     theme.SetAnimationOverride(0);
-    CHECK(theme.AnimationMs(AnimationToken::Quick) == 0);
-    CHECK(theme.AnimationMs(AnimationToken::Slow) == 0);
+    CHECK(theme.AnimationMs(AnimationsToken::Quick) == 0);
+    CHECK(theme.AnimationMs(AnimationsToken::Slow) == 0);
 
     theme.SetAnimationOverride(42);
-    CHECK(theme.AnimationMs(AnimationToken::Normal) == 42);
+    CHECK(theme.AnimationMs(AnimationsToken::Normal) == 42);
 
     theme.SetAnimationOverride(-1); // restore
-    CHECK(theme.AnimationMs(AnimationToken::Normal) == 200);
+    CHECK(theme.AnimationMs(AnimationsToken::Normal) == 200);
 }
 
 TEST_CASE("ResolveStyleSheet returns valid sheets") {

@@ -114,7 +114,7 @@ void NyanScrollBar::enterEvent(QEnterEvent* event)
 
     // Animate expand.
     auto* anim = new QVariantAnimation(this);
-    anim->setDuration(Theme().AnimationMs(AnimationToken::Quick));
+    anim->setDuration(Theme().AnimationMs(AnimationsToken::motionDurationFast));
     anim->setStartValue(_currentPx);
     anim->setEndValue(_expandedPx);
     connect(anim, &QVariantAnimation::valueChanged, this, [this](const QVariant& v) {
@@ -130,7 +130,7 @@ void NyanScrollBar::leaveEvent(QEvent* event)
 
     // Animate collapse.
     auto* anim = new QVariantAnimation(this);
-    anim->setDuration(Theme().AnimationMs(AnimationToken::Quick));
+    anim->setDuration(Theme().AnimationMs(AnimationsToken::motionDurationFast));
     anim->setStartValue(_currentPx);
     anim->setEndValue(_thinPx);
     connect(anim, &QVariantAnimation::valueChanged, this, [this](const QVariant& v) {

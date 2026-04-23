@@ -44,11 +44,11 @@ class SimpleWidgetEventFilter;
 [[nodiscard]] constexpr auto ToFontRole(LabelRole role) noexcept -> FontRole
 {
     switch (role) {
-    case LabelRole::Title:   return FontRole::Heading;
-    case LabelRole::Name:    return FontRole::BodyMedium;
-    case LabelRole::Body:    return FontRole::Body;
-    case LabelRole::Caption: return FontRole::Caption;
-    default:                 return FontRole::Body;
+    case LabelRole::Title:   return FontRole::fontLineHeight;
+    case LabelRole::Name:    return FontRole::fontWeightMedium;
+    case LabelRole::Body:    return FontRole::fontSizeMD;
+    case LabelRole::Caption: return FontRole::fontSizeXS;
+    default:                 return FontRole::fontSizeMD;
     }
 }
 

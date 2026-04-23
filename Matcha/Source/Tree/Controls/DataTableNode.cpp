@@ -409,9 +409,9 @@ void DataTableNode::SetRowIcon(int row, std::string_view iconId)
             w->SetRowIcon(row, QIcon());
             return;
         }
-        const QColor fg = gui::GetThemeService().Color(gui::ColorToken::TextPrimary);
+        const QColor fg = gui::GetThemeService().Color(gui::ColorToken::colorText);
         const QPixmap pm = gui::GetThemeService().ResolveIcon(
-            std::string(iconId), fw::IconSize::Sm, fg);
+            std::string(iconId), fw::IconToken::iconSizeSM, fg);
         if (!pm.isNull()) {
             w->SetRowIcon(row, QIcon(pm));
         }

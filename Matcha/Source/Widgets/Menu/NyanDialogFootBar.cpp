@@ -196,10 +196,10 @@ void NyanDialogFootBar::paintEvent(QPaintEvent* /*event*/)
     const auto& theme = Theme();
 
     // Background
-    p.fillRect(rect(), theme.Color(ColorToken::FillHover));
+    p.fillRect(rect(), theme.Color(ColorToken::colorFillHover));
 
     // Top border
-    p.setPen(theme.Color(ColorToken::BorderStrong));
+    p.setPen(theme.Color(ColorToken::colorBorder));
     p.drawLine(0, 0, width(), 0);
 }
 
@@ -226,11 +226,11 @@ void NyanDialogFootBar::UpdateButtonStyles()
         "QPushButton:hover { background-color: %2; }"
         "QPushButton:pressed { background-color: %3; }"
         "QPushButton:disabled { background-color: %4; color: %5; }"
-    ).arg(theme.Color(ColorToken::Primary).name(),
-          theme.Color(ColorToken::PrimaryHover).name(),
-          theme.Color(ColorToken::PrimaryActive).name(),
-          theme.Color(ColorToken::PrimaryBorderHover).name(),
-          theme.Color(ColorToken::TextTertiary).name());
+    ).arg(theme.Color(ColorToken::colorPrimary).name(),
+          theme.Color(ColorToken::colorPrimaryBgHover).name(),
+          theme.Color(ColorToken::colorPrimaryActive).name(),
+          theme.Color(ColorToken::colorPrimaryBorder).name(),
+          theme.Color(ColorToken::colorTextTertiary).name());
     _confirmButton->setStyleSheet(confirmStyle);
 
     // Apply button (secondary style)
@@ -244,12 +244,12 @@ void NyanDialogFootBar::UpdateButtonStyles()
         "}"
         "QPushButton:hover { background-color: %4; }"
         "QPushButton:disabled { background-color: %5; color: %6; }"
-    ).arg(theme.Color(ColorToken::SurfaceElevated).name(),
-          theme.Color(ColorToken::BorderStrong).name(),
-          theme.Color(ColorToken::TextPrimary).name(),
-          theme.Color(ColorToken::FillActive).name(),
-          theme.Color(ColorToken::FillHover).name(),
-          theme.Color(ColorToken::TextTertiary).name());
+    ).arg(theme.Color(ColorToken::colorPrimaryBg).name(),
+          theme.Color(ColorToken::colorBorder).name(),
+          theme.Color(ColorToken::colorText).name(),
+          theme.Color(ColorToken::colorFillTertiary).name(),
+          theme.Color(ColorToken::colorFillHover).name(),
+          theme.Color(ColorToken::colorTextTertiary).name());
     _applyButton->setStyleSheet(applyStyle);
 
     // Cancel button (secondary style)

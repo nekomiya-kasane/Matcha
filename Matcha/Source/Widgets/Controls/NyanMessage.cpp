@@ -62,12 +62,12 @@ void NyanMessage::paintEvent(QPaintEvent* event)
     QPainter p(this);
 
     // Semantic bg color depends on message type — not in variant matrix
-    ColorToken bgToken = ColorToken::PrimaryBgHover;
+    ColorToken bgToken = ColorToken::colorPrimaryBgHover;
     switch (_type) {
-    case MessageType::Info:    bgToken = ColorToken::PrimaryBgHover; break;
-    case MessageType::Success: bgToken = ColorToken::SuccessBgHover; break;
-    case MessageType::Warning: bgToken = ColorToken::WarningBgHover; break;
-    case MessageType::Error:   bgToken = ColorToken::ErrorBgHover;   break;
+    case MessageType::Info:    bgToken = ColorToken::colorPrimaryBgHover; break;
+    case MessageType::Success: bgToken = ColorToken::colorSuccessHover; break;
+    case MessageType::Warning: bgToken = ColorToken::colorWarningHover; break;
+    case MessageType::Error:   bgToken = ColorToken::colorErrorHover;   break;
     }
     p.fillRect(rect(), Theme().Color(bgToken));
 }

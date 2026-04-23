@@ -65,7 +65,7 @@ $includeMap = [ordered]@{
     "Matcha/Foundation/Blueprint.h"              = "Matcha/DSL/Blueprint.h"
 
     # --- Foundation -> Theming/Token ---
-    "Matcha/Foundation/DtcgTokenModel.h"         = "Matcha/Theming/Token/DtcgTokenModel.h"
+    "Matcha/Foundation/DtfmTokenModel.h"         = "Matcha/Theming/Token/DtfmTokenModel.h"
     "Matcha/Foundation/VariantNameRegistry.h"    = "Matcha/Theming/Token/VariantNameRegistry.h"
 
     # --- UiNodes/Core -> Event (L1) ---
@@ -220,7 +220,7 @@ MoveFile "Include/Matcha/Foundation/WidgetEnums.h" "Include/Matcha/Tree/FSM/Widg
 MoveFile "Include/Matcha/Foundation/Blueprint.h" "Include/Matcha/DSL/Blueprint.h"
 
 # Foundation -> Theming/Token
-MoveFile "Include/Matcha/Foundation/DtcgTokenModel.h" "Include/Matcha/Theming/Token/DtcgTokenModel.h"
+MoveFile "Include/Matcha/Foundation/DtfmTokenModel.h" "Include/Matcha/Theming/Token/DtfmTokenModel.h"
 MoveFile "Include/Matcha/Foundation/VariantNameRegistry.h" "Include/Matcha/Theming/Token/VariantNameRegistry.h"
 
 # UiNodes/Core -> Event
@@ -334,7 +334,7 @@ foreach ($f in $srcToTree) {
 
 # Source/UiNodes/Core -> Source/Theming/Token
 MoveFile "Source/UiNodes/Core/TokenRegistryGlobal.cpp" "Source/Theming/Token/TokenRegistryGlobal.cpp"
-MoveFile "Source/UiNodes/Core/DtcgTokenModel.cpp" "Source/Theming/Token/DtcgTokenModel.cpp"
+MoveFile "Source/UiNodes/Core/DtfmTokenModel.cpp" "Source/Theming/Token/DtfmTokenModel.cpp"
 MoveFile "Source/UiNodes/Core/VariantNameRegistry.cpp" "Source/Theming/Token/VariantNameRegistry.cpp"
 
 # Source/UiNodes/Core -> Source/Interaction

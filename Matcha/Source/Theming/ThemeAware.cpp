@@ -74,7 +74,7 @@ auto ThemeAware::AnimateTransition(fw::WidgetNode* target,
                                    fw::AnimationPropertyId property,
                                    fw::AnimatableValue from,
                                    fw::AnimatableValue to,
-                                   fw::AnimationToken duration,
+                                   fw::AnimationsToken duration,
                                    fw::EasingToken easing) -> fw::TransitionHandle
 {
     auto* svc = GetAnimationService();

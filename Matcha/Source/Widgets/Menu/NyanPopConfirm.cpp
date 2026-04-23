@@ -286,15 +286,15 @@ void NyanPopConfirm::ApplyStateIcon()
 
     switch (_state) {
         case PopConfirmState::Warn:
-            ip.setBrush(Theme().Color(ColorToken::Warning));
+            ip.setBrush(Theme().Color(ColorToken::colorWarning));
             break;
         case PopConfirmState::Error:
-            ip.setBrush(Theme().Color(ColorToken::Error));
+            ip.setBrush(Theme().Color(ColorToken::colorError));
             break;
         case PopConfirmState::Info:
         case PopConfirmState::Question:
         default:
-            ip.setBrush(Theme().Color(ColorToken::Primary));
+            ip.setBrush(Theme().Color(ColorToken::colorPrimary));
             break;
     }
 

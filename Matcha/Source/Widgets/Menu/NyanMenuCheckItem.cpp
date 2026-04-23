@@ -58,7 +58,7 @@ void NyanMenuCheckItem::DrawCheckmark(QPainter& painter, const QRect& rect) cons
     QRect checkRect(rect.x() + kIconLeft, rect.center().y() - (kIconSize / 2), kIconSize, kIconSize);
 
     // Draw checkmark
-    painter.setPen(QPen(theme.Color(ColorToken::Primary), 2));
+    painter.setPen(QPen(theme.Color(ColorToken::colorPrimary), 2));
 
     // Checkmark path: small L shape
     int x = checkRect.center().x();

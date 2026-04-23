@@ -149,7 +149,7 @@ void NyanRangeSlider::paintEvent(QPaintEvent* /*event*/)
         const int hx = cx - halfH;
         const int hy = (height() - kHandleSize) / 2;
         p.setPen(QPen(style.border, 1));
-        p.setBrush(Theme().Color(ColorToken::SurfaceElevated));
+        p.setBrush(Theme().Color(ColorToken::colorPrimary));
         p.drawEllipse(hx, hy, kHandleSize, kHandleSize);
     };
 

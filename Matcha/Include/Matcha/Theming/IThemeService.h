@@ -2,142 +2,137 @@
 
 /**
  * @file IThemeService.h
- * @brief Abstract theme service interface for the Design Token System.
+ * @brief 设计 Token 系统的抽象主题服务接口。
  *
- * `IThemeService` inherits `fw::ITokenRegistry` (Qt-free token queries) and
- * extends it with Qt-dependent capabilities:
- * - Theme lifecycle (`SetTheme` / `CurrentTheme`)
- * - Color queries (resolved to QColor)
- * - Font queries (resolved to FontSpec with QString)
- * - Shadow queries (ShadowSpec)
- * - Easing queries (QEasingCurve::Type)
- * - Per-widget composite style sheets (`ResolveStyleSheet`)
- * - Component token overrides for per-widget-class deviations
- * - Dynamic token registration for plugin extension (ADR-015)
- * - Animation override for deterministic test execution
+ * `IThemeService` 继承自 `fw::ITokenRegistry`（无 Qt 依赖的 Token 查询），
+ * 并扩展了 Qt 相关的功能：
+ * - 主题生命周期（`SetTheme` / `CurrentTheme`）
+ * - 颜色查询（解析为 QColor）
+ * - 字体查询（解析为包含 QString 的 FontSpec）
+ * - 阴影查询（ShadowSpec）
+ * - 缓动曲线查询（QEasingCurve::Type）
+ * - 按控件种类的复合样式表（`ResolveStyleSheet`）
+ * - 组件级 Token 覆盖（每个控件类的偏差）
+ * - 动态 Token 注册（插件扩展，ADR-015）
+ * - 测试时的动画覆盖（确定性执行）
  *
- * `NyanTheme` provides the concrete implementation of both interfaces.
+ * `NyanTheme` 提供了这两个接口的具体实现。
  *
- * @see ITokenRegistry.h for the Qt-free base interface.
- * @see DesignTokens.h for token types.
- * @see WidgetStyleSheet.h for WidgetKind and WidgetStyleSheet.
+ * @see ITokenRegistry.h 无 Qt 依赖的基接口。
+ * @see DesignTokens.h Token 类型定义。
+ * @see WidgetStyleSheet.h WidgetKind 和 WidgetStyleSheet 定义。
  */
 
 #include <Matcha/Core/Macros.h>
-#include <Matcha/Theming/Token/ITokenRegistry.h>
 #include <Matcha/Theming/DesignTokens.h>
 #include <Matcha/Theming/ResolvedStyle.h>
+#include <Matcha/Theming/Token/ITokenRegistry.h>
 #include <Matcha/Theming/WidgetStyleSheet.h>
 
 #include <QColor>
 #include <QObject>
 #include <QPixmap>
 #include <QString>
-
 #include <optional>
 #include <span>
 #include <string_view>
 
 namespace matcha::gui {
 
-// ============================================================================
-// ThemeId  (string-based, supports unlimited user themes)
-// ============================================================================
+  // ============================================================================
+  // ThemeId  (string-based, supports unlimited user themes)
+  // ============================================================================
 
-/// @brief Theme identifier — a plain QString name (e.g. "Light", "MyCustomDark").
-using ThemeId = QString;
+  /// @brief 主题标识符 —— 一个纯 QString 名称（例如 "Light"、"MyCustomDark"）。
+  using ThemeId = QString;
 
-/// @brief Built-in theme name constants.
-inline const QString kThemeLight         = QStringLiteral("Light");
-inline const QString kThemeDark          = QStringLiteral("Dark");
-inline const QString kThemeHighContrast  = QStringLiteral("HighContrast");
+  /// @brief 内置主题名称常量。
+  inline const QString kThemeLight = QStringLiteral("Light");
+  inline const QString kThemeDark = QStringLiteral("Dark");
+  inline const QString kThemeHighContrast = QStringLiteral("HighContrast");
 
-/**
- * @brief System-level light/dark classification for a theme.
- *
- * Every theme belongs to either the Light or Dark family. This controls:
- * - `colorSeeds` tonal palette generation direction
- * - `DynamicColor` light/dark branch selection
- * - OS dark-mode integration (system theme auto-switch)
- */
-enum class ThemeMode : uint8_t {
+  /**
+   * @brief 主题的系统级亮色/暗色分类。
+   *
+   * 每个主题属于 Light 或 Dark 家族。这用于控制：
+   * - `colorSeeds` 色调调色板的生成方向
+   * - `DynamicColor` 浅色/深色分支的选择
+   * - 操作系统深色模式集成（系统主题自动切换）
+   */
+  enum class ThemeMode : uint8_t {
     Light = 0,
-    Dark  = 1,
-};
+    Dark = 1,
+  };
 
-// ============================================================================
-// IThemeService
-// ============================================================================
+  // ============================================================================
+  // IThemeService
+  // ============================================================================
 
-/**
- * @brief Abstract interface for the Design Token System theme engine.
- *
- * All query methods are `[[nodiscard]]` and `const` -- they perform O(1) flat
- * array lookups into the token storage built by `SetTheme()`.
- *
- * Widgets access tokens via `IThemeService&` (obtained from `ThemeAware` mixin
- * or directly from the application shell).
- *
- * **Thread safety**: All const query methods are safe for concurrent reads.
- * `SetTheme()` must be called from the GUI thread only.
- */
-class MATCHA_EXPORT IThemeService : public QObject, public fw::ITokenRegistry {
+  /**
+   * @brief 设计 Token 系统主题引擎的抽象接口。
+   *
+   * 所有查询方法都是 `[[nodiscard]]` 和 `const` —— 它们在 Token 存储上执行 O(1)
+   * 平坦数组查找，Token 存储由 `SetTheme()` 构建。
+   *
+   * 控件通过 `IThemeService&` 访问 Token（从 `ThemeAware` 混入类或应用程序 Shell 直接获取）。
+   *
+   * **线程安全**：所有 const 查询方法对于并发读取是安全的。
+   * `SetTheme()` 必须仅从 GUI 线程调用。
+   */
+  class MATCHA_EXPORT IThemeService : public QObject, public fw::ITokenRegistry {
     Q_OBJECT
 
-public:
+   public:
     ~IThemeService() override = default;
 
-    IThemeService(const IThemeService&)            = delete;
+    IThemeService(const IThemeService&) = delete;
     IThemeService& operator=(const IThemeService&) = delete;
-    IThemeService(IThemeService&&)                 = delete;
-    IThemeService& operator=(IThemeService&&)      = delete;
+    IThemeService(IThemeService&&) = delete;
+    IThemeService& operator=(IThemeService&&) = delete;
 
     // ITokenRegistry::SpacingPx, Radius, AnimationMs, SetDensity, SetDirection
-    // are inherited and must be implemented by NyanTheme.
+    // 是继承而来的，必须由 NyanTheme 实现。
 
     // ========================================================================
     // Theme Lifecycle
     // ========================================================================
 
     /**
-     * @brief Switch to the specified theme.
+     * @brief 切换到指定的主题。
      *
-     * Rebuilds all token arrays (colors, fonts, shadows, style sheets) and
-     * emits `ThemeChanged(name)`. Must be called from the GUI thread.
+     * 重建所有 Token 数组（颜色、字体、阴影、样式表），并发出 `ThemeChanged(name)` 信号。
+     * 必须从 GUI 线程调用。
      *
-     * @param name Theme name (must be a built-in or registered theme).
+     * @param name 主题名称（必须是内置主题或已注册的主题）。
      */
     virtual void SetTheme(const QString& name) = 0;
 
     /**
-     * @brief Query the currently active theme name.
-     * @return Active theme name.
+     * @brief 查询当前活动的主题名称。
+     * @return 当前活动的主题名称。
      */
     [[nodiscard]] virtual auto CurrentTheme() const -> const QString& = 0;
 
     /**
-     * @brief Query the ThemeMode (Light/Dark) of the currently active theme.
-     * @return ThemeMode of the active theme.
+     * @brief 查询当前活动主题的 ThemeMode（Light/Dark）。
+     * @return 活动主题的 ThemeMode。
      */
     [[nodiscard]] virtual auto CurrentMode() const -> ThemeMode = 0;
 
     /**
-     * @brief Register a custom theme backed by a JSON palette file.
+     * @brief 注册一个自 JSON 调色板文件支持的自定义主题。
      *
-     * The JSON file may contain an `"extends"` key naming any registered
-     * theme. When `SetTheme(name)` is called, the base theme is loaded
-     * first, then the custom JSON's values are overlaid.
+     * JSON 文件可能包含`"extends"`键，命名任何已注册的主题。
+     * 当调用`SetTheme(name)`时，首先加载基础主题，然后将自定义 JSON 的值叠加到基础主题上。
      *
-     * There is no limit on the number of custom themes.
+     * 没有对自定义主题数量的限制。
      *
-     * @param name     Unique theme name (e.g. "OceanBlue"). Must not be empty.
-     * @param jsonPath Absolute path to the palette JSON file.
-     * @param mode     Light or Dark family classification.
-     * @return true if registration succeeded, false if jsonPath does not exist.
+     * @param name     唯一的主题名称（例如 "OceanBlue"）。不能为空。
+     * @param jsonPath JSON 调色板文件的绝对路径。
+     * @param mode     主题的 Light 或 Dark 家族分类。
+     * @return 注册成功返回 true，jsonPath 不存在时返回 false。
      */
-    virtual auto RegisterTheme(const QString& name,
-                               const QString& jsonPath,
-                               ThemeMode mode) -> bool = 0;
+    virtual auto RegisterTheme(const QString& name, const QString& jsonPath, ThemeMode mode) -> bool = 0;
 
     // ========================================================================
     // Qt-Dependent Token Queries (Color, Font, Shadow, Easing)
@@ -145,84 +140,81 @@ public:
     // ========================================================================
 
     /**
-     * @brief Resolve a semantic color token to a concrete QColor.
-     * @param token Semantic color slot.
-     * @return Resolved color for the current theme.
+     * @brief 将语义颜色 Token 解析为具体的 QColor。
+     * @param token 语义颜色槽位。
+     * @return 当前主题下解析出的颜色。
      */
     [[nodiscard]] virtual auto Color(ColorToken token) const -> QColor = 0;
 
     /**
-     * @brief Resolve a color token with interaction state overlay.
+     * @brief 带交互状态叠加的颜色 Token 解析。
      *
-     * @deprecated This overload currently delegates to `Color(token)` without
-     * applying any state-dependent brightness/alpha shift. For correct
-     * per-state colors, use `Resolve(kind, variantIndex, state)` which
-     * reads from the WidgetStyleSheet variant/state color matrix.
+     * @deprecated 该重载目前仅委托给 `Color(token)`，没有应用任何状态相关的亮度/Alpha 偏移。
+     *             要获得正确的每状态颜色，请使用 `Resolve(kind, variantIndex, state)`，
+     *             它会从 WidgetStyleSheet 的变体/状态颜色矩阵中读取。
      *
-     * @param token Base semantic color slot.
-     * @param state Widget interaction state (currently unused).
-     * @return Base color for the current theme (state parameter is ignored).
+     * @param token 基础语义颜色槽位。
+     * @param state 控件交互状态（当前未使用）。
+     * @return 当前主题的基础颜色（state 参数被忽略）。
      *
-     * @see Resolve() for the recommended declarative style API.
+     * @see Resolve() 推荐的声明式样式 API。
      */
-    [[nodiscard]] virtual auto Color(ColorToken token,
-                                     InteractionState state) const -> QColor = 0;
+    [[nodiscard]] virtual auto Color(ColorToken token, InteractionState state) const -> QColor = 0;
 
     /**
-     * @brief Query a font specification by role.
-     * @param role Semantic font role.
-     * @return Platform-specific FontSpec (family, size, weight, etc.).
+     * @brief 按角色查询字体规范。
+     * @param role 语义字体角色。
+     * @return 平台相关的 FontSpec（家族、大小、字重等）。
      */
     [[nodiscard]] virtual auto Font(FontRole role) const -> const FontSpec& = 0;
 
     /**
-     * @brief Set a global font scale factor applied to all FontRole base sizes.
+     * @brief 设置全局字体缩放系数，应用于所有 FontRole 的基础大小。
      *
-     * The factor is clamped to [kFontScaleMin, kFontScaleMax].
-     * Triggers a font rebuild and emits ThemeChanged.
+     * 系数被限制在 [kFontScaleMin, kFontScaleMax] 范围内。
+     * 触发字体重建并发出 ThemeChanged 信号。
      *
-     * @param factor Scale multiplier (1.0 = no scaling).
+     * @param factor 缩放倍数（1.0 = 无缩放）。
      */
     virtual void SetFontScale(float factor) = 0;
 
     /**
-     * @brief Get the current global font scale factor.
-     * @return Font scale factor (default 1.0).
+     * @brief 获取当前的全局字体缩放系数。
+     * @return 字体缩放系数（默认 1.0）。
      */
     [[nodiscard]] virtual auto FontScale() const -> float = 0;
 
     /**
-     * @brief Convenience: set font scale from a preset.
+     * @brief 便捷方法：从预设设置字体缩放。
      *
-     * Equivalent to `SetFontScale(FontSizePresetScale(preset))`.
+     * 等价于 `SetFontScale(FontSizePresetScale(preset))`。
      */
-    virtual void SetFontSizePreset(fw::FontSizePreset preset)
-    {
-        SetFontScale(fw::FontSizePresetScale(preset));
+    virtual void SetFontSizePreset(fw::FontSizePreset preset) {
+      SetFontScale(fw::FontSizePresetScale(preset));
     }
 
     /**
-     * @brief Query box shadow parameters by elevation level.
-     * @param token Elevation token.
-     * @return Shadow specification (offset, blur, opacity).
+     * @brief 按高度级别查询盒阴影参数。
+     * @param token 高度 Token。
+     * @return 阴影规范（偏移、模糊、不透明度）。
      */
-    [[nodiscard]] virtual auto Shadow(ElevationToken token) const -> const ShadowSpec& = 0;
+    [[nodiscard]] virtual auto Shadow(ShadowToken token) const -> const ShadowSpec& = 0;
 
     /**
-     * @brief Query an easing curve type by token.
-     * @param easing Easing preset.
-     * @return QEasingCurve::Type suitable for QPropertyAnimation.
+     * @brief 按 Token 查询缓动曲线类型。
+     * @param easing 缓动预设。
+     * @return 适合用于 QPropertyAnimation 的 QEasingCurve::Type 值。
      */
     [[nodiscard]] virtual auto Easing(EasingToken easing) const -> int = 0;
 
     /**
-     * @brief Query the global default spring dynamics parameters.
+     * @brief 查询全局默认弹簧动力学参数。
      *
-     * Used by AnimationService when EasingToken::Spring is selected
-     * without an explicit SpringSpec override. Can be customized per
-     * theme via the `"spring"` JSON object in the palette file.
+     * 当选择 EasingToken::Spring 且没有显式 SpringSpec 覆盖时，
+     * 由 AnimationService 使用。可以通过调色板文件中的 `"spring"` JSON 对象
+     * 按主题定制。
      *
-     * @return SpringSpec with mass, stiffness, damping values.
+     * @return 包含 mass、stiffness、damping 值的 SpringSpec。
      */
     [[nodiscard]] virtual auto Spring() const -> const fw::SpringSpec& = 0;
 
@@ -231,45 +223,40 @@ public:
     // ========================================================================
 
     /**
-     * @brief Resolve an icon URI to a rasterized QPixmap.
+     * @brief 将图标 URI 解析为栅格化的 QPixmap。
      *
-     * The returned pixmap is theme-colorized (currentColor replaced with
-     * the appropriate theme color), DPI-aware, and density-scaled.
-     * Results are cached internally; repeated calls for the same
-     * (iconId, size, color) triple return the cached pixmap.
+     * 返回的像素图已经过主题着色（currentColor 替换为适当的主题颜色）、
+     * DPI 感知和密度缩放。结果在内部缓存；对相同的 (iconId, size, color)
+     * 三元组重复调用会返回缓存的像素图。
      *
-     * @param iconId Icon URI (e.g. "asset://matcha/icons/save"). Empty = null pixmap.
-     * @param size   Target icon size.
-     * @param color  Override colorization color. If invalid, uses TextPrimary.
-     * @return Rasterized pixmap, or null QPixmap if iconId is empty or not found.
+     * @param iconId 图标 URI（例如 "asset://matcha/icons/save"）。空字符串返回空像素图。
+     * @param size   目标图标尺寸。
+     * @param color  覆盖着色颜色。如果无效，则使用 TextPrimary。
+     * @return 栅格化的像素图，如果 iconId 为空或未找到则返回空 QPixmap。
      */
-    [[nodiscard]] virtual auto ResolveIcon(const fw::IconId& iconId,
-                                           fw::IconSize size,
-                                           QColor color) const -> QPixmap = 0;
+    [[nodiscard]] virtual auto ResolveIcon(const fw::IconId& iconId, fw::IconToken size, QColor color) const -> QPixmap
+        = 0;
 
-    /// @brief Convenience overload using default theme foreground color.
-    [[nodiscard]] auto ResolveIcon(const fw::IconId& iconId,
-                                   fw::IconSize size) const -> QPixmap
-    {
-        return ResolveIcon(iconId, size, QColor {});
+    /// @brief 使用默认主题前景色的便捷重载。
+    [[nodiscard]] auto ResolveIcon(const fw::IconId& iconId, fw::IconToken size) const -> QPixmap {
+      return ResolveIcon(iconId, size, QColor{});
     }
 
     /**
-     * @brief Register an icon directory for auto-scanning.
+     * @brief 注册一个图标目录以进行自动扫描。
      *
-     * All `.svg` files in the directory are registered under the given URI
-     * prefix. For example, RegisterIconDirectory("asset://matcha/icons/", "/path/to/Icons")
-     * registers `/path/to/Icons/save.svg` as `"asset://matcha/icons/save"`.
+     * 目录中的所有 `.svg` 文件都会在给定的 URI 前缀下注册。
+     * 例如，RegisterIconDirectory("asset://matcha/icons/", "/path/to/Icons")
+     * 会将 `/path/to/Icons/save.svg` 注册为 `"asset://matcha/icons/save"`。
      *
-     * @param uriPrefix URI prefix (e.g. "asset://matcha/icons/").
-     * @param dirPath   Absolute filesystem path to the icon directory.
-     * @return Number of icons registered.
+     * @param uriPrefix URI 前缀（例如 "asset://matcha/icons/"）。
+     * @param dirPath   图标目录的绝对文件系统路径。
+     * @return 注册的图标数量。
      */
-    virtual auto RegisterIconDirectory(std::string_view uriPrefix,
-                                       const QString& dirPath) -> int = 0;
+    virtual auto RegisterIconDirectory(std::string_view uriPrefix, const QString& dirPath) -> int = 0;
 
     /**
-     * @brief Invalidate the icon cache (called internally on ThemeChanged).
+     * @brief 使图标缓存失效（在 ThemeChanged 时内部调用）。
      */
     virtual void InvalidateIconCache() = 0;
 
@@ -278,220 +265,207 @@ public:
     // ========================================================================
 
     /**
-     * @brief Resolve the composite style sheet for a widget kind.
+     * @brief 解析某个控件种类的复合样式表。
      *
-     * Returns a reference to the pre-built `WidgetStyleSheet` containing
-     * geometry tokens and variant color maps. This is the primary API for
-     * widget `paintEvent` implementations.
+     * 返回预构建的 `WidgetStyleSheet` 的引用，其中包含几何 Token 和变体颜色映射。
+     * 这是控件 `paintEvent` 实现的主要 API。
      *
-     * @param kind Widget type identifier.
-     * @return Const reference to the style sheet (valid until next `SetTheme()`).
+     * @param kind 控件类型标识符。
+     * @return 样式表的 const 引用（在下一次 `SetTheme()` 调用之前有效）。
      */
-    [[nodiscard]] virtual auto ResolveStyleSheet(WidgetKind kind) const
-        -> const WidgetStyleSheet& = 0;
+    [[nodiscard]] virtual auto ResolveStyleSheet(WidgetKind kind) const -> const WidgetStyleSheet& = 0;
 
     // ========================================================================
     // Declarative Style Resolution (RFC-07)
     // ========================================================================
-
     /**
-     * @brief Resolve a fully concrete style for a widget at a specific variant and state.
+     * @brief 为指定变体和状态的控件解析完全具体的样式。
      *
-     * This is the primary API for RFC-07 declarative widget painting. Returns a
-     * `ResolvedStyle` with all tokens resolved to concrete Qt values: QColor,
-     * density-scaled px, QFont, ShadowSpec, and transition parameters.
+     * 这是 RFC-07 声明式控件绘制的核心 API。返回一个 `ResolvedStyle`，
+     * 其中所有 Token 已解析为具体的 Qt 值：QColor、密度缩放后的像素值、
+     * QFont、ShadowSpec 和过渡参数。
      *
-     * Widgets call this once in paintEvent instead of multiple `Color()`/`Font()` calls.
+     * 控件在 paintEvent 中调用此方法一次，而不是多次调用 `Color()`/`Font()`。
      *
-     * @param kind         Widget type.
-     * @param variantIndex Index into `WidgetStyleSheet::variants` (0 for single-variant widgets).
-     * @param state        Current interaction state.
-     * @return Fully resolved style snapshot.
+     * @param kind         控件类型。
+     * @param variantIndex `WidgetStyleSheet::variants` 中的索引（单变体控件为 0）。
+     * @param state        当前交互状态。
+     * @return 完全解析的样式快照。
      *
-     * @see docs/07_Declarative_Style_RFC.md Section 5.5
+     * @see docs/07_Declarative_Style_RFC.md 第 5.5 节
      */
-    [[nodiscard]] virtual auto Resolve(WidgetKind kind,
-                                       std::size_t variantIndex,
-                                       InteractionState state) const -> ResolvedStyle = 0;
+    [[nodiscard]] virtual auto Resolve(WidgetKind kind, std::size_t variantIndex, InteractionState state) const
+        -> ResolvedStyle = 0;
 
     /**
-     * @brief Resolve with per-instance style override (cascade Layer 3).
+     * @brief 带实例级样式覆盖的解析（级联层 3）。
      *
-     * Same as `Resolve(kind, variantIndex, state)` but applies a sparse
-     * instance-level patch on top. This is the highest priority layer in the
-     * style cascade, used when a specific widget instance needs to deviate
-     * from its class-level style.
+     * 与 `Resolve(kind, variantIndex, state)` 相同，但在其之上应用一个稀疏的
+     * 实例级补丁。这是样式级联中的最高优先级层，当某个特定控件实例需要偏离
+     * 其类级样式时使用。
      *
-     * @param kind          Widget type.
-     * @param variantIndex  Index into variants.
-     * @param state         Current interaction state.
-     * @param instanceOverride  Non-null pointer to instance override.
-     * @return Resolved style with instance patches applied.
+     * @param kind         控件类型。
+     * @param variantIndex 变体索引。
+     * @param state        当前交互状态。
+     * @param instanceOverride 非空指针，指向实例覆盖。
+     * @return 应用实例补丁后的解析样式。
      *
      * @see InstanceStyleOverride, §4.17
      */
-    [[nodiscard]] virtual auto Resolve(WidgetKind kind,
-                                       std::size_t variantIndex,
-                                       InteractionState state,
-                                       const InstanceStyleOverride& instanceOverride) const -> ResolvedStyle = 0;
+    [[nodiscard]] virtual auto Resolve(
+        WidgetKind kind, std::size_t variantIndex, InteractionState state, const InstanceStyleOverride& instanceOverride
+    ) const -> ResolvedStyle = 0;
 
     // ========================================================================
-    // Component Token Overrides
+    // 组件 Token 覆盖
     // ========================================================================
 
     /**
-     * @brief Per-widget-class token overrides.
+     * @brief 每个控件类的 Token 覆盖。
      *
-     * Only needed when a widget deviates from global defaults. For example,
-     * `Dialog.radius = RadiusToken::Large` overrides the global `Default`.
-     * Registered once per widget class, typically at module initialization.
+     * 仅在控件需要偏离全局默认值时使用。例如，
+     * `Dialog.radius = RadiusToken::Large` 覆盖全局的 `Default`。
+     * 每个控件类注册一次，通常在模块初始化时进行。
      */
     struct ComponentOverride {
-        WidgetKind kind {};                           ///< Target widget type
-        std::optional<RadiusToken>    radius;        ///< Corner radius override
-        std::optional<SpacingToken>   padding;       ///< Content padding override
-        std::optional<SpacingToken>   margin;        ///< Outer margin override
-        std::optional<FontRole>       font;          ///< Text font role override
-        std::optional<ElevationToken> elevation;     ///< Box shadow override
-        std::optional<AnimationToken> animation;     ///< Animation duration override
-        std::optional<ColorToken>     backgroundToken; ///< Background color override
-        std::optional<ColorToken>     foregroundToken; ///< Foreground color override
-        std::optional<ColorToken>     borderToken;   ///< Border color override
+      WidgetKind kind;                          // 控件类型
+      std::optional<RadiusToken> radius;        // 圆角半径
+      std::optional<SpaceToken> paddingH;       // 水平内边距
+      std::optional<SpaceToken> paddingV;       // 垂直内边距
+      std::optional<SpaceToken> gap;            // 图标-文本间距、项目间距
+      std::optional<SizeToken> minHeight;       // 最小高度
+      std::optional<FontRole> font;             // 字体角色
+      std::optional<ShadowToken> elevation;     // 阴影深度
+      std::optional<TransitionDef> transition;  // 动画持续时间和缓动曲线
     };
 
     /**
-     * @brief Register component-level token overrides.
+     * @brief 注册组件级别的 Token 覆盖。
      *
-     * Overrides are applied on the next `SetTheme()` call (or immediately
-     * if a theme is already active). Multiple calls accumulate; later
-     * registrations for the same `WidgetKind` field win.
+     * 覆盖在下次 `SetTheme()` 调用时应用（如果主题已经激活则立即应用）。
+     * 多次调用会累积；同一 `WidgetKind` 字段的后续注册会获胜。
      *
-     * @param overrides Span of override definitions.
+     * @param overrides 覆盖定义列表的 span。
      */
     virtual void RegisterComponentOverrides(std::span<const ComponentOverride> overrides) = 0;
 
     // ========================================================================
-    // Dynamic Tokens (Plugin Extension, ADR-015)
+    // 动态 Token（插件扩展，ADR-015）
     // ========================================================================
 
     /**
-     * @brief Definition for a plugin-registered dynamic color token.
+     * @brief 插件注册的动态颜色 Token 的定义。
      *
-     * Plugins register domain-specific colors (e.g., "FEA/MeshQualityBad")
-     * that are theme-aware but not part of the core token vocabulary.
+     * 插件注册领域特定的颜色（例如 "FEA/MeshQualityBad"），这些颜色是主题感知的，
+     * 但不属于核心 Token 词汇表。
      */
     struct DynamicColorDef {
-        std::string_view key;        ///< Unique key, e.g. "FEA/MeshQualityBad"
-        QColor           lightValue; ///< Color value for Light theme
-        QColor           darkValue;  ///< Color value for Dark theme
+      std::string_view key;  ///< 唯一键，例如 "FEA/MeshQualityBad"
+      QColor lightValue;     ///< Light 主题下的颜色值
+      QColor darkValue;      ///< Dark 主题下的颜色值
     };
 
     /**
-     * @brief Definition for a plugin-registered dynamic font token.
+     * @brief 插件注册的动态字体 Token 的定义。
      */
     struct DynamicFontDef {
-        std::string_view key;    ///< Unique key, e.g. "CAD/PropertyGrid"
-        FontSpec         value;  ///< Font specification (theme-independent)
+      std::string_view key;  ///< 唯一键，例如 "CAD/PropertyGrid"
+      FontSpec value;        ///< 字体规范（主题无关）
     };
 
     /**
-     * @brief Definition for a plugin-registered dynamic spacing token.
+     * @brief 插件注册的动态间距 Token 的定义。
      *
-     * The stored value is a base pixel count (before density scaling).
+     * 存储的值是基础像素计数（密度缩放前）。
      */
     struct DynamicSpacingDef {
-        std::string_view key;    ///< Unique key, e.g. "FEA/ResultMargin"
-        int              basePx; ///< Base pixel value (density-scaled on query)
+      std::string_view key;  ///< 唯一键，例如 "FEA/ResultMargin"
+      int basePx;            ///< 基础像素值（查询时进行密度缩放）
     };
 
     /**
-     * @brief Register dynamic color tokens from plugins.
-     * @param defs Span of dynamic color definitions.
+     * @brief 从插件注册动态颜色 Token。
+     * @param defs 动态颜色定义列表的 span。
      */
     virtual void RegisterDynamicTokens(std::span<const DynamicColorDef> defs) = 0;
 
     /**
-     * @brief Register dynamic font tokens from plugins.
+     * @brief 从插件注册动态字体 Token。
      */
     virtual void RegisterDynamicFonts(std::span<const DynamicFontDef> defs) = 0;
 
     /**
-     * @brief Register dynamic spacing tokens from plugins.
+     * @brief 从插件注册动态间距 Token。
      */
     virtual void RegisterDynamicSpacings(std::span<const DynamicSpacingDef> defs) = 0;
 
     /**
-     * @brief Query a dynamic color token by key.
-     * @return Resolved color for the current theme, or `std::nullopt` if not registered.
+     * @brief 按键查询动态颜色 Token。
+     * @return 当前主题下解析出的颜色，如果未注册则返回 `std::nullopt`。
      */
-    [[nodiscard]] virtual auto DynamicColor(std::string_view key) const
-        -> std::optional<QColor> = 0;
+    [[nodiscard]] virtual auto DynamicColor(std::string_view key) const -> std::optional<QColor> = 0;
 
     /**
-     * @brief Query a dynamic font token by key.
-     * @return Font spec, or `std::nullopt` if not registered.
+     * @brief 按键查询动态字体 Token。
+     * @return 字体规范，如果未注册则返回 `std::nullopt`。
      */
-    [[nodiscard]] virtual auto DynamicFont(std::string_view key) const
-        -> std::optional<FontSpec> = 0;
+    [[nodiscard]] virtual auto DynamicFont(std::string_view key) const -> std::optional<FontSpec> = 0;
 
     /**
-     * @brief Query a dynamic spacing token by key (density-scaled).
-     * @return Density-scaled pixel value, or `std::nullopt` if not registered.
+     * @brief 按键查询动态间距 Token（密度缩放后）。
+     * @return 密度缩放后的像素值，如果未注册则返回 `std::nullopt`。
      */
-    [[nodiscard]] virtual auto DynamicSpacingPx(std::string_view key) const
-        -> std::optional<int> = 0;
+    [[nodiscard]] virtual auto DynamicSpacingPx(std::string_view key) const -> std::optional<int> = 0;
 
     /**
-     * @brief Unregister previously registered dynamic tokens (all types).
-     * @param keys Span of key strings to remove.
+     * @brief 注销之前注册的动态 Token（所有类型）。
+     * @param keys 要移除的键字符串列表的 span。
      */
     virtual void UnregisterDynamicTokens(std::span<const std::string_view> keys) = 0;
 
     // ========================================================================
-    // Test Support
+    // 测试支持
     // ========================================================================
 
     /**
-     * @brief Override all animation durations for deterministic testing.
+     * @brief 覆盖所有动画持续时间以实现确定性测试。
      *
-     * `WidgetTestFixture` calls `SetAnimationOverride(0)` to force all
-     * `AnimationMs()` queries to return 0ms, eliminating timing-dependent
-     * test failures.
+     * `WidgetTestFixture` 调用 `SetAnimationOverride(0)` 强制所有
+     * `AnimationMs()` 查询返回 0ms，从而消除依赖时间的测试失败。
      *
-     * @param forceMs Forced duration in ms. Pass -1 to restore real values.
+     * @param forceMs 强制持续时间（毫秒）。传入 -1 恢复真实值。
      */
     virtual void SetAnimationOverride(int forceMs) = 0;
 
-Q_SIGNALS:
+   Q_SIGNALS:
     /**
-     * @brief Emitted after `SetTheme()` completes token rebuild.
+     * @brief 在 `SetTheme()` 完成 Token 重建后发出。
      *
-     * All `ThemeAware` widgets connect to this signal to re-fetch their
-     * `WidgetStyleSheet` and call `OnThemeChanged()`.
+     * 所有 `ThemeAware` 控件连接到此信号以重新获取它们的
+     * `WidgetStyleSheet` 并调用 `OnThemeChanged()`。
      *
-     * @param newTheme The newly activated theme name.
+     * @param newTheme 新激活的主题名称。
      */
     void ThemeChanged(const QString& newTheme);
 
-protected:
-    /// @brief Protected constructor -- only subclasses can instantiate.
+   protected:
+    /// @brief 受保护的构造函数 —— 仅允许子类实例化。
     using QObject::QObject;
-};
+  };
 
-// ============================================================================
-// Global Theme Accessor
-// ============================================================================
+  // ============================================================================
+  // 全局主题访问器
+  // ============================================================================
 
-/// @brief Set the global theme service instance. Called once by Application::Initialize().
-/// @param svc Pointer to the theme service (must outlive all widgets). nullptr to clear.
-MATCHA_EXPORT void SetThemeService(IThemeService* svc);
+  /// @brief 设置全局主题服务实例。由 Application::Initialize() 调用一次。
+  /// @param svc 指向主题服务的指针（必须比所有控件寿命更长）。nullptr 用于清除。
+  MATCHA_EXPORT void SetThemeService(IThemeService* svc);
 
-/// @brief Get the global theme service instance.
-/// @return Reference to the active theme service.
-/// @pre SetThemeService() must have been called with a non-null pointer.
-[[nodiscard]] MATCHA_EXPORT auto GetThemeService() -> IThemeService&;
+  /// @brief 获取全局主题服务实例。
+  /// @return 对活动主题服务的引用。
+  /// @pre 必须已使用非空指针调用 SetThemeService()。
+  [[nodiscard]] MATCHA_EXPORT auto GetThemeService() -> IThemeService&;
 
-/// @brief Check if a global theme service has been set.
-[[nodiscard]] MATCHA_EXPORT auto HasThemeService() -> bool;
-
-} // namespace matcha::gui
+  /// @brief 检查全局主题服务是否已设置。
+  [[nodiscard]] MATCHA_EXPORT auto HasThemeService() -> bool;
+}  // namespace matcha::gui
