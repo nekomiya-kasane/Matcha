@@ -14,7 +14,7 @@
             "cacheVariables": {
                 "CMAKE_CXX_COMPILER": "clang++",
                 "CMAKE_C_COMPILER": "clang",
-                "CMAKE_PREFIX_PATH": "C:/Qt/6.8.3/msvc2022_64",
+                "CMAKE_PREFIX_PATH": "C:\\Qt\\6.10.2\\msvc2022_64",
                 "CMAKE_CXX_STANDARD": "23",
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON",
                 "CMAKE_CXX_EXTENSIONS": "OFF",

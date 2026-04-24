@@ -2,78 +2,77 @@
 
 /**
  * @file TonalPaletteGenerator.h
- * @brief OKLCH-based tonal palette generation from seed colors.
+ * @brief 基于 OKLCH 色彩空间的色调调色板生成器，从种子色生成 10 级梯度。
  *
- * Generates 10-level tonal ramps from a single seed color using the OKLCH
- * perceptually uniform color space. Follows the Ant Design v5 10-step model.
+ * 使用感知均匀的 OKLCH 色彩空间，从单个种子色生成 10 级色调梯度。
+ * 遵循 Ant Design v5 的 10 步模型。
  *
- * Algorithm:
- *   1. Convert seed QColor (sRGB) to OKLCH (L, C, H)
- *   2. Distribute lightness across 10 levels:
- *      - Light theme: L from 0.96 (step 1) to 0.30 (step 10)
- *      - Dark  theme: L from 0.20 (step 1) to 0.90 (step 10)
- *   3. Maintain constant chroma and hue from seed
- *   4. Clamp to sRGB gamut (reduce chroma if necessary)
- *   5. Convert back to QColor
+ * 算法流程：
+ *   1. 将种子色 QColor（sRGB）转换为 OKLCH（L, C, H）
+ *   2. 在 10 个等级上分布明度：
+ *      - 浅色主题：L 从 0.96（第 1 级）到 0.30（第 10 级）
+ *      - 深色主题：L 从 0.20（第 1 级）到 0.90（第 10 级）
+ *   3. 保持种子色的色度与色相不变
+ *   4. 限制在 sRGB 色域内（必要时降低色度）
+ *   5. 转换回 QColor
  *
- * The 10 levels map to the Ant Design token naming:
+ * 10 个等级映射到 Ant Design 的 Token 命名：
  *   [0] Bg,       [1] BgHover,    [2] Border,     [3] BorderHover, [4] Hover,
  *   [5] Base,     [6] Active,     [7] TextHover,  [8] Text,        [9] TextActive
  *
- * @see plan.md S11 for the design rationale.
- * @see https://bottosson.github.io/posts/oklab/ for OKLCH specification.
+ * @see plan.md S11 了解设计原理。
+ * @see https://bottosson.github.io/posts/oklab/ 了解 OKLCH 规范。
  */
 
-#include <Matcha/Core/Macros.h>
-#include <Matcha/Theming/DesignTokens.h>
-
 #include <QColor>
-
 #include <array>
+
+#include "Matcha/Core/Macros.h"
+#include "Matcha/Theming/DesignTokens.h"
 
 namespace matcha::gui {
 
-/**
- * @brief OKLCH color representation (Lightness, Chroma, Hue).
- */
-struct OklchColor {
-    float L = 0.0f; ///< Lightness [0, 1]
-    float C = 0.0f; ///< Chroma [0, ~0.37]
-    float H = 0.0f; ///< Hue in degrees [0, 360)
-};
+  /**
+   * @brief OKLCH 色彩表示（明度、色度、色相）。
+   */
+  struct OklchColor {
+    float L = 0.0f;  ///< Lightness [0, 1]
+    float C = 0.0f;  ///< Chroma [0, ~0.37]
+    float H = 0.0f;  ///< Hue in degrees [0, 360)
+  };
 
-/**
- * @brief Static utility for generating tonal palettes from seed colors.
- */
-class MATCHA_EXPORT TonalPaletteGenerator {
-public:
+  /**
+   * @brief 静态工具类，用于从种子色生成色调调色板。
+   */
+  class MATCHA_EXPORT TonalPaletteGenerator {
+   public:
     static constexpr int kToneCount = 10;
 
     /**
-     * @brief Generate a 10-level tonal ramp for a light theme.
-     * @param seed Seed color (sRGB).
-     * @return Array of 10 QColors: step 1 (lightest) to step 10 (darkest).
+     * @brief 为浅色主题生成 10 级色调梯度。
+     * @param seed 种子色（sRGB 空间）。
+     * @return 包含 10 个 QColor 的数组：第 1 级（最亮）到第 10 级（最暗）。
      */
     [[nodiscard]] static auto GenerateLight(QColor seed) -> std::array<QColor, kToneCount>;
 
     /**
-     * @brief Generate a 10-level tonal ramp for a dark theme.
-     * @param seed Seed color (sRGB).
-     * @return Array of 10 QColors: step 1 (darkest) to step 10 (lightest).
+     * @brief 为深色主题生成 10 级色调梯度。
+     * @param seed 种子色（sRGB 空间）。
+     * @return 包含 10 个 QColor 的数组：第 1 级（最暗）到第 10 级（最亮）。
      */
     [[nodiscard]] static auto GenerateDark(QColor seed) -> std::array<QColor, kToneCount>;
 
-    // -- Color space conversions (public for testing) --
+    // -- 色彩空间转换（公开以支持测试） --
 
     /**
-     * @brief Convert sRGB QColor to OKLCH.
+     * @brief 将 sRGB 格式的 QColor 转换为 OKLCH。
      */
     [[nodiscard]] static auto SrgbToOklch(QColor color) -> OklchColor;
 
     /**
-     * @brief Convert OKLCH to sRGB QColor, clamping to gamut.
+     * @brief 将 OKLCH 转换为 sRGB 格式的 QColor，并限制在色域内。
      */
     [[nodiscard]] static auto OklchToSrgb(OklchColor oklch) -> QColor;
-};
+  };
 
-} // namespace matcha::gui
+}  // namespace matcha::gui

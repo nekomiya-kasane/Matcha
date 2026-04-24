@@ -58,7 +58,7 @@ public:
     void SetText(std::string_view text);
     void SetToolTip(std::string_view tip);
 
-    void SetIcon(std::string_view iconId, fw::IconSize size = fw::IconSize::Sm);
+    void SetIcon(std::string_view iconId, fw::IconToken size = fw::IconToken::iconSizeSM);
 
     // -- Positional query --
 

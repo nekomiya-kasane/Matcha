@@ -94,7 +94,7 @@ $replacements = [ordered]@{
 
     # --- Source/UiNodes/Core -> Source/Theming/Token ---
     "Source/UiNodes/Core/TokenRegistryGlobal.cpp"     = "Source/Theming/Token/TokenRegistryGlobal.cpp"
-    "Source/UiNodes/Core/DtcgTokenModel.cpp"          = "Source/Theming/Token/DtcgTokenModel.cpp"
+    "Source/UiNodes/Core/DtfmTokenModel.cpp"          = "Source/Theming/Token/DtfmTokenModel.cpp"
     "Source/UiNodes/Core/VariantNameRegistry.cpp"     = "Source/Theming/Token/VariantNameRegistry.cpp"
 
     # --- Include/Matcha/UiNodes/Core -> Include/Matcha/Event ---
@@ -129,7 +129,7 @@ $replacements = [ordered]@{
     "Include/Matcha/Foundation/SharedElementTransition.h" = "Include/Matcha/Animation/SharedElementTransition.h"
     "Include/Matcha/Foundation/GestureMotionTracker.h"   = "Include/Matcha/Interaction/Input/GestureMotionTracker.h"
     "Include/Matcha/Foundation/AnimationBlendLayer.h"    = "Include/Matcha/Animation/AnimationBlendLayer.h"
-    "Include/Matcha/Foundation/DtcgTokenModel.h"         = "Include/Matcha/Theming/Token/DtcgTokenModel.h"
+    "Include/Matcha/Foundation/DtfmTokenModel.h"         = "Include/Matcha/Theming/Token/DtfmTokenModel.h"
     "Include/Matcha/Foundation/VariantNameRegistry.h"    = "Include/Matcha/Theming/Token/VariantNameRegistry.h"
     "Include/Matcha/Foundation/WidgetFsm.h"              = "Include/Matcha/Tree/FSM/WidgetFsm.h"
     "Include/Matcha/Foundation/WidgetFsmBridge.h"        = "Include/Matcha/Tree/FSM/WidgetFsmBridge.h"

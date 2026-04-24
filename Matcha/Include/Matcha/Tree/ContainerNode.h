@@ -76,14 +76,14 @@ public:
     [[nodiscard]] auto Kind() const -> LayoutKind;
 
     /// @brief Set spacing between children (token-aware, density-scaled).
-    void SetSpacing(SpacingToken token);
+    void SetSpacing(SpaceToken token);
 
     /// @brief Set uniform margins on all four sides (token-aware, density-scaled).
-    void SetMargins(SpacingToken token);
+    void SetMargins(SpaceToken token);
 
     /// @brief Set per-side margins (token-aware, density-scaled).
-    void SetMargins(SpacingToken left, SpacingToken top,
-                    SpacingToken right, SpacingToken bottom);
+    void SetMargins(SpaceToken left, SpaceToken top,
+                    SpaceToken right, SpaceToken bottom);
 
     /// @brief Set layout direction (LTR/RTL). RTL swaps left/right margins
     /// and reverses HBox child order via Qt layoutDirection.
@@ -137,11 +137,11 @@ private:
     LayoutKind _kind;
     bool _ownsWidget = true;
 
-    SpacingToken _spacingToken = SpacingToken::None;
-    SpacingToken _marginLeft   = SpacingToken::None;
-    SpacingToken _marginTop    = SpacingToken::None;
-    SpacingToken _marginRight  = SpacingToken::None;
-    SpacingToken _marginBottom = SpacingToken::None;
+    SpaceToken _spacingToken = SpaceToken::sizeUnit;
+    SpaceToken _marginLeft   = SpaceToken::sizeUnit;
+    SpaceToken _marginTop    = SpaceToken::sizeUnit;
+    SpaceToken _marginRight  = SpaceToken::sizeUnit;
+    SpaceToken _marginBottom = SpaceToken::sizeUnit;
     TextDirection _direction   = TextDirection::LTR;
 };
 

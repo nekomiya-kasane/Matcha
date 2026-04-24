@@ -244,8 +244,8 @@ void NyanMenu::paintEvent(QPaintEvent* /*event*/)
         bgRect.translate(0, -_animationOffset);
     }
 
-    p.setPen(QPen(theme.Color(ColorToken::BorderDefault), kBorderWidth));
-    p.setBrush(theme.Color(ColorToken::SurfaceElevated));
+    p.setPen(QPen(theme.Color(ColorToken::colorBorder), kBorderWidth));
+    p.setBrush(theme.Color(ColorToken::colorPrimary));
     p.drawRoundedRect(bgRect.adjusted(1, 1, -1, -1), kRadius, kRadius);
 }
 

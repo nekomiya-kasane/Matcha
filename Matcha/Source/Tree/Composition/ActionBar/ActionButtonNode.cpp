@@ -87,7 +87,7 @@ void ActionButtonNode::SetToolTip(std::string_view tip)
     }
 }
 
-void ActionButtonNode::SetIcon(std::string_view iconId, fw::IconSize size)
+void ActionButtonNode::SetIcon(std::string_view iconId, fw::IconToken size)
 {
     if (_button == nullptr || !gui::HasThemeService()) {
         return;
@@ -97,7 +97,7 @@ void ActionButtonNode::SetIcon(std::string_view iconId, fw::IconSize size)
         return;
     }
     const int sizePx = static_cast<int>(size);
-    const QColor fg = gui::GetThemeService().Color(gui::ColorToken::TextPrimary);
+    const QColor fg = gui::GetThemeService().Color(gui::ColorToken::colorText);
     const QPixmap pm = gui::GetThemeService().ResolveIcon(fw::IconId(iconId), size, fg);
     if (!pm.isNull()) {
         _button->setIcon(QIcon(pm));

@@ -26,13 +26,13 @@ NyanPanel::~NyanPanel() = default;
 // Public API
 // ============================================================================
 
-void NyanPanel::SetElevation(ElevationToken elevation)
+void NyanPanel::SetElevation(ShadowToken elevation)
 {
     _elevation = elevation;
     update();
 }
 
-auto NyanPanel::Elevation() const -> ElevationToken
+auto NyanPanel::Elevation() const -> ShadowToken
 {
     return _elevation;
 }
@@ -65,12 +65,12 @@ void NyanPanel::paintEvent(QPaintEvent* /*event*/)
     const auto style = Theme().Resolve(WidgetKind::Panel, 0, InteractionState::Normal);
 
     // Background color depends on elevation.
-    const QColor bg = (_elevation == ElevationToken::Flat)
+    const QColor bg = (_elevation == ShadowToken::shadow)
         ? style.background
-        : Theme().Color(ColorToken::FillHover);
+        : Theme().Color(ColorToken::colorFillHover);
 
     // Shadow for non-flat elevations.
-    if (_elevation != ElevationToken::Flat) {
+    if (_elevation != ShadowToken::shadow) {
         const auto& shadow = Theme().Shadow(_elevation);
         QColor shadowColor(0, 0, 0, shadow.opacity);
         const QRect shadowRect = rect().adjusted(

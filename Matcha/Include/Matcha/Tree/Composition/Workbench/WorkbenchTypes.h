@@ -62,7 +62,7 @@ struct CommandHeaderDescriptor {
     std::string   tooltip;
     std::string   shortcut;      ///< Qt key sequence string, e.g. "Ctrl+R"
     std::string   libraryHint;   ///< DLL name hint for lazy loading
-    IconSize iconSize = IconSize::Sm;
+    IconToken     iconSize = IconToken::iconSizeSM;
 
     CommandFactory         factory;       ///< Lazy command instantiation (nullptr = metadata-only)
     CommandAvailabilityFn  availability;  ///< Dynamic enable/disable (nullptr = always enabled)

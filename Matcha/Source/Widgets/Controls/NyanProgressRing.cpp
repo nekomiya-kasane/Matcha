@@ -60,7 +60,7 @@ void NyanProgressRing::SetIndeterminate(bool indeterminate)
 {
     _indeterminate = indeterminate;
     if (_indeterminate) {
-        const int intervalMs = Theme().AnimationMs(AnimationToken::Quick);
+        const int intervalMs = Theme().AnimationMs(AnimationsToken::motionDurationFast);
         _spinTimer.start(intervalMs > 0 ? (intervalMs / 10) : 16);
     } else {
         _spinTimer.stop();
@@ -154,7 +154,7 @@ void NyanProgressRing::paintEvent(QPaintEvent* /*event*/)
 void NyanProgressRing::OnThemeChanged()
 {
     if (_indeterminate) {
-        const int intervalMs = Theme().AnimationMs(AnimationToken::Quick);
+        const int intervalMs = Theme().AnimationMs(AnimationsToken::motionDurationFast);
         _spinTimer.setInterval(intervalMs > 0 ? (intervalMs / 10) : 16);
     }
     update();

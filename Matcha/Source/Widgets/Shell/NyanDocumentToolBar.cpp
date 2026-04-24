@@ -134,7 +134,7 @@ auto NyanDocumentToolBar::minimumSizeHint() const -> QSize
 void NyanDocumentToolBar::paintEvent(QPaintEvent* /*event*/)
 {
     QPainter p(this);
-    p.fillRect(rect(), Theme().Color(ColorToken::PrimaryBgHover));
+    p.fillRect(rect(), Theme().Color(ColorToken::colorPrimaryBgHover));
 }
 
 // ============================================================================
@@ -157,12 +157,12 @@ void NyanDocumentToolBar::UpdateStyles()
         "QComboBox:hover { border-color: %5; }"
         "QComboBox::drop-down { border: none; width: 20px; }"
         "QFrame { background-color: %6; }"
-    ).arg(theme.Color(ColorToken::PrimaryBgHover).name(),
-          theme.Color(ColorToken::SurfaceElevated).name(),
-          theme.Color(ColorToken::BorderStrong).name(),
-          theme.Color(ColorToken::TextPrimary).name(),
-          theme.Color(ColorToken::Primary).name(),
-          theme.Color(ColorToken::BorderStrong).name());
+    ).arg(theme.Color(ColorToken::colorPrimaryBgHover).name(),
+          theme.Color(ColorToken::colorPrimaryBg).name(),
+          theme.Color(ColorToken::colorBorder).name(),
+          theme.Color(ColorToken::colorText).name(),
+          theme.Color(ColorToken::colorPrimary).name(),
+          theme.Color(ColorToken::colorBorderSecondary).name());
     setStyleSheet(style);
 }
 

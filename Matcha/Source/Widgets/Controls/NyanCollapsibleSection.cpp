@@ -177,7 +177,7 @@ void NyanCollapsibleSection::OnThemeChanged()
 
 void NyanCollapsibleSection::AnimateExpand(bool expanded)
 {
-    const int durationMs = Theme().AnimationMs(AnimationToken::Normal);
+    const int durationMs = Theme().AnimationMs(AnimationsToken::motionDurationDefault);
 
     // Animate arrow rotation.
     auto* arrowAnim = new QPropertyAnimation(this, "arrowRotation", this);
@@ -201,11 +201,11 @@ void NyanCollapsibleSection::AnimateExpand(bool expanded)
             node->AnimateProperty(fw::AnimationPropertyId::MaximumHeight,
                                   fw::AnimatableValue::FromInt(startH),
                                   fw::AnimatableValue::FromInt(endH),
-                                  fw::AnimationToken::Normal);
+                                  fw::AnimationsToken::motionDurationDefault);
             node->AnimateProperty(fw::AnimationPropertyId::MinimumHeight,
                                   fw::AnimatableValue::FromInt(startH),
                                   fw::AnimatableValue::FromInt(endH),
-                                  fw::AnimationToken::Normal);
+                                  fw::AnimationsToken::motionDurationDefault);
         } else {
             setMaximumHeight(endH);
             setMinimumHeight(endH);

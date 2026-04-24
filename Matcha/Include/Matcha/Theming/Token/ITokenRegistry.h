@@ -2,64 +2,64 @@
 
 /**
  * @file ITokenRegistry.h
- * @brief Qt-free abstract interface for design token queries.
+ * @brief 设计令牌查询的无 Qt 依赖抽象接口。
  *
- * ITokenRegistry lives in matcha::fw and has ZERO Qt dependency.
- * It provides density-aware spacing/radius queries that the fw layer
- * (ContainerNode, WidgetNode) can use without touching Qt types.
+ * ITokenRegistry 位于 matcha::fw 命名空间，且 **零 Qt 依赖**。
+ * 它提供了密度感知的间距/圆角查询，使得 fw 层（ContainerNode、WidgetNode）
+ * 可以在不接触 Qt 类型的情况下使用这些令牌。
  *
- * The concrete implementation is NyanTheme (in matcha::gui), which
- * also implements IThemeService. Application exposes both interfaces:
- *   - Tokens() -> ITokenRegistry&   (fw-layer consumers)
- *   - Theme()  -> IThemeService&    (gui-layer consumers)
+ * 具体的实现是 NyanTheme（位于 matcha::gui），它同时也实现了 IThemeService。
+ * 应用程序同时暴露两个接口：
+ *   - Tokens() -> ITokenRegistry&   （供 fw 层消费者使用）
+ *   - Theme()  -> IThemeService&    （供 gui 层消费者使用）
  *
- * Both return the same underlying NyanTheme object.
+ * 两者返回相同的底层 NyanTheme 对象。
  *
- * @see plan.md Part VIII for the split rationale.
- * @see TokenEnums.h for the token enum definitions.
+ * @see COCAUI_Design_System_Specification.md 第 4 章空间系统、第 6 章 IThemeService 接口
+ * @see TokenEnums.h 令牌枚举定义
  */
 
 #include "Matcha/Theming/Token/TokenEnums.h"
 
 namespace matcha::fw {
 
-/**
- * @brief Abstract interface for Qt-free design token queries.
- *
- * All query methods are [[nodiscard]] and const. They perform O(1)
- * lookups with density scaling applied transparently.
- *
- * Thread safety: const query methods are safe for concurrent reads.
- * SetDensity/SetDirection must be called from the GUI thread only.
- */
-class ITokenRegistry {
-public:
+  /**
+   * @brief 无 Qt 依赖的设计令牌查询抽象接口。
+   *
+   * 所有查询方法均标记为 [[nodiscard]] 和 const。它们以 O(1) 时间进行查找，
+   * 并透明地应用密度缩放。
+   *
+   * 线程安全：const 查询方法对并发读取是安全的。
+   * SetDensity/SetDirection 必须仅从 GUI 线程调用。
+   */
+  class ITokenRegistry {
+   public:
     virtual ~ITokenRegistry() = default;
 
-    ITokenRegistry(const ITokenRegistry&)            = delete;
+    ITokenRegistry(const ITokenRegistry&) = delete;
     ITokenRegistry& operator=(const ITokenRegistry&) = delete;
-    ITokenRegistry(ITokenRegistry&&)                 = delete;
-    ITokenRegistry& operator=(ITokenRegistry&&)      = delete;
+    ITokenRegistry(ITokenRegistry&&) = delete;
+    ITokenRegistry& operator=(ITokenRegistry&&) = delete;
 
     // ========================================================================
     // Density
     // ========================================================================
 
     /**
-     * @brief Set the active density level.
+     * @brief 设置当前活动的密度级别。
      *
-     * Triggers re-resolution of all density-dependent tokens.
-     * GUI thread only.
+     * 触发所有依赖密度的令牌重新解析。
+     * 仅限 GUI 线程调用。
      */
     virtual void SetDensity(DensityLevel level) = 0;
 
     /**
-     * @brief Query the current density level.
+     * @brief 查询当前活动的密度级别。
      */
     [[nodiscard]] virtual auto CurrentDensity() const -> DensityLevel = 0;
 
     /**
-     * @brief Query the current density scale factor.
+     * @brief 查询当前活动的密度缩放因子。
      */
     [[nodiscard]] virtual auto CurrentDensityScale() const -> float = 0;
 
@@ -68,12 +68,12 @@ public:
     // ========================================================================
 
     /**
-     * @brief Set the global text direction (LTR/RTL).
+     * @brief 设置全局文本方向（LTR/RTL）。
      */
     virtual void SetDirection(TextDirection dir) = 0;
 
     /**
-     * @brief Query the current text direction.
+     * @brief 查询当前活动的文本方向。
      */
     [[nodiscard]] virtual auto CurrentDirection() const -> TextDirection = 0;
 
@@ -82,57 +82,56 @@ public:
     // ========================================================================
 
     /**
-     * @brief Query a spacing value in logical pixels (density-scaled).
-     * @param token Spacing token.
-     * @return basePx * densityScale, rounded to int.
+     * @brief 查询间距值（逻辑像素，已应用密度缩放）。
+     * @param token 间距令牌。
+     * @return basePx * densityScale，四舍五入为整数。
      */
-    [[nodiscard]] virtual auto SpacingPx(SpacingToken token) const -> int = 0;
+    [[nodiscard]] virtual auto SpacingPx(SpaceToken token) const -> int = 0;
 
     /**
-     * @brief Query a corner radius value in logical pixels.
-     * @param token Radius token.
-     * @return Pixel value as int. RadiusToken::Round returns 255 (caller uses min(w,h)/2).
+     * @brief 查询圆角半径值（逻辑像素）。
+     * @param token 圆角令牌。
+     * @return 像素值（整数）。RadiusToken::Round 返回 255（调用者需使用 min(w,h)/2）。
      */
     [[nodiscard]] virtual auto Radius(RadiusToken token) const -> int = 0;
 
     /**
-     * @brief Query animation duration in milliseconds.
+     * @brief 查询动画持续时间（毫秒）。
      *
-     * When animation override is active (test mode), returns the override value.
+     * 当动画覆盖处于活动状态时（如测试模式），返回覆盖值。
      *
-     * @param speed Animation speed preset.
-     * @return Duration in milliseconds (0 = instant / test mode).
+     * @param speed 动画速度预设。
+     * @return 持续时间（毫秒），0 表示即时 / 测试模式。
      */
-    [[nodiscard]] virtual auto AnimationMs(AnimationToken speed) const -> int = 0;
+    [[nodiscard]] virtual auto AnimationMs(AnimationsToken speed) const -> int = 0;
 
     // ========================================================================
     // Interaction Timing Queries (§8.7)
     // ========================================================================
 
     /**
-     * @brief Query an interaction timing value in milliseconds.
+     * @brief 查询交互计时值（毫秒）。
      *
-     * Returns the platform-adjusted value for the given timing token.
-     * On Windows, tokens like DoubleClickWindow and HoverDelay are
-     * queried from the OS at initialization time.
+     * 返回给定计时令牌的、已根据平台调整后的值。
+     * 例如，在 Windows 上，DoubleClickWindow 和 HoverDelay 会在初始化时从操作系统查询。
      *
-     * @param id Timing token identifier.
-     * @return Duration in milliseconds.
+     * @param id 计时令牌标识符。
+     * @return 持续时间（毫秒）。
      */
     [[nodiscard]] virtual auto TimingMs(TimingTokenId id) const -> int = 0;
 
     /**
-     * @brief Override a timing token value at runtime.
+     * @brief 在运行时覆盖一个计时令牌值。
      *
-     * Useful for testing (set all delays to 0) or user preferences.
+     * 用于测试（例如将所有延迟设置为 0）或用户偏好设置。
      *
-     * @param id    Timing token to override.
-     * @param ms    New value in milliseconds. Pass -1 to restore default.
+     * @param id    要覆盖的计时令牌。
+     * @param ms    新的毫秒值。传入 -1 恢复默认值。
      */
     virtual void SetTimingOverride(TimingTokenId id, int ms) = 0;
 
-protected:
+   protected:
     ITokenRegistry() = default;
-};
+  };
 
-} // namespace matcha::fw
+}  // namespace matcha::fw

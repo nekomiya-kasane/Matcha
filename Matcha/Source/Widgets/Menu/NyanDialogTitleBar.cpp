@@ -170,10 +170,10 @@ void NyanDialogTitleBar::paintEvent(QPaintEvent* /*event*/)
     const auto& theme = Theme();
 
     // Background
-    p.fillRect(rect(), theme.Color(ColorToken::FillHover));
+    p.fillRect(rect(), theme.Color(ColorToken::colorFillHover));
 
     // Bottom border
-    p.setPen(theme.Color(ColorToken::BorderStrong));
+    p.setPen(theme.Color(ColorToken::colorBorder));
     p.drawLine(0, height() - 1, width(), height() - 1);
 }
 
@@ -224,15 +224,15 @@ void NyanDialogTitleBar::UpdateButtonStyles()
     // Title style
     QString titleStyle = QString(
         "QLabel { color: %1; font-weight: bold; }"
-    ).arg(theme.Color(ColorToken::TextPrimary).name());
+    ).arg(theme.Color(ColorToken::colorText).name());
     _titleLabel->setStyleSheet(titleStyle);
 
     // Button style
     QString buttonStyle = QString(
         "QPushButton { background: transparent; border: none; color: %1; font-size: 14px; }"
         "QPushButton:hover { background-color: %2; }"
-    ).arg(theme.Color(ColorToken::TextSecondary).name(),
-          theme.Color(ColorToken::FillActive).name());
+    ).arg(theme.Color(ColorToken::colorTextSecondary).name(),
+          theme.Color(ColorToken::colorFillTertiary).name());
     _minimizeButton->setStyleSheet(buttonStyle);
     _maximizeButton->setStyleSheet(buttonStyle);
 
@@ -240,8 +240,8 @@ void NyanDialogTitleBar::UpdateButtonStyles()
     QString closeStyle = QString(
         "QPushButton { background: transparent; border: none; color: %1; font-size: 16px; font-weight: bold; }"
         "QPushButton:hover { background-color: %2; color: white; }"
-    ).arg(theme.Color(ColorToken::TextSecondary).name(),
-          theme.Color(ColorToken::Error).name());
+    ).arg(theme.Color(ColorToken::colorTextSecondary).name(),
+          theme.Color(ColorToken::colorError).name());
     _closeButton->setStyleSheet(closeStyle);
 }
 

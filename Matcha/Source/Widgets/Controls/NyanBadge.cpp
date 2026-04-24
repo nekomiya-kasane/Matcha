@@ -87,19 +87,19 @@ auto NyanBadge::ResolveColors() const -> ResolvedColors
     // Semantic badge variant colors — not in the variant matrix
     switch (_variant) {
     case BadgeVariant::Success:
-        return {Theme().Color(ColorToken::Success), Theme().Color(ColorToken::OnAccent)};
+        return {Theme().Color(ColorToken::colorSuccess), Theme().Color(ColorToken::OnAccent)};
     case BadgeVariant::Warning:
-        return {Theme().Color(ColorToken::Warning), Theme().Color(ColorToken::OnAccent)};
+        return {Theme().Color(ColorToken::colorWarning), Theme().Color(ColorToken::OnAccent)};
     case BadgeVariant::Error:
-        return {Theme().Color(ColorToken::Error), Theme().Color(ColorToken::OnAccent)};
+        return {Theme().Color(ColorToken::colorError), Theme().Color(ColorToken::OnAccent)};
     case BadgeVariant::Info:
-        return {Theme().Color(ColorToken::Primary), Theme().Color(ColorToken::OnAccent)};
+        return {Theme().Color(ColorToken::colorPrimary), Theme().Color(ColorToken::OnAccent)};
     case BadgeVariant::Custom:
-        return {_customColor.isValid() ? _customColor : Theme().Color(ColorToken::Fill),
+        return {_customColor.isValid() ? _customColor : Theme().Color(ColorToken::colorFill),
                 Theme().Color(ColorToken::OnAccent)};
     case BadgeVariant::Neutral:
     default:
-        return {Theme().Color(ColorToken::Fill), Theme().Color(ColorToken::TextPrimary)};
+        return {Theme().Color(ColorToken::colorFill), Theme().Color(ColorToken::colorText)};
     }
 }
 

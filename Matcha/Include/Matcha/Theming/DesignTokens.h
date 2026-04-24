@@ -2,233 +2,276 @@
 
 /**
  * @file DesignTokens.h
- * @brief Design Token System: Color, Font, and Qt-dependent value structs.
+ * @brief 设计 Token 系统：Color、Font 以及与 Qt 相关的值类型结构体
  *
- * Qt-free token enums (Spacing, Radius, Elevation, Animation, Easing,
- * InteractionState, Density, Direction, Icon, Cursor, Layer) are defined
- * in matcha::fw::TokenEnums.h and imported here via using declarations.
+ * 无 Qt 依赖的 Token 枚举（Spacing, Radius, Elevation, Animation, Easing,
+ * InteractionState, Density, Direction, Icon, Cursor, Layer）定义在
+ * matcha::fw::TokenEnums.h 中，此处通过 using 声明导入。
  *
- * This file retains Qt-dependent types: ColorToken (resolved to QColor),
- * FontSpec (contains QString), ShadowSpec, StateStyle, VariantStyle.
+ * 本文件保留 Qt 依赖的类型：ColorToken（解析为 QColor）、
+ * FontSpec（包含 QString）、ShadowSpec、StateStyle、VariantStyle。
  *
- * @see TokenEnums.h for the Qt-free enum definitions.
- * @see 05_Greenfield_Plan.md ss 2.2 for the full token taxonomy.
+ * @see TokenEnums.h 无 Qt 枚举定义
+ * @see COCAUI_Design_System_Specification.md 第 2-4 章详细 Token 定义
  */
-
-#include <Matcha/Theming/Token/TokenEnums.h>
 
 #include <QString>
 #include <QtTypes>
-
 #include <array>
 #include <cstdint>
 #include <utility>
 
+#include "Matcha/Theming/Token/TokenEnums.h"
+
 namespace matcha::gui {
 
-// Import fw-layer token enums into gui namespace for source compatibility.
-using matcha::fw::SpacingToken;
-using matcha::fw::RadiusToken;
-using matcha::fw::ElevationToken;
-using matcha::fw::AnimationToken;
-using matcha::fw::EasingToken;
-using matcha::fw::InteractionState;
-using matcha::fw::DensityLevel;
-using matcha::fw::FontSizePreset;
-using matcha::fw::TextDirection;
-using matcha::fw::IconId;
-using matcha::fw::IconSize;
-using matcha::fw::CursorToken;
-using matcha::fw::LayerToken;
-using matcha::fw::SizeToken;
-using matcha::fw::TransitionDef;
+  // 将 fw 层的 Token 枚举导入到 gui 命名空间
+  using matcha::fw::AnimationsToken;
+  using matcha::fw::ControlHeightToken;
+  using matcha::fw::CursorToken;
+  using matcha::fw::DensityLevel;
+  using matcha::fw::EasingToken;
+  using matcha::fw::FontSizePreset;
+  using matcha::fw::IconToken;
+  using matcha::fw::InteractionState;
+  using matcha::fw::LayerToken;
+  using matcha::fw::LineToken;
+  using matcha::fw::PopupWidthToken;
+  using matcha::fw::RadiusToken;
+  using matcha::fw::ShadowToken;
+  using matcha::fw::SizeToken;
+  using matcha::fw::SpaceToken;
+  using matcha::fw::SpringSpec;
+  using matcha::fw::TextDirection;
+  using matcha::fw::TimingTokenId;
+  using matcha::fw::TransitionDef;
 
-// Import constants.
-using matcha::fw::kElevationTokenCount;
-using matcha::fw::kAnimationTokenCount;
-using matcha::fw::kDefaultAnimationMs;
-using matcha::fw::kEasingTokenCount;
-using matcha::fw::kInteractionStateCount;
-using matcha::fw::kDensityLevelCount;
-using matcha::fw::ToPixels;
+  // 导入常量
+  using matcha::fw::IconId;
+  using matcha::fw::ToPixels;
 
-// ============================================================================
-// 1. Color Tokens
-// ============================================================================
+  using matcha::fw::kAnimationsTokenCount;
+  using matcha::fw::kBaseSizePx;
+  using matcha::fw::kDefaultAnimationMs;
+  using matcha::fw::kDefaultTimingMs;
+  using matcha::fw::kInteractionStateCount;
+  using matcha::fw::kLineTokenCount;
+  using matcha::fw::kMatchaIconPrefix;
+  using matcha::fw::kShadowTokenCount;
+  using matcha::fw::kSizeTokenCount;
+  using matcha::fw::kTimingTokenCount;
+  using matcha::fw::kZIndexTokenCount;
 
-/**
- * @brief Semantic color slots for the entire design system.
- *
- * 74 tokens following the Ant Design v5 three-layer model:
- * - Neutral: 5 surface + 4 fill + 3 border + 4 text = 16
- * - Semantic: 5 hues x 10 Ant Design steps = 50
- * - Special: 8 purpose tokens
- *
- * Lookup is O(1) via flat array: `colors[std::to_underlying(token)]`.
- *
- * @see docs/06_Design_Token_Redesign.md for the full redesign rationale.
- */
-enum class ColorToken : uint16_t {
-    // -- Neutral: Surface (5) --
-    Surface,              ///< App base background (Ant colorBgBase)
-    SurfaceContainer,     ///< Card, panel, sidebar (Ant colorBgContainer)
-    SurfaceElevated,      ///< Popup, dropdown, dialog (Ant colorBgElevated)
-    SurfaceSunken,        ///< Recessed well, status bar (Ant colorBgLayout)
-    Spotlight,            ///< Tooltip, floating highlight (Ant colorBgSpotlight)
+  // ============================================================================
+  // 1. 颜色 Token
+  // ============================================================================
 
-    // -- Neutral: Fill (4) --
-    Fill,                 ///< Interactive component default bg (Ant colorFill)
-    FillHover,            ///< Component hovered bg (Ant colorFillSecondary)
-    FillActive,           ///< Component pressed/active bg (Ant colorFillTertiary)
-    FillMuted,            ///< Subtle/disabled fill (Ant colorFillQuaternary)
+  /**
+   * @brief 整个设计系统的语义颜色槽位
+   *
+   * 共 76 个 Token，遵循 COCAUI_Design_System_Specification.md 第 2 章的定义。
+   *
+   * 分类：
+   * - 主题/品牌色：13 个
+   * - 功能色（成功/警告/错误）：24 个
+   * - 文本色：8 个
+   * - 中性色（填充/容器/边框）：22 个
+   * - 特殊用途：9 个
+   *
+   * 通过平坦数组实现 O(1) 查找：`colors[std::to_underlying(token)]`。
+   */
+  enum class ColorToken : uint16_t {
+    // 主题色：品牌色 / 品牌辅助色 (13 tokens + 2 seed tokens) - 规范 2.2
+    colorPrimaryBase,  // Seed token
+    colorPrimaryBg,
+    colorPrimaryBgActive,
+    colorPrimaryDisabled,
+    colorPrimaryBorder,
+    colorPrimaryBgHover,
+    colorPrimary,
+    colorPrimaryActive,
+    colorPrimaryGradient,
+    // 用于导航区域，品牌色辅助色
+    colorPrimaryNavBase,  // Seed token
+    colorPrimaryNav,
+    colorPrimaryNavRev,
+    colorPrimaryNavSecondaryRev,
+    colorPrimaryNavTertiaryRev,
+    colorPrimaryNavQuaternaryRev,
 
-    // -- Neutral: Border (3) --
-    BorderSubtle,         ///< Separator, container edge (Ant colorBorderSecondary)
-    BorderDefault,        ///< Input/button resting border (Ant colorBorder)
-    BorderStrong,         ///< Hovered border, focus ring
+    // 功能色：成功/警告/错误 (24 tokens + 3 seed tokens) - 规范 2.3
+    colorSuccessBase,  // Seed token
+    colorSuccessBg,
+    colorSuccessBgActive,
+    colorSuccessDisabled,
+    colorSuccessBorder,
+    colorSuccessHover,
+    colorSuccess,
+    colorSuccessActive,
+    colorSuccessGradient,
+    colorWarningBase,  // Seed token
+    colorWarningBg,
+    colorWarningBgActive,
+    colorWarningDisabled,
+    colorWarningBorder,
+    colorWarningHover,
+    colorWarning,
+    colorWarningActive,
+    colorWarningGradient,
+    colorErrorBase,  // Seed token
+    colorErrorBg,
+    colorErrorBgActive,
+    colorErrorDisabled,
+    colorErrorBorder,
+    colorErrorHover,
+    colorError,
+    colorErrorActive,
+    colorErrorGradient,
 
-    // -- Neutral: Text (4) --
-    TextPrimary,          ///< High-contrast body text (Ant colorText)
-    TextSecondary,        ///< Description, secondary (Ant colorTextSecondary)
-    TextTertiary,         ///< Placeholder, hint (Ant colorTextTertiary)
-    TextDisabled,         ///< Disabled text, watermark (Ant colorTextQuaternary)
+    // 文本色：文本 / 反色文本 (8 tokens + 1 seed token) - 规范 2.4
+    colorTextBase,  // Seed token
+    colorText,
+    colorTextSecondary,
+    colorTextTertiary,
+    colorTextQuaternary,
+    colorTextRev,
+    colorTextSecondaryRev,
+    colorTextTertiaryRev,
+    colorTextQuaternaryRev,
 
-    // -- Primary hue: Ant Design 10-step --
-    PrimaryBg,            ///< Step 1: lightest background
-    PrimaryBgHover,       ///< Step 2: background hover
-    PrimaryBorder,        ///< Step 3: colored border
-    PrimaryBorderHover,   ///< Step 4: border hover
-    PrimaryHover,         ///< Step 5: component hover
-    Primary,              ///< Step 6: base / seed color
-    PrimaryActive,        ///< Step 7: component pressed/active
-    PrimaryTextHover,     ///< Step 8: text hover on neutral bg
-    PrimaryText,          ///< Step 9: text on neutral bg
-    PrimaryTextActive,    ///< Step 10: text pressed
+    // 中性色阶：填充 / 交互 / 边框 (22 tokens + 1 seed token) - 规范 2.5
+    colorBgBase,  // Seed token
+    colorFill,
+    colorFillSecondary,
+    colorFillTertiary,
+    colorFillQuaternary,
+    colorFillHover,
+    colorFillSecondaryHover,
+    colorFillTertiaryHover,
+    colorFillQuaternaryHover,
+    colorBgContainer,
+    colorBgContainerSecondary,
+    colorBgContainerTertiary,
+    colorBgContainerQuaternary,
+    colorBgContainerQuinary,
+    colorBgRender,
+    colorBgRenderSecondary,
+    colorBgRenderTertiary,
+    colorBgRenderQuaternary,
+    colorBorder,
+    colorBorderSecondary,
+    colorDivider,
+    colorDividerSecondary,
+    colorDividerTertiary,
 
-    // -- Success hue: Ant Design 10-step --
-    SuccessBg, SuccessBgHover, SuccessBorder, SuccessBorderHover, SuccessHover,
-    Success, SuccessActive, SuccessTextHover, SuccessText, SuccessTextActive,
+    // 特殊用途Token (9 tokens) - 规范 2.6
+    OnAccent,
+    OnAccentSecondary,
+    Focus,
+    Selection,
+    Link,
+    Scrim,
+    Overlay,
+    Shadow,
+    Separator,
 
-    // -- Warning hue: Ant Design 10-step --
-    WarningBg, WarningBgHover, WarningBorder, WarningBorderHover, WarningHover,
-    Warning, WarningActive, WarningTextHover, WarningText, WarningTextActive,
+    Count_  ///< Sentinel for array sizing. Must be last.
+  };
 
-    // -- Error hue: Ant Design 10-step --
-    ErrorBg, ErrorBgHover, ErrorBorder, ErrorBorderHover, ErrorHover,
-    Error, ErrorActive, ErrorTextHover, ErrorText, ErrorTextActive,
+  /// @brief ColorToken 枚举值的编译期数量
+  inline constexpr auto kColorTokenCount = static_cast<std::size_t>(ColorToken::Count_);
 
-    // -- Info hue: Ant Design 10-step (NEW) --
-    InfoBg, InfoBgHover, InfoBorder, InfoBorderHover, InfoHover,
-    Info, InfoActive, InfoTextHover, InfoText, InfoTextActive,
+  // 文末用到的 InteractionState 已在 matcha::fw::TokenEnums.h 中定义
 
-    // -- Special purpose (9) --
-    OnAccent,             ///< Text/icon on solid accent bg (white in light theme)
-    OnAccentSecondary,    ///< Secondary text on solid accent bg
-    Focus,                ///< Focus ring color
-    Selection,            ///< Selection highlight (text, table row)
-    Link,                 ///< Hyperlink color
-    Scrim,                ///< Modal backdrop dim (dialog/drawer overlay)
-    Overlay,              ///< Non-modal overlay bg (popover, dropdown, tooltip backdrop)
-    Shadow,               ///< Box-shadow base color
-    Separator,            ///< Horizontal/vertical rule
+  // ============================================================================
+  // 3. 字体排版 Token
+  // ============================================================================
 
-    Count_ ///< Sentinel for array sizing. Must be last.
-};
+  /**
+   * @brief 语义字体角色，映射到平台相关的 FontSpec 值
+   *
+   * `IThemeService::Font(FontRole)` 返回 `const FontSpec&`。
+   */
+  enum class FontRole : uint8_t {
+    fontWeightRegular,  // Seed token
+    fontWeightMedium,   // Seed token
+    fontWeightBold,     // Seed token
+    fontItalic,         // Seed token
+    fontLineHeight,     // Seed token
+    fontLetterSpacing,  // Seed token
+    fontSizeBase,       // Seed token
+    fontSizeXS,
+    fontSizeSM,
+    fontSizeMD,
+    fontSizeLG,
+    fontSizeXL,
+    fontSizeXXL,
+    Count_  ///< Sentinel for array sizing. Must be last.
+  };
 
-/// @brief Compile-time count of ColorToken values (excluding Count_).
-inline constexpr auto kColorTokenCount = static_cast<std::size_t>(ColorToken::Count_);
+  /// @brief FontRole 枚举值的编译期数量
+  inline constexpr auto kFontRoleCount = static_cast<std::size_t>(FontRole::Count_);
 
-// InteractionState is now in matcha::fw::TokenEnums.h (imported above).
+  /**
+   * @brief 平台解析后的具体字体规格
+   *
+   * 平台字体族在启动时通过 `QFontDatabase::systemFont` 选定。
+   * 尺寸为与 DPI 无关的点大小。
+   */
+  struct FontSpec {
+    QString family;                    ///< 例如 Windows 为 "Segoe UI"，macOS 为 "SF Pro"
+    int sizeInPt = 9;                  ///< 与 DPI 无关的点大小
+    int weight = 400;                  ///< QFont::Weight 枚举值（Normal=400）
+    bool italic = false;               ///< 是否斜体
+    qreal lineHeightMultiplier = 1.4;  ///< 行高为字体大小的倍数
+    qreal letterSpacing = 0.0;         ///< 字间距（像素），0 表示默认
+  };
 
-// ============================================================================
-// 3. Typography Tokens
-// ============================================================================
+  // 间距、圆角、阴影 Token 已在 matcha::fw::TokenEnums.h 中定义
 
-/**
- * @brief Semantic font roles mapping to platform-specific FontSpec values.
- *
- * `IThemeService::Font(FontRole)` returns `const FontSpec&`.
- */
-enum class FontRole : uint8_t {
-    Body,       ///< 9pt Normal       -- default widget text
-    BodyMedium, ///< 9pt Medium       -- NyanLabel NameState
-    BodyBold,   ///< 9pt Medium+Bold  -- NyanLabel TitleState
-    Caption,    ///< 8pt Normal       -- ToolButton text, ActionBar tabs
-    Heading,    ///< 12pt DemiBold    -- dialog titles, section headers
-    Monospace,  ///< 9pt Normal mono  -- code display, LineEdit numeric
-    ToolTip,    ///< 8pt Normal       -- tooltip overlays
+  /**
+   * @brief 由 ElevationToken 派生出的具体阴影参数
+   *
+   * NyanTheme 中的算法根据高度枚举级别计算 offsetY、blurRadius 和 opacity。
+   */
+  struct ShadowSpec {
+    int offsetX = 0;      ///< 水平阴影偏移（通常为 0）
+    int offsetY = 0;      ///< 垂直阴影偏移
+    int blurRadius = 0;   ///< 高斯模糊半径
+    qreal opacity = 0.0;  ///< 阴影颜色相对于背景色的不透明度
+  };
 
-    Count_ ///< Sentinel for array sizing. Must be last.
-};
+  // 动画 Token 已在 matcha::fw::TokenEnums.h 中定义
 
-/// @brief Compile-time count of FontRole values.
-inline constexpr auto kFontRoleCount = static_cast<std::size_t>(FontRole::Count_);
+  // ============================================================================
+  // 8. 状态颜色与变体样式（颜色映射）
+  // ============================================================================
 
-/**
- * @brief Concrete font specification resolved per platform.
- *
- * Platform font family is selected at startup via `QFontDatabase::systemFont`.
- * Sizes are DPI-independent point sizes.
- */
-struct FontSpec {
-    QString family;                    ///< e.g. "Segoe UI" (Win), "SF Pro" (macOS)
-    int     sizeInPt      = 9;        ///< DPI-independent point size
-    int     weight        = 400;      ///< QFont::Weight enum value (Normal=400)
-    bool    italic        = false;    ///< Italic style flag
-    qreal   lineHeightMultiplier = 1.4;  ///< Line height as multiplier of font size
-    qreal   letterSpacing = 0.0;      ///< Letter spacing in pixels (0 = default)
-};
+  /**
+   * @brief 每个交互状态下的视觉样式：颜色 + 不透明度 + 边框宽度 + 光标
+   *
+   * 用于 VariantStyle 内部，定义 Widget 在每个 InteractionState 下的外观。
+   * 扩展了原有的 StateColors，加入了声明式 Widget 样式所需的非颜色视觉属性（RFC-07）。
+   *
+   * @see docs/07_Declarative_Style_RFC.md §5.1
+   */
+  struct StateStyle {
+    ColorToken background = ColorToken::colorBgBase;
+    ColorToken foreground = ColorToken::colorTextBase;
+    ColorToken border = ColorToken::colorBorder;
+    float opacity = 1.0F;                            ///< 0.0~1.0，作用于整个 Widget
+    SpaceToken borderWidth = SpaceToken::marginXXS;  ///< 边框描边宽度（默认 1px）
+    CursorToken cursor = CursorToken::Default;       ///< 光标形状（默认）
+  };
 
-// Spacing, Radius, Elevation tokens are now in matcha::fw::TokenEnums.h (imported above).
-
-/**
- * @brief Concrete shadow parameters derived from ElevationToken.
- *
- * The algorithm in NyanTheme derives offsetY, blurRadius, and opacity
- * from the elevation enum level.
- */
-struct ShadowSpec {
-    int   offsetX    = 0;   ///< Horizontal shadow offset (typically 0)
-    int   offsetY    = 0;   ///< Vertical shadow offset
-    int   blurRadius = 0;   ///< Gaussian blur radius
-    qreal opacity    = 0.0; ///< Shadow color opacity over Background0
-};
-
-// Animation tokens are now in matcha::fw::TokenEnums.h (imported above).
-
-// ============================================================================
-// 8. State Colors & Variant Style (Color Mapping)
-// ============================================================================
-
-/**
- * @brief Per-state visual style: colors + opacity + border width + cursor.
- *
- * Used inside VariantStyle to define widget appearance for each InteractionState.
- * Extends the former StateColors with non-color visual attributes needed for
- * declarative widget styling (RFC-07).
- *
- * @see docs/07_Declarative_Style_RFC.md Section 5.1
- */
-struct StateStyle {
-    ColorToken   background  = ColorToken::Surface;
-    ColorToken   foreground  = ColorToken::TextPrimary;
-    ColorToken   border      = ColorToken::BorderSubtle;
-    float        opacity     = 1.0F;              ///< 0.0..1.0, applied to entire widget
-    SpacingToken borderWidth = SpacingToken::Px1;  ///< Border stroke width
-    CursorToken  cursor      = CursorToken::Default;
-};
-
-/**
- * @brief Per-variant color map: 7 InteractionState entries.
- *
- * A simple widget has 1 VariantStyle. Multi-variant widgets (e.g., PushButton
- * with Primary/Secondary/Ghost/Danger) have N VariantStyle entries indexed by
- * their variant enum.
- */
-struct VariantStyle {
+  /**
+   * @brief 每个变体的颜色映射表：包含 8 个 InteractionState 条目
+   *
+   * 简单 Widget 拥有 1 个 VariantStyle。多变体 Widget（如 PushButton 有
+   * Primary/Secondary/Ghost/Danger）则拥有 N 个 VariantStyle 条目，通过变体枚举索引。
+   */
+  struct VariantStyle {
     std::array<StateStyle, kInteractionStateCount> colors = {};
-};
+  };
 
-// Easing tokens are now in matcha::fw::TokenEnums.h (imported above).
-
-} // namespace matcha::gui
+}  // namespace matcha::gui

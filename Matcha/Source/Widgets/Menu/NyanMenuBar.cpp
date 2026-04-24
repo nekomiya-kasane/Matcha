@@ -134,7 +134,7 @@ void NyanMenuBar::paintEvent(QPaintEvent* /*event*/)
     const auto& theme = Theme();
 
     // Background
-    p.fillRect(rect(), theme.Color(ColorToken::SurfaceElevated));
+    p.fillRect(rect(), theme.Color(ColorToken::colorPrimaryBg));
 }
 
 // -- Keyboard Navigation --
@@ -278,9 +278,9 @@ void NyanMenuBar::CreateMenuButton(MenuEntry& entry)
         "QPushButton:pressed {"
         "  background: %3;"
         "}"
-    ).arg(theme.Color(ColorToken::TextPrimary).name(),
-          theme.Color(ColorToken::FillActive).name(),
-          theme.Color(ColorToken::PrimaryBgHover).name());
+    ).arg(theme.Color(ColorToken::colorText).name(),
+          theme.Color(ColorToken::colorFillTertiary).name(),
+          theme.Color(ColorToken::colorPrimaryBgHover).name());
 
     button->setStyleSheet(style);
 
@@ -424,9 +424,9 @@ void NyanMenuBar::OnThemeChanged()
                 "QPushButton:pressed {"
                 "  background: %3;"
                 "}"
-            ).arg(theme.Color(ColorToken::TextPrimary).name(),
-                  theme.Color(ColorToken::FillActive).name(),
-                  theme.Color(ColorToken::PrimaryBgHover).name());
+            ).arg(theme.Color(ColorToken::colorText).name(),
+                  theme.Color(ColorToken::colorFillTertiary).name(),
+                  theme.Color(ColorToken::colorPrimaryBgHover).name());
 
             button->setStyleSheet(style);
         }

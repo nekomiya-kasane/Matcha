@@ -1,10 +1,10 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://matcha.nyan.dev/tokens_schema.json",
-    "title": "Matcha Palette Schema",
-    "description": "Validates Matcha theme palette JSON files. All ColorToken keys must be present under 'colors'. Font family entries are required under 'font'. Optional: 'colorSeeds' for tonal palette generation, 'colorOverrides' for per-token corrections.",
+    "title": "Matcha Theme Schema",
+    "description": "Validates Matcha theme JSON files. Defines color seeds, optional color overrides, font seeds, spring physics, and global font scale.",
     "type": "object",
-    "required": ["name", "colors", "font"],
+    "required": ["name", "colorSeeds", "fonts"],
     "additionalProperties": false,
     "properties": {
         "name": {
@@ -14,24 +14,31 @@
         },
         "extends": {
             "type": "string",
-            "description": "Base theme to inherit from. All tokens not explicitly set are inherited from the base. Value must be the 'name' of another registered theme."
-        },
-        "colors": {
-            "$ref": "#/$defs/colorsObject"
+            "description": "Base theme name to inherit from. All tokens not explicitly set are inherited from the base.",
+            "minLength": 1
         },
         "colorSeeds": {
             "$ref": "#/$defs/colorSeedsObject"
         },
-        "colorOverrides": {
+        "colors": {
             "type": "object",
-            "description": "Per-token color corrections applied after colorSeeds generation. Keys must be valid ColorToken names.",
+            "description": "Per-token color overrides applied after tonal palette generation. Keys must be valid ColorToken names (lower camelCase).",
             "patternProperties": {
-                "^[A-Z][a-zA-Z]+$": { "$ref": "#/$defs/cssColor" }
+                "^[a-z][a-zA-Z0-9]+$": { "$ref": "#/$defs/cssColor" }
             },
             "additionalProperties": false
         },
-        "font": {
-            "$ref": "#/$defs/fontObject"
+        "fonts": {
+            "$ref": "#/$defs/fontSeedsObject"
+        },
+        "spring": {
+            "$ref": "#/$defs/springObject"
+        },
+        "fontScale": {
+            "type": "number",
+            "description": "Global font scaling factor (0.5 to 3.0).",
+            "minimum": 0.5,
+            "maximum": 3.0
         }
     },
     "$defs": {
@@ -40,71 +47,60 @@
             "description": "CSS hex color: #RRGGBB or #AARRGGBB.",
             "pattern": "^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$"
         },
-        "colorsObject": {
-            "type": "object",
-            "description": "Neutral + special ColorToken entries. Semantic hue tokens (5 hues x 10 steps) are generated from colorSeeds. Keys map to CSS hex colors.",
-            "required": [
-                "Surface", "SurfaceContainer", "SurfaceElevated", "SurfaceSunken", "Spotlight",
-                "Fill", "FillHover", "FillActive", "FillMuted",
-                "BorderSubtle", "BorderDefault", "BorderStrong",
-                "TextPrimary", "TextSecondary", "TextTertiary", "TextDisabled",
-                "OnAccent", "OnAccentSecondary",
-                "Focus", "Selection", "Link", "Scrim", "Overlay", "Shadow", "Separator"
-            ],
-            "properties": {
-                "Surface":            { "$ref": "#/$defs/cssColor" },
-                "SurfaceContainer":   { "$ref": "#/$defs/cssColor" },
-                "SurfaceElevated":    { "$ref": "#/$defs/cssColor" },
-                "SurfaceSunken":      { "$ref": "#/$defs/cssColor" },
-                "Spotlight":          { "$ref": "#/$defs/cssColor" },
-
-                "Fill":       { "$ref": "#/$defs/cssColor" },
-                "FillHover":  { "$ref": "#/$defs/cssColor" },
-                "FillActive": { "$ref": "#/$defs/cssColor" },
-                "FillMuted":  { "$ref": "#/$defs/cssColor" },
-
-                "BorderSubtle":  { "$ref": "#/$defs/cssColor" },
-                "BorderDefault": { "$ref": "#/$defs/cssColor" },
-                "BorderStrong":  { "$ref": "#/$defs/cssColor" },
-
-                "TextPrimary":   { "$ref": "#/$defs/cssColor" },
-                "TextSecondary": { "$ref": "#/$defs/cssColor" },
-                "TextTertiary":  { "$ref": "#/$defs/cssColor" },
-                "TextDisabled":  { "$ref": "#/$defs/cssColor" },
-
-                "OnAccent":          { "$ref": "#/$defs/cssColor" },
-                "OnAccentSecondary": { "$ref": "#/$defs/cssColor" },
-                "Focus":     { "$ref": "#/$defs/cssColor" },
-                "Selection": { "$ref": "#/$defs/cssColor" },
-                "Link":      { "$ref": "#/$defs/cssColor" },
-                "Scrim":     { "$ref": "#/$defs/cssColor" },
-                "Overlay":   { "$ref": "#/$defs/cssColor" },
-                "Shadow":    { "$ref": "#/$defs/cssColor" },
-                "Separator": { "$ref": "#/$defs/cssColor" }
-            },
-            "additionalProperties": false
-        },
         "colorSeedsObject": {
             "type": "object",
-            "description": "Seed colors for OKLCH tonal palette generation (Ant Design 10-step model). Keys are hue group prefixes.",
+            "description": "Seed colors for tonal palette generation. Keys must match the ColorSeeds names (lower camelCase).",
+            "required": [
+                "colorPrimaryBase",
+                "colorPrimaryNavBase",
+                "colorSuccessBase",
+                "colorWarningBase",
+                "colorErrorBase",
+                "colorTextBase",
+                "colorBgBase"
+            ],
             "properties": {
-                "Primary": { "$ref": "#/$defs/cssColor" },
-                "Success": { "$ref": "#/$defs/cssColor" },
-                "Warning": { "$ref": "#/$defs/cssColor" },
-                "Error":   { "$ref": "#/$defs/cssColor" },
-                "Info":    { "$ref": "#/$defs/cssColor" }
+                "colorPrimaryBase": { "$ref": "#/$defs/cssColor" },
+                "colorPrimaryNavBase": { "$ref": "#/$defs/cssColor" },
+                "colorSuccessBase": { "$ref": "#/$defs/cssColor" },
+                "colorWarningBase": { "$ref": "#/$defs/cssColor" },
+                "colorErrorBase": { "$ref": "#/$defs/cssColor" },
+                "colorTextBase": { "$ref": "#/$defs/cssColor" },
+                "colorBgBase": { "$ref": "#/$defs/cssColor" }
             },
             "additionalProperties": false
         },
-        "fontObject": {
+        "fontSeedsObject": {
             "type": "object",
-            "description": "Platform-specific font family overrides.",
-            "required": ["family_win", "family_mac", "family_linux", "family_mono"],
+            "description": "Font seed values for the theme. Keys match FontRole enumeration.",
+            "required": [
+                "fontWeightRegular",
+                "fontWeightMedium",
+                "fontWeightBold",
+                "fontItalic",
+                "fontLineHeight",
+                "fontLetterSpacing",
+                "fontSizeBase"
+            ],
             "properties": {
-                "family_win":   { "type": "string", "minLength": 1 },
-                "family_mac":   { "type": "string", "minLength": 1 },
-                "family_linux": { "type": "string", "minLength": 1 },
-                "family_mono":  { "type": "string", "minLength": 1 }
+                "fontWeightRegular": { "type": "number", "minimum": 100, "maximum": 900 },
+                "fontWeightMedium": { "type": "number", "minimum": 100, "maximum": 900 },
+                "fontWeightBold": { "type": "number", "minimum": 100, "maximum": 900 },
+                "fontItalic": { "type": "boolean" },
+                "fontLineHeight": { "type": "number", "minimum": 0.5, "maximum": 3.0 },
+                "fontLetterSpacing": { "type": "number" },
+                "fontSizeBase": { "type": "number", "minimum": 6, "maximum": 72 }
+            },
+            "additionalProperties": false
+        },
+        "springObject": {
+            "type": "object",
+            "description": "Spring dynamics parameters for physics-based animations.",
+            "required": ["mass", "stiffness", "damping"],
+            "properties": {
+                "mass": { "type": "number", "minimum": 0.01 },
+                "stiffness": { "type": "number", "minimum": 1.0 },
+                "damping": { "type": "number", "minimum": 0.0 }
             },
             "additionalProperties": false
         }

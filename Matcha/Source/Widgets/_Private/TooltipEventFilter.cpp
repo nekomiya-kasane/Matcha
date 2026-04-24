@@ -44,9 +44,9 @@ auto TooltipEventFilter::eventFilter(QObject* watched, QEvent* event) -> bool
 
             // Resolve icon if present
             if (!spec.iconId.empty() && HasThemeService()) {
-                const QColor fg = GetThemeService().Color(ColorToken::TextPrimary);
+                const QColor fg = GetThemeService().Color(ColorToken::colorText);
                 const QPixmap pm = GetThemeService().ResolveIcon(
-                    spec.iconId, fw::IconSize::Sm, fg);
+                    spec.iconId, fw::IconToken::iconSizeSM, fg);
                 _tooltip->SetIcon(pm);
             } else {
                 _tooltip->SetIcon(QPixmap());

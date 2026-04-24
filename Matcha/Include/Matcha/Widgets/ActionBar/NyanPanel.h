@@ -54,10 +54,10 @@ public:
     NyanPanel& operator=(NyanPanel&&)      = delete;
 
     /// @brief Set the elevation level (controls shadow depth).
-    void SetElevation(ElevationToken elevation);
+    void SetElevation(ShadowToken elevation);
 
     /// @brief Get the current elevation.
-    [[nodiscard]] auto Elevation() const -> ElevationToken;
+    [[nodiscard]] auto Elevation() const -> ShadowToken;
 
     /// @brief Set whether the border is visible.
     void SetBorderVisible(bool visible);
@@ -76,7 +76,7 @@ protected:
     void OnThemeChanged() override;
 
 private:
-    ElevationToken _elevation = ElevationToken::Flat;
+    ShadowToken _elevation = ShadowToken::shadow;
     bool _borderVisible = true;
 };
 

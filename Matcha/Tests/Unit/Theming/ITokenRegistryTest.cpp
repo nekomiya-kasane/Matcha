@@ -48,19 +48,19 @@ TEST_CASE("SpacingPx applies density scaling") {
 
     // Default density (1.0x): SpacingPx == base value
     theme.SetDensity(DensityLevel::Default);
-    CHECK(theme.SpacingPx(SpacingToken::Px8) == 8);
-    CHECK(theme.SpacingPx(SpacingToken::Px16) == 16);
-    CHECK(theme.SpacingPx(SpacingToken::None) == 0);
+    CHECK(theme.SpacingPx(SpaceToken::Px8) == 8);
+    CHECK(theme.SpacingPx(SpaceToken::Px16) == 16);
+    CHECK(theme.SpacingPx(SpaceToken::None) == 0);
 
     // Compact density (0.875x): Px8 -> round(8*0.875) = round(7.0) = 7
     theme.SetDensity(DensityLevel::Compact);
-    CHECK(theme.SpacingPx(SpacingToken::Px8) == 7);
+    CHECK(theme.SpacingPx(SpaceToken::Px8) == 7);
     // Px16 -> round(16*0.875) = round(14.0) = 14
-    CHECK(theme.SpacingPx(SpacingToken::Px16) == 14);
+    CHECK(theme.SpacingPx(SpaceToken::Px16) == 14);
 
     // Comfortable density (1.125x): Px8 -> round(8*1.125) = round(9.0) = 9
     theme.SetDensity(DensityLevel::Comfortable);
-    CHECK(theme.SpacingPx(SpacingToken::Px8) == 9);
+    CHECK(theme.SpacingPx(SpaceToken::Px8) == 9);
 }
 
 TEST_CASE("Default direction is LTR") {
@@ -102,12 +102,12 @@ TEST_CASE("AnimationMs respects override across density changes") {
     theme.SetTheme(kThemeLight);
 
     theme.SetAnimationOverride(0);
-    CHECK(theme.AnimationMs(AnimationToken::Normal) == 0);
-    CHECK(theme.AnimationMs(AnimationToken::Slow) == 0);
+    CHECK(theme.AnimationMs(AnimationsToken::Normal) == 0);
+    CHECK(theme.AnimationMs(AnimationsToken::Slow) == 0);
 
     theme.SetAnimationOverride(-1);
-    CHECK(theme.AnimationMs(AnimationToken::Normal) == 200);
-    CHECK(theme.AnimationMs(AnimationToken::Slow) == 350);
+    CHECK(theme.AnimationMs(AnimationsToken::Normal) == 200);
+    CHECK(theme.AnimationMs(AnimationsToken::Slow) == 350);
 }
 
 TEST_CASE("ITokenRegistry pointer from IThemeService") {
@@ -117,7 +117,7 @@ TEST_CASE("ITokenRegistry pointer from IThemeService") {
 
     ITokenRegistry* registry = &theme;
     CHECK(registry->CurrentDensity() == DensityLevel::Default);
-    CHECK(registry->SpacingPx(SpacingToken::Px4) == 4);
+    CHECK(registry->SpacingPx(SpaceToken::Px4) == 4);
 
     registry->SetDensity(DensityLevel::Compact);
     CHECK(theme.CurrentDensity() == DensityLevel::Compact);
@@ -170,7 +170,7 @@ TEST_CASE("Extends: custom theme inherits from base and overlays") {
 
     // Load Dark first to know its values
     theme.SetTheme(kThemeDark);
-    const QColor darkBgElevated = theme.Color(ColorToken::SurfaceElevated);
+    const QColor darkBgElevated = theme.Color(ColorToken::colorPrimaryBg);
     const QColor darkBorderSubtle = theme.Color(ColorToken::BorderSubtle);
 
     // Switch to custom theme
@@ -179,9 +179,9 @@ TEST_CASE("Extends: custom theme inherits from base and overlays") {
     // Overridden: BgBase = #FF0000
     CHECK(theme.Color(ColorToken::Surface) == QColor(255, 0, 0));
     // Overridden: TextPrimary = #FF00FF00 (ARGB: alpha=0xFF, R=0, G=0xFF, B=0)
-    CHECK(theme.Color(ColorToken::TextPrimary) == QColor::fromString(QStringLiteral("#FF00FF00")));
+    CHECK(theme.Color(ColorToken::colorText) == QColor::fromString(QStringLiteral("#FF00FF00")));
     // Inherited from Dark: BgElevated unchanged
-    CHECK(theme.Color(ColorToken::SurfaceElevated) == darkBgElevated);
+    CHECK(theme.Color(ColorToken::colorPrimaryBg) == darkBgElevated);
     // Inherited from Dark: BorderSubtle unchanged
     CHECK(theme.Color(ColorToken::BorderSubtle) == darkBorderSubtle);
 }

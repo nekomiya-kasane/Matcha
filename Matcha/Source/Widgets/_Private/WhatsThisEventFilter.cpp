@@ -128,9 +128,9 @@ void WhatsThisEventFilter::ShowBubble(QWidget* anchor, const QString& text)
     // Theme-aware styling
     if (HasThemeService()) {
         const auto& theme = GetThemeService();
-        const QColor bg = theme.Color(ColorToken::SurfaceElevated);
-        const QColor fg = theme.Color(ColorToken::TextPrimary);
-        const QColor border = theme.Color(ColorToken::BorderDefault);
+        const QColor bg = theme.Color(ColorToken::colorBgBase);
+        const QColor fg = theme.Color(ColorToken::colorText);
+        const QColor border = theme.Color(ColorToken::colorBorder);
         _bubble->setStyleSheet(
             QStringLiteral("QLabel {"
                            "  background: %1;"

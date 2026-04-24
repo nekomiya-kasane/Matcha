@@ -60,7 +60,7 @@ public:
     void OnStateChanged(const WidgetStyleSheet& sheet,
                         fw::InteractionState oldState,
                         fw::InteractionState newState,
-                        fw::AnimationToken duration,
+                        fw::AnimationsToken duration,
                         fw::EasingToken easing = fw::EasingToken::OutCubic);
 
 private:

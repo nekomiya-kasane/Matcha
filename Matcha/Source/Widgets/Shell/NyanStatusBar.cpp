@@ -108,9 +108,9 @@ void NyanStatusBar::paintEvent(QPaintEvent* /*event*/)
     QPainter p(this);
     const auto& theme = Theme();
 
-    p.fillRect(rect(), theme.Color(ColorToken::SurfaceElevated));
+    p.fillRect(rect(), theme.Color(ColorToken::colorPrimary));
 
-    p.setPen(theme.Color(ColorToken::BorderSubtle));
+    p.setPen(theme.Color(ColorToken::colorBorder));
     p.drawLine(0, 0, width(), 0);
 }
 

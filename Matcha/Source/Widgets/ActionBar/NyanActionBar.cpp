@@ -39,13 +39,13 @@ void NyanActionBar::RebuildStyleSheet()
 {
     const auto& theme = Theme();
 
-    const auto paneBg     = theme.Color(ColorToken::FillActive).name();
-    const auto tabBg      = theme.Color(ColorToken::FillActive).name();
-    const auto tabFg      = theme.Color(ColorToken::TextSecondary).name();
+    const auto paneBg     = theme.Color(ColorToken::colorFillTertiary).name();
+    const auto tabBg      = theme.Color(ColorToken::colorFillTertiary).name();
+    const auto tabFg      = theme.Color(ColorToken::colorTextSecondary).name();
     const auto& tabSelBg  = paneBg;
-    const auto tabSelFg   = theme.Color(ColorToken::TextPrimary).name();
-    const auto tabHoverBg = theme.Color(ColorToken::FillActive).name();
-    const auto border     = theme.Color(ColorToken::BorderDefault).name();
+    const auto tabSelFg   = theme.Color(ColorToken::colorText).name();
+    const auto tabHoverBg = theme.Color(ColorToken::colorFillTertiary).name();
+    const auto border     = theme.Color(ColorToken::colorBorder).name();
 
     // Pane border-radius and hidden border edge depend on dock side
     // Tab border-radius: rounded corners face away from content

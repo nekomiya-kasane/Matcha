@@ -56,7 +56,7 @@ void NyanStackedWidget::SetCurrentIndex(int index)
         return;
     }
 
-    const int durationMs = Theme().AnimationMs(AnimationToken::Normal);
+    const int durationMs = Theme().AnimationMs(AnimationsToken::motionDurationDefault);
     if (durationMs <= 0) {
         return;
     }

@@ -79,7 +79,7 @@ void PushButtonNode::OnIconChanged()
         return;
     }
     const int sizePx = static_cast<int>(_iconSize);
-    const QColor fg = gui::GetThemeService().Color(gui::ColorToken::TextPrimary);
+    const QColor fg = gui::GetThemeService().Color(gui::ColorToken::colorText);
     const QPixmap pm = gui::GetThemeService().ResolveIcon(_iconId, _iconSize, fg);
     if (!pm.isNull()) {
         w->setIcon(QIcon(pm));

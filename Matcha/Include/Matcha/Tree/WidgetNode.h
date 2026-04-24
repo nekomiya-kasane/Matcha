@@ -119,10 +119,10 @@ public:
     [[nodiscard]] auto Icon() const -> const IconId&;
 
     /// @brief Set the icon size for this widget.
-    void SetIconSize(fw::IconSize size);
+    void SetIconSize(fw::IconToken size);
 
     /// @brief Get the current icon size.
-    [[nodiscard]] auto GetIconSize() const -> fw::IconSize;
+    [[nodiscard]] auto GetIconSize() const -> fw::IconToken;
 
     // -- Opacity --
 
@@ -145,7 +145,7 @@ public:
     auto AnimateProperty(AnimationPropertyId property,
                          AnimatableValue from,
                          AnimatableValue to,
-                         AnimationToken duration = AnimationToken::Normal,
+                         AnimationsToken duration = AnimationsToken::motionBase,
                          EasingToken easing = EasingToken::OutCubic) -> TransitionHandle;
 
     /// @brief Animate a property with custom spring dynamics.
@@ -194,7 +194,7 @@ protected:
     QWidget* _widget = nullptr;
 
     IconId        _iconId;
-    fw::IconSize  _iconSize  = fw::IconSize::Sm;
+    fw::IconToken   _iconSize  = fw::IconToken::iconSizeSM;
     bool          _focusable = false;
     int           _tabIndex  = -1; ///< -1 = tree order (default)
     TooltipSpec   _tooltip;

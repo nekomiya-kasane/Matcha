@@ -60,7 +60,7 @@ auto NyanActionToolbar::AddSeparator() -> int
         separator->setFixedSize(kButtonSize, kSeparatorSize);
     }
     separator->setStyleSheet(QString("background-color: %1;")
-        .arg(Theme().Color(ColorToken::BorderStrong).name()));
+        .arg(Theme().Color(ColorToken::colorBorder).name()));
 
     _layout->addWidget(separator);
 
@@ -244,7 +244,7 @@ void NyanActionToolbar::OnThemeChanged()
 void NyanActionToolbar::UpdateButtonStyles()
 {
     const auto& theme = Theme();
-    QString separatorColor = theme.Color(ColorToken::BorderStrong).name();
+    QString separatorColor = theme.Color(ColorToken::colorBorder).name();
 
     for (auto& item : _items) {
         if (item.isSeparator && item.separator) {

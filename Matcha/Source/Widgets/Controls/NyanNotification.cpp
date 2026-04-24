@@ -129,7 +129,7 @@ void NyanNotification::SetAction(const QString& text, std::function<void()> call
         "QPushButton:hover {"
         "  text-decoration: underline;"
         "}"
-    ).arg(theme.Color(ColorToken::Primary).name());
+    ).arg(theme.Color(ColorToken::colorPrimary).name());
     _actionButton->setStyleSheet(style);
 }
 
@@ -209,7 +209,7 @@ void NyanNotification::paintEvent(QPaintEvent* /*event*/)
     p.drawRoundedRect(bgRect.adjusted(2, 2, 2, 2), kRadius, kRadius);
 
     // Background
-    p.setBrush(theme.Color(ColorToken::SurfaceElevated));
+    p.setBrush(theme.Color(ColorToken::colorPrimary));
     p.setPen(QPen(TypeColor(), 2));
     p.drawRoundedRect(bgRect, kRadius, kRadius);
 
@@ -225,7 +225,7 @@ void NyanNotification::OnThemeChanged()
     const auto& theme = Theme();
 
     // Update message label style
-    _messageLabel->setStyleSheet(QString("color: %1;").arg(theme.Color(ColorToken::TextPrimary).name()));
+    _messageLabel->setStyleSheet(QString("color: %1;").arg(theme.Color(ColorToken::colorText).name()));
 
     // Update close button style
     QString closeStyle = QString(
@@ -239,8 +239,8 @@ void NyanNotification::OnThemeChanged()
         "QPushButton:hover {"
         "  color: %2;"
         "}"
-    ).arg(theme.Color(ColorToken::TextTertiary).name(),
-          theme.Color(ColorToken::TextPrimary).name());
+    ).arg(theme.Color(ColorToken::colorTextTertiary).name(),
+          theme.Color(ColorToken::colorText).name());
     _closeButton->setStyleSheet(closeStyle);
 
     update();
@@ -365,14 +365,14 @@ auto NyanNotification::TypeColor() const -> QColor
 
     switch (_type) {
     case NotificationType::Success:
-        return theme.Color(ColorToken::Success);
+        return theme.Color(ColorToken::colorSuccess);
     case NotificationType::Warning:
-        return theme.Color(ColorToken::Warning);
+        return theme.Color(ColorToken::colorWarning);
     case NotificationType::Error:
-        return theme.Color(ColorToken::Error);
+        return theme.Color(ColorToken::colorError);
     case NotificationType::Info:
     default:
-        return theme.Color(ColorToken::Primary);
+        return theme.Color(ColorToken::colorText);
     }
 }
 

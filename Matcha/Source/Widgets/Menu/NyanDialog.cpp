@@ -268,8 +268,8 @@ void NyanDialog::paintEvent(QPaintEvent* /*event*/)
 
     // Dialog body background with rounded corners
     constexpr int kRadius = 6;
-    p.setPen(theme.Color(ColorToken::BorderStrong));
-    p.setBrush(theme.Color(ColorToken::SurfaceElevated));
+    p.setPen(theme.Color(ColorToken::colorBorder));
+    p.setBrush(theme.Color(ColorToken::colorPrimaryBg));
     p.drawRoundedRect(rect().adjusted(0, 0, -1, -1), kRadius, kRadius);
 }
 

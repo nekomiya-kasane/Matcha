@@ -147,7 +147,7 @@ void NyanLegendSlider::paintEvent(QPaintEvent* /*event*/)
     const int handleX = ValueToX(_value);
     const int handleY = (height() - kHandleSize) / 2;
     p.setPen(QPen(style.border, 1));
-    p.setBrush(Theme().Color(ColorToken::SurfaceElevated));
+    p.setBrush(Theme().Color(ColorToken::colorPrimary));
     p.drawEllipse(handleX - halfH, handleY, kHandleSize, kHandleSize);
 }
 

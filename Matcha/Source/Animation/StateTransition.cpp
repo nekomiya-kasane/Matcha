@@ -33,7 +33,7 @@ StateTransition::StateTransition(fw::WidgetNode* target, uint8_t variant)
 void StateTransition::OnStateChanged(const WidgetStyleSheet& sheet,
                                      fw::InteractionState oldState,
                                      fw::InteractionState newState,
-                                     fw::AnimationToken duration,
+                                     fw::AnimationsToken duration,
                                      fw::EasingToken easing)
 {
     if (_target == nullptr || _target->Widget() == nullptr) {

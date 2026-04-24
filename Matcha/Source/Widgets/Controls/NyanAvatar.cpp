@@ -101,16 +101,16 @@ void NyanAvatar::paintEvent(QPaintEvent* /*event*/)
 
         QColor dotColor;
         switch (_status) {
-        case OnlineStatus::Online:  dotColor = Theme().Color(ColorToken::Success); break;
-        case OnlineStatus::Away:    dotColor = Theme().Color(ColorToken::Warning); break;
-        case OnlineStatus::Busy:    dotColor = Theme().Color(ColorToken::Error);   break;
-        case OnlineStatus::Offline: dotColor = Theme().Color(ColorToken::TextDisabled);  break;
+        case OnlineStatus::Online:  dotColor = Theme().Color(ColorToken::colorSuccess); break;
+        case OnlineStatus::Away:    dotColor = Theme().Color(ColorToken::colorWarning); break;
+        case OnlineStatus::Busy:    dotColor = Theme().Color(ColorToken::colorError);   break;
+        case OnlineStatus::Offline: dotColor = Theme().Color(ColorToken::colorText);  break;
         default: break;
         }
 
         // White ring around dot
         p.setPen(Qt::NoPen);
-        p.setBrush(Theme().Color(ColorToken::Surface));
+        p.setBrush(Theme().Color(ColorToken::colorPrimary));
         p.drawEllipse(dotX - 1, dotY - 1, dotSize + 2, dotSize + 2);
 
         p.setBrush(dotColor);

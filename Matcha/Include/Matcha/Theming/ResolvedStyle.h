@@ -2,14 +2,13 @@
 
 /**
  * @file ResolvedStyle.h
- * @brief Fully resolved widget style snapshot for paintEvent consumption.
+ * @brief 供 paintEvent 消费的、完全解析后的控件样式快照。
  *
- * ResolvedStyle is the output of IThemeService::Resolve(). It contains
- * all visual attributes needed by a widget's paintEvent, fully resolved
- * from tokens to concrete Qt values. Widgets no longer need to dereference
- * tokens themselves.
+ * ResolvedStyle 是 IThemeService::Resolve() 的输出。它包含控件在
+ * paintEvent 中所需的所有视觉属性，这些属性已从令牌完全解析为具体的 Qt 值。
+ * 控件不再需要自行解引用令牌。
  *
- * @see docs/07_Declarative_Style_RFC.md Section 5.5
+ * @see COCAUI_Design_System_Specification.md §6.5 声明式样式解析 API
  * @see IThemeService::Resolve()
  */
 
@@ -17,117 +16,136 @@
 
 #include <QColor>
 #include <QFont>
-
 #include <optional>
 
 namespace matcha::gui {
 
-/**
- * @brief Fully resolved visual style for a widget at a specific (variant, state).
- *
- * Produced by `IThemeService::Resolve(kind, variantIndex, state)`.
- * All values are concrete: colors are QColor, geometry is density-scaled px,
- * font is a fully constructed QFont. Widgets consume this directly in paintEvent
- * without any further token lookups.
- *
- * Usage:
- * @code
- * auto style = Theme().Resolve(WidgetKind::PushButton,
- *                               std::to_underlying(_variant),
- *                               currentState());
- * p.setOpacity(style.opacity);
- * p.setBrush(style.background);
- * p.setPen(QPen(style.border, style.borderWidthPx));
- * p.drawRoundedRect(r, style.radiusPx, style.radiusPx);
- * p.setFont(style.font);
- * p.setPen(style.foreground);
- * p.drawText(textRect, Qt::AlignVCenter, text());
- * @endcode
- */
-struct ResolvedStyle {
-    // -- Resolved colors --
-    QColor background;      ///< Background fill color
-    QColor foreground;      ///< Text / icon color
-    QColor border;          ///< Border stroke color
+  /**
+   * @brief 针对特定（变体，状态）的控件完全解析后的视觉样式。
+   *
+   * 由 `IThemeService::Resolve(kind, variantIndex, state)` 生成。
+   * 所有值都是具体的：颜色为 QColor，几何尺寸为密度缩放后的像素值，
+   * 字体为完全构造好的 QFont。控件在 paintEvent 中直接消费此结构体，
+   * 无需再进行任何令牌查找。
+   *
+   * 用法示例：
+   * @code
+   * auto style = Theme().Resolve(WidgetKind::PushButton,
+   *                               std::to_underlying(_variant),
+   *                               currentState());
+   * p.setOpacity(style.opacity);
+   * p.setBrush(style.background);
+   * p.setPen(QPen(style.border, style.borderWidthPx));
+   * p.drawRoundedRect(r, style.radiusPx, style.radiusPx);
+   * p.setFont(style.font);
+   * p.setPen(style.foreground);
+   * p.drawText(textRect, Qt::AlignVCenter, text());
+   * @endcode
+   */
+  struct ResolvedStyle {
+    // -- 解析后的颜色 --
+    QColor background;  ///< 背景填充色
+    QColor foreground;  ///< 文本 / 图标颜色
+    QColor border;      ///< 边框描边色
 
-    // -- Resolved geometry (density-scaled) --
-    int radiusPx      = 0;  ///< Corner radius in pixels
-    int paddingHPx    = 0;  ///< Horizontal content padding in pixels
-    int paddingVPx    = 0;  ///< Vertical content padding in pixels
-    int gapPx         = 0;  ///< Icon-text gap in pixels
-    int minHeightPx   = 0;  ///< Minimum component height in pixels
-    int borderWidthPx = 0;  ///< Border stroke width in pixels
+    // -- 解析后的几何尺寸（已应用密度缩放）--
+    int radiusPx = 0;       ///< 圆角半径（像素）
+    int paddingHPx = 0;     ///< 水平内容内边距（像素）
+    int paddingVPx = 0;     ///< 垂直内容内边距（像素）
+    int gapPx = 0;          ///< 图标与文本间距（像素）
+    int minHeightPx = 0;    ///< 最小组件高度（像素）
+    int borderWidthPx = 0;  ///< 边框描边宽度（像素）
 
-    // -- Resolved typography --
-    QFont font;             ///< Fully constructed, platform-resolved font
-    int   lineHeightPx = 0; ///< Line height in pixels (fontSizePx * lineHeightMultiplier)
+    // -- 解析后的字体排版 --
+    QFont font;            ///< 完全构造、平台解析后的字体
+    int lineHeightPx = 0;  ///< 行高（像素）= fontSizePx * lineHeightMultiplier
 
-    // -- Resolved visual --
-    ShadowSpec shadow;      ///< Box shadow parameters
-    float opacity = 1.0F;   ///< Widget opacity (0.0..1.0)
+    // -- 解析后的视觉效果 --
+    ShadowSpec shadow;     ///< 盒阴影参数
+    float opacity = 1.0F;  ///< 控件不透明度（0.0..1.0）
 
-    // -- Resolved transition --
-    int durationMs    = 0;  ///< Animation duration in milliseconds
-    int easingType    = 0;  ///< QEasingCurve::Type for state transitions
-};
+    // -- 解析后的过渡动画 --
+    int durationMs = 0;  ///< 动画持续时间（毫秒）
+    int easingType = 0;  ///< 状态转换的 QEasingCurve::Type 值
+  };
 
-/**
- * @brief Per-instance style override (cascade Layer 3 — highest priority).
- *
- * Allows a single widget instance to patch any field of a `ResolvedStyle`
- * after the base cascade resolution. Each `std::optional` field acts as a
- * sparse patch: if `has_value()`, it replaces the corresponding resolved
- * value; otherwise the base value is kept.
- *
- * Usage:
- * @code
- * InstanceStyleOverride ov;
- * ov.background = QColor("#FF0000");
- * ov.radiusPx   = 12;
- * auto style = Theme().Resolve(WidgetKind::PushButton, 0,
- *                               InteractionState::Normal, &ov);
- * @endcode
- *
- * @see §4.17 Style Cascade Resolution
- */
-struct InstanceStyleOverride {
-    // -- Color overrides --
+  /**
+   * @brief 单实例样式覆盖（级联层 3 —— 最高优先级）。
+   *
+   * 允许单个控件实例在基础级联解析完成后，对 `ResolvedStyle` 的任意字段进行补丁覆盖。
+   * 每个 `std::optional` 字段充当一个稀疏补丁：若 `has_value()`，则替换对应的解析值；
+   * 否则保留基础值。
+   *
+   * 用法示例：
+   * @code
+   * InstanceStyleOverride ov;
+   * ov.background = QColor("#FF0000");
+   * ov.radiusPx   = 12;
+   * auto style = Theme().Resolve(WidgetKind::PushButton, 0,
+   *                               InteractionState::Normal, &ov);
+   * @endcode
+   *
+   * @see COCAUI_Design_System_Specification.md §9.7 ResolvedStyle 输出
+   */
+  struct InstanceStyleOverride {
+    // -- 颜色覆盖 --
     std::optional<QColor> background;
     std::optional<QColor> foreground;
     std::optional<QColor> border;
 
-    // -- Geometry overrides (concrete px, already density-scaled by caller) --
-    std::optional<int>    radiusPx;
-    std::optional<int>    paddingHPx;
-    std::optional<int>    paddingVPx;
-    std::optional<int>    gapPx;
-    std::optional<int>    minHeightPx;
-    std::optional<int>    borderWidthPx;
+    // -- 几何尺寸覆盖（具体像素值，调用者已应用密度缩放）--
+    std::optional<int> radiusPx;
+    std::optional<int> paddingHPx;
+    std::optional<int> paddingVPx;
+    std::optional<int> gapPx;
+    std::optional<int> minHeightPx;
+    std::optional<int> borderWidthPx;
 
-    // -- Visual overrides --
-    std::optional<float>  opacity;
+    // -- 视觉效果覆盖 --
+    std::optional<float> opacity;
 
-    // -- Transition overrides --
-    std::optional<int>    durationMs;
+    // -- 过渡动画覆盖 --
+    std::optional<int> durationMs;
 
     /**
-     * @brief Apply this override to a resolved style (in-place patch).
-     * @param style The style to patch.
+     * @brief 将此覆盖应用到已解析的样式上（原地补丁）。
+     * @param style 要打补丁的样式。
      */
-    void ApplyTo(ResolvedStyle& style) const
-    {
-        if (background)    { style.background    = *background; }
-        if (foreground)    { style.foreground     = *foreground; }
-        if (border)        { style.border         = *border; }
-        if (radiusPx)      { style.radiusPx       = *radiusPx; }
-        if (paddingHPx)    { style.paddingHPx     = *paddingHPx; }
-        if (paddingVPx)    { style.paddingVPx     = *paddingVPx; }
-        if (gapPx)         { style.gapPx          = *gapPx; }
-        if (minHeightPx)   { style.minHeightPx    = *minHeightPx; }
-        if (borderWidthPx) { style.borderWidthPx  = *borderWidthPx; }
-        if (opacity)       { style.opacity         = *opacity; }
-        if (durationMs)    { style.durationMs      = *durationMs; }
+    void ApplyTo(ResolvedStyle& style) const {
+      if (background) {
+        style.background = *background;
+      }
+      if (foreground) {
+        style.foreground = *foreground;
+      }
+      if (border) {
+        style.border = *border;
+      }
+      if (radiusPx) {
+        style.radiusPx = *radiusPx;
+      }
+      if (paddingHPx) {
+        style.paddingHPx = *paddingHPx;
+      }
+      if (paddingVPx) {
+        style.paddingVPx = *paddingVPx;
+      }
+      if (gapPx) {
+        style.gapPx = *gapPx;
+      }
+      if (minHeightPx) {
+        style.minHeightPx = *minHeightPx;
+      }
+      if (borderWidthPx) {
+        style.borderWidthPx = *borderWidthPx;
+      }
+      if (opacity) {
+        style.opacity = *opacity;
+      }
+      if (durationMs) {
+        style.durationMs = *durationMs;
+      }
     }
-};
+  };
 
-} // namespace matcha::gui
+}  // namespace matcha::gui

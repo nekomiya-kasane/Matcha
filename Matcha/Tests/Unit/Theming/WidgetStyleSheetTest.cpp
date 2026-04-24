@@ -33,15 +33,15 @@ TEST_CASE("WidgetKind has exactly 57 entries") {
 TEST_CASE("WidgetStyleSheet default construction") {
     WidgetStyleSheet sheet;
     CHECK(sheet.radius == RadiusToken::Default);
-    CHECK(sheet.paddingH == SpacingToken::Px4);
-    CHECK(sheet.paddingV == SpacingToken::Px4);
-    CHECK(sheet.gap == SpacingToken::Px4);
+    CHECK(sheet.paddingH == SpaceToken::Px4);
+    CHECK(sheet.paddingV == SpaceToken::Px4);
+    CHECK(sheet.gap == SpaceToken::Px4);
     CHECK(sheet.minHeight == SizeToken::Md);
-    CHECK(sheet.borderWidth == SpacingToken::Px1);
+    CHECK(sheet.borderWidth == SpaceToken::Px1);
     CHECK(sheet.font == FontRole::Body);
-    CHECK(sheet.elevation == ElevationToken::Flat);
+    CHECK(sheet.elevation == ShadowToken::Flat);
     CHECK(sheet.layer == LayerToken::Base);
-    CHECK(sheet.transition.duration == AnimationToken::Normal);
+    CHECK(sheet.transition.duration == AnimationsToken::Normal);
     CHECK(sheet.transition.easing == EasingToken::OutCubic);
 }
 
@@ -54,24 +54,24 @@ TEST_CASE("WidgetStyleSheet default variant span is empty") {
 TEST_CASE("WidgetStyleSheet with variant span") {
     VariantStyle vs {};
     vs.colors[std::to_underlying(InteractionState::Normal)] = {
-        ColorToken::Primary,
+        ColorToken::colorPrimary,
         ColorToken::Surface,
-        ColorToken::Primary,
+        ColorToken::colorPrimary,
     };
 
     WidgetStyleSheet sheet {
         .radius = RadiusToken::Large,
-        .paddingH = SpacingToken::Px8,
-        .paddingV = SpacingToken::Px8,
+        .paddingH = SpaceToken::Px8,
+        .paddingV = SpaceToken::Px8,
         .font = FontRole::Heading,
-        .elevation = ElevationToken::High,
-        .transition = {AnimationToken::Slow, EasingToken::InOutCubic},
+        .elevation = ShadowToken::High,
+        .transition = {AnimationsToken::Slow, EasingToken::InOutCubic},
         .variants = std::span<const VariantStyle>(&vs, 1),
     };
 
     CHECK(sheet.radius == RadiusToken::Large);
     CHECK(sheet.variants.size() == 1);
-    CHECK(sheet.variants[0].colors[0].background == ColorToken::Primary);
+    CHECK(sheet.variants[0].colors[0].background == ColorToken::colorPrimary);
 }
 
 TEST_CASE("WidgetKind enum covers all tiers") {

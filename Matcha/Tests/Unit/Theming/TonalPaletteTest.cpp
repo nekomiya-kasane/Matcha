@@ -200,11 +200,11 @@ TEST_CASE("LoadPalette with colorSeeds generates semantic hue tokens") {
     theme.SetTheme(kThemeLight);
 
     CHECK(theme.Color(ColorToken::PrimaryBg) != QColor(255, 0, 255));
-    CHECK(theme.Color(ColorToken::Primary) != QColor(255, 0, 255));
+    CHECK(theme.Color(ColorToken::colorPrimary) != QColor(255, 0, 255));
     CHECK(theme.Color(ColorToken::PrimaryTextActive) != QColor(255, 0, 255));
     CHECK(theme.Color(ColorToken::Success) != QColor(255, 0, 255));
     CHECK(theme.Color(ColorToken::Warning) != QColor(255, 0, 255));
-    CHECK(theme.Color(ColorToken::Error) != QColor(255, 0, 255));
+    CHECK(theme.Color(ColorToken::colorError) != QColor(255, 0, 255));
 
     auto lSubtlest = TonalPaletteGenerator::SrgbToOklch(theme.Color(ColorToken::PrimaryBg));
     auto lBoldest = TonalPaletteGenerator::SrgbToOklch(theme.Color(ColorToken::PrimaryTextActive));
@@ -227,7 +227,7 @@ TEST_CASE("colorOverrides overrides generated seed colors") {
     NyanTheme theme(testDir);
     theme.SetTheme(kThemeLight);
 
-    CHECK(theme.Color(ColorToken::Primary) == QColor::fromString("#5B5FC7"));
+    CHECK(theme.Color(ColorToken::colorPrimary) == QColor::fromString("#5B5FC7"));
     CHECK(theme.Color(ColorToken::PrimaryBg) != QColor(255, 0, 255));
     CHECK(theme.Color(ColorToken::PrimaryBg) != QColor::fromString("#5B5FC7"));
 

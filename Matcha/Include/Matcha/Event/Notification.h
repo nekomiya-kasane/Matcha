@@ -14,7 +14,7 @@
  */
 
 #include "Matcha/Core/Macros.h"
-
+#include <cstdint>
 #include <cassert>
 #include <string_view>
 

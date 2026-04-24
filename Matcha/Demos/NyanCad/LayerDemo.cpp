@@ -113,7 +113,7 @@ static auto MakeSection(const std::string& id, const std::string& title)
     -> std::unique_ptr<ContainerNode>
 {
     auto section = std::make_unique<ContainerNode>(id, LayoutKind::Vertical);
-    section->SetSpacing(SpacingToken::Px4);
+    section->SetSpacing(SpaceToken::sizeStep);
 
     auto lbl = std::make_unique<LabelNode>(id + "-title");
     lbl->SetText(title);
@@ -140,8 +140,8 @@ static auto MakeButton(const std::string& id, const std::string& text,
 auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
 {
     auto root = std::make_unique<ContainerNode>("layer-demo-root", LayoutKind::Vertical);
-    root->SetMargins(SpacingToken::Px8);
-    root->SetSpacing(SpacingToken::Px8);
+    root->SetMargins(SpaceToken::marginXS);
+    root->SetSpacing(SpaceToken::marginXS);
 
     // Page title
     auto pageTitle = std::make_unique<LabelNode>("layer-demo-title");
@@ -158,14 +158,14 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
 
     // Grid of buttons (2 columns via nested horizontal containers)
     auto grid = std::make_unique<ContainerNode>("layer-grid", LayoutKind::Vertical);
-    grid->SetSpacing(SpacingToken::Px6);
+    grid->SetSpacing(SpaceToken::marginXXS);
 
     // ================================================================
     // Row 1: FloatingPanel + Dialog
     // ================================================================
     {
         auto row = std::make_unique<ContainerNode>("row-1", LayoutKind::Horizontal);
-        row->SetSpacing(SpacingToken::Px6);
+        row->SetSpacing(SpaceToken::marginXXS);
 
         // -- FloatingPanel --
         auto sec1 = MakeSection("sec-floating", "1. FloatingPanel (LayerToken::Elevated)");
@@ -232,7 +232,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
     // ================================================================
     {
         auto row = std::make_unique<ContainerNode>("row-2", LayoutKind::Horizontal);
-        row->SetSpacing(SpacingToken::Px6);
+        row->SetSpacing(SpaceToken::marginXXS);
 
         // -- Popover --
         auto sec1 = MakeSection("sec-popover", "4. Popover (LayerToken::Popover)");
@@ -296,7 +296,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
     // ================================================================
     {
         auto row = std::make_unique<ContainerNode>("row-3", LayoutKind::Horizontal);
-        row->SetSpacing(SpacingToken::Px6);
+        row->SetSpacing(SpaceToken::marginXXS);
 
         // -- Tooltip --
         auto sec1 = MakeSection("sec-tooltip", "6. Tooltip (LayerToken::Popover)");
@@ -354,7 +354,7 @@ auto BuildLayerDemoPage(Application& /*app*/) -> std::unique_ptr<ContainerNode>
     // ================================================================
     {
         auto row = std::make_unique<ContainerNode>("row-4", LayoutKind::Horizontal);
-        row->SetSpacing(SpacingToken::Px6);
+        row->SetSpacing(SpaceToken::marginXXS);
 
         // -- Toast --
         auto sec1 = MakeSection("sec-toast", "7. Toast (LayerToken::Notification)");
